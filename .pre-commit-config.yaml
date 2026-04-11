@@ -43,7 +43,7 @@ repos:
         args: ['-I', '.codespell_ignore', '--uri-ignore-words-list', '*']
         exclude: >
           (?x)^(
-            (papers|latex)/.*
+            (papers|latex|etc)/.*
           )$
 
   - repo: https://github.com/checkmake/checkmake.git
