@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+name: Makefile Workflow Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 15 * * *'
+
+jobs:
+  test_matrix:
+    strategy:
+      fail-fast: false
+    name:  Test System Compiler with Makefile
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bemanproject/testingcontainers-gcc:14
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: 'recursive'
+      - name: Install uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          # Install a specific version of uv.
+          version: "0.11.6"
+      - name: Install system tools
+        shell: bash
+        run: |
+         sudo apt update
+         sudo apt -y install build-essential gcc-14 g++-14 ccache jq
+         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 \
+           --slave /usr/bin/g++ g++ /usr/bin/g++-14 \
+           --slave /usr/bin/gcov gcov /usr/bin/gcov-14
+         sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14  100
+         sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-14 100
+         sudo update-alternatives --set gcc  /usr/bin/gcc-14
+         sudo update-alternatives --set cc  /usr/bin/gcc-14
+         sudo update-alternatives --set c++  /usr/bin/g++-14
+
+      - name: Configure Environment
+        shell: bash
+        run: |
+          make venv
+
+        env:
+          CMAKE_GENERATOR: "Ninja Multi-Config"
+      - name: Build
+        shell: bash
+        run: |
+         source .venv/bin/activate
+         make compile
+      - name: Test
+        shell: bash
+        run: |
+         source .venv/bin/activate
+         make test
+      - name: Generate Coverage Files
+        shell: bash
+        run: |
+         source .venv/bin/activate
+         make coverage
+      - name: Lint
+        shell: bash
+        run: |
+         set -x
+         echo $PATH
+         echo $(command -v jq)
+         echo $(command -v shellcheck)
+         source .venv/bin/activate
+         echo $(command -v jq)
+         echo $(command -v shellcheck)
+         make lint
+      - name: Manual Lint
+        shell: bash
+        run: |
+         source .venv/bin/activate
+         make lint
+      - name: Test Install
+        shell: bash
+        run: |
+         source .venv/bin/activate
+         make testinstall
