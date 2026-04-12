@@ -153,9 +153,6 @@ env:
 papers:
 	$(MAKE) -C papers/P2988 papers
 
-.DEFAULT: $(_build_path)/CMakeCache.txt ## Other targets passed through to cmake
-	$(CMAKE) --build $(_build_path)  --config $(CONFIG) --target $@ -- -k 0
-
 .PHONY: all
 all: compile
 
@@ -259,14 +256,33 @@ endif
 install-uv: ## install uv via `pipx install uv`
 	$(install_uv_cmd)
 
-example.html: example.org
+ORGFILES:=$(wildcard *.org)
+-include $(ORGFILES:%.org=%.org.deps)
+
+%.html : %.org
 	$(EMACS) --init-directory=.emacs.d/ \
-			--batch --load .emacs.d/init.el  \
-			-f package-initialize \
-			--eval '(setq enable-local-variables :all)' \
-			--visit example.org \
-			--eval '(org-transclusion-mode t)' \
-			-f org-html-export-to-html
+	--batch --load .emacs.d/init.el  \
+	-f package-initialize \
+	--eval "(setq enable-local-variables :all)" \
+	--visit $< \
+	--eval "(org-transclusion-mode t)" \
+	--eval "(org-export-to-file 'html \"$@\")"
+	echo $@ : \\ > $<.deps
+	echo "  $<" \\ >> $<.deps
+	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $<.deps
+
+%-slides.html : %.org
+	$(EMACS) --init-directory=.emacs.d/ \
+	--batch --load .emacs.d/init.el  \
+	-f package-initialize \
+	--eval "(setq enable-local-variables :all)" \
+	--visit $< \
+	--eval "(org-transclusion-mode t)" \
+	--eval "(org-export-to-file 're-reveal \"$@\")"
+	echo $@ : \\ > $<.deps
+	echo "  $<" \\ >> $<.deps
+	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $<.deps
+
 
 .PHONY: clean-emacs.d
 clean-emacs.d:
@@ -279,11 +295,20 @@ realclean: clean-emacs.d
 clean-example:
 	-rm example.html
 
+clean: clean-example
+
+clean-org-deps: $(ORGFILES:%.org=%.org.deps)
+	-rm $?
+clean: clean-org-deps
+
+clean-org-html: $(ORGFILES:%.org=%.html) $(ORGFILES:%.org=%-slides.html)
+	-rm $?
+clean: clean-org-html
+
 .PHONY: presentation
 presentation: test
-presentation: example.html
-
-clean: clean-example
+presentation: foldable-applicable-traversable.html
+presentation: foldable-applicable-traversable-slides.html
 
 .PHONY: elpa
 elpa:
