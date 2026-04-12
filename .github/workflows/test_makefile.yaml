@@ -10,6 +10,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '30 15 * * *'
+permissions:
+  contents: read
 
 jobs:
   test_matrix:
@@ -73,13 +75,7 @@ jobs:
       - name: Lint
         shell: bash
         run: |
-         set -x
-         echo $PATH
-         echo $(command -v jq)
-         echo $(command -v shellcheck)
          source .venv/bin/activate
-         echo $(command -v jq)
-         echo $(command -v shellcheck)
          make lint
       - name: Manual Lint
         shell: bash
