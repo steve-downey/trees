@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-04-10 Fri 23:02 -->
+<!-- 2026-04-12 Sun 14:10 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Transclusion Examples</title>
@@ -222,13 +222,13 @@
 <br />
 <span class="subtitle">A Case Study </span>
 </h1>
-<div id="outline-container-orgfda3034" class="outline-2">
-<h2 id="orgfda3034">Examples of Transclusion</h2>
-<div class="outline-text-2" id="text-orgfda3034">
+<div id="outline-container-org0bd3b09" class="outline-2">
+<h2 id="org0bd3b09">Examples of Transclusion</h2>
+<div class="outline-text-2" id="text-org0bd3b09">
 </div>
-<div id="outline-container-orge808ba2" class="outline-3">
-<h3 id="orge808ba2">Declaration of the <code>name</code> function</h3>
-<div class="outline-text-3" id="text-orge808ba2">
+<div id="outline-container-org3e86065" class="outline-3">
+<h3 id="org3e86065">Declaration of the <code>name</code> function</h3>
+<div class="outline-text-3" id="text-org3e86065">
 <div class="org-src-container">
 <pre class="src src-cpp"><code><span class="org-keyword">namespace</span> <span class="org-constant">example</span> {
 <span class="org-constant">std</span>::<span class="org-type">string_view</span> <span class="org-function-name">name</span>();
@@ -237,9 +237,9 @@
 </div>
 </div>
 </div>
-<div id="outline-container-org0b48866" class="outline-3">
-<h3 id="org0b48866">Definition of the <code>name</code> function</h3>
-<div class="outline-text-3" id="text-org0b48866">
+<div id="outline-container-org26789fe" class="outline-3">
+<h3 id="org26789fe">Definition of the <code>name</code> function</h3>
+<div class="outline-text-3" id="text-org26789fe">
 <div class="org-src-container">
 <pre class="src src-cpp"><code><span class="org-constant">std</span>::<span class="org-type">string_view</span> <span class="org-constant">example</span>::<span class="org-function-name">name</span>() {
     <span class="org-keyword">static</span> <span class="org-constant">std</span>::<span class="org-type">string</span> <span class="org-variable-name">my_name</span>{<span class="org-string">"Steve"</span>};
@@ -249,29 +249,31 @@
 </div>
 </div>
 </div>
-<div id="outline-container-org014a283" class="outline-3">
-<h3 id="org014a283">Testing the <code>name</code> function</h3>
-<div class="outline-text-3" id="text-org014a283">
+<div id="outline-container-orga56627e" class="outline-3">
+<h3 id="orga56627e">Testing the <code>name</code> function</h3>
+<div class="outline-text-3" id="text-orga56627e">
 <div class="org-src-container">
 <pre class="src src-cpp"><code><span class="org-function-name">TEST</span>(TestName, Steve) { ASSERT_EQ(<span class="org-constant">example</span>::name(), <span class="org-string">"Steve"</span>); }
 </code></pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org23838d9" class="outline-3">
-<h3 id="org23838d9">Saying hello with the <code>name</code> function</h3>
-<div class="outline-text-3" id="text-org23838d9">
+<div id="outline-container-orgda5ed02" class="outline-3">
+<h3 id="orgda5ed02">Saying hello with the <code>name</code> function</h3>
+<div class="outline-text-3" id="text-orgda5ed02">
+<p>
+<i>/ 710c39c6-c7e1-403f-a9f0-9f8ecf890dc9
+int main() { std::println("Hello, {}!", example::name()); }
+/</i> 710c39c6-c7e1-403f-a9f0-9f8ecf890dc9 end
+:lines 2- :src cpp :end "710c39c6-c7e1-403f-a9f0-9f8ecf890dc9 end"
+</p>
+</div>
+</div>
+<div id="outline-container-orge74802d" class="outline-3">
+<h3 id="orge74802d">The Transclusion for the example above</h3>
+<div class="outline-text-3" id="text-orge74802d">
 <div class="org-src-container">
-<pre class="src src-cpp"><code><span class="org-type">int</span> <span class="org-function-name">main</span>() { <span class="org-constant">std</span>::println(<span class="org-string">"Hello, {}!"</span>, <span class="org-constant">example</span>::name()); }
-</code></pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orge281baa" class="outline-3">
-<h3 id="orge281baa">The Transclusion for the example above</h3>
-<div class="outline-text-3" id="text-orge281baa">
-<div class="org-src-container">
-<pre class="src src-org"><code><span class="org-org-transclusion-keyword">#+transclude:</span> <span class="org-org-link"><a href="file:hello.cpp::710c39c6-c7e1-403f-a9f0-9f8ecf890dc9">file:hello.cpp::710c39c6-c7e1-403f-a9f0-9f8ecf890dc9</a></span><span class="org-org-meta-line"> :lines 2- :src cpp :end "710c39c6-c7e1-403f-a9f0-9f8ecf890dc9 end"</span>
+<pre class="src src-org"><code><span class="org-org-transclusion-keyword">#+transclude:</span> <span class="org-org-link"><a href="file:src/examples/hello.cpp::710c39c6-c7e1-403f-a9f0-9f8ecf890dc9">file:src/examples/hello.cpp::710c39c6-c7e1-403f-a9f0-9f8ecf890dc9</a></span><span class="org-org-meta-line"> :lines 2- :src cpp :end "710c39c6-c7e1-403f-a9f0-9f8ecf890dc9 end"</span>
 </code></pre>
 </div>
 </div>
