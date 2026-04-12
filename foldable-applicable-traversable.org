@@ -1,89 +1,152 @@
-#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline author:t
-#+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
-#+OPTIONS: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
-#+OPTIONS: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
 #+TITLE: Algorithms for Trees: Foldable, Applicative, Traversable
 #+SUBTITLE: Type classes beyond Functors and Monads
 #+DATE: <2024-02-01 Thu>
 #+AUTHOR: Steve Downey
 #+EMAIL: sdowney2@bloomberg.net
-#+LANGUAGE: en
-#+SELECT_TAGS: export
-#+EXCLUDE_TAGS: noexport
-#+LATEX_CLASS: report
-#+LATEX_CLASS_OPTIONS:
-#+LATEX_HEADER:
-#+LATEX_HEADER_EXTRA:
-#+DESCRIPTION:
-#+KEYWORDS:
-#+SUBTITLE:
-#+LATEX_COMPILER: pdflatex
-#+OPTIONS: html-link-use-abs-url:nil html-postamble:nil html-preamble:t
-#+OPTIONS: html-scripts:t html-style:t html5-fancy:nil tex:t
-#+HTML_DOCTYPE: xhtml-strict
-#+HTML_CONTAINER: div
-#+DESCRIPTION:
-#+KEYWORDS:
-#+HTML_LINK_HOME:
-#+HTML_LINK_UP:
-#+HTML_MATHJAX:
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://raw.githubusercontent.com/steve-downey/css/master/smd-zenburn.css" />
-#+HTML_HEAD_EXTRA:
-#+INFOJS_OPT:
-#+CREATOR:
-#+LATEX_HEADER:
+
+#+org-export-with-smart-quotes: nil
+#+org-export-with-emphasize: t
+#+org-export-with-special-strings: t
+#+org-export-with-fixed-width: t
+#+org-export-with-timestamps: t
+#+org-export-preserve-breaks: nil
+#+org-export-with-sub-superscripts: nil
+#+org-export-with-archived-trees: headline
+#+org-export-with-author: t
+#+org-export-headline-levels: 3
+
+#+org-export-with-broken-links: nil
+#+org-export-with-clocks: nil
+#+org-export-with-creator: nil
+#+org-export-with-drawers: (not "LOGBOOK")
+#+org-export-with-date: t
+#+org-export-with-entities: t
+
+#+org-export-with-email: nil
+#+org-export-with-footnotes: t
+#+org-export-with-inlinetasks: t
+#+org-export-with-section-numbers: t
+#+org-export-with-planning: nil
+#+org-export-with-priority: nil
+#+org-export-with-properties: nil
+#+org-export-with-statistics-cookies: t
+#+org-export-with-tags: t
+
+#+org-export-with-tasks: t
+#+org-export-with-latex: t
+#+org-export-timestamp-file: t
+#+org-export-with-title: n
+#+org-export-with-toc: nil
+#+org-export-with-todo: t
+#+org-export-with-tables: t
+
+#+org-html-link-use-abs-url: nil
+#+org-html-postamble: nil
+#+org-html-preamble: t
+#+org-html-scripts: n
+#+org-html-style: nil
+#+org-html5-fancy: t
+#+org-html-self-link-headlines: t
+
+#+html_doctype: xhtml5
+#+html_container: div
+#+html_link_home:
+#+html_link_up:
+#+html_mathjax:
+#+html_head:
+#+html_head_extra:
+#+infojs_opt:
+
+#+select_tags: export
+#+exclude_tags: noexport
+
 #+STARTUP: showeverything
 
+#+OPTIONS: reveal_width:1600 reveal_height:900
+#+REVEAL_TRANS: fade
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../etc/modus-vivendi-tinted.css" />
 
-Abstract: The use of the functor and monad patterns in ranges, sender-receiver, optional, and expected has been broadly and widely successful. There are other type classes that C++ can profitably adopt for use in generic programming that have proven to be useful in other languages and ecosystems in the last decade.
+#+REVEAL_PLUGINS: (math markdown notes search zoom)
+#+REVEAL_EXTRA_CSS: ../etc/modus-vivendi-tinted.css
+#+REVEAL_THEME: ../etc/my_theme.css
+#+REVEAL_EXTRA_CSS: ../etc/footer.css
+#+REVEAL_TITLE_SLIDE: <p>
+#+REVEAL_TITLE_SLIDE_BACKGROUND: ./title_card.png
+
+# #+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_ROOT: ../reveal.js
+#+REVEAL_VERSION: 6
+#+reveal_defaulttiming: 60
+
+#+REVEAL_HLEVEL: 1
+#+REVEAL_EXPORT_NOTES_TO_PDF: separate-page
+#+REVEAL_DEFAULT_FRAG_STYLE: (appear)
+
+#+OPTIONS: reveal_single_file:t
+
+#+CITE_EXPORT: csl ../etc/chicago-author-date.csl
+#+BIBLIOGRAPHY: ../etc/wg21.bib
+#+BIBLIOGRAPHY: ../etc/local.bib
+
+* Algorithms For Trees
+- Foldable
+- Applicable
+- Traversable
+
+** Abstract
+
+The use of the functor and monad patterns in ranges, sender-receiver, optional, and expected has been broadly and widely successful. There are other type classes that C++ can profitably adopt for use in generic programming that have proven to be useful in other languages and ecosystems in the last decade.
 
 In particular, I am interested in better support for algorithms over trees, and other data structures, where flattening into a sequence loses too much information. In this talk, I will focus on Foldable, Applicative, and Traversable type classes, as well as Monoid, as it provides capabilities for a number of tree algorithms.
 
-The eventual goal of this work is to provide `fingertree` to the standard library, as well as support for application domain trees in use today, such as expression evaluators and syntax trees.
+The eventual goal of this work is to provide ~fingertree~ to the standard library, as well as support for application domain trees in use today, such as expression evaluators and syntax trees.
 
-Takeaway: A better understanding of some of the theory behind current libraries and upcoming proposals, the inherent limitations of ranges, and some direction for extension consistent with current libraries.
+** Foldable
+- Foldables :: are types which can be made to look like a sequence of some sort, or a range, and support the basic ~fold~ operation which provides much of the power of std::ranges. Providing opt-in hooks for making a type Foldable rather than a Range is useful.
 
-- Foldables are types which can be made to look like a sequence of some sort, or a range, and support the basic ~fold~ operation which provides much of the power of std::ranges. Providing opt-in hooks for making a type Foldable rather than a Range is useful.
+** Applicable
+- Applicatives :: were introduced to provide the pattern of 'pure function applied to funny arguments', where a type "supports its own peculiar way of giving meaning to the usual [notion of function invocation]." The implementation details of partially applied functions in a container turn out to be a distraction from understanding. They turn out to be widely relevant in contexts such as data parallel operations, and with less overhead than monadic operations.
 
-- Applicatives were introduced to provide the pattern of 'pure function applied to funny arguments', where a type "supports its own peculiar way of giving meaning to the usual [notion of function invocation]." The implementation details of partially applied functions in a container turn out to be a distraction from understanding. They turn out to be widely relevant in contexts such as data parallel operations, and with less overhead than monadic operations.
+** Traversable
+- Traversables :: are generalizations of Foldables which allow preservation of the "shape" of a container, where a Foldable can only see the ordered sequence. A binary tree can be traversed and maintain the parent child relationships, where a fold can at most produce a range. Traversable also provides the ability to "commute" containers, generically, providing the ability to convert a range of tasks into a task producing a range.
 
-- Traversables are generalizations of Foldables which allow preservation of the "shape" of a container, where a Foldable can only see the ordered sequence. A binary tree can be traversed and maintain the parent child relationships, where a fold can at most produce a range. Traversable also provides the ability to "commute" containers, generically, providing the ability to convert a range of tasks into a task producing a range.
-
+** Not Monadic
+sorry
 
 * Ranges Flatten the World
-- Linearization as a design assumption
-- Where structure carries meaning
-- Trees that are not sequences
+*** Linearization as a design assumption
+*** Where structure carries meaning
+*** Trees that are not sequences
 
 * Visitors, Pattern Matching, and the Missing Syntax
-- Visitor as manual recursion control
-- Pattern matching as the intended interface
-- Designing today for tomorrow’s syntax
+*** Visitor as manual recursion control
+*** Pattern matching as the intended interface
+*** Designing today for tomorrow’s syntax
 
 * Recursion Schemes You Can Actually Use
-- F-algebras: “how to collapse one layer”
-- Catamorphisms as principled fold
-- Separating recursion from business logic
+*** F-algebras: “how to collapse one layer”
+*** Catamorphisms as principled fold
+*** Separating recursion from business logic
 
 * Preserving Shape: Traversable and Friends
-- Foldable vs Traversable: sequence vs shape
-- Applicative as the minimal effect model
-- Commuting containers generically
+*** Foldable vs Traversable: sequence vs shape
+*** Applicative as the minimal effect model
+*** Commuting containers generically
 
 * Monoids and Measured Trees
-- Associativity as algorithmic leverage
-- Annotations as summaries
-- Search and split driven by measures
+*** Associativity as algorithmic leverage
+*** Annotations as summaries
+*** Search and split driven by measures
 
 * Finger Trees as a Case Study
-- Persistent concatenation and splitting
-- One structure, many interpretations
-- Why this belongs in modern C++
+*** Persistent concatenation and splitting
+*** One structure, many interpretations
+*** Why this belongs in modern C++
 
 * Designing APIs That Won’t Age Poorly
-- Library abstractions anticipating language features
-- Avoiding the ~std::bind~ vs lambda overlap
-- Keeping the “good path” obvious
+*** Library abstractions anticipating language features
+*** Avoiding the ~std::bind~ vs lambda overlap
+*** Keeping the “good path” obvious
 
 # Local Variables:
 # org-html-htmlize-output-type: inline-css
