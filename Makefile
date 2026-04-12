@@ -256,7 +256,7 @@ endif
 install-uv: ## install uv via `pipx install uv`
 	$(install_uv_cmd)
 
-ORGFILES:=$(wildcard *.org)
+ORGFILES := $(wildcard *.org)
 
 %.html : %.org
 	$(EMACS) --init-directory=.emacs.d/ \
