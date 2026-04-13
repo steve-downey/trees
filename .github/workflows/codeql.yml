@@ -49,6 +49,9 @@ jobs:
         include:
           - language: actions
             build-mode: none
+      # Analyzes C and C++ code using the commands in `Build C and C++ code`
+          - language: c-cpp
+            build-mode: autobuild
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -81,6 +84,31 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+        with:
+          # Install a specific version of uv.
+          version: "0.11.6"
+      - name: Install system tools
+        shell: bash
+        run: |
+         sudo apt update
+         sudo apt -y install build-essential gcc-14 g++-14 ccache jq
+         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 \
+           --slave /usr/bin/g++ g++ /usr/bin/g++-14 \
+           --slave /usr/bin/gcov gcov /usr/bin/gcov-14
+         sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14  100
+         sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-14 100
+         sudo update-alternatives --set gcc  /usr/bin/gcc-14
+         sudo update-alternatives --set cc  /usr/bin/gcc-14
+         sudo update-alternatives --set c++  /usr/bin/g++-14
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+        env:
+          VCPKG_ROOT: /usr/local/share/vcpkg
+          CONFIG: RelWithDebInfo
           # If you wish to specify custom queries, you can do so here or in a config file.
           # By default, queries listed here will override any specified in a config file.
           # Prefix the list here with "+" to use these queries and those in the config file.

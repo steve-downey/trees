@@ -20,12 +20,12 @@ updates:
           - "actions/*"
           - "github/*"
     schedule:
-      interval: "weekly"
+      interval: "daily"
 
-  - package-ecosystem: pip
-    directory: /papers/P2988
+  - package-ecosystem: "uv"
+    directory: "/"
     schedule:
-      interval: daily
+      interval: "daily"
 
   - package-ecosystem: pip
     directory: /
