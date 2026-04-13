@@ -14,6 +14,7 @@ permissions:
 jobs:
   pre-commit:
     permissions:
+      contents: read
       checks: write
       issues: write
       pull-requests: write
