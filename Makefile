@@ -256,8 +256,7 @@ endif
 install-uv: ## install uv via `pipx install uv`
 	$(install_uv_cmd)
 
-ORGFILES:=$(wildcard *.org)
--include $(ORGFILES:%.org=%.org.deps)
+ORGFILES := $(wildcard *.org)
 
 %.html : %.org
 	$(EMACS) --init-directory=.emacs.d/ \
@@ -267,9 +266,11 @@ ORGFILES:=$(wildcard *.org)
 	--visit $< \
 	--eval "(org-transclusion-mode t)" \
 	--eval "(org-export-to-file 'html \"$@\")"
-	echo $@ : \\ > $<.deps
-	echo "  $<" \\ >> $<.deps
-	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $<.deps
+	echo $@ : \\ > $@.deps
+	echo "  $<" \\ >> $@.deps
+	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $@.deps
+
+-include $(ORGFILES:%.org=%.html.deps)
 
 %-slides.html : %.org
 	$(EMACS) --init-directory=.emacs.d/ \
@@ -279,9 +280,11 @@ ORGFILES:=$(wildcard *.org)
 	--visit $< \
 	--eval "(org-transclusion-mode t)" \
 	--eval "(org-export-to-file 're-reveal \"$@\")"
-	echo $@ : \\ > $<.deps
-	echo "  $<" \\ >> $<.deps
-	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $<.deps
+	echo $@ : \\ > $@.deps
+	echo "  $<" \\ >> $@.deps
+	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $@.deps
+
+-include $(ORGFILES:%.org=%-slides.html.deps)
 
 
 .PHONY: clean-emacs.d
@@ -297,12 +300,14 @@ clean-example:
 
 clean: clean-example
 
-clean-org-deps: $(ORGFILES:%.org=%.org.deps)
-	-rm $?
+.PHONY: clean-org-deps
+clean-org-deps:
+	-rm $(ORGFILES:%.org=%.org.deps)
 clean: clean-org-deps
 
-clean-org-html: $(ORGFILES:%.org=%.html) $(ORGFILES:%.org=%-slides.html)
-	-rm $?
+.PHONY: clean-org-html
+clean-org-html:
+	-rm $(ORGFILES:%.org=%.html) $(ORGFILES:%.org=%-slides.html)
 clean: clean-org-html
 
 .PHONY: presentation
