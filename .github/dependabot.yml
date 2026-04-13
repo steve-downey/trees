@@ -23,11 +23,6 @@ updates:
       interval: "weekly"
 
   - package-ecosystem: pip
-    directory: /papers/P2988
-    schedule:
-      interval: daily
-
-  - package-ecosystem: pip
     directory: /
     schedule:
       interval: daily
