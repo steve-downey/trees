@@ -10,6 +10,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '30 15 * * *'
+permissions:
+  contents: read
 
 jobs:
   test_matrix:
@@ -26,11 +28,11 @@ jobs:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: 'recursive'
       - name: Install uv
-        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           # Install a specific version of uv.
           version: "0.11.6"
@@ -73,13 +75,7 @@ jobs:
       - name: Lint
         shell: bash
         run: |
-         set -x
-         echo $PATH
-         echo $(command -v jq)
-         echo $(command -v shellcheck)
          source .venv/bin/activate
-         echo $(command -v jq)
-         echo $(command -v shellcheck)
          make lint
       - name: Manual Lint
         shell: bash

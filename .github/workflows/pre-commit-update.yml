@@ -7,9 +7,16 @@ on:
   schedule:
     - cron: "0 16 * * 0"
 
+permissions:
+  contents: read
+
 jobs:
   auto-update-pre-commit:
     uses: bemanproject/infra-workflows/.github/workflows/reusable-beman-update-pre-commit.yml@1.5.0
+    permissions:
+      checks: write
+      issues: write
+      pull-requests: write
     secrets:
       APP_ID: ${{ secrets.AUTO_PR_BOT_APP_ID }}
       PRIVATE_KEY: ${{ secrets.AUTO_PR_BOT_PRIVATE_KEY }}
