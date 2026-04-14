@@ -79,6 +79,7 @@ define run_cmake =
 	-DCMAKE_C_COMPILER_LAUNCHER=ccache \
 	-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 	-DCMAKE_TOOLCHAIN_FILE=$(_toolchain) \
+	-DOPTIONAL_INSTALL_DIR=~/.local/lib/cmake/ \
 	$(_args) \
 	$(_cmake_args) \
 	$(CURDIR)

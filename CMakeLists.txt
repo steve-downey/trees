@@ -35,6 +35,12 @@ target_sources(
     PUBLIC FILE_SET example_name_headers TYPE HEADERS BASE_DIRS src
 )
 
+add_library(concept_map INTERFACE)
+target_sources(
+  concept_map
+  PUBLIC FILE_SET concept_map_headers TYPE HEADERS BASE_DIRS src
+)
+
 if(NAME_ENABLE_TESTING)
     find_package(GTest QUIET)
     if(GTest_FOUND)
@@ -49,6 +55,13 @@ Consider using CMAKE_PROJECT_TOP_LEVEL_INCLUDES=./cmake/use-fetch-content.cmake 
         )
     endif()
 endif()
+
+find_package(
+  beman.optional
+  REQUIRED
+  PATHS ${OPTIONAL_INSTALL_DIR}
+  NO_DEFAULT_PATH
+)
 
 add_subdirectory(src)
 
