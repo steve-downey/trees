@@ -3,7 +3,10 @@
 #+DATE: <2024-02-01 Thu>
 #+AUTHOR: Steve Downey
 #+EMAIL: sdowney2@bloomberg.net
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
 
+* export settings :noexport:
 #+org-export-with-smart-quotes: nil
 #+org-export-with-emphasize: t
 #+org-export-with-special-strings: t
