@@ -1,0 +1,567 @@
+* Implement Foldable, Applicative, Traversable for Trees in C++
+:PROPERTIES:
+:TITLE: Foldable, Applicative, Traversable in C++ with concept_map
+:AUTHOR: Steve Downey
+:END:
+
+* Opening
+** Slide: Why this talk exists
+*** Goal
+- Show that typeclass-style interfaces in C++ can be:
+  - open for extension
+  - law-oriented
+  - optimizer-visible
+  - practical on real tree structures
+- Build an existence proof suitable for WG21 discussion and for live code.
+
+*** Notes
+- Start from the engineering problem, not category theory.
+- Existing C++ gives us algorithms and customization points, but not a good, uniform vocabulary for higher-order structure like Foldable, Applicative, Traversable.
+- The project is not recreate Haskell in C++.
+- The project is use C++ mechanisms to encode the useful parts of these abstractions transparently.
+
+*** Code hooks
+- src/smd/concept_map/ existing material
+- new top-level readme section introducing project purpose
+
+** Slide: The core idea in one sentence
+*** Claim
+- A typeclass object is a named record of operations, found by variable-template lookup, and optionally supplied explicitly or as an NTTP.
+
+*** Notes
+- Emphasize:
+  - lookup by type
+  - no virtual dispatch
+  - no heavyweight type erasure
+  - explicit control when desired
+- Distinguish this from ordinary ADL-based CPOs.
+- The typeclass object is separable from the type.
+- That separability is what makes open extension and alternate instances work.
+
+*** Code hooks
+- src/smd/typeclass/typeclass_base.hpp
+- small examples in notes:
+  - inferred map
+  - explicit map parameter
+  - NTTP map parameter
+
+* Part I: The concept_map machinery
+** Slide: Dispatch modes
+*** Bullets
+- Implicit lookup via variable template
+- Explicit map object parameter
+- NTTP map object parameter
+- Same semantics, different ergonomics and optimization surface
+
+*** Notes
+- Explain when each form is useful:
+  - implicit: normal user-facing generic algorithms
+  - explicit: testing, local overrides, law checks
+  - NTTP: maximally static specialization and named instance style programming
+
+*** Code hooks
+- src/smd/typeclass/typeclass_base.hpp
+- src/smd/typeclass/typeclass_base.t.cpp
+
+** Slide: What lives in a typeclass object
+*** Bullets
+- Named operations, not tuple positions
+- Operations may be derived from each other
+- Minimal complete definition is part of the interface design
+- Laws belong to the typeclass as much as signatures do
+
+*** Notes
+- This is where to connect to concept_maps.org.
+- The point is not merely dispatch.
+- The point is packaging a family of coherent operations and derived defaults.
+- Similar in spirit to a record-of-functions, but with compile-time lookup and better composition with templates.
+
+*** Code hooks
+- src/smd/typeclass/functor.hpp
+- src/smd/typeclass/monoid.hpp
+- new scaffolding:
+  - src/smd/typeclass/foldable.hpp
+  - src/smd/typeclass/applicative.hpp
+  - src/smd/typeclass/traversable.hpp
+
+** Slide: Why names matter
+*** Bullets
+- Prefer names aligned with ranges and mainstream FP practice
+- Avoid historical accidents where practical
+- Typeclass names can be generic even when concrete type APIs stay domain-specific
+
+*** Notes
+- Good place to say:
+  - =map=, not =fmap=
+  - =fold_left= and =fold_right=, not =foldl= and =foldr=
+  - =for_each= or =traverse_each= may be better derived conveniences than exposing old names directly
+- Concrete tree API can keep domain names like =push_left=, =view_left=, =measure=.
+
+*** Code hooks
+- comments and API docs in the three typeclass headers
+
+* Part II: Foldable
+** Slide: What Foldable means here
+*** Bullets
+- A way to consume a structure into a summary
+- Primary abstraction is monoidal accumulation
+- Left and right folds are important operational views, not the semantic center
+
+*** Notes
+- Make the case that =fold_map= is the semantic primitive.
+- =to_list= is derived, useful, but not fundamental.
+- Connect to monoidal measures and finger trees early.
+
+*** Code hooks
+- src/smd/typeclass/foldable.hpp
+
+** Slide: Minimal Foldable interface
+*** Bullets
+- Required:
+  - =fold_map(F, X)=
+- Derived:
+  - =fold_left(F, init, X)=
+  - =fold_right(F, init, X)=
+  - =to_vector(X)=
+  - =is_empty(X)= via fold/map or direct override
+  - =length(X)= via monoid/counting
+  - =contains_if(X, pred)=
+  - =all_of= / =any_of=
+
+*** Notes
+- Explain why =fold_map= is the required core:
+  - closest to laws
+  - container-shape independent
+  - naturally composes with measures
+- Mention operational caveat:
+  - some instances may override left/right folds for efficiency or stack behavior.
+
+*** Code hooks
+- src/smd/typeclass/foldable.hpp
+- src/smd/typeclass/foldable.cpp
+- src/smd/typeclass/foldable.t.cpp
+
+** Slide: Foldable laws
+*** Bullets
+- Fold via monoid homomorphism must be coherent
+- Derived folds must agree with =fold_map=
+- Composition with monoid morphisms should preserve meaning
+
+*** Notes
+- Phrase laws as implementation constraints, not just math trivia.
+- For tests:
+  - =fold_map(id_as_monoid)= same as direct measure
+  - counting via fold_map equals length
+  - concatenating summaries respects tree concatenation
+- Mention fusion/deforestation as a design payoff:
+  - once generic algorithms are phrased through fold-like structure, derived traversals can avoid intermediate lists.
+
+*** Code hooks
+- src/smd/typeclass/foldable.t.cpp
+- src/smd/typeclass/monoid.t.cpp
+
+** Slide: Foldable for trees
+*** Bullets
+- Tree-specific traversal order matters
+- Pick one semantic order and make it explicit
+- Other orders are separate views, not accidental overloads
+
+*** Notes
+- You need to choose and document:
+  - inorder for binary search oriented trees?
+  - left-to-right leaf order for finger/fringe trees?
+- The law is not all orders are equal.
+- The law is this instance has one coherent order.
+
+*** Code hooks
+- src/smd/tree/fingertree.hpp
+- src/smd/tree/fringetree.hpp
+- src/smd/tree/fix_tree.hpp
+- per-type foldable specializations
+
+* Part III: Applicative
+** Slide: Why Applicative, not Monad
+*** Bullets
+- Independent structure-preserving combination
+- Enough for traversal
+- Better fit for trees and static composition
+- More analyzable than bind-heavy designs
+
+*** Notes
+- Applicative is the key bridge between container with structure and effectful traversal.
+- It is also where your chosen API differs from textbook Haskell.
+
+*** Code hooks
+- src/smd/typeclass/applicative.hpp
+
+** Slide: Applicative API in this project
+*** Bullets
+- User-facing primitive: =invoke=
+- Internal basis may still define =pure= and =apply= or equivalent
+- Generic use should look like applying a pure function to effectful arguments
+
+*** Notes
+- Lead with your preferred surface:
+  - =invoke(f, ax, ay, az)=
+- Explain that this encodes:
+  - lift a pure function into the applicative and feed it applicative arguments
+- Say plainly that =ap= is not a good user API.
+- If =pure= exists, it should mostly support derivation and laws.
+
+*** Code hooks
+- src/smd/typeclass/applicative.hpp
+- src/smd/typeclass/applicative.cpp
+- src/smd/typeclass/applicative.t.cpp
+
+** Slide: Minimal Applicative interface
+*** Bullets
+- Required option A:
+  - =pure(x)=
+  - =apply(af, ax)=
+- Required option B:
+  - =invoke(f, args...)= as primitive
+- Derived:
+  - =map=
+  - =product(ax, ay)=
+  - =lift2=, =lift3=, ...
+  - =then_left= / =then_right=
+
+*** Notes
+- Recommend one internal normalization:
+  - either define instance authors against =pure + apply=
+  - or allow =invoke= as MCD and derive =apply=
+- My recommendation for the code plan:
+  - instance-level MCD remains =pure + apply=
+  - public algorithm vocabulary centers on =invoke=
+- That keeps law statements familiar while preserving your surface design.
+
+*** Code hooks
+- trait/default machinery inside src/smd/typeclass/applicative.hpp
+
+** Slide: Applicative laws
+*** Bullets
+- Identity
+- Homomorphism
+- Interchange
+- Composition
+
+*** Notes
+- State them in C++ terms and test them with concrete value generators.
+- Also test coherence with Functor:
+  - =map(f, x)= invoke(f, x)
+- This is a good point to emphasize law-first development.
+
+*** Code hooks
+- src/smd/typeclass/applicative.t.cpp
+- helper law test utilities:
+  - src/smd/typeclass/law_test_support.hpp
+
+** Slide: Applicative for trees
+*** Bullets
+- Need a concrete semantics:
+  - zippy/shape-preserving
+  - Cartesian/product-like
+- Pick one instance as primary
+- Additional semantics can be alternate maps
+
+*** Notes
+- This is an important design decision slide.
+- For trees, I would suggest:
+  - primary instance = shape-preserving zip-style applicative
+- Why:
+  - traversal and law checking are clearer
+  - structure is respected
+  - better fit for existence-proof code
+- A Cartesian/tree-product applicative is interesting, but likely distracts from the main talk.
+
+*** Code hooks
+- src/smd/tree/fix_tree.hpp
+- src/smd/tree/fix_tree_applicative.cpp
+- tests for shape agreement
+
+* Part IV: Traversable
+** Slide: Traversable is the point where everything meets
+*** Bullets
+- Traversable = structure-preserving effectful walk
+- Depends on Functor + Foldable + Applicative
+- Gives one generic account of mapping with effects
+
+*** Notes
+- This is the abstraction that justifies the whole stack.
+- Foldable gives summaries.
+- Applicative gives effect composition.
+- Traversable gives effectful structural transformation.
+
+*** Code hooks
+- src/smd/typeclass/traversable.hpp
+
+** Slide: Minimal Traversable interface
+*** Bullets
+- Required:
+  - =traverse(F, X)=
+- Derived:
+  - =sequence(X of applicatives)=
+  - =mapM= style convenience aliases if desired
+  - =for_each_accum= patterns via state-like applicatives
+  - =map= from traverse + identity applicative
+  - =fold_map= from traverse + const applicative, if useful
+
+*** Notes
+- =traverse= is the one real operation.
+- Everything else should either be derived or explicitly justified as an optimization override.
+- Mention representation theorem intuition:
+  - traversable structures behave like a shape plus ordered positions.
+
+*** Code hooks
+- src/smd/typeclass/traversable.hpp
+- src/smd/typeclass/traversable.cpp
+- src/smd/typeclass/traversable.t.cpp
+
+** Slide: Traversable laws
+*** Bullets
+- Naturality
+- Identity
+- Composition
+
+*** Notes
+- Express in engineering terms:
+  - identity applicative gives identity transformation
+  - composing applicatives agrees with single composed traversal
+  - traversal does not invent or lose positions
+- This is where you can mention finitary container intuition without going full theorem-proof.
+
+*** Code hooks
+- src/smd/typeclass/traversable.t.cpp
+
+** Slide: Traversable for trees
+*** Bullets
+- Same chosen order as Foldable
+- Preserves shape
+- Effects occur in documented order
+
+*** Notes
+- Order is observable once effects exist.
+- Therefore order is part of the instance contract.
+- For shape-preserving trees:
+  - =traverse= must reconstruct the same topology.
+- This is a natural place to show relabelling:
+  - traversal with a state applicative labels leaves/nodes in order.
+
+*** Code hooks
+- src/smd/tree/fingertree_traversable.cpp
+- src/smd/tree/fringetree_traversable.cpp
+- src/smd/tree/fix_tree_traversable.cpp
+
+* Part V: Trees as the motivating instances
+** Slide: Why these three tree families
+*** Bullets
+- Finger tree: measured, concatenable sequence/tree backbone
+- Fringe tree: monoidal boundary structure
+- Fixpoint tree: generic recursion-scheme-friendly example
+
+*** Notes
+- Each demonstrates a different part of the theory:
+  - fingertree: monoidal measures and split/search
+  - fringetree: decomposition and foldability
+  - fixpoint tree: abstract derivation and recursion schemes
+
+*** Code hooks
+- src/smd/tree/fingertree.hpp
+- src/smd/tree/fringetree.hpp
+- src/smd/tree/fix_tree.hpp
+
+** Slide: Provisional tree API
+*** Bullets
+- construction:
+  - =push_left=
+  - =push_right=
+  - =concat=
+- observation:
+  - =view_left=
+  - =view_right=
+  - =head=
+  - =tail=
+  - =init=
+- metrics:
+  - =measure=
+  - =measured=
+  - =length=
+  - =depth=
+  - =breadth=
+- transformation:
+  - =split=
+  - =filter=
+
+*** Notes
+- Distinguish domain API from typeclass API.
+- Example:
+  - trees expose =push_left=
+  - Foldable exposes =fold_left=
+- The typeclass vocabulary is the generic layer over domain names.
+
+*** Code hooks
+- src/smd/tree/*.hpp
+- per-tree test files
+
+** Slide: Measures and Monoid
+*** Bullets
+- Measure is the bridge from generic folding to efficient queries
+- Measured trees support:
+  - length
+  - split
+  - search-like navigation
+- Monoidal summaries make finger trees practical, not just pretty
+
+*** Notes
+- Tie back to your fringetree monoid branch.
+- Show that =measure= is not extra decoration.
+- It is the operational reason =fold_map= belongs at the center.
+
+*** Code hooks
+- src/smd/typeclass/monoid.hpp
+- src/smd/tree/measured.hpp
+- src/smd/tree/fingertree_measure.cpp
+
+* Part VI: Reflection and derivation
+** Slide: What C++ reflection changes
+*** Bullets
+- Derive Functor/Foldable/Traversable from structure
+- Use reflection to inspect fields and recursive positions
+- Generated instances can still be ordinary concept_map objects
+
+*** Notes
+- Keep this as forward-looking, not core dependency.
+- Main idea:
+  - derive_* utilities synthesize the typeclass object
+  - explicit customization points remain available for overrides
+- Compare to GHC deriving:
+  - structural, law-guided, with escape hatches
+
+*** Code hooks
+- provisional:
+  - src/smd/typeclass/derive_functor.hpp
+  - src/smd/typeclass/derive_foldable.hpp
+  - src/smd/typeclass/derive_traversable.hpp
+
+** Slide: Constraints on derivation
+*** Bullets
+- Need identifiable recursive positions
+- Need variance checks for Functor
+- Need ordered positions for Foldable/Traversable
+- Some types need explicit override
+
+*** Notes
+- Be honest that automatic derivation is partial.
+- Reflection helps, but does not remove semantic choices.
+- Traversal order must still be chosen.
+
+*** Code hooks
+- future design notes, not necessarily implemented first
+
+* Part VII: Implementation plan
+** Slide: Suggested file layout
+*** Bullets
+- =src/smd/typeclass/=
+  - =typeclass_base.hpp=
+  - =law_test_support.hpp=
+  - =foldable.hpp / .cpp / .t.cpp=
+  - =applicative.hpp / .cpp / .t.cpp=
+  - =traversable.hpp / .cpp / .t.cpp=
+  - =monoid.hpp / .cpp / .t.cpp=
+- =src/smd/tree/=
+  - =fingertree.hpp / .cpp / .t.cpp=
+  - =fringetree.hpp / .cpp / .t.cpp=
+  - =fix_tree.hpp / .cpp / .t.cpp=
+
+*** Notes
+- Keep examples close to production code.
+- Slides should transclude from these files, so naming and comment quality matter.
+
+** Slide: Recommended implementation order
+*** Bullets
+- 1. stabilize monoid support
+- 2. implement Foldable core
+- 3. add law tests for Foldable
+- 4. implement Applicative surface and defaults
+- 5. add law tests for Applicative
+- 6. implement Traversable
+- 7. instantiate fix_tree first
+- 8. instantiate fringetree
+- 9. instantiate fingertree with measures and split
+- 10. add reflection experiments last
+
+*** Notes
+- fix_tree first because it is simplest and best for proving the design
+- fingertree later because it brings the most operational complexity
+
+** Slide: Testing strategy
+*** Bullets
+- Example tests
+- Law tests
+- Compile tests for dispatch modes
+- Small benchmark sanity checks only after laws pass
+
+*** Notes
+- Catch2 for all new tests
+- For each typeclass:
+  - direct API tests
+  - derived-vs-required coherence tests
+  - law checks on at least one simple and one tree instance
+- For dispatch:
+  - implicit lookup
+  - explicit map
+  - NTTP map
+
+*** Code hooks
+- =*.t.cpp= files
+- shared test helper header
+
+* Part VIII: What to show live
+** Slide: Live coding plan
+*** Bullets
+- Add a Foldable typeclass object skeleton
+- Implement =fold_map= for fix_tree
+- Derive =length=
+- Show same generic length working on another tree
+- Add Applicative =invoke=
+- Add Traversable relabel example
+
+*** Notes
+- Keep the live path narrow.
+- Avoid full fingertree live coding.
+- Use fingertree as prepared code plus walkthrough, not as live build-from-scratch.
+
+** Slide: Demo examples
+*** Bullets
+- generic =length(tree)= through Foldable
+- generic =invoke(make_node, tx, ty)= through Applicative
+- generic relabel through Traversable + state applicative
+- split by measure on fingertree
+
+*** Notes
+- These are the examples people remember.
+- Make each example map to one source file and one law.
+
+* Closing
+** Slide: What this proves
+*** Bullets
+- C++ can express law-oriented typeclass interfaces without runtime cost
+- Open extension and generic algorithms can coexist
+- Trees are a serious test case, not a toy
+- Reflection can plausibly derive the boring parts later
+
+*** Notes
+- End on the practical claim:
+  - this is not just theory imported from Haskell
+  - it is a workable design space for future C++
+
+** Slide: What remains
+*** Bullets
+- settle tree Applicative semantics
+- refine law harness
+- complete measured fingertree operations
+- experiment with derive_* via reflection
+- tighten names and paper wording for WG21 audience
+
+*** Notes
+- Frame remaining work as engineering refinement, not conceptual failure.
