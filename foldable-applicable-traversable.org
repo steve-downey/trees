@@ -1,13 +1,9 @@
-
 #+TITLE: Foldable Applicative Traversable
 
-* Applicative (Monad-derived)
+* Applicative via concept_map
 
 #+begin_src cpp
 // 3f0c8d0e
-auto r = smd::tree::apply(f, x);
+auto r = smd::invoke(f, x);
 // 3f0c8d0e end
 #+end_src
-
-- pure(x) = Leaf(x)
-- apply = substitution (Monad-derived)
