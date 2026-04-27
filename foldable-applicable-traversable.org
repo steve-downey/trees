@@ -1,9 +1,29 @@
+
 #+TITLE: Foldable Applicative Traversable
 
-* Applicative via concept_map
+* One representation, multiple lawful Applicatives
+
+** Ranges (nondeterminism)
+- Cartesian product of arguments
+- Monad-compatible
+
+** ZipList
+- position-wise combination
+- not nondeterministic
+- model of data-parallel computation
+
+* Tree Applicative
+
+** Default (Monad-derived)
+- substitution / grafting
+- pure(x) = Leaf(x)
 
 #+begin_src cpp
 // 3f0c8d0e
 auto r = smd::invoke(f, x);
 // 3f0c8d0e end
 #+end_src
+
+** Alternate (future)
+- ZipTree
+- position-wise tree combination
