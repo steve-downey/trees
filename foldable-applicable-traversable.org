@@ -1,26 +1,24 @@
+
 #+TITLE: Foldable Applicative Traversable
 
-* One representation, multiple lawful Applicatives
+* Ranges vs ZipList
 
-** Ranges
+** Ranges (nondeterminism)
 - Cartesian product
-- nondeterminism
 
-** ZipList
+** ZipList (data parallel)
 - position-wise
-- data parallel
+
+#+begin_src cpp
+// ziplist-example
+auto r = smd::invoke<smd::zip_list<int>>(f, xs);
+// ziplist-example end
+#+end_src
 
 * Tree Applicative
 
 ** Default
-- Monad-derived
-- substitution
-
-#+begin_src cpp
-// 3f0c8d0e
-auto r = smd::invoke(f, x);
-// 3f0c8d0e end
-#+end_src
+- Monad-derived substitution
 
 ** Alternate
 - ZipTree (future)

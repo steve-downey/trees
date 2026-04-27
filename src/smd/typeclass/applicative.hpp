@@ -3,10 +3,20 @@
 #include <smd/typeclass/typeclass_base.hpp>
 namespace smd {
 struct applicative_tag{};
-template<class T,class F,class X>
-auto invoke(F f,const X& x){
-  return map<applicative_tag,T>::apply(
-    map<applicative_tag,T>::pure(f),x);
+
+template<class T>
+auto pure(const auto& x){
+  return map<applicative_tag,T>::pure(x);
+}
+
+template<class T>
+auto apply(const T& f,const T& x){
+  return map<applicative_tag,T>::apply(f,x);
+}
+
+template<class T>
+auto invoke(const auto& f,const T& x){
+  return apply<T>(pure<T>(f),x);
 }
 }
 #endif

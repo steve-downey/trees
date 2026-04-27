@@ -1,10 +1,13 @@
+
 #include <functional>
-#include <smd/tree/fix_tree.hpp>
-#include <smd/tree/fix_tree_applicative.hpp>
 #include <smd/typeclass/applicative.hpp>
-using namespace smd::tree;
+#include <smd/typeclass/zip_list.hpp>
+#include <smd/typeclass/zip_list_applicative.hpp>
+
+using namespace smd;
+
 int main(){
- auto f=FixTree<std::function<int(int)>>::leaf([](int x){return x+1;});
- auto x=FixTree<int>::node(FixTree<int>::leaf(1),FixTree<int>::leaf(2));
- auto r=smd::invoke<FixTree<int>>(f,x);
+  zip_list<std::function<int(int)>> f{{[](int x){return x+1;}}};
+  zip_list<int> xs{{1,2,3}};
+  auto r = invoke<zip_list<int>>(f,xs);
 }
