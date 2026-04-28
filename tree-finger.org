@@ -1,0 +1,303 @@
+#+TITLE: Foldable, Applicative, Traversable in C++
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_INIT_OPTIONS: transition:'fade'
+
+* One Data Structure, Many Meanings
+
+- Finger trees are not just a data structure
+- They are a *framework*
+- Behavior comes from:
+  - Monoid
+  - Measure
+  - Generic algorithms
+
+#+begin_notes
+Core message:
+separate structure from interpretation
+
+This is the same move as Liskov:
+data abstraction > representation
+
+The tree is fixed
+meaning comes from the monoid
+#+end_notes
+
+
+* Fingertree Structure
+
+#+begin_src mermaid
+graph TD
+  A[Empty] --> B[Single]
+  B --> C[Deep]
+  C --> D[Prefix Digit]
+  C --> E[Middle Tree]
+  C --> F[Suffix Digit]
+#+end_src
+
+#+begin_notes
+Emphasize:
+this is a 2-3 tree with slack at the edges
+
+Digits are the buffer
+Middle is recursive structure
+
+Non-regular recursion:
+type changes at each level
+#+end_notes
+
+
+* Deep Node Invariant
+
+#+begin_src mermaid
+graph LR
+  P[Prefix] --> M[Measure]
+  MID[Middle] --> M
+  S[Suffix] --> M
+  M --> T[Tree Measure]
+#+end_src
+
+#+begin_notes
+Everything depends on this:
+
+measure(prefix)
+<> measure(middle)
+<> measure(suffix)
+
+If this breaks, everything breaks:
+split, search, concat
+
+This is the real data structure
+not the pointers
+#+end_notes
+
+
+* Small Buffer Optimization
+
+#+begin_src cpp
+small_buffer<A,8> xs;
+#+end_src
+
+#+begin_notes
+Important practical point:
+
+paper describes lists
+real implementation must avoid allocation
+
+bounded size ? stack allocation
+
+This is the only optimization needed
+to make this viable in C++
+#+end_notes
+
+
+* Concatenation
+
+#+begin_src mermaid
+flowchart LR
+  L[Left Tree] --> C[Concat]
+  R[Right Tree] --> C
+  C --> N[Node Packing]
+  N --> T[New Tree]
+#+end_src
+
+#+begin_notes
+Key insight:
+
+concat is not trivial
+it is the hardest operation
+
+You must:
+- take suffix of left
+- take prefix of right
+- pack into nodes
+
+This is where amortized guarantees come from
+#+end_notes
+
+
+* Split/Search
+
+#+begin_src mermaid
+flowchart TD
+  T[Tree] --> P[Check Prefix]
+  P -->|match| SP[Split Prefix]
+  P -->|no| M[Check Middle]
+  M -->|match| SM[Split Middle]
+  M -->|no| S[Split Suffix]
+#+end_src
+
+#+begin_notes
+This is the superpower
+
+We are not searching values
+we are searching *measure*
+
+predicate must be monotone
+
+This generalizes:
+indexing, priority queues, intervals
+#+end_notes
+
+
+* Typeclass Layer
+
+#+begin_src cpp
+fold_map(f, tree);
+traverse(app, f, tree);
+#+end_src
+
+#+begin_notes
+This is where C++ differs from Haskell
+
+We dont bake behavior into the type
+we layer it with concept_map
+
+Same structure
+multiple interpretations
+
+Important:
+these are generic algorithms
+not member functions
+#+end_notes
+
+
+* Key Idea
+
+Same tree
+Different monoid
+Different data structure
+
+#+begin_notes
+This is the whole talk
+
+Everything else is supporting evidence
+
+If audience remembers one thing:
+this line
+#+end_notes
+
+
+* Applications
+
+#+begin_src mermaid
+graph TD
+  FT[Fingertree] --> SEQ[Sequence]
+  FT --> PQ[Priority Queue]
+  FT --> ROPE[Rope]
+#+end_src
+
+#+begin_notes
+Do not rush this
+
+Each one is:
+same code
+different measure
+
+This is stronger than templates
+this is semantic reuse
+#+end_notes
+
+
+* Indexed Sequence
+
+#+begin_src cpp
+auto x = at(i, tree);
+#+end_src
+
+#+begin_notes
+Measure = size
+
+Split at index
+
+Equivalent to:
+vector + binary search tree hybrid
+
+But persistent
+#+end_notes
+
+
+* Priority Queue
+
+#+begin_src cpp
+auto m = find_min(tree);
+#+end_src
+
+#+begin_notes
+Measure = min
+
+No heap
+no rebalancing
+
+Extraction is split
+
+This surprises people
+#+end_notes
+
+
+* Rope (Text Buffer)
+
+#+begin_src cpp
+auto [l,r] = split(pos, rope);
+#+end_src
+
+#+begin_notes
+Measure = length
+
+Classic rope structure
+
+Concatenation is cheap
+splitting is logarithmic
+
+This is a real application
+#+end_notes
+
+
+* Why this matters
+
+- No inheritance
+- No virtual dispatch
+- No type erasure
+
+#+begin_notes
+Important for C++ audience:
+
+this is zero-cost abstraction
+
+compiler sees through everything
+
+This is not a runtime pattern
+#+end_notes
+
+
+* Relation to C++
+
+- std::ranges ? iteration
+- Fingertree ? structure + search
+
+#+begin_notes
+Ranges answer:
+how do I traverse
+
+Fingertree answers:
+how do I organize data
+
+They are complementary
+#+end_notes
+
+
+* Future
+
+- Reflection-based deriving
+- SIMD / Zip structures
+- Standardization possibilities
+
+#+begin_notes
+Reflection:
+derive Foldable/Traversable automatically
+
+Zip structures:
+parallel semantics
+
+Standardization:
+this fits concept-based design direction
+#+end_notes

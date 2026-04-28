@@ -1,0 +1,17 @@
+#ifndef INCLUDE_SMD_TYPECLASS_EXAMPLES_EXAMPLES_HPP
+#define INCLUDE_SMD_TYPECLASS_EXAMPLES_EXAMPLES_HPP
+
+#include <beman/optional/optional.hpp>
+
+#include <cstddef>
+
+namespace smd::typeclass::examples {
+
+auto generic_length_example() -> std::size_t;
+auto applicative_invoke_example() -> beman::optional::optional<int>;
+auto traversable_relabel_example() -> beman::optional::optional<std::size_t>;
+auto bad_applicative_example() -> std::size_t;
+
+}  // close namespace smd::typeclass::examples
+
+#endif  // INCLUDE_SMD_TYPECLASS_EXAMPLES_EXAMPLES_HPP

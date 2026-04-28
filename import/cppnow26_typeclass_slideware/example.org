@@ -1,0 +1,180 @@
+#+TITLE: Implement Foldable, Applicative, and Traversable for Trees in C++
+#+SUBTITLE: concept_map style, transclusion-first slideware
+#+AUTHOR: Steve Downey
+#+OPTIONS: toc:nil num:nil timestamp:nil reveal_title_slide:auto
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_VERSION: 4
+#+REVEAL_THEME: black
+#+REVEAL_TRANS: slide
+#+REVEAL_INIT_OPTIONS: transition:'slide', hash:true, controls:true, progress:true, center:false, width:1600, height:900, margin:0.04
+#+EXPORT_FILE_NAME: example.html
+
+* Why this talk exists
+** The first payoff: generic length on a tree
+A tree opts into ~Foldable~.  The call site stays boring.
+
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]]
+:lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
+
+#+begin_notes
+Start with the payoff rather than the abstraction stack.
+One generic algorithm, one call site, no tree-specific overload at the call.
+#+end_notes
+
+** Not a virtual interface
+- Not inheritance-based polymorphism
+- Not type-erased polymorphism
+- Not just ADL customization points
+- Compile-time selection of named operations
+
+#+begin_notes
+Prevent the wrong mental model early.
+The key difference from a CPO alone is that the typeclass object carries a coherent family of operations and defaults.
+#+end_notes
+
+** The core idea
+A typeclass object is a named record of operations, found by variable-template lookup, optionally supplied explicitly or as an NTTP.
+
+* The concept_map machinery
+** What problem this solves
+- Need generic algorithm names across unrelated types
+- Need open extension
+- Need optimizer-visible code
+- Need alternate instances for testing and experiments
+
+** How dispatch works
+- Implicit lookup via variable template
+- Explicit map parameter
+- NTTP map parameter
+
+** Three APIs side by side
+- Raw tree API
+  - ~push_left~, ~view_left~, ~concat~, ~measure~
+- ranges-style API
+  - iteration, views, algorithms
+- typeclass API
+  - ~fold_map~, ~invoke~, ~traverse~
+
+* Foldable
+** Foldable as summary, not iteration syntax
+- ~Foldable~ is fundamentally about summarizing a structure
+- Monoidal accumulation is the semantic center
+- Iteration is an operationally useful derived view
+
+** Why not just ranges?
+- ~ranges~ answers: how do I iterate this?
+- ~Foldable~ answers: how do I summarize this lawfully?
+- They can interoperate
+- They are not the same abstraction
+
+** The minimal Foldable interface
+- Required
+  - ~fold_map~
+- Derived
+  - ~fold_left~
+  - ~fold_right~
+  - ~length~
+  - ~to_vector~
+  - predicates
+
+** Design choice: tree Foldable order
+- Order is observable
+- Pick one order
+- Document it as part of the instance
+
+* Applicative
+** The public Applicative API is invoke
+- Public surface
+  - ~invoke(f, ax, ay, az...)~
+- Implementor-facing minimum can still be
+  - ~pure~
+  - ~apply~
+
+** Applicative by example
+#+transclude: [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]]
+:lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
+
+#+begin_notes
+Show small ordinary-looking code first.
+The syntax should look unsurprising.
+#+end_notes
+
+** Applicative must not change structure
+- A good primary instance combines structure
+- It does not silently flatten, duplicate, or reorder shape
+
+** Design choice: tree Applicative semantics
+- Trees admit multiple plausible Applicative semantics
+- Primary instance for the existence proof
+  - shape-preserving zip-style Applicative
+- Alternate semantics should be alternate maps
+
+** Bad tree Applicative example
+#+transclude: [[file:src/smd/typeclass/examples/applicative_bad.cpp::d2e7a1c9-0f3b-4b2e-9d55-1a8e7c4b2f90]]
+:lines 2- :src cpp :end "d2e7a1c9-0f3b-4b2e-9d55-1a8e7c4b2f90 end"
+
+* Traversable
+** Traversable is where everything meets
+- effectful, shape-preserving mapping
+- requires Applicative
+- depends on order
+
+** Shape plus positions
+- Informal model
+  - shape
+  - ordered positions
+- Traversal preserves the shape and visits the positions in order
+
+** Traversable for trees
+#+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]]
+:lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
+
+#+begin_notes
+This is the payoff abstraction.
+Foldable gives the order story, Applicative gives the effect story, Traversable combines them.
+#+end_notes
+
+* Trees as motivating instances
+** Why these tree families
+- ~fix_tree~: simplest abstraction-first instance
+- ~fringetree~: decomposition and boundary summaries
+- ~fingertree~: measured operational payoff
+
+** Domain API versus typeclass API
+- Domain API keeps good tree names
+  - ~push_left~, ~view_right~, ~measure~
+- Typeclass API keeps generic names
+  - ~fold_map~, ~invoke~, ~traverse~
+
+** Measures and Monoid
+- ~measure~ is ~fold_map~ in operational form
+- This is what makes fingertrees useful
+
+* Implementation plan
+** File layout
+- ~src/smd/typeclass/...~
+- ~src/smd/tree/...~
+- ~src/smd/typeclass/examples/...~
+
+** Physical correctness rules
+- classic include guards
+- canonical angle-bracket includes
+- duplicate include of header under test in tests
+- transcluded slide snippets omit that boilerplate
+
+** Test support split
+- keep optional Applicative support separate
+- keep monoid test helpers separate
+- keep generic test helpers small
+
+* Closing
+** What this proves
+- C++ can express these abstractions without runtime dispatch
+- laws can be attached to real code
+- trees are demanding enough to make the point
+
+** What remains
+- complete the measured fingertree
+- refine the law harness
+- add explicit alternate instances
+- explore reflection-based derivation later

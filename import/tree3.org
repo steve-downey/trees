@@ -1,0 +1,13 @@
+
+#+TITLE: Foldable Applicative Traversable
+
+* Applicative (Monad-derived)
+
+#+begin_src cpp
+// 3f0c8d0e
+auto r = smd::tree::apply(f, x);
+// 3f0c8d0e end
+#+end_src
+
+- pure(x) = Leaf(x)
+- apply = substitution (Monad-derived)
