@@ -1,16 +1,21 @@
 #include <smd/tree/fix_tree.hpp>
 #include <smd/tree/binary_tree.hpp>
+#include <smd/tree/fringe_tree.hpp>
 #include <smd/tree/fix_tree_applicative.hpp>
 #include <smd/tree/fix_tree_foldable.hpp>
 #include <smd/tree/fix_tree_traversable.hpp>
 #include <smd/tree/binary_tree_applicative.hpp>
 #include <smd/tree/binary_tree_foldable.hpp>
 #include <smd/tree/binary_tree_traversable.hpp>
+#include <smd/tree/fringe_tree_applicative.hpp>
+#include <smd/tree/fringe_tree_foldable.hpp>
+#include <smd/tree/fringe_tree_traversable.hpp>
 #include <smd/typeclass/traversable.hpp>
 
 #include <gtest/gtest.h>
 
 #include <optional>
+#include <vector>
 
 TEST(TraversableTypeclassTest, TraverseOptionalSuccess)
 {
@@ -99,4 +104,20 @@ TEST(TraversableTypeclassTest, BinaryTreeTraverseOptionalPreservesShape)
         EXPECT_FALSE(traversed->right().has_left());
         ASSERT_TRUE(traversed->right().has_right());
         EXPECT_EQ(traversed->right().right().value(), 40);
+}
+
+TEST(TraversableTypeclassTest, FringeTreeTraverseOptional)
+{
+        using Tree = smd::tree::FringeTree<int>;
+        auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+
+        const auto& traversable = smd::traversable_typeclass<Tree>;
+        auto traversed = traversable.traverse(
+            [](int x) -> std::optional<int> {
+                return x > 0 ? std::optional<int>{x * 10} : std::optional<int>{};
+            },
+            tree);
+
+        ASSERT_TRUE(traversed.has_value());
+        EXPECT_EQ(traversed->flatten(), (std::vector<int>{10, 20, 30}));
 }

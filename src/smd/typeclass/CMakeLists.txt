@@ -45,6 +45,7 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
         monoid.t.cpp
         applicative.t.cpp
         foldable.t.cpp
+        fringe_tree.t.cpp
         traversable.t.cpp
         zip_list_applicative.t.cpp
     )

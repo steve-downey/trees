@@ -23,20 +23,47 @@ struct BinaryTreeApplicativeImpl {
   auto apply(this auto&& self,
              const smd::tree::BinaryTree<F>& functions,
              const smd::tree::BinaryTree<A>& arguments)
+    -> smd::tree::BinaryTree<std::invoke_result_t<const F&, const A&>>
   {
     using R = std::invoke_result_t<const F&, const A&>;
 
     std::shared_ptr<smd::tree::BinaryTree<R> > left{};
     std::shared_ptr<smd::tree::BinaryTree<R> > right{};
 
-    if (functions.has_left() && arguments.has_left()) {
-      left = smd::tree::BinaryTree<R>::make_ptr(
-        self.apply(functions.left(), arguments.left()));
-    }
+    const auto function_is_leaf = !functions.has_left() && !functions.has_right();
+    const auto argument_is_leaf = !arguments.has_left() && !arguments.has_right();
 
-    if (functions.has_right() && arguments.has_right()) {
-      right = smd::tree::BinaryTree<R>::make_ptr(
-        self.apply(functions.right(), arguments.right()));
+    if (function_is_leaf) {
+      // pure(f) should distribute f over the argument shape.
+      if (arguments.has_left()) {
+        left = smd::tree::BinaryTree<R>::make_ptr(
+          self.apply(functions, arguments.left()));
+      }
+      if (arguments.has_right()) {
+        right = smd::tree::BinaryTree<R>::make_ptr(
+          self.apply(functions, arguments.right()));
+      }
+    } else if (argument_is_leaf) {
+      // A non-leaf function tree can be applied pointwise to a single argument.
+      if (functions.has_left()) {
+        left = smd::tree::BinaryTree<R>::make_ptr(
+          self.apply(functions.left(), arguments));
+      }
+      if (functions.has_right()) {
+        right = smd::tree::BinaryTree<R>::make_ptr(
+          self.apply(functions.right(), arguments));
+      }
+    } else {
+      // If both have shape, recurse pairwise where both children exist.
+      if (functions.has_left() && arguments.has_left()) {
+        left = smd::tree::BinaryTree<R>::make_ptr(
+          self.apply(functions.left(), arguments.left()));
+      }
+
+      if (functions.has_right() && arguments.has_right()) {
+        right = smd::tree::BinaryTree<R>::make_ptr(
+          self.apply(functions.right(), arguments.right()));
+      }
     }
 
     return smd::tree::BinaryTree<R>::from_children_ptrs(
