@@ -1,8 +1,11 @@
 #include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree_foldable.hpp>
+#include <smd/tree/finger_tree_traversable.hpp>
 
 #include <gtest/gtest.h>
 
 #include <cstddef>
+#include <optional>
 #include <vector>
 
 namespace {
@@ -275,4 +278,54 @@ TEST(FingerTreeTest, SplitAtMeasureConvenience)
     auto weighted_split = weighted_tree.split_at_measure(Weighted{35U});
     EXPECT_EQ(weighted_split.d_left.flatten(), (std::vector<int>{1, 2}));
     EXPECT_EQ(weighted_split.d_right.flatten(), (std::vector<int>{3, 4}));
+}
+
+TEST(FingerTreeFoldableTest, FoldMapAndDerivedOperations)
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4});
+    const auto& foldable = smd::foldable_typeclass<Tree>;
+
+    EXPECT_EQ(foldable.length(tree), 4U);
+    EXPECT_EQ(foldable.fold_map([](int x) { return x; }, tree), 10);
+    EXPECT_EQ(foldable.to_vector(tree), (std::vector<int>{1, 2, 3, 4}));
+
+    const auto left = foldable.fold_left(tree, 0, [](int acc, int x) {
+        return acc * 10 + x;
+    });
+    EXPECT_EQ(left, 1234);
+}
+
+TEST(FingerTreeTraversableTest, TraverseOptionalSuccess)
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3});
+    const auto& traversable = smd::traversable_typeclass<Tree>;
+
+    auto traversed = traversable.traverse(
+        [](int x) -> std::optional<int> {
+            return x > 0 ? std::optional<int>{x * 10} : std::optional<int>{};
+        },
+        tree);
+
+    ASSERT_TRUE(traversed.has_value());
+    EXPECT_EQ(traversed->flatten(), (std::vector<int>{10, 20, 30}));
+}
+
+TEST(FingerTreeTraversableTest, TraverseOptionalFailure)
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, -2, 3});
+    const auto& traversable = smd::traversable_typeclass<Tree>;
+
+    auto traversed = traversable.traverse(
+        [](int x) -> std::optional<int> {
+            return x > 0 ? std::optional<int>{x * 10} : std::optional<int>{};
+        },
+        tree);
+
+    EXPECT_FALSE(traversed.has_value());
 }

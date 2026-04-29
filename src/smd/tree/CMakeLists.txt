@@ -16,6 +16,9 @@ target_sources(
     fringe_tree_applicative.hpp
     fringe_tree_traversable.hpp
     finger_tree.hpp
+    finger_tree_foldable.hpp
+    finger_tree_traversable.hpp
+    finger_tree_wrappers.hpp
         fix_tree.hpp
         fix_tree_foldable.hpp
         fix_tree_applicative.hpp
@@ -37,6 +40,7 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
     add_executable(smd_tree_tests
         fringe_tree.t.cpp
         finger_tree.t.cpp
+        finger_tree_wrappers.t.cpp
         binary_tree_applicative.t.cpp
         binary_tree_foldable.t.cpp
         binary_tree_traversable.t.cpp
