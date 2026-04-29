@@ -12,8 +12,9 @@ TEST(TraversableTypeclassTest, TraverseOptionalSuccess)
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(2));
+    const auto& traversable = smd::traversable_typeclass<Tree>;
 
-    auto traversed = smd::traverse(
+    auto traversed = traversable.traverse(
         [](int x) -> std::optional<int> {
             return x >= 0 ? std::optional<int>{x + 1} : std::optional<int>{};
         },
@@ -28,8 +29,9 @@ TEST(TraversableTypeclassTest, TraverseOptionalFailure)
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(-2));
+    const auto& traversable = smd::traversable_typeclass<Tree>;
 
-    auto traversed = smd::traverse(
+    auto traversed = traversable.traverse(
         [](int x) -> std::optional<int> {
             return x >= 0 ? std::optional<int>{x + 1} : std::optional<int>{};
         },

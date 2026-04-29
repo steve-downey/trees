@@ -8,7 +8,8 @@
 
 TEST(ZipListApplicativeTest, PureBreathing)
 {
-    auto lifted = smd::pure<smd::zip_list<int> >(9);
+    const auto& applicative = smd::applicative_typeclass<smd::zip_list<int> >;
+    auto lifted = applicative.pure(9);
     EXPECT_EQ(lifted.data, (std::vector<int>{9}));
 }
 
@@ -20,7 +21,8 @@ TEST(ZipListApplicativeTest, ApplyZips)
         +[](int x) { return x - 3; },
     }};
     smd::zip_list<int> arguments{{10, 10}};
+    const auto& applicative = smd::applicative_typeclass<smd::zip_list<int (*)(int)> >;
 
-    auto result = smd::apply(functions, arguments);
+    auto result = applicative.apply(functions, arguments);
     EXPECT_EQ(result.data, (std::vector<int>{11, 20}));
 }

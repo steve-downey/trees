@@ -12,9 +12,8 @@ struct OptionalFunctorObject {
     template <class F, class T>
     auto fmap(F&& function, const std::optional<T>& value) const
     {
-        return smd::fmap(smd::functor_typeclass<std::optional<T> >,
-                         std::forward<F>(function),
-                         value);
+        const auto& functor = smd::functor_typeclass<std::optional<T> >;
+        return functor.fmap(std::forward<F>(function), value);
     }
 };
 

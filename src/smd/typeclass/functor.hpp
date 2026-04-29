@@ -15,45 +15,35 @@
 namespace smd {
 
 // Functor pattern invariants:
-// - Generic entry point is fmap(F, T) and dispatches via functor_typeclass<T>.
-// - Instances provide an object with fmap(F, T) and specialize
-//   functor_typeclass<Concrete>.
-// - replace is derived from fmap and should not need per-type overrides.
-// - Keep lookup explicit through concept-map objects, not ADL overloads.
+// - Instances are single lookup objects that provide fmap(F, T).
+// - replace is a derived object operation implemented from fmap.
+// - Dispatch happens through a provided object or functor_typeclass<Concrete>.
+// - Keep lookup explicit through typeclass objects, not ADL overloads.
+
+template <class Impl>
+struct Functor : protected Impl {
+    using Impl::fmap;
+
+    template <class T, class U>
+    auto replace(this auto&& self, T&& value, U&& replacement)
+    {
+        return self.fmap(
+            [replacement = std::forward<U>(replacement)](const auto&) mutable {
+                return replacement;
+            },
+            std::forward<T>(value));
+    }
+};
 
 template <class T>
 inline constexpr auto functor_typeclass = std::false_type{};
 
-template <class FUNCTOR_MAP, class T, class F>
-auto fmap(const FUNCTOR_MAP& functor_map, F&& function, T&& value)
-{
-    return functor_map.fmap(std::forward<F>(function),
-                            std::forward<T>(value));
-}
-
-template <class T, class F>
-auto fmap(F&& function, T&& value)
-{
-    using ValueType = remove_cvref_t<T>;
-    return fmap(functor_typeclass<ValueType>,
-                std::forward<F>(function),
-                std::forward<T>(value));
-}
-
-template <class T, class U>
-auto replace(T&& value, U&& replacement)
-{
-    return fmap(
-        [replacement = std::forward<U>(replacement)](const auto&) mutable {
-            return replacement;
-        },
-        std::forward<T>(value));
-}
-
 template <class VALUE_TYPE>
-struct OptionalFunctorMap {
+struct OptionalFunctorImpl {
     template <class F>
-    auto fmap(F&& function, const std::optional<VALUE_TYPE>& value) const
+    auto fmap(this auto&&,
+              F&& function,
+              const std::optional<VALUE_TYPE>& value)
     {
         using Result = std::invoke_result_t<F, const VALUE_TYPE&>;
         if (!value) {
@@ -66,9 +56,11 @@ struct OptionalFunctorMap {
 
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>, std::optional<VALUE_TYPE> >)
-struct BemanOptionalFunctorMap {
+struct BemanOptionalFunctorImpl {
     template <class F>
-    auto fmap(F&& function, const beman::optional::optional<VALUE_TYPE>& value) const
+    auto fmap(this auto&&,
+              F&& function,
+              const beman::optional::optional<VALUE_TYPE>& value)
     {
         using Result = std::invoke_result_t<F, const VALUE_TYPE&>;
         if (!value) {
@@ -80,9 +72,11 @@ struct BemanOptionalFunctorMap {
 };
 
 template <class VALUE_TYPE>
-struct VectorFunctorMap {
+struct VectorFunctorImpl {
     template <class F>
-    auto fmap(F&& function, const std::vector<VALUE_TYPE>& values) const
+    auto fmap(this auto&&,
+              F&& function,
+              const std::vector<VALUE_TYPE>& values)
     {
         using Result = std::invoke_result_t<F, const VALUE_TYPE&>;
         std::vector<remove_cvref_t<Result> > output;
@@ -94,6 +88,22 @@ struct VectorFunctorMap {
 
         return output;
     }
+};
+
+template <class VALUE_TYPE>
+struct OptionalFunctorMap : Functor<OptionalFunctorImpl<VALUE_TYPE> > {
+    using OptionalFunctorImpl<VALUE_TYPE>::fmap;
+};
+
+template <class VALUE_TYPE>
+    requires(!std::same_as<beman::optional::optional<VALUE_TYPE>, std::optional<VALUE_TYPE> >)
+struct BemanOptionalFunctorMap : Functor<BemanOptionalFunctorImpl<VALUE_TYPE> > {
+    using BemanOptionalFunctorImpl<VALUE_TYPE>::fmap;
+};
+
+template <class VALUE_TYPE>
+struct VectorFunctorMap : Functor<VectorFunctorImpl<VALUE_TYPE> > {
+    using VectorFunctorImpl<VALUE_TYPE>::fmap;
 };
 
 template <class VALUE_TYPE>
