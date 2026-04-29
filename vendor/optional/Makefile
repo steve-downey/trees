@@ -12,7 +12,7 @@ TARGETS := test clean all ctest
 export
 
 .update-submodules:
-	git submodule update --init --recursive
+	#git submodule update --init --recursive
 	touch .update-submodules
 
 .gitmodules: .update-submodules

@@ -18,20 +18,26 @@ target_link_libraries(smd_typeclass_slide_examples
         smd_typeclass
 )
 
-add_executable(smd_typeclass_slide_examples_tests examples.t.cpp)
+target_compile_features(smd_typeclass_slide_examples PUBLIC cxx_std_23)
 
-target_include_directories(smd_typeclass_slide_examples_tests
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../..
-)
+if(OPTIONAL_ENABLE_TESTING AND GTest_FOUND)
+    add_executable(smd_typeclass_slide_examples_tests examples.t.cpp)
 
-target_link_libraries(smd_typeclass_slide_examples_tests
-    PRIVATE
-        smd_typeclass_slide_examples
-        smd_typeclass
-        GTest::gtest
-        GTest::gtest_main
-)
+    target_include_directories(smd_typeclass_slide_examples_tests
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../..
+    )
 
-include(GoogleTest)
-gtest_discover_tests(smd_typeclass_slide_examples_tests)
+    target_link_libraries(smd_typeclass_slide_examples_tests
+        PRIVATE
+            smd_typeclass_slide_examples
+            smd_typeclass
+            GTest::gtest
+            GTest::gtest_main
+    )
+
+    target_compile_features(smd_typeclass_slide_examples_tests PRIVATE cxx_std_23)
+
+    include(GoogleTest)
+    gtest_discover_tests(smd_typeclass_slide_examples_tests)
+endif()

@@ -1,5 +1,4 @@
 #include <smd/typeclass/examples/examples.hpp>
-#include <smd/typeclass/examples/examples.hpp>
 
 #include <gtest/gtest.h>
 

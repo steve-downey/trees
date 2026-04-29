@@ -1,24 +1,356 @@
+#+TITLE: Algorithms for Trees: Foldable, Applicative, Traversable
+#+SUBTITLE: Type classes beyond Functors and Monads
+#+DATE: <2024-02-01 Thu>
+#+AUTHOR: Steve Downey
+#+EMAIL: sdowney2@bloomberg.net
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
 
-#+TITLE: Foldable Applicative Traversable
+* export settings :noexport:
+#+org-export-with-smart-quotes: nil
+#+org-export-with-emphasize: t
+#+org-export-with-special-strings: t
+#+org-export-with-fixed-width: t
+#+org-export-with-timestamps: t
+#+org-export-preserve-breaks: nil
+#+org-export-with-sub-superscripts: nil
+#+org-export-with-archived-trees: headline
+#+org-export-with-author: t
+#+org-export-headline-levels: 3
 
-* Ranges vs ZipList
+#+org-export-with-broken-links: nil
+#+org-export-with-clocks: nil
+#+org-export-with-creator: nil
+#+org-export-with-drawers: (not "LOGBOOK")
+#+org-export-with-date: t
+#+org-export-with-entities: t
 
-** Ranges (nondeterminism)
-- Cartesian product
+#+org-export-with-email: nil
+#+org-export-with-footnotes: t
+#+org-export-with-inlinetasks: t
+#+org-export-with-section-numbers: t
+#+org-export-with-planning: nil
+#+org-export-with-priority: nil
+#+org-export-with-properties: nil
+#+org-export-with-statistics-cookies: t
+#+org-export-with-tags: t
 
-** ZipList (data parallel)
-- position-wise
+#+org-export-with-tasks: t
+#+org-export-with-latex: t
+#+org-export-timestamp-file: t
+#+org-export-with-title: n
+#+org-export-with-toc: nil
+#+org-export-with-todo: t
+#+org-export-with-tables: t
 
-#+begin_src cpp
-// ziplist-example
-auto r = smd::invoke<smd::zip_list<int>>(f, xs);
-// ziplist-example end
-#+end_src
+#+org-html-link-use-abs-url: nil
+#+org-html-postamble: nil
+#+org-html-preamble: t
+#+org-html-scripts: n
+#+org-html-style: nil
+#+org-html5-fancy: t
+#+org-html-self-link-headlines: t
 
-* Tree Applicative
+#+html_doctype: xhtml5
+#+html_container: div
+#+html_link_home:
+#+html_link_up:
+#+html_mathjax:
+#+html_head:
+#+html_head_extra:
+#+infojs_opt:
 
-** Default
-- Monad-derived substitution
+#+select_tags: export
+#+exclude_tags: noexport
 
-** Alternate
-- ZipTree (future)
+#+STARTUP: showeverything
+
+#+OPTIONS: reveal_width:1600 reveal_height:900
+#+REVEAL_TRANS: fade
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../etc/modus-vivendi-tinted.css" />
+
+#+REVEAL_PLUGINS: (math markdown notes search zoom)
+#+REVEAL_EXTRA_CSS: ../etc/modus-vivendi-tinted.css
+#+REVEAL_THEME: ../etc/my_theme.css
+#+REVEAL_EXTRA_CSS: ../etc/footer.css
+#+REVEAL_TITLE_SLIDE: <p>
+#+REVEAL_TITLE_SLIDE_BACKGROUND: ./title_card.png
+
+# #+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_ROOT: ../reveal.js
+#+REVEAL_VERSION: 6
+#+reveal_defaulttiming: 60
+
+#+REVEAL_HLEVEL: 1
+#+REVEAL_EXPORT_NOTES_TO_PDF: separate-page
+#+REVEAL_DEFAULT_FRAG_STYLE: (appear)
+
+#+OPTIONS: reveal_single_file:t
+
+#+CITE_EXPORT: csl ../etc/chicago-author-date.csl
+#+BIBLIOGRAPHY: ../etc/wg21.bib
+#+BIBLIOGRAPHY: ../etc/local.bib
+
+* Algorithms For Trees
+- Foldable
+- Applicative
+- Traversable
+
+** Abstract
+
+The use of the functor and monad patterns in ranges, sender-receiver, optional, and expected has been broadly and widely successful. There are other type classes that C++ can profitably adopt for use in generic programming that have proven to be useful in other languages and ecosystems in the last decade.
+
+In particular, I am interested in better support for algorithms over trees, and other data structures, where flattening into a sequence loses too much information. In this talk, I will focus on Foldable, Applicative, and Traversable type classes, as well as Monoid, as it provides capabilities for a number of tree algorithms.
+
+The eventual goal of this work is to provide ~fingertree~ to the standard library, as well as support for application domain trees in use today, such as expression evaluators and syntax trees.
+
+** Foldable
+- Foldables :: are types which can be made to look like a sequence of some sort, or a range, and support the basic ~fold~ operation which provides much of the power of std::ranges. Providing opt-in hooks for making a type Foldable rather than a Range is useful.
+
+** Applicative
+- Applicatives :: were introduced to provide the pattern of 'pure function applied to funny arguments', where a type "supports its own peculiar way of giving meaning to the usual [notion of function invocation]." The implementation details of partially applied functions in a container turn out to be a distraction from understanding. They turn out to be widely relevant in contexts such as data parallel operations, and with less overhead than monadic operations.
+
+** Traversable
+- Traversables :: are generalizations of Foldables which allow preservation of the "shape" of a container, where a Foldable can only see the ordered sequence. A binary tree can be traversed and maintain the parent child relationships, where a fold can at most produce a range. Traversable also provides the ability to "commute" containers, generically, providing the ability to convert a range of tasks into a task producing a range.
+
+** Not Monadic
+sorry
+
+* Ranges Flatten the World
+*** Linearization as a design assumption
+- Ranges are a great default when the structure is inherently sequential.
+- Many generic algorithms quietly assume that flattening first is semantically neutral.
+- For trees, flattening throws away parent/child relationships and subtree boundaries.
+
+#+begin_notes
+This is the setup: flattening is a design choice, not a law of nature.
+The talk is about recovering algorithms that preserve structure when structure matters.
+CITE_PLACEHOLDER: deep-research-report (1).md :: Traversable is shape-preserving, not generic range iteration.
+#+end_notes
+
+*** Where structure carries meaning
+- Search paths, balancing, and decomposition points are part of the meaning.
+- The same inorder sequence can come from many different trees.
+- If we flatten too early, we lose algorithmic leverage.
+
+#+begin_notes
+The argument is practical: preserving shape enables better APIs for split/search/relabel.
+CITE_PLACEHOLDER: deep-research-report (3).md :: Foldable and Traversable as separate interfaces for trees.
+#+end_notes
+
+*** Trees that are not sequences
+- Expression trees: hierarchy controls precedence and rewrite legality.
+- Syntax trees: children have roles, not just positions.
+- Measured trees: internal summaries drive efficient split/search.
+
+#+begin_notes
+A range view is still useful, but it should be derived, not the primary model.
+CITE_PLACEHOLDER: deep-research-report.md :: RangeFoldable is broad, RangeTraversable is not a safe blanket default.
+#+end_notes
+
+* Visitors, Pattern Matching, and the Missing Syntax
+*** Visitor as manual recursion control
+- Visitor centralizes recursion, but at the cost of ceremony and indirection.
+- Every new operation requires another visitor type or lambda nest.
+- The control flow is explicit, but often noisy.
+
+#+begin_notes
+Visitor is not wrong; it is just too low-level for everyday algebraic operations.
+CITE_PLACEHOLDER: deep-research-report (2).md :: Historical framing around practice-first OO/tooling and abstraction.
+#+end_notes
+
+*** Pattern matching as the intended interface
+- Pattern matching expresses what cases exist directly.
+- C++ is moving in this direction, but we still need practical libraries now.
+- Typeclass-style APIs can encode the same intent with today's language.
+
+#+begin_notes
+Design now so the API maps naturally to future language features.
+CITE_PLACEHOLDER: deep-research-report (3).md :: Algorithm-function-object style and explicit concept-map lookup.
+#+end_notes
+
+*** Designing today for tomorrow’s syntax
+- Keep recursion control in library algorithms, not business code.
+- Expose a small vocabulary: ~fold_map~, ~invoke~, ~traverse~.
+- Make call sites read like intent, not machinery.
+
+#+begin_notes
+The point is migration-friendly design, not speculative syntax tricks.
+CITE_PLACEHOLDER: deep-research-report (17).md :: Clarity-first extension of existing concept_map surface.
+#+end_notes
+
+* Recursion Schemes You Can Actually Use
+*** F-algebras: how to collapse one layer
+- Think of an algebra as consume one layer and summarize it.
+- The recursion pattern stays fixed while business logic changes.
+- This separation makes tree algorithms easier to reason about.
+
+#+begin_notes
+I only need the intuition here, not full categorical development.
+CITE_PLACEHOLDER: deep-research-report.md :: Recursion/algebra framing with practical C++ interface constraints.
+#+end_notes
+
+*** Catamorphisms as principled fold
+- Catamorphism: apply the algebra recursively until the structure is collapsed.
+- In C++, this corresponds to a disciplined fold over a recursive representation.
+- You get reuse without hardcoding each algorithm into the node type.
+
+#+begin_notes
+Foldable is the operational entry point for this in everyday code.
+CITE_PLACEHOLDER: deep-research-report (1).md :: Foldable as fold_map-first in this repository style.
+#+end_notes
+
+*** Separating recursion from business logic
+- Business logic should answer how to combine results, not how to recurse.
+- This yields smaller tests and more reusable algorithms.
+- It also creates a natural place to enforce laws.
+
+#+begin_notes
+When recursion is abstracted, law tests become executable documentation.
+CITE_PLACEHOLDER: deep-research-report (3).md :: Law-oriented test strategy for Foldable/Applicative/Traversable.
+#+end_notes
+
+* Preserving Shape: Traversable and Friends
+*** Foldable vs Traversable: sequence vs shape
+- Foldable consumes structure into a summary.
+- Traversable maps with effects while rebuilding the same outer shape.
+- For trees, this is the difference between count nodes and relabel nodes in place.
+
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]]
+:lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
+
+#+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]]
+:lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
+
+*** Applicative as the minimal effect model
+- Applicative captures independent effectful arguments without full monadic sequencing.
+- It is enough for lawful traversal in many practical cases.
+- Public API should read as ordinary invocation over effectful values.
+
+#+transclude: [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]]
+:lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
+
+*** Commuting containers generically
+- Traversal commutes shape and effect: from shape of effects to effect of shape.
+- This gives a generic path from many small checks to one checked result.
+- Use this to model validation, partial relabeling, and structured transformations.
+
+#+begin_notes
+Key law intuition: preserve shape and evaluation order discipline.
+CITE_PLACEHOLDER: deep-research-report (1).md :: Traversable laws: identity, naturality, composition; left-to-right effects.
+#+end_notes
+
+*** Laws that keep this honest
+- Applicative: identity, composition, homomorphism, interchange.
+- Traversable: identity, naturality, composition.
+- Foldable: derived operations agree with ~fold_map~.
+
+#+begin_notes
+If these fail, abstractions become accidental APIs rather than reliable interfaces.
+CITE_PLACEHOLDER: deep-research-report (3).md :: Applicative law set and Functor coherence via invoke/map.
+#+end_notes
+
+*** Bad Applicative is easy to spot
+- A tree Applicative should preserve structural meaning.
+- Expanding shape during application changes semantics.
+- Keep alternate semantics explicit, never surprising defaults.
+
+#+transclude: [[file:src/smd/typeclass/examples/applicative_bad.cpp::d2e7a1c9-0f3b-4b2e-9d55-1a8e7c4b2f90]]
+:lines 2- :src cpp :end "d2e7a1c9-0f3b-4b2e-9d55-1a8e7c4b2f90 end"
+
+* Monoids and Measured Trees
+*** Associativity as algorithmic leverage
+- Associativity lets us regroup work without changing results.
+- Measured trees exploit this to maintain summaries incrementally.
+- This is the bridge from algebra to asymptotic performance.
+
+#+begin_notes
+If the measure is a monoid, split/search become compositional.
+CITE_PLACEHOLDER: deep-research-report.md :: Monoid-driven measured tree design and fold_map alignment.
+#+end_notes
+
+*** Annotations as summaries
+- Each node caches a measure of its subtree.
+- Measures are domain-specific: size, min priority, span, or cost.
+- Updating structure updates summaries locally.
+
+#+begin_notes
+The data structure stays the same while behavior changes with the monoid.
+CITE_PLACEHOLDER: deep-research-report (17).md :: One structure, multiple interpretations via measure/monoid.
+#+end_notes
+
+*** Search and split driven by measures
+- Search is done against accumulated measure, not by linear scan.
+- Split follows the measure boundary where a predicate flips.
+- This yields one structure with many interpretations.
+
+#+begin_notes
+Sequence, priority queue, and rope are policy layers on one core tree.
+CITE_PLACEHOLDER: deep-research-report (17).md :: Finger tree interpretation layering and measure-guided operations.
+#+end_notes
+
+* Finger Trees as a Case Study
+*** Persistent concatenation and splitting
+- Finger trees give cheap persistence-friendly concatenation and splitting.
+- They support practical editor and queue workloads with strong asymptotics.
+- The API naturally composes with foldable/traversable abstractions.
+
+#+begin_notes
+This is where abstractions meet implementation reality.
+CITE_PLACEHOLDER: deep-research-report (17).md :: Finger tree structural equations and implementation-critical invariants.
+#+end_notes
+
+*** One structure, many interpretations
+- Change the monoid, change the interpretation.
+- Same implementation can model sequence, priority queue, or rope.
+- Reuse is semantic, not just syntactic.
+
+#+begin_notes
+This is the strongest argument for measured trees in a standard library context.
+CITE_PLACEHOLDER: deep-research-report.md :: Path from concept_map interfaces to fingertree case study.
+#+end_notes
+
+*** Why this belongs in modern C++
+- Zero-cost abstractions and strong typing fit this design.
+- Multiple paradigms can coexist: value types, OO boundaries, generic algorithms.
+- This is not import Haskell; it is idiomatic modern C++ with better algebraic interfaces.
+
+#+begin_notes
+Pragmatic conclusion: values first, identity where required, and laws where possible.
+CITE_PLACEHOLDER: deep-research-report (2).md :: Contemporary C++ multi-paradigm framing and deliberate OO use.
+#+end_notes
+
+* Designing APIs That Won’t Age Poorly
+*** Library abstractions anticipating language features
+- Favor explicit, composable operations over magical overload sets.
+- Keep extension points separate from core type definitions.
+- Make future language support a simplification, not a rewrite.
+
+#+begin_notes
+Pattern matching and richer generic facilities should refine this API, not replace it.
+CITE_PLACEHOLDER: deep-research-report (3).md :: C++23-compatible surface with C++20-aware constraints.
+#+end_notes
+
+*** Avoiding the ~std::bind~ vs lambda overlap
+- Avoid parallel abstractions that solve the same use case differently.
+- Choose one clear good path per concept.
+- For Applicative, that path is ~invoke~ for users.
+
+#+begin_notes
+The goal is reducing cognitive branching in generic code.
+CITE_PLACEHOLDER: deep-research-report (17).md :: Naming split: primitive operations vs user-facing algorithms.
+#+end_notes
+
+*** Keeping the good path obvious
+- Make lawful defaults easy and alternate policies explicit.
+- Keep naming consistent across concepts.
+- Back claims with executable law tests.
+
+#+begin_notes
+The best API docs in this space are tests that encode the laws.
+CITE_PLACEHOLDER: deep-research-report (3).md :: Law tests as primary validation for interface correctness.
+#+end_notes
+
+# Local Variables:
+# org-html-htmlize-output-type: inline-css
+# End:
