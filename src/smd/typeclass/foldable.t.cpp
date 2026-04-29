@@ -144,4 +144,7 @@ TEST(FoldableTypeclassTest, ToVectorAndCombineAll)
     const auto& vector_foldable = smd::foldable_typeclass<VectorTree>;
     const auto combined = vector_foldable.combine_all(vectors);
     EXPECT_EQ(combined, (std::vector<int>{1, 2, 3}));
+
+    const auto folded = vector_foldable.fold(vectors);
+    EXPECT_EQ(folded, (std::vector<int>{1, 2, 3}));
 }

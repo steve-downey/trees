@@ -191,6 +191,12 @@ struct Foldable : protected Impl {
                std::forward<T>(value));
   }
 
+  template <class T>
+  auto fold(this auto&& self, T&& value)
+  {
+    return self.combine_all(std::forward<T>(value));
+  }
+
   template <class T, class PREDICATE>
   auto any_of(this auto&& self, T&& value, PREDICATE&& predicate) -> bool
   {

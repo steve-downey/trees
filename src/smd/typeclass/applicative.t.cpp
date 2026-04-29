@@ -33,3 +33,29 @@ TEST(ApplicativeTypeclassTest, InvokeOptional)
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(*result, 5);
 }
+
+TEST(ApplicativeTypeclassTest, MapOptional)
+{
+    std::optional<int> value{21};
+    const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
+
+    auto result = applicative.map([](int x) { return x * 2; }, value);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(*result, 42);
+}
+
+TEST(ApplicativeTypeclassTest, InvokeWithExplicitMap)
+{
+    std::optional<int> ax{10};
+    std::optional<int> ay{5};
+    const auto& default_applicative = smd::applicative_typeclass<std::optional<int> >;
+    const auto& optional_applicative = smd::applicative_typeclass<std::optional<int> >;
+
+    auto result = default_applicative.invoke_with(
+        optional_applicative,
+        [](int a, int b) { return a + b; },
+        ax,
+        ay);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(*result, 15);
+}

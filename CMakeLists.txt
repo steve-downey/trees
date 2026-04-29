@@ -22,17 +22,18 @@ include(FetchContent)
 set(TARGETS_EXPORT_NAME ${CMAKE_PROJECT_NAME}Targets)
 
 option(
-    OPTIONAL_ENABLE_TESTING
+    TREE_ENABLE_TESTING
     "Enable building tests and test infrastructure"
     ${PROJECT_IS_TOP_LEVEL}
 )
 
 set(CMAKE_VERIFY_INTERFACE_HEADER_SETS ON)
 
-if(OPTIONAL_ENABLE_TESTING)
+if(TREE_ENABLE_TESTING)
     find_package(GTest CONFIG QUIET)
 endif()
 
+set(OPTIONAL_ENABLE_TESTING OFF)
 add_subdirectory(vendor/optional EXCLUDE_FROM_ALL)
 
 # find_package(

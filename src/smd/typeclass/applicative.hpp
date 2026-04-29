@@ -25,6 +25,13 @@ struct Applicative : protected Impl {
   using Impl::invoke;
   using Impl::pure;
 
+  template <class FUNCTION, class ARGUMENT>
+  auto map(this auto&& self, FUNCTION&& function, ARGUMENT&& argument)
+  {
+    return self.invoke(std::forward<FUNCTION>(function),
+                       std::forward<ARGUMENT>(argument));
+  }
+
   template <class VALUE>
   auto lift(this auto&& self, VALUE&& value)
   {
@@ -75,6 +82,35 @@ struct Applicative : protected Impl {
       },
       std::forward<FIRST_ARGUMENT>(first_argument),
       std::forward<SECOND_ARGUMENT>(second_argument));
+  }
+
+  template <class APPLICATIVE_MAP,
+            class FUNCTION,
+            class FIRST_ARGUMENT,
+            class... REST_ARGUMENTS>
+  auto invoke_with(this auto&&,
+                   const APPLICATIVE_MAP& applicative_map,
+                   FUNCTION&& function,
+                   FIRST_ARGUMENT&& first_argument,
+                   REST_ARGUMENTS&&... rest_arguments)
+  {
+    return applicative_map.invoke(std::forward<FUNCTION>(function),
+                                  std::forward<FIRST_ARGUMENT>(first_argument),
+                                  std::forward<REST_ARGUMENTS>(rest_arguments)...);
+  }
+
+  template <const auto& APPLICATIVE_MAP,
+            class FUNCTION,
+            class FIRST_ARGUMENT,
+            class... REST_ARGUMENTS>
+  auto invoke_with(this auto&&,
+                   FUNCTION&& function,
+                   FIRST_ARGUMENT&& first_argument,
+                   REST_ARGUMENTS&&... rest_arguments)
+  {
+    return APPLICATIVE_MAP.invoke(std::forward<FUNCTION>(function),
+                                  std::forward<FIRST_ARGUMENT>(first_argument),
+                                  std::forward<REST_ARGUMENTS>(rest_arguments)...);
   }
 };
 

@@ -21,7 +21,7 @@ target_link_libraries(smd_typeclass_slide_examples
 
 target_compile_features(smd_typeclass_slide_examples PUBLIC cxx_std_23)
 
-if(OPTIONAL_ENABLE_TESTING AND GTest_FOUND)
+if(TREE_ENABLE_TESTING AND GTest_FOUND)
     add_executable(smd_typeclass_slide_examples_tests examples.t.cpp)
 
     target_include_directories(smd_typeclass_slide_examples_tests
