@@ -1,17 +1,18 @@
 #ifndef INCLUDE_SMD_TREE_FINGER_TREE_HPP
 #define INCLUDE_SMD_TREE_FINGER_TREE_HPP
 
-#include <algorithm>
 #include <cassert>
 #include <cstddef>
-#include <iterator>
+#include <memory>
 #include <optional>
-#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
 
 namespace smd::tree {
+
+template <typename T>
+using Boxed = std::shared_ptr<const T>;
 
 template <typename T>
 struct One {
@@ -36,157 +37,199 @@ using Digit = std::variant<One<T>, Two<T>, Three<T>>;
 
 template <typename T>
 struct Node2 {
-  T a;
-  T b;
+  Boxed<T> a;
+  Boxed<T> b;
 };
 
 template <typename T>
 struct Node3 {
-  T a;
-  T b;
-  T c;
+  Boxed<T> a;
+  Boxed<T> b;
+  Boxed<T> c;
 };
 
 template <typename T>
 using Node = std::variant<Node2<T>, Node3<T>>;
 
 template <typename T>
-inline auto digit_to_vector(const Digit<T>& d) -> std::vector<T>
-{
-  return std::visit(
-    [](const auto& node) -> std::vector<T> {
-      using N = std::decay_t<decltype(node)>;
-      if constexpr (std::is_same_v<N, One<T>>) {
-        return {node.a};
-      } else if constexpr (std::is_same_v<N, Two<T>>) {
-        return {node.a, node.b};
-      } else {
-        return {node.a, node.b, node.c};
-      }
-    },
-    d);
-}
-
-template <typename T>
-inline auto node_to_vector(const Node<T>& n) -> std::vector<T>
-{
-  return std::visit(
-    [](const auto& node) -> std::vector<T> {
-      using N = std::decay_t<decltype(node)>;
-      if constexpr (std::is_same_v<N, Node2<T>>) {
-        return {node.a, node.b};
-      } else {
-        return {node.a, node.b, node.c};
-      }
-    },
-    n);
-}
-
-template <typename T>
 class FingerTree {
-  struct Empty {};
+  struct Segment;
+  using SegmentPtr = std::shared_ptr<const Segment>;
 
-  struct Single {
-    T d_value;
+  struct Segment {
+    virtual ~Segment() = default;
+
+    [[nodiscard]] virtual auto size() const -> std::size_t = 0;
+    [[nodiscard]] virtual auto depth() const -> std::size_t = 0;
+    virtual void flatten_into(std::vector<T>& out) const = 0;
+    [[nodiscard]] virtual auto pop_left() const -> std::optional<std::pair<T, SegmentPtr>> = 0;
+    [[nodiscard]] virtual auto pop_right() const -> std::optional<std::pair<T, SegmentPtr>> = 0;
   };
 
-  struct Deep {
-    std::size_t d_measure;
-    Digit<T> d_prefix;
-    std::vector<Node<T>> d_middle;
-    Digit<T> d_suffix;
+  struct FlatSegment final : Segment {
+    std::shared_ptr<const std::vector<T>> d_values;
+    std::size_t d_begin;
+    std::size_t d_end;
+
+    explicit FlatSegment(std::vector<T> values)
+      : d_values(std::make_shared<const std::vector<T>>(std::move(values)))
+      , d_begin(0)
+      , d_end(d_values->size())
+    {
+    }
+
+    FlatSegment(std::shared_ptr<const std::vector<T>> values, std::size_t begin, std::size_t end)
+      : d_values(std::move(values))
+      , d_begin(begin)
+      , d_end(end)
+    {
+    }
+
+    [[nodiscard]] auto size() const -> std::size_t override { return d_end - d_begin; }
+
+    [[nodiscard]] auto depth() const -> std::size_t override
+    {
+      return size() == 0 ? std::size_t{0} : std::size_t{1};
+    }
+
+    void flatten_into(std::vector<T>& out) const override
+    {
+      out.insert(out.end(),
+                 d_values->begin() + static_cast<std::ptrdiff_t>(d_begin),
+                 d_values->begin() + static_cast<std::ptrdiff_t>(d_end));
+    }
+
+    [[nodiscard]] auto pop_left() const -> std::optional<std::pair<T, SegmentPtr>> override
+    {
+      if (size() == 0) {
+        return std::nullopt;
+      }
+
+      SegmentPtr rest;
+      if (size() > 1) {
+        rest = std::make_shared<const FlatSegment>(d_values, d_begin + 1, d_end);
+      }
+
+      return std::pair<T, SegmentPtr>{(*d_values)[d_begin], std::move(rest)};
+    }
+
+    [[nodiscard]] auto pop_right() const -> std::optional<std::pair<T, SegmentPtr>> override
+    {
+      if (size() == 0) {
+        return std::nullopt;
+      }
+
+      SegmentPtr rest;
+      if (size() > 1) {
+        rest = std::make_shared<const FlatSegment>(d_values, d_begin, d_end - 1);
+      }
+
+      return std::pair<T, SegmentPtr>{(*d_values)[d_end - 1], std::move(rest)};
+    }
   };
 
-  std::variant<Empty, Single, Deep> d_data;
-
-  static auto digit_size(const Digit<T>& digit) -> std::size_t
+  static auto seg_size(const SegmentPtr& seg) -> std::size_t
   {
-    return std::visit(
-      [](const auto& node) -> std::size_t {
-        using N = std::decay_t<decltype(node)>;
-        if constexpr (std::is_same_v<N, One<T>>) {
-          return 1U;
+    return seg ? seg->size() : std::size_t{0};
+  }
+
+  static auto seg_depth(const SegmentPtr& seg) -> std::size_t
+  {
+    return seg ? seg->depth() : std::size_t{0};
+  }
+
+  static auto make_flat(std::vector<T> values) -> SegmentPtr
+  {
+    if (values.empty()) {
+      return nullptr;
+    }
+    return std::make_shared<const FlatSegment>(std::move(values));
+  }
+
+  struct ConcatSegment final : Segment {
+    SegmentPtr d_left;
+    SegmentPtr d_right;
+    std::size_t d_size;
+    std::size_t d_depth;
+
+    ConcatSegment(SegmentPtr left, SegmentPtr right)
+      : d_left(std::move(left))
+      , d_right(std::move(right))
+      , d_size(seg_size(d_left) + seg_size(d_right))
+      , d_depth(std::max(seg_depth(d_left), seg_depth(d_right)) + std::size_t{1})
+    {
+    }
+
+    [[nodiscard]] auto size() const -> std::size_t override { return d_size; }
+    [[nodiscard]] auto depth() const -> std::size_t override { return d_depth; }
+
+    void flatten_into(std::vector<T>& out) const override
+    {
+      if (d_left) {
+        d_left->flatten_into(out);
+      }
+      if (d_right) {
+        d_right->flatten_into(out);
+      }
+    }
+
+    [[nodiscard]] auto pop_left() const -> std::optional<std::pair<T, SegmentPtr>> override
+    {
+      if (!d_left && !d_right) {
+        return std::nullopt;
+      }
+
+      if (d_left) {
+        auto l = d_left->pop_left();
+        if (l.has_value()) {
+          return std::pair<T, SegmentPtr>{std::move(l->first), make_concat(std::move(l->second), d_right)};
         }
-        if constexpr (std::is_same_v<N, Two<T>>) {
-          return 2U;
+      }
+
+      return d_right ? d_right->pop_left() : std::nullopt;
+    }
+
+    [[nodiscard]] auto pop_right() const -> std::optional<std::pair<T, SegmentPtr>> override
+    {
+      if (!d_left && !d_right) {
+        return std::nullopt;
+      }
+
+      if (d_right) {
+        auto r = d_right->pop_right();
+        if (r.has_value()) {
+          return std::pair<T, SegmentPtr>{std::move(r->first), make_concat(d_left, std::move(r->second))};
         }
-        return 3U;
-      },
-      digit);
-  }
+      }
 
-  static auto node_size(const Node<T>& node) -> std::size_t
-  {
-    return std::visit(
-      [](const auto& n) -> std::size_t {
-        using N = std::decay_t<decltype(n)>;
-        if constexpr (std::is_same_v<N, Node2<T>>) {
-          return 2U;
-        }
-        return 3U;
-      },
-      node);
-  }
-
-  static auto middle_size(const std::vector<Node<T>>& middle) -> std::size_t
-  {
-    std::size_t total = 0;
-    for (const auto& n : middle) {
-      total += node_size(n);
+      return d_left ? d_left->pop_right() : std::nullopt;
     }
-    return total;
-  }
+  };
 
-  static auto to_tuples(std::vector<T> values) -> std::vector<Node<T>>
+  static auto make_concat(SegmentPtr left, SegmentPtr right) -> SegmentPtr
   {
-    std::vector<Node<T>> nodes;
-    if (values.size() < 2) {
-      return nodes;
+    if (!left) {
+      return right;
     }
-
-    std::size_t i = 0;
-    std::size_t remaining = values.size();
-
-    // Avoid leaving a single trailing element by pre-splitting 4 -> 2 + 2.
-    if (remaining % 3 == 1 && remaining >= 4) {
-      nodes.push_back(Node2<T>{std::move(values[i]), std::move(values[i + 1])});
-      i += 2;
-      remaining -= 2;
-      nodes.push_back(Node2<T>{std::move(values[i]), std::move(values[i + 1])});
-      i += 2;
-      remaining -= 2;
-    } else if (remaining % 3 == 2) {
-      nodes.push_back(Node2<T>{std::move(values[i]), std::move(values[i + 1])});
-      i += 2;
-      remaining -= 2;
+    if (!right) {
+      return left;
     }
-
-    while (remaining >= 3) {
-      nodes.push_back(
-        Node3<T>{std::move(values[i]), std::move(values[i + 1]), std::move(values[i + 2])});
-      i += 3;
-      remaining -= 3;
-    }
-
-    if (remaining == 2) {
-      nodes.push_back(Node2<T>{std::move(values[i]), std::move(values[i + 1])});
-    }
-
-    return nodes;
+    return std::make_shared<const ConcatSegment>(std::move(left), std::move(right));
   }
 
-  auto make_single(T value) const -> FingerTree
+  SegmentPtr d_root;
+
+  explicit FingerTree(SegmentPtr root)
+    : d_root(std::move(root))
   {
-    return FingerTree(Single{std::move(value)});
   }
 
-  auto make_deep(Digit<T> prefix, std::vector<Node<T>> middle, Digit<T> suffix) const
-    -> FingerTree
+  explicit FingerTree(std::vector<T> values)
+    : d_root(make_flat(std::move(values)))
   {
-    const auto total = digit_size(prefix) + middle_size(middle) + digit_size(suffix);
-    return FingerTree(
-      Deep{total, std::move(prefix), std::move(middle), std::move(suffix)});
   }
+
+  FingerTree() = default;
 
  public:
   struct View {
@@ -194,125 +237,26 @@ class FingerTree {
     FingerTree d_rest;
   };
 
-  static auto empty() -> FingerTree { return FingerTree(Empty{}); }
+  static auto empty() -> FingerTree { return FingerTree(std::vector<T>{}); }
 
   static auto leaf(T value) -> FingerTree
   {
-    FingerTree builder(Empty{});
-    return builder.make_single(std::move(value));
+    return FingerTree(std::vector<T>{std::move(value)});
   }
 
   auto cons(T x) const -> FingerTree
   {
-    return std::visit(
-      [this, &x](const auto& node) -> FingerTree {
-        using N = std::decay_t<decltype(node)>;
-        if constexpr (std::is_same_v<N, Empty>) {
-          return make_single(std::move(x));
-        } else if constexpr (std::is_same_v<N, Single>) {
-          return make_deep(
-            One<T>{std::move(x)}, std::vector<Node<T>>{}, One<T>{node.d_value});
-        } else {
-          return std::visit(
-            [this, &x, &node](const auto& prefix) -> FingerTree {
-              using P = std::decay_t<decltype(prefix)>;
-              if constexpr (std::is_same_v<P, One<T>>) {
-                return make_deep(
-                  Two<T>{std::move(x), prefix.a}, node.d_middle, node.d_suffix);
-              } else if constexpr (std::is_same_v<P, Two<T>>) {
-                return make_deep(
-                  Three<T>{std::move(x), prefix.a, prefix.b}, node.d_middle, node.d_suffix);
-              } else {
-                auto new_middle = node.d_middle;
-                new_middle.insert(new_middle.begin(), Node2<T>{prefix.b, prefix.c});
-                return make_deep(
-                  Two<T>{std::move(x), prefix.a}, std::move(new_middle), node.d_suffix);
-              }
-            },
-            node.d_prefix);
-        }
-      },
-      d_data);
+    return FingerTree(make_concat(make_flat(std::vector<T>{std::move(x)}), d_root));
   }
 
   auto snoc(T x) const -> FingerTree
   {
-    return std::visit(
-      [this, &x](const auto& node) -> FingerTree {
-        using N = std::decay_t<decltype(node)>;
-        if constexpr (std::is_same_v<N, Empty>) {
-          return make_single(std::move(x));
-        } else if constexpr (std::is_same_v<N, Single>) {
-          return make_deep(
-            One<T>{node.d_value}, std::vector<Node<T>>{}, One<T>{std::move(x)});
-        } else {
-          return std::visit(
-            [this, &x, &node](const auto& suffix) -> FingerTree {
-              using S = std::decay_t<decltype(suffix)>;
-              if constexpr (std::is_same_v<S, One<T>>) {
-                return make_deep(
-                  node.d_prefix, node.d_middle, Two<T>{suffix.a, std::move(x)});
-              } else if constexpr (std::is_same_v<S, Two<T>>) {
-                return make_deep(
-                  node.d_prefix, node.d_middle, Three<T>{suffix.a, suffix.b, std::move(x)});
-              } else {
-                auto new_middle = node.d_middle;
-                new_middle.push_back(Node2<T>{suffix.b, suffix.c});
-                return make_deep(
-                  node.d_prefix, std::move(new_middle), Two<T>{suffix.a, std::move(x)});
-              }
-            },
-            node.d_suffix);
-        }
-      },
-      d_data);
+    return FingerTree(make_concat(d_root, make_flat(std::vector<T>{std::move(x)})));
   }
 
   auto append(const FingerTree& right) const -> FingerTree
   {
-    return std::visit(
-      [this, &right](const auto& left_node) -> FingerTree {
-        using L = std::decay_t<decltype(left_node)>;
-        if constexpr (std::is_same_v<L, Empty>) {
-          return right;
-        } else if constexpr (std::is_same_v<L, Single>) {
-          return right.cons(left_node.d_value);
-        } else {
-          return std::visit(
-            [this, &left_node](const auto& right_node) -> FingerTree {
-              using R = std::decay_t<decltype(right_node)>;
-              if constexpr (std::is_same_v<R, Empty>) {
-                return FingerTree(left_node);
-              } else if constexpr (std::is_same_v<R, Single>) {
-                return this->snoc(right_node.d_value);
-              } else {
-                auto bridge = digit_to_vector(left_node.d_suffix);
-                auto right_prefix = digit_to_vector(right_node.d_prefix);
-                bridge.insert(
-                  bridge.end(),
-                  std::make_move_iterator(right_prefix.begin()),
-                  std::make_move_iterator(right_prefix.end()));
-
-                auto bridge_nodes = to_tuples(std::move(bridge));
-
-                auto new_middle = left_node.d_middle;
-                new_middle.insert(
-                  new_middle.end(),
-                  std::make_move_iterator(bridge_nodes.begin()),
-                  std::make_move_iterator(bridge_nodes.end()));
-                new_middle.insert(new_middle.end(),
-                                  right_node.d_middle.begin(),
-                                  right_node.d_middle.end());
-
-                return make_deep(left_node.d_prefix,
-                                 std::move(new_middle),
-                                 right_node.d_suffix);
-              }
-            },
-            right.d_data);
-        }
-      },
-      d_data);
+    return FingerTree(make_concat(d_root, right.d_root));
   }
 
   static auto branch(const FingerTree& left, const FingerTree& right) -> FingerTree
@@ -335,157 +279,67 @@ class FingerTree {
     return left.append(right);
   }
 
-  auto is_empty() const -> bool { return std::holds_alternative<Empty>(d_data); }
-  auto is_leaf() const -> bool { return std::holds_alternative<Single>(d_data); }
-  auto is_branch() const -> bool { return std::holds_alternative<Deep>(d_data); }
+  auto is_empty() const -> bool { return seg_size(d_root) == 0; }
+  auto is_leaf() const -> bool { return seg_size(d_root) == 1; }
+  auto is_branch() const -> bool { return seg_size(d_root) > 1; }
 
-  auto measure() const -> std::size_t
-  {
-    return std::visit(
-      [](const auto& node) -> std::size_t {
-        using N = std::decay_t<decltype(node)>;
-        if constexpr (std::is_same_v<N, Empty>) {
-          return 0U;
-        } else if constexpr (std::is_same_v<N, Single>) {
-          return 1U;
-        } else {
-          return node.d_measure;
-        }
-      },
-      d_data);
-  }
+  auto measure() const -> std::size_t { return seg_size(d_root); }
 
   auto breadth() const -> std::size_t { return measure(); }
 
-  auto depth() const -> std::size_t
-  {
-    return std::visit(
-      [](const auto& node) -> std::size_t {
-        using N = std::decay_t<decltype(node)>;
-        if constexpr (std::is_same_v<N, Empty>) {
-          return 0U;
-        } else if constexpr (std::is_same_v<N, Single>) {
-          return 1U;
-        } else {
-          return node.d_middle.empty() ? 1U : 2U;
-        }
-      },
-      d_data);
-  }
+  auto depth() const -> std::size_t { return seg_depth(d_root); }
 
   auto value() const -> const T&
   {
     assert(is_leaf());
-    return std::get<Single>(d_data).d_value;
+    const auto* flat = dynamic_cast<const FlatSegment*>(d_root.get());
+    assert(flat != nullptr);
+    return (*(flat->d_values))[flat->d_begin];
   }
 
   auto flatten() const -> std::vector<T>
   {
-    return std::visit(
-      [](const auto& node) -> std::vector<T> {
-        using N = std::decay_t<decltype(node)>;
-        if constexpr (std::is_same_v<N, Empty>) {
-          return {};
-        } else if constexpr (std::is_same_v<N, Single>) {
-          return {node.d_value};
-        } else {
-          auto result = digit_to_vector(node.d_prefix);
-          for (const auto& middle_node : node.d_middle) {
-            auto expanded = node_to_vector(middle_node);
-            result.insert(result.end(), expanded.begin(), expanded.end());
-          }
-          auto suffix = digit_to_vector(node.d_suffix);
-          result.insert(result.end(), suffix.begin(), suffix.end());
-          return result;
-        }
-      },
-      d_data);
+    if (!d_root) {
+      return {};
+    }
+
+    std::vector<T> out;
+    out.reserve(measure());
+    d_root->flatten_into(out);
+    return out;
   }
 
   static auto from_sequence(std::vector<T> values) -> FingerTree
   {
-    if (values.empty()) {
-      return empty();
-    }
-    if (values.size() == 1) {
-      return leaf(std::move(values.front()));
-    }
-
-    const auto n = values.size();
-    const std::size_t prefix_sz = std::min<std::size_t>(3, std::max<std::size_t>(1, n / 2));
-    const std::size_t suffix_sz = std::min<std::size_t>(3, n - prefix_sz);
-
-    std::vector<T> prefix_v(values.begin(), values.begin() + prefix_sz);
-    std::vector<T> suffix_v(values.end() - suffix_sz, values.end());
-
-    std::vector<T> middle_v;
-    if (prefix_sz + suffix_sz < n) {
-      middle_v.assign(values.begin() + prefix_sz, values.end() - suffix_sz);
-    }
-
-    std::vector<Node<T>> middle_nodes;
-    for (std::size_t i = 0; i < middle_v.size();) {
-      const auto remaining = middle_v.size() - i;
-      if (remaining >= 3) {
-        middle_nodes.push_back(Node3<T>{
-          std::move(middle_v[i]), std::move(middle_v[i + 1]), std::move(middle_v[i + 2])});
-        i += 3;
-      } else if (remaining == 2) {
-        middle_nodes.push_back(Node2<T>{std::move(middle_v[i]), std::move(middle_v[i + 1])});
-        i += 2;
-      } else {
-        suffix_v.insert(suffix_v.begin(), std::move(middle_v[i]));
-        i += 1;
-      }
-    }
-
-    if (suffix_v.size() == 4) {
-      middle_nodes.push_back(Node2<T>{std::move(suffix_v[0]), std::move(suffix_v[1])});
-      suffix_v.erase(suffix_v.begin(), suffix_v.begin() + 2);
-    }
-
-    Digit<T> prefix;
-    if (prefix_v.size() == 1) {
-      prefix = One<T>{std::move(prefix_v[0])};
-    } else if (prefix_v.size() == 2) {
-      prefix = Two<T>{std::move(prefix_v[0]), std::move(prefix_v[1])};
-    } else {
-      prefix = Three<T>{std::move(prefix_v[0]), std::move(prefix_v[1]), std::move(prefix_v[2])};
-    }
-
-    Digit<T> suffix;
-    if (suffix_v.size() == 1) {
-      suffix = One<T>{std::move(suffix_v[0])};
-    } else if (suffix_v.size() == 2) {
-      suffix = Two<T>{std::move(suffix_v[0]), std::move(suffix_v[1])};
-    } else {
-      suffix = Three<T>{std::move(suffix_v[0]), std::move(suffix_v[1]), std::move(suffix_v[2])};
-    }
-
-    FingerTree builder(Empty{});
-    return builder.make_deep(std::move(prefix), std::move(middle_nodes), std::move(suffix));
+    return FingerTree(make_flat(std::move(values)));
   }
 
   auto view_l() const -> std::optional<View>
   {
-    auto values = flatten();
-    if (values.empty()) {
+    if (!d_root) {
       return std::nullopt;
     }
-    auto first = std::move(values.front());
-    values.erase(values.begin());
-    return View{std::move(first), from_sequence(std::move(values))};
+
+    auto left = d_root->pop_left();
+    if (!left.has_value()) {
+      return std::nullopt;
+    }
+
+    return View{std::move(left->first), FingerTree(std::move(left->second))};
   }
 
   auto view_r() const -> std::optional<View>
   {
-    auto values = flatten();
-    if (values.empty()) {
+    if (!d_root) {
       return std::nullopt;
     }
-    auto last_value = std::move(values.back());
-    values.pop_back();
-    return View{std::move(last_value), from_sequence(std::move(values))};
+
+    auto right = d_root->pop_right();
+    if (!right.has_value()) {
+      return std::nullopt;
+    }
+
+    return View{std::move(right->first), FingerTree(std::move(right->second))};
   }
 
   auto head() const -> T
@@ -512,22 +366,6 @@ class FingerTree {
   {
     auto v = view_r();
     return v.has_value() ? std::move(v->d_rest) : empty();
-  }
-
- private:
-  explicit FingerTree(Empty e)
-      : d_data(std::move(e))
-  {
-  }
-
-  explicit FingerTree(Single s)
-      : d_data(std::move(s))
-  {
-  }
-
-  explicit FingerTree(Deep d)
-      : d_data(std::move(d))
-  {
   }
 };
 

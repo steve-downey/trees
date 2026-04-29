@@ -7,7 +7,7 @@ set(CMAKE_CXX_COMPILER g++-15)
 set(GCOV_EXECUTABLE "gcov-15" CACHE STRING "GCOV executable" FORCE)
 
 set(CMAKE_CXX_FLAGS_ASAN
-    "${CMAKE_CXX_FLAGS_ASAN} -Wno-maybe-uninitialized"
+  "${CMAKE_CXX_FLAGS_ASAN} -Wno-maybe-uninitialized -ftemplate-depth=100"
     CACHE STRING
     "C++ ASAN Flags"
     FORCE

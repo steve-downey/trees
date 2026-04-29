@@ -6,6 +6,72 @@
 
 #include <vector>
 
+TEST(FringeTreeTest, EmptyLeafAndPredicates)
+{
+    using Tree = smd::tree::FringeTree<int>;
+
+    auto empty = Tree::empty();
+    EXPECT_TRUE(empty.is_empty());
+    EXPECT_FALSE(empty.is_leaf());
+    EXPECT_FALSE(empty.is_branch());
+    EXPECT_EQ(empty.measure(), 0U);
+    EXPECT_EQ(empty.breadth(), 0U);
+    EXPECT_EQ(empty.depth(), 0U);
+    EXPECT_EQ(empty.flatten(), (std::vector<int>{}));
+    EXPECT_FALSE(empty.view_l().has_value());
+    EXPECT_FALSE(empty.view_r().has_value());
+
+    auto single = Tree::leaf(42);
+    EXPECT_FALSE(single.is_empty());
+    EXPECT_TRUE(single.is_leaf());
+    EXPECT_FALSE(single.is_branch());
+    EXPECT_EQ(single.measure(), 1U);
+    EXPECT_EQ(single.value(), 42);
+    EXPECT_EQ(single.flatten(), (std::vector<int>{42}));
+}
+
+TEST(FringeTreeTest, BranchLeftRightAndMemberStyleOperations)
+{
+    using Tree = smd::tree::FringeTree<int>;
+
+    auto left = Tree::branch(Tree::leaf(1), Tree::leaf(2));
+    auto right = Tree::branch(Tree::leaf(3), Tree::leaf(4));
+    auto tree = Tree::branch(left, right);
+
+    ASSERT_TRUE(tree.is_branch());
+    EXPECT_EQ(tree.left().flatten(), (std::vector<int>{1, 2}));
+    EXPECT_EQ(tree.right().flatten(), (std::vector<int>{3, 4}));
+
+    auto prepended = Tree::prepend(0, tree);
+    EXPECT_EQ(prepended.flatten(), (std::vector<int>{0, 1, 2, 3, 4}));
+
+    auto appended = Tree::append(tree, 5);
+    EXPECT_EQ(appended.flatten(), (std::vector<int>{1, 2, 3, 4, 5}));
+
+    auto concatenated = Tree::concat(left, right);
+    EXPECT_EQ(concatenated.flatten(), (std::vector<int>{1, 2, 3, 4}));
+}
+
+TEST(FringeTreeTest, SingletonViewsAndEmptyTailInit)
+{
+    using Tree = smd::tree::FringeTree<int>;
+
+    auto single = Tree::leaf(7);
+    auto left = single.view_l();
+    ASSERT_TRUE(left.has_value());
+    EXPECT_EQ(left->d_value, 7);
+    EXPECT_TRUE(left->d_rest.is_empty());
+
+    auto right = single.view_r();
+    ASSERT_TRUE(right.has_value());
+    EXPECT_EQ(right->d_value, 7);
+    EXPECT_TRUE(right->d_rest.is_empty());
+
+    auto empty = Tree::empty();
+    EXPECT_TRUE(empty.tail().is_empty());
+    EXPECT_TRUE(empty.init().is_empty());
+}
+
 TEST(FringeTreeTest, BasicMeasureDepthFlatten)
 {
     using Tree = smd::tree::FringeTree<int>;
