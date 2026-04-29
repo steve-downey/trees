@@ -46,6 +46,7 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
         applicative.t.cpp
         foldable.t.cpp
         fringe_tree.t.cpp
+        finger_tree.t.cpp
         traversable.t.cpp
         zip_list_applicative.t.cpp
     )
