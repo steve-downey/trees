@@ -107,29 +107,26 @@ That call performs compile-time lookup to the right map specialization.
 - Slide snippet sources are compiled via `smd_typeclass_slide_examples`.
 - Top-level target `slide_snippets_check` ensures presentation snippets remain compilable.
 
-## Applicative: Why invoke is required (not derived)
+## Applicative: Derived invoke via terminating partial application
 
-In Haskell, the Applicative typeclass is minimal: just `pure` and `(<*>)` (binary apply).
-All n-ary operations like `liftA2`, `liftA3`, etc. can be derived because Haskell functions are **curried by default**.
+In Haskell, Applicative is minimal (`pure` and `(<*>)`) and `sequenceA`/`traverse`-style usage is naturally expressed by applying pure functions to effectful arguments.
 
-In C++, functions are not curried. A binary lambda `[](auto x, auto y) { ... }` cannot be partially applied.
-When we attempt to derive an n-ary `invoke` by left-folding `apply` calls:
+In this C++ codebase, we now model the same intent by deriving `invoke` from `pure` and `apply` using a terminating partial-application adapter:
 
 ```
-invoke(f, x1, x2) = apply(apply(pure(f), x1), x2)
+invoke(f, a, b, c) == ap(ap(ap(pure(partial(f)), a), b), c)
 ```
 
-The issue is that `apply(pure(f), x1)` returns the **result type**, not a partially-applied function.
-The chain breaks because the second `apply` cannot work on a non-function type.
+The helper object stores already-bound values and, on each call:
+- invokes `f` when enough arguments have been collected, or
+- returns a new callable waiting for the next argument.
 
-**Solution:** Each Applicative Impl must provide `invoke` directly, with arity-specific handling.
-Examples:
-- `OptionalApplicativeImpl::invoke` checks all arguments are present, then invokes atomically.
-- `FixTreeApplicativeImpl::invoke` recursively maps the function over both leaf and node cases.
+That gives us a practical equivalent of Ben Deane's terminating partial-application technique while preserving the object-map lookup model.
 
-This is a fundamental difference between curried languages and C++, and it's reflected in the contract:
-Applicative in this codebase requires `pure`, `apply`, **and** `invoke`. This is not less general than Haskell;
-it's simply the honest C++ binding of the same abstraction.
+Contract summary:
+- Minimal required operations for Applicative Impl are `pure` and `apply`.
+- `invoke` is provided by the base `Applicative<Impl>`.
+- Implementations may still override `invoke` for custom semantics/performance (for example, shape-aware structures).
 
 ## Notes for future cleanup
 
