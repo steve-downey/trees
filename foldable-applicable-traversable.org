@@ -216,24 +216,77 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Law-oriented test strategy for 
 - Traversable maps with effects while rebuilding the same outer shape.
 - For trees, this is the difference between count nodes and relabel nodes in place.
 
+*** Same algorithm, two tree representations
+- Fixpoint tree and shared_ptr binary tree can share the same Foldable call shape.
+- The representation changes; the typeclass API and algorithm intent stay the same.
+
+**** Fixpoint tree
+
 #+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]]
 :lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
+
+**** shared_ptr binary tree
+
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4]]
+:lines 2- :src cpp :end "53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end"
 
 #+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]]
 :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
 
-*** Applicative as the minimal effect model
+*** Foldable API: one primitive, many derived operations
+- Minimal implementation hook: ~fold_map~.
+- User-facing operations like ~length~, ~fold_left~, ~fold_right~, ~fold~, and ~to_vector~ are derived.
+
+#+transclude: [[file:src/smd/typeclass/foldable.hpp::e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2]]
+:lines 2- :src cpp :end "e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end"
+
+*** Foldable proof: derived operations hold in tests
+- Derived operations agree operationally with the ~fold_map~ contract.
+
+#+transclude: [[file:src/smd/typeclass/foldable.t.cpp::4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4]]
+:lines 2- :src cpp :end "4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end"
+
+*** Applicative model: pure function over effectful arguments
 - Applicative captures independent effectful arguments without full monadic sequencing.
 - It is enough for lawful traversal in many practical cases.
 - Public API should read as ordinary invocation over effectful values.
+- Prefer ~invoke~ for C++ audiences; it aligns with the ~std::invoke~ model.
+- ~apply_pure(f, a, b, c)~ is a teaching alias for audiences coming from FP notation like ~[| f a b c |]~.
 
 #+transclude: [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]]
 :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
 
-*** Commuting containers generically
+*** Applicative API: minimal core, user-facing invoke
+- Minimal implementation hook: ~pure~ and ~apply~.
+- Future-facing user spelling is ~invoke~ over effectful arguments.
+- ~apply_pure~ is retained as a pedagogical alias.
+
+#+transclude: [[file:src/smd/typeclass/applicative.hpp::a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11]]
+:lines 2- :src cpp :end "a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end"
+
+*** Applicative proof: n-ary use in tests
+- The same API handles arity > 2 without per-call-site plumbing.
+
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b]]
+:lines 2- :src cpp :end "6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end"
+
+*** Traversable model: commute shape and effect
 - Traversal commutes shape and effect: from shape of effects to effect of shape.
 - This gives a generic path from many small checks to one checked result.
 - Use this to model validation, partial relabeling, and structured transformations.
+
+*** Traversable API: one primitive, many derived operations
+- Minimal implementation hook: ~traverse~.
+- ~for_each~, ~sequence~, and ~sequence_with~ are derived helper operations.
+
+#+transclude: [[file:src/smd/typeclass/traversable.hpp::8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11]]
+:lines 2- :src cpp :end "8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end"
+
+*** Traversable proof: derived operations hold in tests
+- Sequencing works both via implicit lookup and explicit object selection.
+
+#+transclude: [[file:src/smd/typeclass/traversable.t.cpp::f1de12e0-2287-4568-98c7-75be4f6f7446]]
+:lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
 
 #+begin_notes
 Key law intuition: preserve shape and evaluation order discipline.
@@ -334,7 +387,7 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: C++23-compatible surface with C
 *** Avoiding the ~std::bind~ vs lambda overlap
 - Avoid parallel abstractions that solve the same use case differently.
 - Choose one clear good path per concept.
-- For Applicative, that path is ~invoke~ for users.
+- For Applicative, that path is ~invoke~; ~apply_pure~ is a teaching aid.
 
 #+begin_notes
 The goal is reducing cognitive branching in generic code.

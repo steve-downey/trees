@@ -7,6 +7,10 @@ add_library(smd_tree INTERFACE)
 target_sources(
     smd_tree
     PUBLIC FILE_SET smd_tree_headers TYPE HEADERS FILES
+    binary_tree.hpp
+    binary_tree_foldable.hpp
+    binary_tree_applicative.hpp
+    binary_tree_traversable.hpp
         fix_tree.hpp
         fix_tree_foldable.hpp
         fix_tree_applicative.hpp

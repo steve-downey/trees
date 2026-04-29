@@ -1,5 +1,7 @@
 #include <smd/tree/fix_tree.hpp>
 #include <smd/tree/fix_tree_foldable.hpp>
+#include <smd/tree/binary_tree.hpp>
+#include <smd/tree/binary_tree_foldable.hpp>
 #include <smd/typeclass/foldable.hpp>
 
 #include <gtest/gtest.h>
@@ -132,6 +134,7 @@ TEST(FoldableTypeclassTest, PredicatesAndFind)
 
 TEST(FoldableTypeclassTest, ToVectorAndCombineAll)
 {
+    // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4
     using IntTree = smd::tree::FixTree<int>;
     auto tree = IntTree::branch(IntTree::leaf(1), IntTree::branch(IntTree::leaf(2), IntTree::leaf(3)));
     const auto& int_foldable = smd::foldable_typeclass<IntTree>;
@@ -147,4 +150,28 @@ TEST(FoldableTypeclassTest, ToVectorAndCombineAll)
 
     const auto folded = vector_foldable.fold(vectors);
     EXPECT_EQ(folded, (std::vector<int>{1, 2, 3}));
+    // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end
+}
+
+TEST(FoldableTypeclassTest, BinaryTreeInorderFoldAndLength)
+{
+    using Tree = smd::tree::BinaryTree<int>;
+    auto tree = Tree::from_children_ptrs(
+      2,
+      Tree::make_ptr(Tree::leaf(1)),
+      Tree::make_ptr(Tree::from_children_ptrs(
+        3,
+        {},
+        Tree::make_ptr(Tree::leaf(4)))));
+
+    const auto& foldable = smd::foldable_typeclass<Tree>;
+    EXPECT_EQ(foldable.length(tree), 4U);
+
+    const auto as_vector = foldable.to_vector(tree);
+    EXPECT_EQ(as_vector, (std::vector<int>{1, 2, 3, 4}));
+
+    const auto left = foldable.fold_left(tree, 0, [](int acc, int x) {
+        return acc * 10 + x;
+    });
+    EXPECT_EQ(left, 1234);
 }
