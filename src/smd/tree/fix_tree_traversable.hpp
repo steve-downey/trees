@@ -4,23 +4,43 @@
 
 #include <smd/tree/fix_tree.hpp>
 #include <smd/tree/fix_tree_applicative.hpp>
+#include <smd/typeclass/traversable.hpp>
 
-namespace smd::tree {
+#include <functional>
+#include <type_traits>
+#include <utility>
 
-template<class F,class T>
-auto traverse(F f, const FixTree<T>& t){
-  if(t.is_leaf()) return f(t.value());
+namespace smd {
 
-  auto l = traverse(f, t.left());
-  auto r = traverse(f, t.right());
+template <class T>
+struct map<traversable_tag, smd::tree::FixTree<T> > {
+  template <class F>
+  static auto traverse(F&& f, const smd::tree::FixTree<T>& t)
+  {
+    if (t.is_leaf()) {
+      return smd::invoke(
+        [](auto&& value) {
+          using U = std::remove_cvref_t<decltype(value)>;
+          return smd::tree::FixTree<U>::leaf(
+            std::forward<decltype(value)>(value));
+        },
+        std::invoke(std::forward<F>(f), t.value()));
+    }
 
-  return apply(
-    apply(pure([](auto a, auto b){
-      return FixTree<decltype(a)>::node(a,b);
-    }), l),
-    r);
-}
+    auto left = traverse(f, t.left());
+    auto right = traverse(f, t.right());
 
-}
+    return smd::invoke(
+      [](auto&& l, auto&& r) {
+        using U = std::remove_cvref_t<decltype(l.value())>;
+        return smd::tree::FixTree<U>::node(std::forward<decltype(l)>(l),
+                           std::forward<decltype(r)>(r));
+      },
+      left,
+      right);
+  }
+};
+
+}  // close namespace smd
 
 #endif

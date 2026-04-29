@@ -1,8 +1,26 @@
+#include <smd/typeclass/examples/examples.hpp>
 
-#include <functional>
+#include <smd/typeclass/applicative.hpp>
 
-// 3f0c8d0e
-int main() {
-  return 0;
+#include <beman/optional/optional.hpp>
+
+namespace smd::typeclass::examples {
+
+auto applicative_invoke_example() -> beman::optional::optional<int>
+{
+    using beman::optional::optional;
+
+    optional<int> ax = 1;
+    optional<int> ay = 2;
+
+    // 3f0c8d0e
+    auto sum = smd::invoke(
+        [](int a, int b) { return a + b; },
+        ax,
+        ay);
+    // 3f0c8d0e end
+
+    return sum;
 }
-// 3f0c8d0e end
+
+}  // close namespace smd::typeclass::examples

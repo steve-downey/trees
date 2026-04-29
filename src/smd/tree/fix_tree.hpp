@@ -14,6 +14,9 @@ public:
   return FixTree(Node{std::make_shared<FixTree>(a),
                       std::make_shared<FixTree>(b)});
  }
+ static FixTree branch(FixTree a,FixTree b){
+  return node(std::move(a), std::move(b));
+ }
  bool is_leaf()const{return std::holds_alternative<Leaf>(d);}
  const T& value()const{return std::get<Leaf>(d).v;}
  const FixTree& left()const{return *std::get<Node>(d).l;}

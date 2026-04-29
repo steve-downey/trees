@@ -3,7 +3,7 @@
 #include <smd/tree/fix_tree.hpp>
 #include <smd/tree/fix_tree_foldable.hpp>
 #include <smd/tree/fix_tree_traversable.hpp>
-#include <smd/typeclass/test/test_optional_applicative.hpp>
+#include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/traversable.hpp>
 
 #include <beman/optional/optional.hpp>

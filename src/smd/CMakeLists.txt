@@ -1,1 +1,2 @@
-add_subdirectory(conceptmap)
+add_subdirectory(typeclass)
+add_subdirectory(tree)
