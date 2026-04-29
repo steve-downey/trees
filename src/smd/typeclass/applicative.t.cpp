@@ -6,7 +6,8 @@
 
 TEST(ApplicativeTypeclassTest, PureOptional)
 {
-    auto lifted = smd::pure<std::optional<int> >(7);
+    const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
+    auto lifted = applicative.pure(7);
     ASSERT_TRUE(lifted.has_value());
     EXPECT_EQ(*lifted, 7);
 }
@@ -15,8 +16,9 @@ TEST(ApplicativeTypeclassTest, ApplyOptional)
 {
     std::optional<int (*)(int)> function{+[](int x) { return x + 3; }};
     std::optional<int> argument{4};
+    const auto& applicative = smd::applicative_typeclass<std::optional<int (*)(int)> >;
 
-    auto result = smd::apply(function, argument);
+    auto result = applicative.apply(function, argument);
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(*result, 7);
 }
@@ -25,8 +27,9 @@ TEST(ApplicativeTypeclassTest, InvokeOptional)
 {
     std::optional<int> ax{10};
     std::optional<int> ay{5};
+    const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
 
-    auto result = smd::invoke([](int a, int b) { return a - b; }, ax, ay);
+    auto result = applicative.invoke([](int a, int b) { return a - b; }, ax, ay);
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(*result, 5);
 }

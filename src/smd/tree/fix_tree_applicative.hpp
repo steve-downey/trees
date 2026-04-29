@@ -11,17 +11,18 @@
 namespace smd {
 
 template <class T>
-struct FixTreeApplicativeMap {
+struct FixTreeApplicativeImpl {
   template <class VALUE>
-  auto pure(VALUE&& x) const
+  auto pure(this auto&&, VALUE&& x)
   {
     using U = std::remove_cvref_t<VALUE>;
     return smd::tree::FixTree<U>::leaf(std::forward<VALUE>(x));
   }
 
   template <class F, class A>
-  auto apply(const smd::tree::FixTree<F>& fs,
-         const smd::tree::FixTree<A>& xs) const
+  auto apply(this auto&& self,
+             const smd::tree::FixTree<F>& fs,
+             const smd::tree::FixTree<A>& xs)
   {
     using R = decltype(fs.value()(xs.value()));
     if (fs.is_leaf()) {
@@ -30,14 +31,16 @@ struct FixTreeApplicativeMap {
         return smd::tree::FixTree<R>::leaf(f(xs.value()));
       }
       return smd::tree::FixTree<R>::node(
-        this->apply(fs, xs.left()), this->apply(fs, xs.right()));
+        self.apply(fs, xs.left()), self.apply(fs, xs.right()));
     }
-    return smd::tree::FixTree<R>::node(this->apply(fs.left(), xs),
-                       this->apply(fs.right(), xs));
+    return smd::tree::FixTree<R>::node(self.apply(fs.left(), xs),
+                                       self.apply(fs.right(), xs));
   }
 
   template <class FUNCTION, class... ARGS>
-  auto invoke(FUNCTION&& function, const smd::tree::FixTree<ARGS>&... xs) const
+  auto invoke(this auto&& self,
+              FUNCTION&& function,
+              const smd::tree::FixTree<ARGS>&... xs)
   {
     static_assert(sizeof...(ARGS) > 0,
             "FixTree applicative invoke needs at least one argument");
@@ -50,9 +53,16 @@ struct FixTreeApplicativeMap {
     }
 
     return smd::tree::FixTree<R>::node(
-      this->invoke(std::forward<FUNCTION>(function), xs.left()...),
-      this->invoke(std::forward<FUNCTION>(function), xs.right()...));
+      self.invoke(std::forward<FUNCTION>(function), xs.left()...),
+      self.invoke(std::forward<FUNCTION>(function), xs.right()...));
   }
+};
+
+template <class T>
+struct FixTreeApplicativeMap : Applicative<FixTreeApplicativeImpl<T> > {
+  using FixTreeApplicativeImpl<T>::apply;
+  using FixTreeApplicativeImpl<T>::invoke;
+  using FixTreeApplicativeImpl<T>::pure;
 };
 
 template <class T>

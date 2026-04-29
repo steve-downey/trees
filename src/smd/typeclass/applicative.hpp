@@ -14,81 +14,85 @@
 namespace smd {
 
 // Applicative pattern invariants:
-// - Generic entry points pure/apply/invoke dispatch via applicative_typeclass<T>.
-// - Instances provide an object with coherent pure/apply/invoke and specialize
-//   applicative_typeclass<Concrete>.
-// - invoke is the user-facing n-ary operation and should remain policy-explicit.
+// - Instances are single lookup objects that provide pure/apply/invoke.
+// - Optional derived operations (lift/ap/zip_with/discard_*) live on that object.
+// - Dispatch happens through a provided object or applicative_typeclass<Concrete>.
 // - Do not introduce hidden alternate semantics without a distinct map/type.
+
+template <class Impl>
+struct Applicative : protected Impl {
+  using Impl::apply;
+  using Impl::invoke;
+  using Impl::pure;
+
+  template <class VALUE>
+  auto lift(this auto&& self, VALUE&& value)
+  {
+    return self.pure(std::forward<VALUE>(value));
+  }
+
+  template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
+  auto ap(this auto&& self,
+          FUNCTION_IN_CONTEXT&& function,
+          ARGUMENT_IN_CONTEXT&& argument)
+  {
+    return self.apply(std::forward<FUNCTION_IN_CONTEXT>(function),
+                      std::forward<ARGUMENT_IN_CONTEXT>(argument));
+  }
+
+  template <class FUNCTION, class FIRST_ARGUMENT, class SECOND_ARGUMENT>
+  auto zip_with(this auto&& self,
+                FUNCTION&& function,
+                FIRST_ARGUMENT&& first_argument,
+                SECOND_ARGUMENT&& second_argument)
+  {
+    return self.invoke(std::forward<FUNCTION>(function),
+                       std::forward<FIRST_ARGUMENT>(first_argument),
+                       std::forward<SECOND_ARGUMENT>(second_argument));
+  }
+
+  template <class FIRST_ARGUMENT, class SECOND_ARGUMENT>
+  auto discard_first(this auto&& self,
+                     FIRST_ARGUMENT&& first_argument,
+                     SECOND_ARGUMENT&& second_argument)
+  {
+    return self.invoke(
+      [](const auto&, auto&& rhs) {
+        return std::forward<decltype(rhs)>(rhs);
+      },
+      std::forward<FIRST_ARGUMENT>(first_argument),
+      std::forward<SECOND_ARGUMENT>(second_argument));
+  }
+
+  template <class FIRST_ARGUMENT, class SECOND_ARGUMENT>
+  auto discard_second(this auto&& self,
+                      FIRST_ARGUMENT&& first_argument,
+                      SECOND_ARGUMENT&& second_argument)
+  {
+    return self.invoke(
+      [](auto&& lhs, const auto&) {
+        return std::forward<decltype(lhs)>(lhs);
+      },
+      std::forward<FIRST_ARGUMENT>(first_argument),
+      std::forward<SECOND_ARGUMENT>(second_argument));
+  }
+};
 
 template <class T>
 inline constexpr auto applicative_typeclass = std::false_type{};
 
-template <class APPLICATIVE_MAP, class VALUE>
-auto pure(const APPLICATIVE_MAP& applicative_map, VALUE&& value)
-{
-    return applicative_map.pure(std::forward<VALUE>(value));
-}
-
-template <class CONTEXT, class VALUE>
-auto pure(VALUE&& value)
-{
-    using ContextType = remove_cvref_t<CONTEXT>;
-    return pure(applicative_typeclass<ContextType>, std::forward<VALUE>(value));
-}
-
-template <class APPLICATIVE_MAP, class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
-auto apply(const APPLICATIVE_MAP& applicative_map,
-           FUNCTION_IN_CONTEXT&& function,
-           ARGUMENT_IN_CONTEXT&& argument)
-{
-    return applicative_map.apply(std::forward<FUNCTION_IN_CONTEXT>(function),
-                                 std::forward<ARGUMENT_IN_CONTEXT>(argument));
-}
-
-template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
-auto apply(FUNCTION_IN_CONTEXT&& function, ARGUMENT_IN_CONTEXT&& argument)
-{
-    using FunctionContext = remove_cvref_t<FUNCTION_IN_CONTEXT>;
-    return apply(applicative_typeclass<FunctionContext>,
-                 std::forward<FUNCTION_IN_CONTEXT>(function),
-                 std::forward<ARGUMENT_IN_CONTEXT>(argument));
-}
-
-template <class APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT, class... REST_ARGUMENTS>
-auto invoke(const APPLICATIVE_MAP& applicative_map,
-            FUNCTION&& function,
-            FIRST_ARGUMENT&& first_argument,
-            REST_ARGUMENTS&&... rest_arguments)
-{
-    return applicative_map.invoke(std::forward<FUNCTION>(function),
-                                  std::forward<FIRST_ARGUMENT>(first_argument),
-                                  std::forward<REST_ARGUMENTS>(rest_arguments)...);
-}
-
-template <class FUNCTION, class FIRST_ARGUMENT, class... REST_ARGUMENTS>
-auto invoke(FUNCTION&& function,
-      FIRST_ARGUMENT&& first_argument,
-      REST_ARGUMENTS&&... rest_arguments)
-{
-    using ContextType = remove_cvref_t<FIRST_ARGUMENT>;
-    return invoke(applicative_typeclass<ContextType>,
-                  std::forward<FUNCTION>(function),
-                  std::forward<FIRST_ARGUMENT>(first_argument),
-                  std::forward<REST_ARGUMENTS>(rest_arguments)...);
-}
-
 template <class VALUE_TYPE>
-struct OptionalApplicativeMap {
+struct OptionalApplicativeImpl {
   template <class VALUE>
-  auto pure(VALUE&& value) const -> std::optional<remove_cvref_t<VALUE> >
+  auto pure(this auto&&, VALUE&& value) -> std::optional<remove_cvref_t<VALUE> >
   {
     return std::optional<remove_cvref_t<VALUE> >{std::forward<VALUE>(value)};
   }
 
   template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
-  auto apply(FUNCTION_IN_CONTEXT&& function,
-            ARGUMENT_IN_CONTEXT&& argument)
-      const
+  auto apply(this auto&&,
+             FUNCTION_IN_CONTEXT&& function,
+             ARGUMENT_IN_CONTEXT&& argument)
   {
     using Result =
       std::invoke_result_t<decltype(*function), decltype(*argument)>;
@@ -103,7 +107,7 @@ struct OptionalApplicativeMap {
   }
 
   template <class FUNCTION, class... ARGUMENTS>
-  auto invoke(FUNCTION&& function, ARGUMENTS&&... arguments) const
+  auto invoke(this auto&&, FUNCTION&& function, ARGUMENTS&&... arguments)
   {
     using Result = std::invoke_result_t<FUNCTION, decltype(*arguments)...>;
 
@@ -118,11 +122,18 @@ struct OptionalApplicativeMap {
 };
 
 template <class VALUE_TYPE>
+struct OptionalApplicativeMap : Applicative<OptionalApplicativeImpl<VALUE_TYPE> > {
+  using OptionalApplicativeImpl<VALUE_TYPE>::apply;
+  using OptionalApplicativeImpl<VALUE_TYPE>::invoke;
+  using OptionalApplicativeImpl<VALUE_TYPE>::pure;
+};
+
+template <class VALUE_TYPE>
   requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                          std::optional<VALUE_TYPE> >)
-struct BemanOptionalApplicativeMap {
+struct BemanOptionalApplicativeImpl {
   template <class VALUE>
-  auto pure(VALUE&& value) const
+  auto pure(this auto&&, VALUE&& value)
     -> beman::optional::optional<remove_cvref_t<VALUE> >
   {
     return beman::optional::optional<remove_cvref_t<VALUE> >{
@@ -130,9 +141,9 @@ struct BemanOptionalApplicativeMap {
   }
 
   template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
-  auto apply(FUNCTION_IN_CONTEXT&& function,
-            ARGUMENT_IN_CONTEXT&& argument)
-      const
+  auto apply(this auto&&,
+             FUNCTION_IN_CONTEXT&& function,
+             ARGUMENT_IN_CONTEXT&& argument)
   {
     using Result =
       std::invoke_result_t<decltype(*function), decltype(*argument)>;
@@ -147,7 +158,7 @@ struct BemanOptionalApplicativeMap {
   }
 
   template <class FUNCTION, class... ARGUMENTS>
-  auto invoke(FUNCTION&& function, ARGUMENTS&&... arguments) const
+  auto invoke(this auto&&, FUNCTION&& function, ARGUMENTS&&... arguments)
   {
     using Result = std::invoke_result_t<FUNCTION, decltype(*arguments)...>;
 
@@ -159,6 +170,16 @@ struct BemanOptionalApplicativeMap {
       std::invoke(std::forward<FUNCTION>(function),
             *std::forward<ARGUMENTS>(arguments)...)};
   }
+};
+
+template <class VALUE_TYPE>
+  requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
+                         std::optional<VALUE_TYPE> >)
+struct BemanOptionalApplicativeMap
+    : Applicative<BemanOptionalApplicativeImpl<VALUE_TYPE> > {
+  using BemanOptionalApplicativeImpl<VALUE_TYPE>::apply;
+  using BemanOptionalApplicativeImpl<VALUE_TYPE>::invoke;
+  using BemanOptionalApplicativeImpl<VALUE_TYPE>::pure;
 };
 
 template <class VALUE_TYPE>
