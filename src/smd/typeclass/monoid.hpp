@@ -10,6 +10,12 @@
 
 namespace smd::typeclass {
 
+// Monoid pattern invariants:
+// - Monoid<T> is the customization point; specialize identity/combine together.
+// - monoid_v<T> is the canonical lookup object used by generic algorithms.
+// - identity and combine must stay coherent for a single associative law domain.
+// - Prefer adding new Monoid<T> specializations over ad hoc free functions.
+
 template <class VALUE_TYPE>
 struct Monoid;
 

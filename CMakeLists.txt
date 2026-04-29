@@ -52,6 +52,17 @@ target_sources(
 # add_subdirectory(extern)
 add_subdirectory(src)
 
+# Keep presentation snippets in the regular build so transcluded slide code
+# stays synchronized with compilable sources.
+if(TARGET smd_typeclass_slide_examples)
+    add_custom_target(slide_snippets_check ALL)
+    add_dependencies(slide_snippets_check smd_typeclass_slide_examples)
+
+    if(TARGET smd_typeclass_slide_examples_tests)
+        add_dependencies(slide_snippets_check smd_typeclass_slide_examples_tests)
+    endif()
+endif()
+
 include(GNUInstallDirs)
 
 # Coverage

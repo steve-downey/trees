@@ -5,6 +5,7 @@ target_sources(smd_typeclass_slide_examples
         applicative_bad.cpp
         applicative_examples.cpp
         foldable_examples.cpp
+        lookup_modes_examples.cpp
         traversable_examples.cpp
 )
 

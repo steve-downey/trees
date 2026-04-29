@@ -13,9 +13,9 @@
 namespace smd {
 
 template <class T>
-struct map<traversable_tag, smd::tree::FixTree<T> > {
+struct FixTreeTraversableMap {
   template <class F>
-  static auto traverse(F&& f, const smd::tree::FixTree<T>& t)
+  auto traverse(F&& f, const smd::tree::FixTree<T>& t) const
   {
     if (t.is_leaf()) {
       return smd::invoke(
@@ -27,8 +27,8 @@ struct map<traversable_tag, smd::tree::FixTree<T> > {
         std::invoke(std::forward<F>(f), t.value()));
     }
 
-    auto left = traverse(f, t.left());
-    auto right = traverse(f, t.right());
+    auto left = this->traverse(f, t.left());
+    auto right = this->traverse(f, t.right());
 
     return smd::invoke(
       [](auto&& l, auto&& r) {
@@ -40,6 +40,10 @@ struct map<traversable_tag, smd::tree::FixTree<T> > {
       right);
   }
 };
+
+template <class T>
+inline constexpr auto traversable_typeclass<smd::tree::FixTree<T> > =
+    FixTreeTraversableMap<T>{};
 
 }  // close namespace smd
 

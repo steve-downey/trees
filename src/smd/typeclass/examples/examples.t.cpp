@@ -14,4 +14,12 @@ TEST(TypeclassExamples, SlideExamplesRemainExecutable)
     ASSERT_TRUE(traversable_result);
     EXPECT_EQ(*traversable_result, 2U);
     EXPECT_EQ(bad_applicative_example(), 1U);
+
+    auto explicit_lookup = explicit_object_lookup_example();
+    ASSERT_TRUE(explicit_lookup);
+    EXPECT_EQ(*explicit_lookup, 42);
+
+    auto nttp_lookup = nttp_object_lookup_example();
+    ASSERT_TRUE(nttp_lookup);
+    EXPECT_EQ(*nttp_lookup, 10);
 }
