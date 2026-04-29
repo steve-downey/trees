@@ -29,7 +29,8 @@ auto traversable_relabel_example() -> beman::optional::optional<std::size_t>
         return {};
     }
 
-    return smd::length(*relabelled);
+    const auto& foldable = smd::foldable_typeclass<IntTree>;
+    return foldable.length(*relabelled);
 }
 
 }  // close namespace smd::typeclass::examples
