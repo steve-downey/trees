@@ -1,10 +1,14 @@
 #ifndef INCLUDE_SMD_TREE_FINGER_TREE_HPP
 #define INCLUDE_SMD_TREE_FINGER_TREE_HPP
 
+#include <smd/typeclass/monoid.hpp>
+
 #include <cassert>
+#include <concepts>
 #include <cstddef>
 #include <memory>
 #include <optional>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -51,15 +55,55 @@ struct Node3 {
 template <typename T>
 using Node = std::variant<Node2<T>, Node3<T>>;
 
-template <typename T>
+template <typename VALUE_TYPE, typename TAG_TYPE>
+struct UnitMeasure {
+  auto operator()(const VALUE_TYPE&) const -> TAG_TYPE { return TAG_TYPE{1}; }
+};
+
+template <typename T,
+          typename TAG_TYPE = std::size_t,
+          typename MEASURE_POLICY = UnitMeasure<T, TAG_TYPE> >
 class FingerTree {
+  static_assert(std::is_default_constructible_v<MEASURE_POLICY>,
+                "FingerTree measure policy must be default-constructible");
+
+  using Tag = TAG_TYPE;
+  using MeasurePolicy = MEASURE_POLICY;
+
   struct Segment;
   using SegmentPtr = std::shared_ptr<const Segment>;
+
+  static auto tag_identity() -> Tag
+  {
+    return smd::typeclass::monoid_v<Tag>.identity();
+  }
+
+  static auto tag_combine(const Tag& lhs, const Tag& rhs) -> Tag
+  {
+    return smd::typeclass::monoid_v<Tag>.combine(lhs, rhs);
+  }
+
+  static auto tag_value(const T& value) -> Tag
+  {
+    return MeasurePolicy{}(value);
+  }
+
+  static auto tag_range(const std::shared_ptr<const std::vector<T> >& values,
+                        std::size_t begin,
+                        std::size_t end) -> Tag
+  {
+    auto result = tag_identity();
+    for (auto i = begin; i < end; ++i) {
+      result = tag_combine(result, tag_value((*values)[i]));
+    }
+    return result;
+  }
 
   struct Segment {
     virtual ~Segment() = default;
 
     [[nodiscard]] virtual auto size() const -> std::size_t = 0;
+    [[nodiscard]] virtual auto tag() const -> const Tag& = 0;
     [[nodiscard]] virtual auto depth() const -> std::size_t = 0;
     virtual void flatten_into(std::vector<T>& out) const = 0;
     [[nodiscard]] virtual auto pop_left() const -> std::optional<std::pair<T, SegmentPtr>> = 0;
@@ -70,11 +114,13 @@ class FingerTree {
     std::shared_ptr<const std::vector<T>> d_values;
     std::size_t d_begin;
     std::size_t d_end;
+    Tag d_tag;
 
     explicit FlatSegment(std::vector<T> values)
       : d_values(std::make_shared<const std::vector<T>>(std::move(values)))
       , d_begin(0)
       , d_end(d_values->size())
+      , d_tag(tag_range(d_values, d_begin, d_end))
     {
     }
 
@@ -82,10 +128,12 @@ class FingerTree {
       : d_values(std::move(values))
       , d_begin(begin)
       , d_end(end)
+      , d_tag(tag_range(d_values, d_begin, d_end))
     {
     }
 
     [[nodiscard]] auto size() const -> std::size_t override { return d_end - d_begin; }
+    [[nodiscard]] auto tag() const -> const Tag& override { return d_tag; }
 
     [[nodiscard]] auto depth() const -> std::size_t override
     {
@@ -138,6 +186,11 @@ class FingerTree {
     return seg ? seg->depth() : std::size_t{0};
   }
 
+  static auto seg_tag(const SegmentPtr& seg) -> Tag
+  {
+    return seg ? seg->tag() : tag_identity();
+  }
+
   static auto make_flat(std::vector<T> values) -> SegmentPtr
   {
     if (values.empty()) {
@@ -151,16 +204,19 @@ class FingerTree {
     SegmentPtr d_right;
     std::size_t d_size;
     std::size_t d_depth;
+    Tag d_tag;
 
     ConcatSegment(SegmentPtr left, SegmentPtr right)
       : d_left(std::move(left))
       , d_right(std::move(right))
       , d_size(seg_size(d_left) + seg_size(d_right))
       , d_depth(std::max(seg_depth(d_left), seg_depth(d_right)) + std::size_t{1})
+      , d_tag(tag_combine(seg_tag(d_left), seg_tag(d_right)))
     {
     }
 
     [[nodiscard]] auto size() const -> std::size_t override { return d_size; }
+    [[nodiscard]] auto tag() const -> const Tag& override { return d_tag; }
     [[nodiscard]] auto depth() const -> std::size_t override { return d_depth; }
 
     void flatten_into(std::vector<T>& out) const override
@@ -232,9 +288,23 @@ class FingerTree {
   FingerTree() = default;
 
  public:
+  using value_type = T;
+  using tag_type = Tag;
+
   struct View {
     T d_value;
     FingerTree d_rest;
+  };
+
+  struct Split {
+    FingerTree d_left;
+    T d_pivot;
+    FingerTree d_right;
+  };
+
+  struct SplitAt {
+    FingerTree d_left;
+    FingerTree d_right;
   };
 
   static auto empty() -> FingerTree { return FingerTree(std::vector<T>{}); }
@@ -283,9 +353,9 @@ class FingerTree {
   auto is_leaf() const -> bool { return seg_size(d_root) == 1; }
   auto is_branch() const -> bool { return seg_size(d_root) > 1; }
 
-  auto measure() const -> std::size_t { return seg_size(d_root); }
+  auto measure() const -> Tag { return seg_tag(d_root); }
 
-  auto breadth() const -> std::size_t { return measure(); }
+  auto breadth() const -> std::size_t { return seg_size(d_root); }
 
   auto depth() const -> std::size_t { return seg_depth(d_root); }
 
@@ -304,9 +374,96 @@ class FingerTree {
     }
 
     std::vector<T> out;
-    out.reserve(measure());
+    out.reserve(breadth());
     d_root->flatten_into(out);
     return out;
+  }
+
+  template <typename PREDICATE>
+  auto search(PREDICATE&& predicate) const -> std::optional<T>
+  {
+    auto acc = tag_identity();
+    for (const auto& value : flatten()) {
+      acc = tag_combine(acc, tag_value(value));
+      if (predicate(acc)) {
+        return value;
+      }
+    }
+    return std::nullopt;
+  }
+
+  template <typename PREDICATE>
+  auto split(PREDICATE&& predicate) const -> std::optional<Split>
+  {
+    auto values = flatten();
+    auto acc = tag_identity();
+
+    for (std::size_t i = 0; i < values.size(); ++i) {
+      acc = tag_combine(acc, tag_value(values[i]));
+      if (predicate(acc)) {
+        std::vector<T> left_values;
+        left_values.reserve(i);
+        left_values.insert(left_values.end(), values.begin(), values.begin() + static_cast<std::ptrdiff_t>(i));
+
+        std::vector<T> right_values;
+        right_values.reserve(values.size() - i - 1);
+        right_values.insert(right_values.end(), values.begin() + static_cast<std::ptrdiff_t>(i + 1), values.end());
+
+        return Split{from_sequence(std::move(left_values)), std::move(values[i]), from_sequence(std::move(right_values))};
+      }
+    }
+
+    return std::nullopt;
+  }
+
+  template <typename PREDICATE>
+  auto split_at(PREDICATE&& predicate) const -> SplitAt
+  {
+    auto values = flatten();
+    auto acc = tag_identity();
+
+    for (std::size_t i = 0; i < values.size(); ++i) {
+      acc = tag_combine(acc, tag_value(values[i]));
+      if (predicate(acc)) {
+        std::vector<T> left_values;
+        left_values.reserve(i);
+        left_values.insert(left_values.end(), values.begin(), values.begin() + static_cast<std::ptrdiff_t>(i));
+
+        std::vector<T> right_values;
+        right_values.reserve(values.size() - i);
+        right_values.insert(right_values.end(), values.begin() + static_cast<std::ptrdiff_t>(i), values.end());
+
+        return SplitAt{from_sequence(std::move(left_values)), from_sequence(std::move(right_values))};
+      }
+    }
+
+    return SplitAt{*this, empty()};
+  }
+
+  auto split_at_index(std::size_t index) const -> SplitAt
+  {
+    auto values = flatten();
+    if (index > values.size()) {
+      index = values.size();
+    }
+
+    std::vector<T> left_values;
+    left_values.reserve(index);
+    left_values.insert(left_values.end(), values.begin(), values.begin() + static_cast<std::ptrdiff_t>(index));
+
+    std::vector<T> right_values;
+    right_values.reserve(values.size() - index);
+    right_values.insert(right_values.end(), values.begin() + static_cast<std::ptrdiff_t>(index), values.end());
+
+    return SplitAt{from_sequence(std::move(left_values)), from_sequence(std::move(right_values))};
+  }
+
+  auto split_at_measure(const Tag& threshold) const -> SplitAt
+    requires requires(const Tag& lhs, const Tag& rhs) {
+      { lhs >= rhs } -> std::convertible_to<bool>;
+    }
+  {
+    return split_at([&threshold](const Tag& prefix) { return prefix >= threshold; });
   }
 
   static auto from_sequence(std::vector<T> values) -> FingerTree

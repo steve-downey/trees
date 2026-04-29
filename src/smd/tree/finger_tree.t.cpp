@@ -2,7 +2,44 @@
 
 #include <gtest/gtest.h>
 
+#include <cstddef>
 #include <vector>
+
+namespace {
+
+struct Weighted {
+    std::size_t d_total;
+
+    friend bool operator==(const Weighted&, const Weighted&) = default;
+    friend bool operator>=(const Weighted& lhs, const Weighted& rhs)
+    {
+        return lhs.d_total >= rhs.d_total;
+    }
+};
+
+struct WeightedMeasure {
+    auto operator()(int value) const -> Weighted
+    {
+        return Weighted{static_cast<std::size_t>(value * 10)};
+    }
+};
+
+}  // namespace
+
+namespace smd::typeclass {
+
+template <>
+struct Monoid<Weighted> {
+    constexpr auto identity() const -> Weighted { return Weighted{0U}; }
+
+    constexpr auto combine(const Weighted& lhs, const Weighted& rhs) const
+        -> Weighted
+    {
+        return Weighted{lhs.d_total + rhs.d_total};
+    }
+};
+
+}  // namespace smd::typeclass
 
 TEST(FingerTreeTest, EmptyLeafAndPredicates)
 {
@@ -117,4 +154,125 @@ TEST(FingerTreeTest, PrependAppendConcat)
 
     auto concatenated = Tree::concat(tree, tree);
     EXPECT_EQ(concatenated.flatten(), (std::vector<int>{1, 2, 1, 2}));
+}
+
+TEST(FingerTreeTest, MonoidTaggedMeasure)
+{
+    using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
+
+    auto tree = Tree::from_sequence({1, 2, 3});
+    EXPECT_EQ(tree.measure(), Weighted{60U});
+
+    auto prepended = Tree::prepend(4, tree);
+    EXPECT_EQ(prepended.measure(), Weighted{100U});
+
+    auto concatenated = Tree::concat(tree, Tree::leaf(5));
+    EXPECT_EQ(concatenated.measure(), Weighted{110U});
+}
+
+TEST(FingerTreeTest, MeasureGuidedSearchAndSplit)
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
+
+    auto found = tree.search([](std::size_t prefix) { return prefix >= 3U; });
+    ASSERT_TRUE(found.has_value());
+    EXPECT_EQ(*found, 3);
+
+    auto split = tree.split([](std::size_t prefix) { return prefix >= 3U; });
+    ASSERT_TRUE(split.has_value());
+    EXPECT_EQ(split->d_left.flatten(), (std::vector<int>{1, 2}));
+    EXPECT_EQ(split->d_pivot, 3);
+    EXPECT_EQ(split->d_right.flatten(), (std::vector<int>{4, 5}));
+
+    EXPECT_FALSE(tree.search([](std::size_t prefix) { return prefix >= 6U; }).has_value());
+    EXPECT_FALSE(tree.split([](std::size_t prefix) { return prefix >= 6U; }).has_value());
+}
+
+TEST(FingerTreeTest, MeasureGuidedSearchAndSplitWithCustomTag)
+{
+    using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4});
+
+    auto found = tree.search([](Weighted prefix) { return prefix.d_total >= 35U; });
+    ASSERT_TRUE(found.has_value());
+    EXPECT_EQ(*found, 3);
+
+    auto split = tree.split([](Weighted prefix) { return prefix.d_total >= 35U; });
+    ASSERT_TRUE(split.has_value());
+    EXPECT_EQ(split->d_left.flatten(), (std::vector<int>{1, 2}));
+    EXPECT_EQ(split->d_left.measure(), Weighted{30U});
+    EXPECT_EQ(split->d_pivot, 3);
+    EXPECT_EQ(split->d_right.flatten(), (std::vector<int>{4}));
+    EXPECT_EQ(split->d_right.measure(), Weighted{40U});
+}
+
+TEST(FingerTreeTest, SplitAtCountBoundary)
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
+
+    auto at_three = tree.split_at([](std::size_t prefix) { return prefix >= 3U; });
+    EXPECT_EQ(at_three.d_left.flatten(), (std::vector<int>{1, 2}));
+    EXPECT_EQ(at_three.d_right.flatten(), (std::vector<int>{3, 4, 5}));
+
+    auto at_one = tree.split_at([](std::size_t prefix) { return prefix >= 1U; });
+    EXPECT_TRUE(at_one.d_left.is_empty());
+    EXPECT_EQ(at_one.d_right.flatten(), (std::vector<int>{1, 2, 3, 4, 5}));
+
+    auto none = tree.split_at([](std::size_t prefix) { return prefix >= 6U; });
+    EXPECT_EQ(none.d_left.flatten(), (std::vector<int>{1, 2, 3, 4, 5}));
+    EXPECT_TRUE(none.d_right.is_empty());
+}
+
+TEST(FingerTreeTest, SplitAtWeightedBoundary)
+{
+    using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4});
+
+    auto split = tree.split_at([](Weighted prefix) { return prefix.d_total >= 35U; });
+    EXPECT_EQ(split.d_left.flatten(), (std::vector<int>{1, 2}));
+    EXPECT_EQ(split.d_left.measure(), Weighted{30U});
+    EXPECT_EQ(split.d_right.flatten(), (std::vector<int>{3, 4}));
+    EXPECT_EQ(split.d_right.measure(), Weighted{70U});
+}
+
+TEST(FingerTreeTest, SplitAtIndexConvenience)
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
+
+    auto at_zero = tree.split_at_index(0U);
+    EXPECT_TRUE(at_zero.d_left.is_empty());
+    EXPECT_EQ(at_zero.d_right.flatten(), (std::vector<int>{1, 2, 3, 4, 5}));
+
+    auto at_three = tree.split_at_index(3U);
+    EXPECT_EQ(at_three.d_left.flatten(), (std::vector<int>{1, 2, 3}));
+    EXPECT_EQ(at_three.d_right.flatten(), (std::vector<int>{4, 5}));
+
+    auto beyond = tree.split_at_index(99U);
+    EXPECT_EQ(beyond.d_left.flatten(), (std::vector<int>{1, 2, 3, 4, 5}));
+    EXPECT_TRUE(beyond.d_right.is_empty());
+}
+
+TEST(FingerTreeTest, SplitAtMeasureConvenience)
+{
+    using CountTree = smd::tree::FingerTree<int>;
+
+    auto count_tree = CountTree::from_sequence({1, 2, 3, 4, 5});
+    auto count_split = count_tree.split_at_measure(3U);
+    EXPECT_EQ(count_split.d_left.flatten(), (std::vector<int>{1, 2}));
+    EXPECT_EQ(count_split.d_right.flatten(), (std::vector<int>{3, 4, 5}));
+
+    using WeightedTree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
+
+    auto weighted_tree = WeightedTree::from_sequence({1, 2, 3, 4});
+    auto weighted_split = weighted_tree.split_at_measure(Weighted{35U});
+    EXPECT_EQ(weighted_split.d_left.flatten(), (std::vector<int>{1, 2}));
+    EXPECT_EQ(weighted_split.d_right.flatten(), (std::vector<int>{3, 4}));
 }
