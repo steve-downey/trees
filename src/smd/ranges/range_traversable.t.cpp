@@ -1,4 +1,5 @@
 #include <smd/ranges/range_traversable.hpp>
+#include <smd/ziplist/zip_list_applicative.hpp>
 
 #include <gtest/gtest.h>
 
@@ -91,4 +92,20 @@ TEST(RangeTraversableTest, TraversableIsNotDefinedForInputOnlyRanges)
     static_assert(std::is_same_v<
         decltype(smd::traversable_typeclass<InputList>),
         const std::false_type>);
+}
+
+TEST(RangeTraversableTest, SequenceConvertsRangeOfZiplistsToZiplistOfRanges)
+{
+    using Zip = smd::zip_list<int>;
+    auto values = smd::ranges::from_vector(std::vector<Zip>{
+        Zip{{1, 2, 3}},
+        Zip{{10, 20}},
+        Zip{{100, 200, 300, 400}}});
+
+    const auto& traversable = smd::traversable_typeclass<decltype(values)>;
+    auto sequenced = traversable.sequence(values);
+
+    ASSERT_EQ(sequenced.data.size(), 2U);
+    EXPECT_EQ(collect(sequenced.data[0]), (std::vector<int>{1, 10, 100}));
+    EXPECT_EQ(collect(sequenced.data[1]), (std::vector<int>{2, 20, 200}));
 }

@@ -14,9 +14,11 @@ namespace smd {
 
 template <class T>
 struct ZipListApplicativeImpl {
-  auto pure(this auto&&, const T& value)
+  template <class VALUE>
+  auto pure(this auto&&, VALUE&& value)
   {
-    return zip_list<T>{{value}};
+    using U = remove_cvref_t<VALUE>;
+    return zip_list<U>{{std::forward<VALUE>(value)}};
   }
 
   template <class F, class A>
