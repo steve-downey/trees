@@ -103,7 +103,7 @@ That call performs compile-time lookup to the right map specialization.
 ## Testing and build wiring expectations
 
 - Typeclass tests live under `src/smd/typeclass/*.t.cpp`.
-- They are wired by `src/smd/typeclass/CMakeLists.txt` into `smd_typeclass_tests` when `OPTIONAL_ENABLE_TESTING` and `GTest_FOUND` are true.
+- They are wired by `src/smd/typeclass/CMakeLists.txt` into `smd_typeclass_tests` when `TREE_ENABLE_TESTING` and `GTest_FOUND` are true.
 - Slide snippet sources are compiled via `smd_typeclass_slide_examples`.
 - Top-level target `slide_snippets_check` ensures presentation snippets remain compilable.
 
