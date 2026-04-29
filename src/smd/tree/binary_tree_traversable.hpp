@@ -15,6 +15,12 @@ template <class T>
 struct BinaryTreeTraversableImpl {
   template <class F>
   auto traverse(this auto&& self, F&& function, const smd::tree::BinaryTree<T>& tree)
+    -> decltype(smd::applicative_typeclass<remove_cvref_t<std::invoke_result_t<F, const T&> >>.invoke(
+      [](auto&& value) {
+        using U = remove_cvref_t<decltype(value)>;
+        return smd::tree::BinaryTree<U>::leaf(std::forward<decltype(value)>(value));
+      },
+      std::invoke(std::forward<F>(function), tree.value())))
   {
     auto value_context = std::invoke(std::forward<F>(function), tree.value());
     using Context = remove_cvref_t<decltype(value_context)>;

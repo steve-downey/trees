@@ -230,6 +230,11 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Law-oriented test strategy for 
 #+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4]]
 :lines 2- :src cpp :end "53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end"
 
+**** fringetree (simplified fingertree)
+
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::7c2f11d9-ef09-45e2-80da-9229f3c8d82c]]
+:lines 2- :src cpp :end "7c2f11d9-ef09-45e2-80da-9229f3c8d82c end"
+
 #+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]]
 :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
 

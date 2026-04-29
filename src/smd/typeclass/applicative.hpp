@@ -28,6 +28,13 @@ struct terminating_partial {
                             std::index_sequence_for<BOUND_ARGS...>{});
   }
 
+  template <class NEXT_ARG>
+  auto operator()(NEXT_ARG&& next_arg) const
+  {
+    return invoke_or_extend_const(std::forward<NEXT_ARG>(next_arg),
+                                  std::index_sequence_for<BOUND_ARGS...>{});
+  }
+
  private:
   template <class NEXT_ARG, std::size_t... IDX>
   auto invoke_or_extend(NEXT_ARG&& next_arg, std::index_sequence<IDX...>)
@@ -42,6 +49,25 @@ struct terminating_partial {
       return NEXT_PARTIAL{
         function,
         std::tuple_cat(std::move(bound_args),
+                       std::tuple<remove_cvref_t<NEXT_ARG> >{
+                         std::forward<NEXT_ARG>(next_arg)})};
+    }
+  }
+
+  template <class NEXT_ARG, std::size_t... IDX>
+  auto invoke_or_extend_const(NEXT_ARG&& next_arg,
+                              std::index_sequence<IDX...>) const
+  {
+    if constexpr (std::invocable<const FUNCTION&, const BOUND_ARGS&..., NEXT_ARG>) {
+      return std::invoke(function,
+                         std::get<IDX>(bound_args)...,
+                         std::forward<NEXT_ARG>(next_arg));
+    } else {
+      using NEXT_PARTIAL =
+        terminating_partial<FUNCTION, BOUND_ARGS..., remove_cvref_t<NEXT_ARG> >;
+      return NEXT_PARTIAL{
+        function,
+        std::tuple_cat(bound_args,
                        std::tuple<remove_cvref_t<NEXT_ARG> >{
                          std::forward<NEXT_ARG>(next_arg)})};
     }

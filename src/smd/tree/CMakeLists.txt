@@ -11,6 +11,10 @@ target_sources(
     binary_tree_foldable.hpp
     binary_tree_applicative.hpp
     binary_tree_traversable.hpp
+    fringe_tree.hpp
+    fringe_tree_foldable.hpp
+    fringe_tree_applicative.hpp
+    fringe_tree_traversable.hpp
         fix_tree.hpp
         fix_tree_foldable.hpp
         fix_tree_applicative.hpp

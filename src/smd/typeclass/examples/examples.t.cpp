@@ -8,6 +8,7 @@ TEST(TypeclassExamples, SlideExamplesRemainExecutable)
 
     EXPECT_EQ(generic_length_example(), 3U);
     EXPECT_EQ(generic_length_binary_tree_example(), 4U);
+    EXPECT_EQ(generic_length_fringe_tree_example(), 3U);
     auto applicative_result = applicative_invoke_example();
     ASSERT_TRUE(applicative_result);
     EXPECT_EQ(*applicative_result, 6);
