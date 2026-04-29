@@ -118,7 +118,7 @@ struct Applicative : protected Impl {
               FIRST_ARGUMENT&& first_argument,
               REST_ARGUMENTS&&... rest_arguments)
   {
-    using SELF = remove_cvref_t<decltype(self)>;
+    using SELF = std::remove_reference_t<decltype(self)>;
     using IMPL_BASE =
       std::conditional_t<std::is_const_v<SELF>, const Impl, Impl>;
 

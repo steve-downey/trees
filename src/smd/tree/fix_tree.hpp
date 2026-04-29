@@ -9,6 +9,8 @@ class FixTree{
  struct Node{std::shared_ptr<FixTree> l,r;};
  std::variant<Leaf,Node> d;
 public:
+ using value_type = T;
+
  static FixTree leaf(T v){return FixTree(Leaf{v});}
  static FixTree node(FixTree a,FixTree b){
   return FixTree(Node{std::make_shared<FixTree>(a),

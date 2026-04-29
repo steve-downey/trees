@@ -1,6 +1,6 @@
 #ifndef INCLUDE_SMD_TYPECLASS_TEST_TEST_OPTIONAL_APPLICATIVE_HPP
 #define INCLUDE_SMD_TYPECLASS_TEST_TEST_OPTIONAL_APPLICATIVE_HPP
 
-#include <smd/typeclass/applicative.hpp>
+#include <smd/typeclass/test/test_support.hpp>
 
 #endif  // INCLUDE_SMD_TYPECLASS_TEST_TEST_OPTIONAL_APPLICATIVE_HPP

@@ -26,6 +26,8 @@ class FringeTree {
   std::variant<Empty, Leaf, Branch> d_data;
 
  public:
+    using value_type = T;
+
   struct View {
     T d_value;
     FringeTree d_rest;

@@ -1,8 +1,5 @@
-#include <smd/tree/fix_tree.hpp>
-#include <smd/tree/fix_tree_foldable.hpp>
-#include <smd/tree/binary_tree.hpp>
-#include <smd/tree/binary_tree_foldable.hpp>
 #include <smd/typeclass/foldable.hpp>
+#include <smd/typeclass/test/test_support.hpp>
 
 #include <gtest/gtest.h>
 
@@ -10,80 +7,80 @@
 
 namespace {
 
-template <class TREE,
-          const auto& FOLDABLE = smd::foldable_typeclass<TREE> >
-auto sum_with_nttp_lookup(const TREE& tree)
+template <class STRUCTURE,
+          const auto& FOLDABLE = smd::foldable_typeclass<STRUCTURE> >
+auto sum_with_nttp_lookup(const STRUCTURE& structure)
 {
-    return FOLDABLE.fold_map([](int x) { return x; }, tree);
+    return FOLDABLE.fold_map([](int x) { return x; }, structure);
 }
 
-template <class TREE,
-          const auto& FOLDABLE = smd::foldable_typeclass<TREE> >
-auto fold_left_with_nttp_lookup(const TREE& tree)
+template <class STRUCTURE,
+          const auto& FOLDABLE = smd::foldable_typeclass<STRUCTURE> >
+auto fold_left_with_nttp_lookup(const STRUCTURE& structure)
 {
-    return FOLDABLE.fold_left(tree, 0, [](int acc, int x) {
+    return FOLDABLE.fold_left(structure, 0, [](int acc, int x) {
         return acc * 10 + x;
     });
 }
 
-template <class TREE,
-          const auto& FOLDABLE = smd::foldable_typeclass<TREE> >
-auto fold_right_with_nttp_lookup(const TREE& tree)
+template <class STRUCTURE,
+          const auto& FOLDABLE = smd::foldable_typeclass<STRUCTURE> >
+auto fold_right_with_nttp_lookup(const STRUCTURE& structure)
 {
-    return FOLDABLE.fold_right(tree, 0, [](int x, int acc) {
+    return FOLDABLE.fold_right(structure, 0, [](int x, int acc) {
         return x * 10 + acc;
     });
 }
 
 }  // namespace
 
-TEST(FoldableTypeclassTest, LengthOnFixTree)
+TEST(FoldableTypeclassTest, LengthOnSequence)
 {
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
 
-    const auto& foldable = smd::foldable_typeclass<Tree>;
-    EXPECT_EQ(foldable.length(tree), 3U);
+    const auto& foldable = smd::foldable_typeclass<Sequence>;
+    EXPECT_EQ(foldable.length(sequence), 3U);
 }
 
-TEST(FoldableTypeclassTest, FoldMapSumOnFixTree)
+TEST(FoldableTypeclassTest, FoldMapSumOnSequence)
 {
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
 
-    const auto& foldable = smd::foldable_typeclass<Tree>;
-    const auto sum = foldable.fold_map([](int x) { return x; }, tree);
+    const auto& foldable = smd::foldable_typeclass<Sequence>;
+    const auto sum = foldable.fold_map([](int x) { return x; }, sequence);
     EXPECT_EQ(sum, 6);
 }
 
 TEST(FoldableTypeclassTest, FoldMapWithExplicitObject)
 {
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
 
-    const auto& foldable = smd::foldable_typeclass<Tree>;
-    const auto sum = foldable.fold_map([](int x) { return x; }, tree);
+    const auto& foldable = smd::foldable_typeclass<Sequence>;
+    const auto sum = foldable.fold_map([](int x) { return x; }, sequence);
     EXPECT_EQ(sum, 6);
 }
 
 TEST(FoldableTypeclassTest, FoldMapWithNttpLookup)
 {
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
 
-    EXPECT_EQ(sum_with_nttp_lookup(tree), 6);
+    EXPECT_EQ(sum_with_nttp_lookup(sequence), 6);
 }
 
 TEST(FoldableTypeclassTest, FoldLeftAndRight)
 {
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-    const auto& foldable = smd::foldable_typeclass<Tree>;
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
+    const auto& foldable = smd::foldable_typeclass<Sequence>;
 
-    const auto left = foldable.fold_left(tree, 0, [](int acc, int x) {
+    const auto left = foldable.fold_left(sequence, 0, [](int acc, int x) {
         return acc * 10 + x;
     });
-    const auto right = foldable.fold_right(tree, 0, [](int x, int acc) {
+    const auto right = foldable.fold_right(sequence, 0, [](int x, int acc) {
         return x * 10 + acc;
     });
 
@@ -93,14 +90,14 @@ TEST(FoldableTypeclassTest, FoldLeftAndRight)
 
 TEST(FoldableTypeclassTest, FoldLeftRightWithExplicitObject)
 {
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
 
-    const auto& foldable = smd::foldable_typeclass<Tree>;
-    const auto left = foldable.fold_left(tree, 0, [](int acc, int x) {
+    const auto& foldable = smd::foldable_typeclass<Sequence>;
+    const auto left = foldable.fold_left(sequence, 0, [](int acc, int x) {
         return acc * 10 + x;
     });
-    const auto right = foldable.fold_right(tree, 0, [](int x, int acc) {
+    const auto right = foldable.fold_right(sequence, 0, [](int x, int acc) {
         return x * 10 + acc;
     });
 
@@ -110,24 +107,24 @@ TEST(FoldableTypeclassTest, FoldLeftRightWithExplicitObject)
 
 TEST(FoldableTypeclassTest, FoldLeftRightWithNttpLookup)
 {
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
 
-    EXPECT_EQ(fold_left_with_nttp_lookup(tree), 123);
-    EXPECT_EQ(fold_right_with_nttp_lookup(tree), 60);
+    EXPECT_EQ(fold_left_with_nttp_lookup(sequence), 123);
+    EXPECT_EQ(fold_right_with_nttp_lookup(sequence), 60);
 }
 
 TEST(FoldableTypeclassTest, PredicatesAndFind)
 {
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-    const auto& foldable = smd::foldable_typeclass<Tree>;
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
+    const auto& foldable = smd::foldable_typeclass<Sequence>;
 
-    EXPECT_TRUE(foldable.any_of(tree, [](int x) { return x == 2; }));
-    EXPECT_TRUE(foldable.all_of(tree, [](int x) { return x > 0; }));
-    EXPECT_FALSE(foldable.empty(tree));
+    EXPECT_TRUE(foldable.any_of(sequence, [](int x) { return x == 2; }));
+    EXPECT_TRUE(foldable.all_of(sequence, [](int x) { return x > 0; }));
+    EXPECT_FALSE(foldable.empty(sequence));
 
-    auto found = foldable.find_first(tree, [](int x) { return x > 1; });
+    auto found = foldable.find_first(sequence, [](int x) { return x > 1; });
     ASSERT_TRUE(found.has_value());
     EXPECT_EQ(*found, 2);
 }
@@ -135,43 +132,20 @@ TEST(FoldableTypeclassTest, PredicatesAndFind)
 TEST(FoldableTypeclassTest, ToVectorAndCombineAll)
 {
     // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4
-    using IntTree = smd::tree::FixTree<int>;
-    auto tree = IntTree::branch(IntTree::leaf(1), IntTree::branch(IntTree::leaf(2), IntTree::leaf(3)));
-    const auto& int_foldable = smd::foldable_typeclass<IntTree>;
+    using IntSequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = IntSequence{{1, 2, 3}};
+    const auto& int_foldable = smd::foldable_typeclass<IntSequence>;
 
-    const auto as_vector = int_foldable.to_vector(tree);
+    const auto as_vector = int_foldable.to_vector(sequence);
     EXPECT_EQ(as_vector, (std::vector<int>{1, 2, 3}));
 
-    using VectorTree = smd::tree::FixTree<std::vector<int> >;
-    auto vectors = VectorTree::branch(VectorTree::leaf({1, 2}), VectorTree::leaf({3}));
-    const auto& vector_foldable = smd::foldable_typeclass<VectorTree>;
+    using VectorSequence = smd::typeclass::test::Sequence<std::vector<int> >;
+    auto vectors = VectorSequence{{{1, 2}, {3}}};
+    const auto& vector_foldable = smd::foldable_typeclass<VectorSequence>;
     const auto combined = vector_foldable.combine_all(vectors);
     EXPECT_EQ(combined, (std::vector<int>{1, 2, 3}));
 
     const auto folded = vector_foldable.fold(vectors);
     EXPECT_EQ(folded, (std::vector<int>{1, 2, 3}));
     // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end
-}
-
-TEST(FoldableTypeclassTest, BinaryTreeInorderFoldAndLength)
-{
-    using Tree = smd::tree::BinaryTree<int>;
-    auto tree = Tree::from_children_ptrs(
-      2,
-      Tree::make_ptr(Tree::leaf(1)),
-      Tree::make_ptr(Tree::from_children_ptrs(
-        3,
-        {},
-        Tree::make_ptr(Tree::leaf(4)))));
-
-    const auto& foldable = smd::foldable_typeclass<Tree>;
-    EXPECT_EQ(foldable.length(tree), 4U);
-
-    const auto as_vector = foldable.to_vector(tree);
-    EXPECT_EQ(as_vector, (std::vector<int>{1, 2, 3, 4}));
-
-    const auto left = foldable.fold_left(tree, 0, [](int acc, int x) {
-        return acc * 10 + x;
-    });
-    EXPECT_EQ(left, 1234);
 }

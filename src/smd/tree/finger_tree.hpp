@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
-#include <memory>
+#include <iterator>
 #include <optional>
 #include <type_traits>
 #include <utility>
@@ -58,11 +58,11 @@ inline auto digit_to_vector(const Digit<T>& d) -> std::vector<T>
       using N = std::decay_t<decltype(node)>;
       if constexpr (std::is_same_v<N, One<T>>) {
         return {node.a};
-      }
-      if constexpr (std::is_same_v<N, Two<T>>) {
+      } else if constexpr (std::is_same_v<N, Two<T>>) {
         return {node.a, node.b};
+      } else {
+        return {node.a, node.b, node.c};
       }
-      return {node.a, node.b, node.c};
     },
     d);
 }
@@ -75,13 +75,14 @@ inline auto node_to_vector(const Node<T>& n) -> std::vector<T>
       using N = std::decay_t<decltype(node)>;
       if constexpr (std::is_same_v<N, Node2<T>>) {
         return {node.a, node.b};
+      } else {
+        return {node.a, node.b, node.c};
       }
-      return {node.a, node.b, node.c};
     },
     n);
 }
 
-template <class T>
+template <typename T>
 class FingerTree {
   struct Empty {};
 
@@ -92,7 +93,7 @@ class FingerTree {
   struct Deep {
     std::size_t d_measure;
     Digit<T> d_prefix;
-    std::shared_ptr<FingerTree<Node<T>>> d_middle;
+    std::vector<Node<T>> d_middle;
     Digit<T> d_suffix;
   };
 
@@ -114,20 +115,77 @@ class FingerTree {
       digit);
   }
 
+  static auto node_size(const Node<T>& node) -> std::size_t
+  {
+    return std::visit(
+      [](const auto& n) -> std::size_t {
+        using N = std::decay_t<decltype(n)>;
+        if constexpr (std::is_same_v<N, Node2<T>>) {
+          return 2U;
+        }
+        return 3U;
+      },
+      node);
+  }
+
+  static auto middle_size(const std::vector<Node<T>>& middle) -> std::size_t
+  {
+    std::size_t total = 0;
+    for (const auto& n : middle) {
+      total += node_size(n);
+    }
+    return total;
+  }
+
+  static auto to_tuples(std::vector<T> values) -> std::vector<Node<T>>
+  {
+    std::vector<Node<T>> nodes;
+    if (values.size() < 2) {
+      return nodes;
+    }
+
+    std::size_t i = 0;
+    std::size_t remaining = values.size();
+
+    // Avoid leaving a single trailing element by pre-splitting 4 -> 2 + 2.
+    if (remaining % 3 == 1 && remaining >= 4) {
+      nodes.push_back(Node2<T>{std::move(values[i]), std::move(values[i + 1])});
+      i += 2;
+      remaining -= 2;
+      nodes.push_back(Node2<T>{std::move(values[i]), std::move(values[i + 1])});
+      i += 2;
+      remaining -= 2;
+    } else if (remaining % 3 == 2) {
+      nodes.push_back(Node2<T>{std::move(values[i]), std::move(values[i + 1])});
+      i += 2;
+      remaining -= 2;
+    }
+
+    while (remaining >= 3) {
+      nodes.push_back(
+        Node3<T>{std::move(values[i]), std::move(values[i + 1]), std::move(values[i + 2])});
+      i += 3;
+      remaining -= 3;
+    }
+
+    if (remaining == 2) {
+      nodes.push_back(Node2<T>{std::move(values[i]), std::move(values[i + 1])});
+    }
+
+    return nodes;
+  }
+
   auto make_single(T value) const -> FingerTree
   {
     return FingerTree(Single{std::move(value)});
   }
 
-  auto make_deep(Digit<T> prefix, FingerTree<Node<T>> middle, Digit<T> suffix) const
+  auto make_deep(Digit<T> prefix, std::vector<Node<T>> middle, Digit<T> suffix) const
     -> FingerTree
   {
-    const auto total = digit_size(prefix) + middle.measure() + digit_size(suffix);
+    const auto total = digit_size(prefix) + middle_size(middle) + digit_size(suffix);
     return FingerTree(
-      Deep{total,
-           std::move(prefix),
-           std::make_shared<FingerTree<Node<T>>>(std::move(middle)),
-           std::move(suffix)});
+      Deep{total, std::move(prefix), std::move(middle), std::move(suffix)});
   }
 
  public:
@@ -151,25 +209,28 @@ class FingerTree {
         using N = std::decay_t<decltype(node)>;
         if constexpr (std::is_same_v<N, Empty>) {
           return make_single(std::move(x));
-        }
-        if constexpr (std::is_same_v<N, Single>) {
+        } else if constexpr (std::is_same_v<N, Single>) {
           return make_deep(
-            One<T>{std::move(x)}, FingerTree<Node<T>>::empty(), One<T>{node.d_value});
+            One<T>{std::move(x)}, std::vector<Node<T>>{}, One<T>{node.d_value});
+        } else {
+          return std::visit(
+            [this, &x, &node](const auto& prefix) -> FingerTree {
+              using P = std::decay_t<decltype(prefix)>;
+              if constexpr (std::is_same_v<P, One<T>>) {
+                return make_deep(
+                  Two<T>{std::move(x), prefix.a}, node.d_middle, node.d_suffix);
+              } else if constexpr (std::is_same_v<P, Two<T>>) {
+                return make_deep(
+                  Three<T>{std::move(x), prefix.a, prefix.b}, node.d_middle, node.d_suffix);
+              } else {
+                auto new_middle = node.d_middle;
+                new_middle.insert(new_middle.begin(), Node2<T>{prefix.b, prefix.c});
+                return make_deep(
+                  Two<T>{std::move(x), prefix.a}, std::move(new_middle), node.d_suffix);
+              }
+            },
+            node.d_prefix);
         }
-        return std::visit(
-          [this, &x, &node](const auto& prefix) -> FingerTree {
-            using P = std::decay_t<decltype(prefix)>;
-            if constexpr (std::is_same_v<P, One<T>>) {
-              return make_deep(Two<T>{std::move(x), prefix.a}, *node.d_middle, node.d_suffix);
-            }
-            if constexpr (std::is_same_v<P, Two<T>>) {
-              return make_deep(
-                Three<T>{std::move(x), prefix.a, prefix.b}, *node.d_middle, node.d_suffix);
-            }
-            auto new_middle = node.d_middle->cons(Node2<T>{prefix.b, prefix.c});
-            return make_deep(Two<T>{std::move(x), prefix.a}, new_middle, node.d_suffix);
-          },
-          node.d_prefix);
       },
       d_data);
   }
@@ -181,35 +242,77 @@ class FingerTree {
         using N = std::decay_t<decltype(node)>;
         if constexpr (std::is_same_v<N, Empty>) {
           return make_single(std::move(x));
-        }
-        if constexpr (std::is_same_v<N, Single>) {
+        } else if constexpr (std::is_same_v<N, Single>) {
           return make_deep(
-            One<T>{node.d_value}, FingerTree<Node<T>>::empty(), One<T>{std::move(x)});
+            One<T>{node.d_value}, std::vector<Node<T>>{}, One<T>{std::move(x)});
+        } else {
+          return std::visit(
+            [this, &x, &node](const auto& suffix) -> FingerTree {
+              using S = std::decay_t<decltype(suffix)>;
+              if constexpr (std::is_same_v<S, One<T>>) {
+                return make_deep(
+                  node.d_prefix, node.d_middle, Two<T>{suffix.a, std::move(x)});
+              } else if constexpr (std::is_same_v<S, Two<T>>) {
+                return make_deep(
+                  node.d_prefix, node.d_middle, Three<T>{suffix.a, suffix.b, std::move(x)});
+              } else {
+                auto new_middle = node.d_middle;
+                new_middle.push_back(Node2<T>{suffix.b, suffix.c});
+                return make_deep(
+                  node.d_prefix, std::move(new_middle), Two<T>{suffix.a, std::move(x)});
+              }
+            },
+            node.d_suffix);
         }
-        return std::visit(
-          [this, &x, &node](const auto& suffix) -> FingerTree {
-            using S = std::decay_t<decltype(suffix)>;
-            if constexpr (std::is_same_v<S, One<T>>) {
-              return make_deep(node.d_prefix, *node.d_middle, Two<T>{suffix.a, std::move(x)});
-            }
-            if constexpr (std::is_same_v<S, Two<T>>) {
-              return make_deep(
-                node.d_prefix, *node.d_middle, Three<T>{suffix.a, suffix.b, std::move(x)});
-            }
-            auto new_middle = node.d_middle->snoc(Node2<T>{suffix.b, suffix.c});
-            return make_deep(node.d_prefix, new_middle, Two<T>{suffix.a, std::move(x)});
-          },
-          node.d_suffix);
       },
       d_data);
   }
 
   auto append(const FingerTree& right) const -> FingerTree
   {
-    auto left_values = flatten();
-    auto right_values = right.flatten();
-    left_values.insert(left_values.end(), right_values.begin(), right_values.end());
-    return from_sequence(std::move(left_values));
+    return std::visit(
+      [this, &right](const auto& left_node) -> FingerTree {
+        using L = std::decay_t<decltype(left_node)>;
+        if constexpr (std::is_same_v<L, Empty>) {
+          return right;
+        } else if constexpr (std::is_same_v<L, Single>) {
+          return right.cons(left_node.d_value);
+        } else {
+          return std::visit(
+            [this, &left_node](const auto& right_node) -> FingerTree {
+              using R = std::decay_t<decltype(right_node)>;
+              if constexpr (std::is_same_v<R, Empty>) {
+                return FingerTree(left_node);
+              } else if constexpr (std::is_same_v<R, Single>) {
+                return this->snoc(right_node.d_value);
+              } else {
+                auto bridge = digit_to_vector(left_node.d_suffix);
+                auto right_prefix = digit_to_vector(right_node.d_prefix);
+                bridge.insert(
+                  bridge.end(),
+                  std::make_move_iterator(right_prefix.begin()),
+                  std::make_move_iterator(right_prefix.end()));
+
+                auto bridge_nodes = to_tuples(std::move(bridge));
+
+                auto new_middle = left_node.d_middle;
+                new_middle.insert(
+                  new_middle.end(),
+                  std::make_move_iterator(bridge_nodes.begin()),
+                  std::make_move_iterator(bridge_nodes.end()));
+                new_middle.insert(new_middle.end(),
+                                  right_node.d_middle.begin(),
+                                  right_node.d_middle.end());
+
+                return make_deep(left_node.d_prefix,
+                                 std::move(new_middle),
+                                 right_node.d_suffix);
+              }
+            },
+            right.d_data);
+        }
+      },
+      d_data);
   }
 
   static auto branch(const FingerTree& left, const FingerTree& right) -> FingerTree
@@ -243,11 +346,11 @@ class FingerTree {
         using N = std::decay_t<decltype(node)>;
         if constexpr (std::is_same_v<N, Empty>) {
           return 0U;
-        }
-        if constexpr (std::is_same_v<N, Single>) {
+        } else if constexpr (std::is_same_v<N, Single>) {
           return 1U;
+        } else {
+          return node.d_measure;
         }
-        return node.d_measure;
       },
       d_data);
   }
@@ -261,11 +364,11 @@ class FingerTree {
         using N = std::decay_t<decltype(node)>;
         if constexpr (std::is_same_v<N, Empty>) {
           return 0U;
-        }
-        if constexpr (std::is_same_v<N, Single>) {
+        } else if constexpr (std::is_same_v<N, Single>) {
           return 1U;
+        } else {
+          return node.d_middle.empty() ? 1U : 2U;
         }
-        return 1U + node.d_middle->depth();
       },
       d_data);
   }
@@ -283,20 +386,18 @@ class FingerTree {
         using N = std::decay_t<decltype(node)>;
         if constexpr (std::is_same_v<N, Empty>) {
           return {};
-        }
-        if constexpr (std::is_same_v<N, Single>) {
+        } else if constexpr (std::is_same_v<N, Single>) {
           return {node.d_value};
+        } else {
+          auto result = digit_to_vector(node.d_prefix);
+          for (const auto& middle_node : node.d_middle) {
+            auto expanded = node_to_vector(middle_node);
+            result.insert(result.end(), expanded.begin(), expanded.end());
+          }
+          auto suffix = digit_to_vector(node.d_suffix);
+          result.insert(result.end(), suffix.begin(), suffix.end());
+          return result;
         }
-
-        auto result = digit_to_vector(node.d_prefix);
-        auto middle_values = node.d_middle->flatten();
-        for (const auto& middle_node : middle_values) {
-          auto expanded = node_to_vector(middle_node);
-          result.insert(result.end(), expanded.begin(), expanded.end());
-        }
-        auto suffix = digit_to_vector(node.d_suffix);
-        result.insert(result.end(), suffix.begin(), suffix.end());
-        return result;
       },
       d_data);
   }
@@ -322,16 +423,25 @@ class FingerTree {
       middle_v.assign(values.begin() + prefix_sz, values.end() - suffix_sz);
     }
 
-    std::vector<Node<T>> nodes;
-    for (std::size_t i = 0; i < middle_v.size(); i += 3) {
-      if (i + 2 < middle_v.size()) {
-        nodes.push_back(
-          Node3<T>{std::move(middle_v[i]), std::move(middle_v[i + 1]), std::move(middle_v[i + 2])});
-      } else if (i + 1 < middle_v.size()) {
-        nodes.push_back(Node2<T>{std::move(middle_v[i]), std::move(middle_v[i + 1])});
+    std::vector<Node<T>> middle_nodes;
+    for (std::size_t i = 0; i < middle_v.size();) {
+      const auto remaining = middle_v.size() - i;
+      if (remaining >= 3) {
+        middle_nodes.push_back(Node3<T>{
+          std::move(middle_v[i]), std::move(middle_v[i + 1]), std::move(middle_v[i + 2])});
+        i += 3;
+      } else if (remaining == 2) {
+        middle_nodes.push_back(Node2<T>{std::move(middle_v[i]), std::move(middle_v[i + 1])});
+        i += 2;
       } else {
         suffix_v.insert(suffix_v.begin(), std::move(middle_v[i]));
+        i += 1;
       }
+    }
+
+    if (suffix_v.size() == 4) {
+      middle_nodes.push_back(Node2<T>{std::move(suffix_v[0]), std::move(suffix_v[1])});
+      suffix_v.erase(suffix_v.begin(), suffix_v.begin() + 2);
     }
 
     Digit<T> prefix;
@@ -352,9 +462,8 @@ class FingerTree {
       suffix = Three<T>{std::move(suffix_v[0]), std::move(suffix_v[1]), std::move(suffix_v[2])};
     }
 
-    auto middle = FingerTree<Node<T>>::from_sequence(std::move(nodes));
     FingerTree builder(Empty{});
-    return builder.make_deep(std::move(prefix), std::move(middle), std::move(suffix));
+    return builder.make_deep(std::move(prefix), std::move(middle_nodes), std::move(suffix));
   }
 
   auto view_l() const -> std::optional<View>

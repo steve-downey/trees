@@ -5,7 +5,6 @@
 #include <smd/tree/fringe_tree_applicative.hpp>
 #include <smd/typeclass/traversable.hpp>
 
-#include <cassert>
 #include <functional>
 #include <type_traits>
 #include <utility>
@@ -23,12 +22,16 @@ struct FringeTreeTraversableImpl {
       },
       std::invoke(std::forward<F>(function), tree.value())))
   {
-    assert(!tree.is_empty() && "FringeTreeTraversableImpl::traverse does not support empty trees");
+    using Context = remove_cvref_t<std::invoke_result_t<F, const T&>>;
+    const auto& applicative = smd::applicative_typeclass<Context>;
+    using U = smd::applicative_value_t<Context>;
+
+    if (tree.is_empty()) {
+      return applicative.pure(smd::tree::FringeTree<U>::empty());
+    }
 
     if (tree.is_leaf()) {
       auto lifted = std::invoke(std::forward<F>(function), tree.value());
-      using Context = remove_cvref_t<decltype(lifted)>;
-      const auto& applicative = smd::applicative_typeclass<Context>;
 
       return applicative.invoke(
         [](auto&& value) {
@@ -40,8 +43,6 @@ struct FringeTreeTraversableImpl {
 
     auto left = self.traverse(function, tree.left());
     auto right = self.traverse(function, tree.right());
-    using Context = remove_cvref_t<decltype(left)>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
 
     return applicative.invoke(
       [](auto&& l, auto&& r) {

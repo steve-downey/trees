@@ -18,10 +18,7 @@ target_sources(
         functor.hpp
         foldable.hpp
         applicative.hpp
-        traversable.hpp
-        zip_list.hpp
-        zip_list_applicative.hpp
-        law_test_support.hpp
+    traversable.hpp
 )
 
 # Link with optional dependency
@@ -45,10 +42,7 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
         monoid.t.cpp
         applicative.t.cpp
         foldable.t.cpp
-        fringe_tree.t.cpp
-        finger_tree.t.cpp
         traversable.t.cpp
-        zip_list_applicative.t.cpp
     )
 
     target_include_directories(smd_typeclass_tests
@@ -59,7 +53,6 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
     target_link_libraries(smd_typeclass_tests
         PRIVATE
             smd_typeclass
-            smd_tree
             GTest::gtest
             GTest::gtest_main
     )

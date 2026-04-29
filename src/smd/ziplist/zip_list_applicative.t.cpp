@@ -1,6 +1,6 @@
 #include <smd/typeclass/applicative.hpp>
-#include <smd/typeclass/zip_list.hpp>
-#include <smd/typeclass/zip_list_applicative.hpp>
+#include <smd/ziplist/zip_list.hpp>
+#include <smd/ziplist/zip_list_applicative.hpp>
 
 #include <gtest/gtest.h>
 
@@ -25,4 +25,20 @@ TEST(ZipListApplicativeTest, ApplyZips)
 
     auto result = applicative.apply(functions, arguments);
     EXPECT_EQ(result.data, (std::vector<int>{11, 20}));
+}
+
+TEST(ZipListApplicativeTest, InvokeZipsMultipleArguments)
+{
+    smd::zip_list<int> xs{{1, 2, 3}};
+    smd::zip_list<int> ys{{10, 20}};
+    smd::zip_list<int> zs{{100, 200, 300, 400}};
+    const auto& applicative = smd::applicative_typeclass<smd::zip_list<int> >;
+
+    auto result = applicative.invoke(
+        [](int x, int y, int z) { return x + y + z; },
+        xs,
+        ys,
+        zs);
+
+    EXPECT_EQ(result.data, (std::vector<int>{111, 222}));
 }

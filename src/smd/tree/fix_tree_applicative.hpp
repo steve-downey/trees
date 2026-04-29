@@ -36,32 +36,11 @@ struct FixTreeApplicativeImpl {
     return smd::tree::FixTree<R>::node(self.apply(fs.left(), xs),
                                        self.apply(fs.right(), xs));
   }
-
-  template <class FUNCTION, class... ARGS>
-  auto invoke(this auto&& self,
-              FUNCTION&& function,
-              const smd::tree::FixTree<ARGS>&... xs)
-  {
-    static_assert(sizeof...(ARGS) > 0,
-            "FixTree applicative invoke needs at least one argument");
-
-    using R = std::invoke_result_t<FUNCTION, const ARGS&...>;
-
-    if ((xs.is_leaf() && ...)) {
-      return smd::tree::FixTree<R>::leaf(
-        std::invoke(std::forward<FUNCTION>(function), xs.value()...));
-    }
-
-    return smd::tree::FixTree<R>::node(
-      self.invoke(std::forward<FUNCTION>(function), xs.left()...),
-      self.invoke(std::forward<FUNCTION>(function), xs.right()...));
-  }
 };
 
 template <class T>
 struct FixTreeApplicativeMap : Applicative<FixTreeApplicativeImpl<T> > {
   using FixTreeApplicativeImpl<T>::apply;
-  using FixTreeApplicativeImpl<T>::invoke;
   using FixTreeApplicativeImpl<T>::pure;
 };
 

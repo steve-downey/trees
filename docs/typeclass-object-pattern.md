@@ -3,7 +3,7 @@
 This repository uses a typeclass-object lookup approach to approximate the intent of C++03 concept maps.
 
 The short version:
-- A concept is represented by a tag plus a map object interface.
+- A concept is represented by a typeclass object interface.
 - A concrete type chooses behavior by specializing a lookup object.
 - Generic algorithms call through that lookup object instead of relying on ADL overload sets.
 
@@ -27,9 +27,8 @@ There are two related implementations:
 - Defaults lookup to `std::false_type{}` and specializes for supported types.
 
 2. `src/smd/typeclass/`
-- Uses `map<Tag, T>` specializations with tags like `functor_tag`, `foldable_tag`, `applicative_tag`, `traversable_tag`.
 - Uses per-concept implementation objects named `*_typeclass<T>` for lookup and override.
-- Generic entry points are free functions (`fmap`, `fold_map`, `invoke`, `traverse`) that dispatch through `map<Tag, T>`.
+- Generic algorithms dispatch through those looked-up objects.
 
 Both are expressing the same design idea: behavior by typed map object, selected at compile time.
 
@@ -52,7 +51,7 @@ The conceptmap tests already demonstrate the NTTP style in practice:
 - `template <typename P, const auto& functor = functor_concept_map<P>>`
 - See `testP` and `testP2` in `src/smd/conceptmap/functor.t.cpp`.
 
-For future work in `src/smd/typeclass/`, preserve this spirit even when dispatch is expressed as `map<Tag, T>` specialization. If additional wrapper APIs are introduced, they should keep explicit object override and NTTP pinning available for generic code.
+For future work in `src/smd/typeclass/`, preserve this spirit through `*_typeclass<T>` lookup objects. If additional wrapper APIs are introduced, they should keep explicit object override and NTTP pinning available for generic code.
 
 Current naming convention in this subtree is `*_typeclass<T>` for implementation objects.
 
@@ -61,15 +60,15 @@ Current naming convention in this subtree is `*_typeclass<T>` for implementation
 ### Concept side
 
 A concept contributes:
-- a tag (`functor_tag`, `applicative_tag`, ...), or a per-concept lookup variable template in the conceptmap subtree
+- a per-concept lookup variable template in the typeclass subtree
 - generic user-facing algorithms (`fmap`, `length`, `invoke`, `traverse`)
 - optional defaults in a wrapper record (conceptmap subtree)
 
 ### Type side
 
-A type participates by adding a map specialization:
+A type participates by specializing the per-concept lookup object:
 - conceptmap style: specialize `*_concept_map<T>` to an instance object
-- typeclass style: specialize `map<Tag, T>` and provide required static operations
+- typeclass style: specialize `*_typeclass<T>` to an instance object
 
 ### Call side
 
@@ -80,11 +79,12 @@ Generic code calls concept algorithms, not type members directly:
 - `smd::traverse(f, tree)`
 
 That call performs compile-time lookup to the right map specialization.
+That call performs compile-time lookup to the right typeclass object.
 
 ## How to add a new instance
 
 1. Decide the concept and the concrete type/family.
-2. Implement the map specialization close to the type adapter header.
+2. Implement the `*_typeclass<T>` specialization close to the type adapter header.
 3. Keep operation names aligned with existing concept APIs.
 4. Add a `.t.cpp` test file with at least:
 - breathing test
@@ -95,7 +95,7 @@ That call performs compile-time lookup to the right map specialization.
 ## How to add a new concept
 
 1. Add a new tag and generic entry-point API in `src/smd/typeclass/<concept>.hpp`.
-2. Add `map<new_tag, T>` specializations for at least one concrete type.
+2. Add `*_typeclass<T>` specializations for at least one concrete type.
 3. Add tests in `src/smd/typeclass/<concept>.t.cpp`.
 4. Add the header to `smd_typeclass` header file set in `src/smd/typeclass/CMakeLists.txt`.
 5. If needed for talks, add an examples source file in `src/smd/typeclass/examples/` and include it in the slide examples object target.
@@ -121,7 +121,7 @@ The helper object stores already-bound values and, on each call:
 - invokes `f` when enough arguments have been collected, or
 - returns a new callable waiting for the next argument.
 
-That gives us a practical equivalent of Ben Deane's terminating partial-application technique while preserving the object-map lookup model.
+That gives us a practical equivalent of Ben Deane's terminating partial-application technique while preserving the object-lookup model.
 
 Contract summary:
 - Minimal required operations for Applicative Impl are `pure` and `apply`.
@@ -131,5 +131,5 @@ Contract summary:
 ## Notes for future cleanup
 
 - Keep one consistent naming story between `conceptmap` and `typeclass` surfaces to avoid conceptual drift.
-- Prefer explicit object-map usage in tests when comparing alternate semantics.
+- Prefer explicit object lookup usage in tests when comparing alternate semantics.
 - Preserve the lookup-first model; avoid introducing parallel ADL-only customization paths for the same concept.

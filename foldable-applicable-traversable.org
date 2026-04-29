@@ -255,8 +255,9 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Law-oriented test strategy for 
 - Applicative captures independent effectful arguments without full monadic sequencing.
 - It is enough for lawful traversal in many practical cases.
 - Public API should read as ordinary invocation over effectful values.
-- Prefer ~invoke~ for C++ audiences; it aligns with the ~std::invoke~ model.
-- ~apply_pure(f, a, b, c)~ is a teaching alias for audiences coming from FP notation like ~[| f a b c |]~.
+- Prefer ~invoke~ for C++ audiences; it aligns with the ~std::invoke~ mental model.
+- This follows McBride's "apply pure functions in effectful contexts" reading, with normalization to ~pure~ + ~apply~ under the covers.
+- ~apply_pure(f, a, b, c)~ is retained only as a teaching alias for audiences coming from FP notation like ~[| f a b c |]~.
 
 #+transclude: [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]]
 :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
@@ -392,7 +393,7 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: C++23-compatible surface with C
 *** Avoiding the ~std::bind~ vs lambda overlap
 - Avoid parallel abstractions that solve the same use case differently.
 - Choose one clear good path per concept.
-- For Applicative, that path is ~invoke~; ~apply_pure~ is a teaching aid.
+- For Applicative, that path is ~invoke~; ~apply_pure~ remains a teaching aid.
 
 #+begin_notes
 The goal is reducing cognitive branching in generic code.
