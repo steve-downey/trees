@@ -216,6 +216,60 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Law-oriented test strategy for 
 - Traversable maps with effects while rebuilding the same outer shape.
 - For trees, this is the difference between count nodes and relabel nodes in place.
 
+*** Crisp contrast: flatten vs preserve shape
+- Two differently shaped trees can flatten to the same sequence under Foldable.
+- Traversable can map values and keep the original branching shape.
+
+**** Foldable flattens and loses shape identity
+
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::b1fd4b92-b060-4c47-8c08-97328ec02329]]
+:lines 2- :src cpp :end "b1fd4b92-b060-4c47-8c08-97328ec02329 end"
+
+**** Traversable maps while preserving shape
+
+#+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::d804ec63-77d1-4fa0-99a6-9effce6f741b]]
+:lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
+
+#+begin_notes
+Use this as the one-slide intuition.
+Foldable can collapse two different shapes to the same flat view.
+Traversable keeps the tree skeleton and only transforms payloads.
+#+end_notes
+
+*** Typeclass object lookup in three calls
+- User code calls the looked-up object, not a node method.
+- Lookup is a variable-template selection such as ~foldable_typeclass<Tree>~.
+- The same pattern applies to ~applicative_typeclass<Tree>~ and ~traversable_typeclass<Tree>~.
+- You can use implicit lookup, explicit object arguments, or NTTP pinning for tests and policy control.
+
+#+begin_notes
+This replaces a long historical detour with one operational model.
+Call site intent stays stable while the representation changes.
+#+end_notes
+
+*** Typeclass object for implementors
+- Implement one minimal hook per concept and inherit derived operations.
+- Foldable implements ~fold_map~ and gets ~length~, ~fold_left~, ~fold_right~, and ~to_vector~.
+- Applicative implements ~pure~ and ~apply~ and gets user-facing ~invoke~.
+- Traversable implements ~traverse~ and gets ~for_each~ and ~sequence~ helpers.
+- Keep traversal order and shape-preservation choices explicit in instance tests.
+
+#+begin_notes
+This is the key split.
+Implementor surface is small, and user surface is rich.
+#+end_notes
+
+*** How the implementation works: CRTP and deducing this
+- Each concept wrapper is a CRTP base that exposes derived API in terms of minimal hooks.
+- ~this auto&& self~ preserves value category and constness through wrapper calls.
+- The wrapper can call either default derived behavior or an instance override when provided.
+- This keeps dispatch static and local while avoiding repetitive forwarding boilerplate.
+
+#+begin_notes
+CRTP supplies structure.
+Deducing this keeps wrappers generic without losing type information.
+#+end_notes
+
 *** Same algorithm, two tree representations
 - Fixpoint tree and shared_ptr binary tree can share the same Foldable call shape.
 - The representation changes; the typeclass API and algorithm intent stay the same.

@@ -34,4 +34,33 @@ auto traversable_relabel_example() -> beman::optional::optional<std::size_t>
     return foldable.length(*relabelled);
 }
 
+auto traversable_preserves_shape_example() -> bool
+{
+        using IntTree = smd::tree::FixTree<int>;
+        using beman::optional::optional;
+
+        auto tree = IntTree::branch(
+            IntTree::leaf(1),
+            IntTree::branch(IntTree::leaf(2), IntTree::leaf(3)));
+        const auto& traversable = smd::traversable_typeclass<IntTree>;
+
+        // d804ec63-77d1-4fa0-99a6-9effce6f741b
+        auto mapped = traversable.traverse(
+            [](int x) -> optional<int> { return optional<int>{x + 10}; },
+            tree);
+        // d804ec63-77d1-4fa0-99a6-9effce6f741b end
+
+        if (!mapped || mapped->is_leaf()) {
+                return false;
+        }
+
+        return mapped->left().is_leaf() &&
+                     mapped->left().value() == 11 &&
+                     !mapped->right().is_leaf() &&
+                     mapped->right().left().is_leaf() &&
+                     mapped->right().left().value() == 12 &&
+                     mapped->right().right().is_leaf() &&
+                     mapped->right().right().value() == 13;
+}
+
 }  // close namespace smd::typeclass::examples

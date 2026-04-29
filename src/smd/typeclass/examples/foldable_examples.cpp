@@ -66,4 +66,24 @@ auto generic_length_fringe_tree_example() -> std::size_t
         return n;
 }
 
+auto foldable_flattens_shape_example() -> bool
+{
+        using Tree = smd::tree::FixTree<int>;
+        auto left_heavy = Tree::branch(
+            Tree::leaf(1),
+            Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+        auto right_heavy = Tree::branch(
+            Tree::branch(Tree::leaf(1), Tree::leaf(2)),
+            Tree::leaf(3));
+
+        const auto& foldable = smd::foldable_typeclass<Tree>;
+
+        // b1fd4b92-b060-4c47-8c08-97328ec02329
+        auto left_flat = foldable.to_vector(left_heavy);
+        auto right_flat = foldable.to_vector(right_heavy);
+        // b1fd4b92-b060-4c47-8c08-97328ec02329 end
+
+        return left_flat == right_flat;
+}
+
 }  // close namespace smd::typeclass::examples
