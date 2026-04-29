@@ -1,0 +1,132 @@
+// monoid.h                                                           -*-C++-*-
+#ifndef INCLUDED_MONOID
+#define INCLUDED_MONOID
+
+//@AUTHOR: Steve Downey (sdowney)
+
+#include <algorithm>
+#include <concepts>
+#include <ranges>
+#include <type_traits>
+
+namespace smd {
+namespace conceptmap {
+
+template <typename Impl, typename Mon>
+concept MonoidRequirements = requires(Impl i) {
+    { i.identity() } -> std::same_as<Mon>;
+} || requires(Impl i, std::ranges::empty_view<Mon> r1) {
+    { i.concat(r1) } -> std::same_as<Mon>;
+};
+
+template <class Impl>
+    requires MonoidRequirements<Impl, typename Impl::value_type>
+struct Monoid : protected Impl {
+    auto identity(this auto &&self) {
+        std::puts("Monoid::identity()");
+        return self.concat(
+            std::ranges::empty_view<typename Impl::value_type>{});
+    }
+
+    auto op(this auto &&self, auto a1, auto a2) {
+        std::puts("Monoid::op");
+        return self.op(a1, a2);
+    }
+
+    template <typename Range>
+    auto concat(this auto &&self, Range r) {
+        std::puts("Monoid::concat()");
+        return std::ranges::fold_right(
+            r, self.identity(),
+            [&](auto m1, auto m2) { return self.op(m1, m2); });
+    }
+};
+
+template <typename M>
+class Plus {
+  public:
+    using value_type = M;
+    auto identity(this auto && /*self*/) -> M {
+        std::puts("Plus::identity()");
+        return M{0};
+    }
+
+    auto op(this auto && /*self*/, auto s1, auto s2) -> M {
+        std::puts("Plus::op()");
+        return s1 + s2;
+    }
+};
+
+template <typename M>
+struct PlusMonoidMap : public Monoid<Plus<M>> {
+    using Plus<M>::identity;
+    using Plus<M>::op;
+};
+
+template <typename M>
+class Multiply {
+  public:
+    using value_type = M;
+    auto identity(this auto && /*self*/) -> M {
+        std::puts("Multiply::identity()");
+        return M{1};
+    }
+
+    auto op(this auto && /*self*/, auto s1, auto s2) -> M {
+        std::puts("Multiply::op()");
+        return s1 * s2;
+    }
+};
+
+template <typename M>
+struct MultiplyMonoidMap : public Monoid<Multiply<M>> {
+    using Multiply<M>::identity;
+    using Multiply<M>::op;
+};
+
+class StringMonoid {
+  public:
+    using value_type = std::string;
+
+    auto op(this auto &&, auto s1, auto s2) {
+        std::puts("StringMonoid::op()");
+        return s1 + s2;
+    }
+
+    template <typename Range>
+    auto concat(this auto &&self, Range r) {
+        std::puts("StringMonoid::concat()");
+        return std::ranges::fold_right(r, std::string{}, [&](auto m1, auto m2) {
+            return self.op(m1, m2);
+        });
+    }
+};
+
+struct StringMonoidMap : public Monoid<StringMonoid> {
+    using StringMonoid::concat;
+    using StringMonoid::op;
+};
+
+template <class T>
+auto monoid_concept_map = std::false_type{};
+
+template <>
+inline constexpr auto monoid_concept_map<int> = PlusMonoidMap<int>{};
+
+template <>
+inline constexpr auto monoid_concept_map<long> = PlusMonoidMap<long>{};
+
+template <>
+inline constexpr auto monoid_concept_map<char> = PlusMonoidMap<char>{};
+
+template <typename N>
+    requires std::is_arithmetic<N>::value
+inline constexpr auto mult_map = MultiplyMonoidMap<N>{};
+
+template <>
+inline constexpr auto monoid_concept_map<std::string> = StringMonoidMap{};
+
+} // namespace conceptmap
+} // namespace smd
+
+#endif
