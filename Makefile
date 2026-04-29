@@ -76,8 +76,6 @@ define run_cmake =
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
 	-DCMAKE_PREFIX_PATH=$(CURDIR)/infra/cmake \
 	-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=$(_cmake_top_level) \
-	-DCMAKE_C_COMPILER_LAUNCHER=ccache \
-	-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 	-DCMAKE_TOOLCHAIN_FILE=$(_toolchain) \
 	$(_args) \
 	$(_cmake_args) \

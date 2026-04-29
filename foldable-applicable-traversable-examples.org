@@ -1,0 +1,101 @@
+* export settings :noexport:
+#+org-export-with-smart-quotes: nil
+#+org-export-with-emphasize: t
+#+org-export-with-special-strings: t
+#+org-export-with-fixed-width: t
+#+org-export-with-timestamps: t
+#+org-export-preserve-breaks: nil
+#+org-export-with-sub-superscripts: nil
+#+org-export-with-archived-trees: headline
+#+org-export-with-author: t
+#+org-export-headline-levels: 3
+
+#+org-export-with-broken-links: nil
+#+org-export-with-clocks: nil
+#+org-export-with-creator: nil
+#+org-export-with-drawers: (not "LOGBOOK")
+#+org-export-with-date: t
+#+org-export-with-entities: t
+
+#+org-export-with-email: nil
+#+org-export-with-footnotes: t
+#+org-export-with-inlinetasks: t
+#+org-export-with-section-numbers: t
+#+org-export-with-planning: nil
+#+org-export-with-priority: nil
+#+org-export-with-properties: nil
+#+org-export-with-statistics-cookies: t
+#+org-export-with-tags: t
+
+#+org-export-with-tasks: t
+#+org-export-with-latex: t
+#+org-export-timestamp-file: t
+#+org-export-with-title: n
+#+org-export-with-toc: nil
+#+org-export-with-todo: t
+#+org-export-with-tables: t
+
+#+org-html-link-use-abs-url: nil
+#+org-html-postamble: nil
+#+org-html-preamble: t
+#+org-html-scripts: n
+#+org-html-style: nil
+#+org-html5-fancy: t
+#+org-html-self-link-headlines: t
+
+#+html_doctype: xhtml5
+#+html_container: div
+#+html_link_home:
+#+html_link_up:
+#+html_mathjax:
+#+html_head:
+#+html_head_extra:
+#+infojs_opt:
+
+#+select_tags: export
+#+exclude_tags: noexport
+
+#+STARTUP: showeverything
+
+#+OPTIONS: reveal_width:1600 reveal_height:900
+#+REVEAL_TRANS: fade
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../etc/modus-vivendi-tinted.css" />
+
+#+REVEAL_PLUGINS: (math markdown notes search zoom)
+#+REVEAL_EXTRA_CSS: ../etc/modus-vivendi-tinted.css
+#+REVEAL_THEME: ../etc/my_theme.css
+#+REVEAL_EXTRA_CSS: ../etc/footer.css
+#+REVEAL_TITLE_SLIDE: <p>
+#+REVEAL_TITLE_SLIDE_BACKGROUND: ./title_card.png
+
+# #+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_ROOT: ../reveal.js
+#+REVEAL_VERSION: 6
+#+reveal_defaulttiming: 60
+
+#+REVEAL_HLEVEL: 1
+#+REVEAL_EXPORT_NOTES_TO_PDF: separate-page
+#+REVEAL_DEFAULT_FRAG_STYLE: (appear)
+
+#+OPTIONS: reveal_single_file:t
+
+#+CITE_EXPORT: csl ../etc/chicago-author-date.csl
+#+BIBLIOGRAPHY: ../etc/wg21.bib
+#+BIBLIOGRAPHY: ../etc/local.bib
+* Implement Foldable, Applicative, Traversable for Trees
+
+** The first payoff: generic length on a tree
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]]
+:lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
+
+** Applicative by example
+#+transclude: [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]]
+:lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
+
+** Traversable for trees
+#+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]]
+:lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
+
+** Bad tree Applicative example
+#+transclude: [[file:src/smd/typeclass/examples/applicative_bad.cpp::d2e7a1c9-0f3b-4b2e-9d55-1a8e7c4b2f90]]
+:lines 2- :src cpp :end "d2e7a1c9-0f3b-4b2e-9d55-1a8e7c4b2f90 end"
