@@ -1,0 +1,32 @@
+cfgv==3.5.0
+    # via pre-commit
+clang-format==22.1.4
+    # via -r requirements-dev.in
+colorlog==6.10.1
+    # via gcovr
+distlib==0.4.0
+    # via virtualenv
+filelock==3.20.3
+    # via virtualenv
+gcovr==8.6
+    # via -r requirements-dev.in
+identify==2.6.15
+    # via pre-commit
+jinja2==3.1.6
+    # via gcovr
+lxml==6.1.0
+    # via gcovr
+markupsafe==3.0.3
+    # via jinja2
+nodeenv==1.10.0
+    # via pre-commit
+platformdirs==4.5.1
+    # via virtualenv
+pre-commit==4.6.0
+    # via -r requirements-dev.in
+pygments==2.19.2
+    # via gcovr
+pyyaml==6.0.3
+    # via pre-commit
+virtualenv==20.36.1
+    # via pre-commit
