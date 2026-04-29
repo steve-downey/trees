@@ -18,6 +18,10 @@ target_sources(
     finger_tree.hpp
     finger_tree_foldable.hpp
     finger_tree_traversable.hpp
+    finger_tree_random_access.hpp
+    finger_tree_priority_queue.hpp
+    finger_tree_interval_index.hpp
+    finger_tree_rope.hpp
     finger_tree_wrappers.hpp
         fix_tree.hpp
         fix_tree_foldable.hpp
@@ -40,7 +44,10 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
     add_executable(smd_tree_tests
         fringe_tree.t.cpp
         finger_tree.t.cpp
-        finger_tree_wrappers.t.cpp
+        finger_tree_random_access.t.cpp
+        finger_tree_priority_queue.t.cpp
+        finger_tree_interval_index.t.cpp
+        finger_tree_rope.t.cpp
         binary_tree_applicative.t.cpp
         binary_tree_foldable.t.cpp
         binary_tree_traversable.t.cpp
