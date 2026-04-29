@@ -13,12 +13,12 @@ auto applicative_invoke_example() -> beman::optional::optional<int>
     optional<int> ax = 1;
     optional<int> ay = 2;
 
-    // 3f0c8d0e
+    // 3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11
     auto sum = smd::invoke(
         [](int a, int b) { return a + b; },
         ax,
         ay);
-    // 3f0c8d0e end
+    // 3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end
 
     return sum;
 }

@@ -25,7 +25,7 @@ PRE_COMMIT := $(UV) run pre-commit
 EMACS := $(shell command -v emacs 2> /dev/null)
 
 .update-submodules:
-	git submodule update --init --recursive
+	#git submodule update --init --recursive
 	touch .update-submodules
 
 .gitmodules: .update-submodules
