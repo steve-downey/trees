@@ -41,3 +41,7 @@ This package includes a tiny compatibility header at `src/beman/optional/optiona
 ## Deck entry point
 
 - `example.org`: org-re-reveal presentation entry point intended to drop into the `example` template project.
+
+## Contributor handoff
+
+- `docs/typeclass-object-pattern.md`: how the typeclass-object lookup pattern works in this repo, and how to extend it safely.

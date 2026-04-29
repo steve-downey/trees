@@ -9,14 +9,14 @@
 namespace smd {
 
 template<class T>
-struct map<applicative_tag, zip_list<T>> {
+struct ZipListApplicativeMap {
 
-  static auto pure(const T& x){
+  auto pure(const T& x) const {
     return zip_list<T>{{x}};
   }
 
   template<class F,class A>
-  static auto apply(const zip_list<F>& fs,const zip_list<A>& xs){
+  auto apply(const zip_list<F>& fs,const zip_list<A>& xs) const {
     using R = decltype(fs.data[0](xs.data[0]));
     zip_list<R> r;
 
@@ -27,6 +27,10 @@ struct map<applicative_tag, zip_list<T>> {
     return r;
   }
 };
+
+template <class T>
+inline constexpr auto applicative_typeclass<zip_list<T> > =
+    ZipListApplicativeMap<T>{};
 
 }
 
