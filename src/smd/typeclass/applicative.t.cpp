@@ -34,6 +34,38 @@ TEST(ApplicativeTypeclassTest, InvokeOptional)
     EXPECT_EQ(*result, 5);
 }
 
+TEST(ApplicativeTypeclassTest, InvokeOptionalTernaryUsesPartialApplication)
+{
+    std::optional<int> ax{2};
+    std::optional<int> ay{3};
+    std::optional<int> az{4};
+    const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
+
+    auto result = applicative.invoke(
+        [](int a, int b, int c) { return a * b + c; },
+        ax,
+        ay,
+        az);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(*result, 10);
+}
+
+TEST(ApplicativeTypeclassTest, ApplyPureOptionalTernary)
+{
+    std::optional<int> ax{2};
+    std::optional<int> ay{3};
+    std::optional<int> az{4};
+    const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
+
+    auto result = applicative.apply_pure(
+        [](int a, int b, int c) { return a * b + c; },
+        ax,
+        ay,
+        az);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(*result, 10);
+}
+
 TEST(ApplicativeTypeclassTest, MapOptional)
 {
     std::optional<int> value{21};

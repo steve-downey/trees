@@ -8,16 +8,61 @@
 #include <concepts>
 #include <functional>
 #include <optional>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
 namespace smd {
 
+namespace detail {
+
+template <class FUNCTION, class... BOUND_ARGS>
+struct terminating_partial {
+  FUNCTION function;
+  std::tuple<BOUND_ARGS...> bound_args;
+
+  template <class NEXT_ARG>
+  auto operator()(NEXT_ARG&& next_arg)
+  {
+    return invoke_or_extend(std::forward<NEXT_ARG>(next_arg),
+                            std::index_sequence_for<BOUND_ARGS...>{});
+  }
+
+ private:
+  template <class NEXT_ARG, std::size_t... IDX>
+  auto invoke_or_extend(NEXT_ARG&& next_arg, std::index_sequence<IDX...>)
+  {
+    if constexpr (std::invocable<FUNCTION&, BOUND_ARGS&..., NEXT_ARG>) {
+      return std::invoke(function,
+                         std::get<IDX>(bound_args)...,
+                         std::forward<NEXT_ARG>(next_arg));
+    } else {
+      using NEXT_PARTIAL =
+        terminating_partial<FUNCTION, BOUND_ARGS..., remove_cvref_t<NEXT_ARG> >;
+      return NEXT_PARTIAL{
+        function,
+        std::tuple_cat(std::move(bound_args),
+                       std::tuple<remove_cvref_t<NEXT_ARG> >{
+                         std::forward<NEXT_ARG>(next_arg)})};
+    }
+  }
+};
+
+template <class FUNCTION>
+auto make_terminating_partial(FUNCTION&& function)
+{
+  using STORED_FUNCTION = remove_cvref_t<FUNCTION>;
+  return terminating_partial<STORED_FUNCTION>{
+    std::forward<FUNCTION>(function),
+    std::tuple<>{}};
+}
+
+}  // namespace detail
+
 // Applicative pattern invariants:
-// - Required: pure, apply, and invoke. Impl must provide all three.
-// - Note: Unlike Haskell (MINIMAL pure | <*>), C++ invoke must be explicit per impl
-//   because C++ functions are not curried. Derived left-fold apply doesn't preserve
-//   function types through the chain. Each Impl handles arity specifically.
+// - Minimal required operations are pure and apply.
+// - invoke is derived from pure/apply via terminating partial application,
+//   but an Impl may provide a custom invoke for different semantics or efficiency.
 // - Derived operations (lift/ap/zip_with/discard_*) live on that object.
 // - Dispatch happens through a provided object or applicative_typeclass<Concrete>.
 // - Do not introduce hidden alternate semantics without a distinct map/type.
@@ -25,9 +70,72 @@ namespace smd {
 template <class Impl>
 struct Applicative : protected Impl {
   using Impl::apply;
-  using Impl::invoke;
   using Impl::pure;
 
+  // Teaching-friendly spelling for "apply pure function to effectful arguments".
+  template <class FUNCTION, class FIRST_ARGUMENT, class... REST_ARGUMENTS>
+  auto apply_pure(this auto&& self,
+                  FUNCTION&& function,
+                  FIRST_ARGUMENT&& first_argument,
+                  REST_ARGUMENTS&&... rest_arguments)
+  {
+    return self.invoke(std::forward<FUNCTION>(function),
+                       std::forward<FIRST_ARGUMENT>(first_argument),
+                       std::forward<REST_ARGUMENTS>(rest_arguments)...);
+  }
+
+  template <class FUNCTION, class FIRST_ARGUMENT, class... REST_ARGUMENTS>
+  auto invoke(this auto&& self,
+              FUNCTION&& function,
+              FIRST_ARGUMENT&& first_argument,
+              REST_ARGUMENTS&&... rest_arguments)
+  {
+    using SELF = remove_cvref_t<decltype(self)>;
+    using IMPL_BASE =
+      std::conditional_t<std::is_const_v<SELF>, const Impl, Impl>;
+
+    if constexpr (requires(IMPL_BASE& impl) {
+                    impl.invoke(std::forward<FUNCTION>(function),
+                                std::forward<FIRST_ARGUMENT>(first_argument),
+                                std::forward<REST_ARGUMENTS>(rest_arguments)...);
+                  }) {
+      return static_cast<IMPL_BASE&>(self).invoke(
+        std::forward<FUNCTION>(function),
+        std::forward<FIRST_ARGUMENT>(first_argument),
+        std::forward<REST_ARGUMENTS>(rest_arguments)...);
+    } else {
+      auto lifted_function =
+        self.pure(detail::make_terminating_partial(std::forward<FUNCTION>(function)));
+      return self.apply_chain(
+        self.ap(std::move(lifted_function), std::forward<FIRST_ARGUMENT>(first_argument)),
+        std::forward<REST_ARGUMENTS>(rest_arguments)...);
+    }
+  }
+
+ private:
+  template <class ACCUMULATED>
+  auto apply_chain(this auto&&, ACCUMULATED&& accumulated)
+  {
+    return std::forward<ACCUMULATED>(accumulated);
+  }
+
+  template <class ACCUMULATED, class NEXT_ARGUMENT, class... REST_ARGUMENTS>
+  auto apply_chain(this auto&& self,
+                   ACCUMULATED&& accumulated,
+                   NEXT_ARGUMENT&& next_argument,
+                   REST_ARGUMENTS&&... rest_arguments)
+  {
+    auto next = self.ap(std::forward<ACCUMULATED>(accumulated),
+                        std::forward<NEXT_ARGUMENT>(next_argument));
+    if constexpr (sizeof...(REST_ARGUMENTS) == 0) {
+      return next;
+    } else {
+      return self.apply_chain(std::move(next),
+                              std::forward<REST_ARGUMENTS>(rest_arguments)...);
+    }
+  }
+
+ public:
   template <class FUNCTION, class ARGUMENT>
   auto map(this auto&& self, FUNCTION&& function, ARGUMENT&& argument)
   {
@@ -102,6 +210,21 @@ struct Applicative : protected Impl {
                                   std::forward<REST_ARGUMENTS>(rest_arguments)...);
   }
 
+  template <class APPLICATIVE_MAP,
+            class FUNCTION,
+            class FIRST_ARGUMENT,
+            class... REST_ARGUMENTS>
+  auto apply_pure_with(this auto&&,
+                       const APPLICATIVE_MAP& applicative_map,
+                       FUNCTION&& function,
+                       FIRST_ARGUMENT&& first_argument,
+                       REST_ARGUMENTS&&... rest_arguments)
+  {
+    return applicative_map.invoke(std::forward<FUNCTION>(function),
+                                  std::forward<FIRST_ARGUMENT>(first_argument),
+                                  std::forward<REST_ARGUMENTS>(rest_arguments)...);
+  }
+
   template <const auto& APPLICATIVE_MAP,
             class FUNCTION,
             class FIRST_ARGUMENT,
@@ -110,6 +233,20 @@ struct Applicative : protected Impl {
                    FUNCTION&& function,
                    FIRST_ARGUMENT&& first_argument,
                    REST_ARGUMENTS&&... rest_arguments)
+  {
+    return APPLICATIVE_MAP.invoke(std::forward<FUNCTION>(function),
+                                  std::forward<FIRST_ARGUMENT>(first_argument),
+                                  std::forward<REST_ARGUMENTS>(rest_arguments)...);
+  }
+
+  template <const auto& APPLICATIVE_MAP,
+            class FUNCTION,
+            class FIRST_ARGUMENT,
+            class... REST_ARGUMENTS>
+  auto apply_pure_with(this auto&&,
+                       FUNCTION&& function,
+                       FIRST_ARGUMENT&& first_argument,
+                       REST_ARGUMENTS&&... rest_arguments)
   {
     return APPLICATIVE_MAP.invoke(std::forward<FUNCTION>(function),
                                   std::forward<FIRST_ARGUMENT>(first_argument),
@@ -144,26 +281,11 @@ struct OptionalApplicativeImpl {
       std::invoke(*std::forward<FUNCTION_IN_CONTEXT>(function),
             *std::forward<ARGUMENT_IN_CONTEXT>(argument))};
   }
-
-  template <class FUNCTION, class... ARGUMENTS>
-  auto invoke(this auto&&, FUNCTION&& function, ARGUMENTS&&... arguments)
-  {
-    using Result = std::invoke_result_t<FUNCTION, decltype(*arguments)...>;
-
-    if (!(arguments && ...)) {
-      return std::optional<remove_cvref_t<Result> >{};
-    }
-
-    return std::optional<remove_cvref_t<Result> >{
-      std::invoke(std::forward<FUNCTION>(function),
-            *std::forward<ARGUMENTS>(arguments)...)};
-  }
 };
 
 template <class VALUE_TYPE>
 struct OptionalApplicativeMap : Applicative<OptionalApplicativeImpl<VALUE_TYPE> > {
   using OptionalApplicativeImpl<VALUE_TYPE>::apply;
-  using OptionalApplicativeImpl<VALUE_TYPE>::invoke;
   using OptionalApplicativeImpl<VALUE_TYPE>::pure;
 };
 
@@ -195,20 +317,6 @@ struct BemanOptionalApplicativeImpl {
       std::invoke(*std::forward<FUNCTION_IN_CONTEXT>(function),
             *std::forward<ARGUMENT_IN_CONTEXT>(argument))};
   }
-
-  template <class FUNCTION, class... ARGUMENTS>
-  auto invoke(this auto&&, FUNCTION&& function, ARGUMENTS&&... arguments)
-  {
-    using Result = std::invoke_result_t<FUNCTION, decltype(*arguments)...>;
-
-    if (!(arguments && ...)) {
-      return beman::optional::optional<remove_cvref_t<Result> >{};
-    }
-
-    return beman::optional::optional<remove_cvref_t<Result> >{
-      std::invoke(std::forward<FUNCTION>(function),
-            *std::forward<ARGUMENTS>(arguments)...)};
-  }
 };
 
 template <class VALUE_TYPE>
@@ -217,7 +325,6 @@ template <class VALUE_TYPE>
 struct BemanOptionalApplicativeMap
     : Applicative<BemanOptionalApplicativeImpl<VALUE_TYPE> > {
   using BemanOptionalApplicativeImpl<VALUE_TYPE>::apply;
-  using BemanOptionalApplicativeImpl<VALUE_TYPE>::invoke;
   using BemanOptionalApplicativeImpl<VALUE_TYPE>::pure;
 };
 
