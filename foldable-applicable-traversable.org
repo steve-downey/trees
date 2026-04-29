@@ -294,6 +294,16 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Law-oriented test strategy for 
 #+transclude: [[file:src/smd/typeclass/traversable.t.cpp::f1de12e0-2287-4568-98c7-75be4f6f7446]]
 :lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
 
+*** Traversable commute: Range and ZipList
+- Traversable commutes a range of ziplists into a ziplist of ranges.
+- The inverse matrix view (ziplist of vectors to vector of ziplists) is also tested.
+
+#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a]]
+:lines 2- :src cpp :end "0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end"
+
+#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::4be89584-35cc-4933-b3de-6d524d54371d]]
+:lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
+
 #+begin_notes
 Key law intuition: preserve shape and evaluation order discipline.
 CITE_PLACEHOLDER: deep-research-report (1).md :: Traversable laws: identity, naturality, composition; left-to-right effects.

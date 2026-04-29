@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <vector>
 
+#include <algorithm>
+
 namespace {
 
 template <std::ranges::input_range RANGE>
@@ -34,6 +36,33 @@ auto collect_nested(OUTER_RANGE&& outer_range)
     }
 
     return collected;
+}
+
+auto to_vector_of_ziplists(const smd::zip_list<std::vector<int> >& zip_of_vectors)
+    -> std::vector<smd::zip_list<int> >
+{
+    std::vector<smd::zip_list<int> > rows;
+    if (zip_of_vectors.data.empty()) {
+        return rows;
+    }
+
+    std::size_t row_count = zip_of_vectors.data.front().size();
+    for (const auto& column : zip_of_vectors.data) {
+        row_count = std::min(row_count, column.size());
+    }
+
+    rows.assign(row_count, smd::zip_list<int>{});
+    for (auto& row : rows) {
+        row.data.reserve(zip_of_vectors.data.size());
+    }
+
+    for (std::size_t index = 0; index < row_count; ++index) {
+        for (const auto& column : zip_of_vectors.data) {
+            rows[index].data.push_back(column[index]);
+        }
+    }
+
+    return rows;
 }
 
 }  // namespace
@@ -96,6 +125,7 @@ TEST(RangeTraversableTest, TraversableIsNotDefinedForInputOnlyRanges)
 
 TEST(RangeTraversableTest, SequenceConvertsRangeOfZiplistsToZiplistOfRanges)
 {
+    // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a
     using Zip = smd::zip_list<int>;
     auto values = smd::ranges::from_vector(std::vector<Zip>{
         Zip{{1, 2, 3}},
@@ -108,4 +138,54 @@ TEST(RangeTraversableTest, SequenceConvertsRangeOfZiplistsToZiplistOfRanges)
     ASSERT_EQ(sequenced.data.size(), 2U);
     EXPECT_EQ(collect(sequenced.data[0]), (std::vector<int>{1, 10, 100}));
     EXPECT_EQ(collect(sequenced.data[1]), (std::vector<int>{2, 20, 200}));
+    // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end
+}
+
+TEST(RangeTraversableTest, SequenceConvertsRangeOfZiplistsToZiplistOfRangesLengthFive)
+{
+    using Zip = smd::zip_list<int>;
+    auto values = smd::ranges::from_vector(std::vector<Zip>{
+        Zip{{1, 2, 3, 4, 5}},
+        Zip{{10, 20, 30, 40, 50}},
+        Zip{{100, 200, 300, 400, 500}}});
+
+    const auto& traversable = smd::traversable_typeclass<decltype(values)>;
+    auto sequenced = traversable.sequence(values);
+
+    ASSERT_EQ(sequenced.data.size(), 5U);
+    EXPECT_EQ(collect(sequenced.data[0]), (std::vector<int>{1, 10, 100}));
+    EXPECT_EQ(collect(sequenced.data[1]), (std::vector<int>{2, 20, 200}));
+    EXPECT_EQ(collect(sequenced.data[2]), (std::vector<int>{3, 30, 300}));
+    EXPECT_EQ(collect(sequenced.data[3]), (std::vector<int>{4, 40, 400}));
+    EXPECT_EQ(collect(sequenced.data[4]), (std::vector<int>{5, 50, 500}));
+}
+
+TEST(RangeTraversableTest, ConvertZiplistOfVectorsToVectorOfZiplists)
+{
+    // 4be89584-35cc-4933-b3de-6d524d54371d
+    smd::zip_list<std::vector<int> > zip_of_vectors{
+        {{1, 10, 100}, {2, 20, 200}}};
+
+    auto as_rows = to_vector_of_ziplists(zip_of_vectors);
+
+    ASSERT_EQ(as_rows.size(), 3U);
+    EXPECT_EQ(as_rows[0].data, (std::vector<int>{1, 2}));
+    EXPECT_EQ(as_rows[1].data, (std::vector<int>{10, 20}));
+    EXPECT_EQ(as_rows[2].data, (std::vector<int>{100, 200}));
+    // 4be89584-35cc-4933-b3de-6d524d54371d end
+}
+
+TEST(RangeTraversableTest, ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive)
+{
+    smd::zip_list<std::vector<int> > zip_of_vectors{
+        {{1, 10, 100, 1000, 10000}, {2, 20, 200, 2000, 20000}}};
+
+    auto as_rows = to_vector_of_ziplists(zip_of_vectors);
+
+    ASSERT_EQ(as_rows.size(), 5U);
+    EXPECT_EQ(as_rows[0].data, (std::vector<int>{1, 2}));
+    EXPECT_EQ(as_rows[1].data, (std::vector<int>{10, 20}));
+    EXPECT_EQ(as_rows[2].data, (std::vector<int>{100, 200}));
+    EXPECT_EQ(as_rows[3].data, (std::vector<int>{1000, 2000}));
+    EXPECT_EQ(as_rows[4].data, (std::vector<int>{10000, 20000}));
 }
