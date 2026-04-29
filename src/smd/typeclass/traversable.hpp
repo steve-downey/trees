@@ -19,6 +19,8 @@ template <class Impl>
 struct Traversable : protected Impl {
     using Impl::traverse;
 
+    // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11
+
     template <class T, class F>
     auto for_each(this auto&& self, T&& value, F&& function)
     {
@@ -54,6 +56,7 @@ struct Traversable : protected Impl {
             [](auto&& x) { return std::forward<decltype(x)>(x); },
             std::forward<T>(value));
     }
+    // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end
 };
 
 template <class T>

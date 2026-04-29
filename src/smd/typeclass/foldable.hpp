@@ -137,6 +137,8 @@ template <class Impl>
 struct Foldable : protected Impl {
   using Impl::fold_map;
 
+  // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2
+
   template <class T>
   auto length(this auto&& self, T&& value) -> std::size_t
   {
@@ -239,6 +241,7 @@ struct Foldable : protected Impl {
       },
       std::forward<T>(value));
   }
+  // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end
 
   template <class T, class PREDICATE>
   auto find_first(this auto&& self, T&& value, PREDICATE&& predicate)

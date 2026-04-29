@@ -72,7 +72,9 @@ struct Applicative : protected Impl {
   using Impl::apply;
   using Impl::pure;
 
-  // Teaching-friendly spelling for "apply pure function to effectful arguments".
+  // a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11
+  // Teaching-friendly alias for "apply pure function to effectful arguments".
+  // Prefer invoke as the primary C++ spelling (std::invoke model).
   template <class FUNCTION, class FIRST_ARGUMENT, class... REST_ARGUMENTS>
   auto apply_pure(this auto&& self,
                   FUNCTION&& function,
@@ -111,6 +113,7 @@ struct Applicative : protected Impl {
         std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
   }
+  // a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end
 
  private:
   template <class ACCUMULATED>
