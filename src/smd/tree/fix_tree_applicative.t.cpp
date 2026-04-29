@@ -1,9 +1,9 @@
 #include <smd/tree/fix_tree.hpp>
 #include <smd/tree/fix_tree_applicative.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
-TEST(FixTreeApplicativeTest, InvokeDistributesLeafOverShape)
+TEST_CASE("FixTreeApplicativeTest - InvokeDistributesLeafOverShape")
 {
     using Tree = smd::tree::FixTree<int>;
     auto scalar = Tree::leaf(10);
@@ -15,7 +15,7 @@ TEST(FixTreeApplicativeTest, InvokeDistributesLeafOverShape)
         scalar,
         shaped);
 
-    ASSERT_FALSE(summed.is_leaf());
-    EXPECT_EQ(summed.left().value(), 11);
-    EXPECT_EQ(summed.right().value(), 12);
+    REQUIRE_FALSE(summed.is_leaf());
+    CHECK(summed.left().value() == 11);
+    CHECK(summed.right().value() == 12);
 }

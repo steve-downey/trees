@@ -40,7 +40,7 @@ install(
         COMPONENT smd_tree_development
 )
 
-if(TREE_ENABLE_TESTING AND GTest_FOUND)
+if(TREE_ENABLE_TESTING)
     add_executable(smd_tree_tests
         fringe_tree.t.cpp
         finger_tree.t.cpp
@@ -66,12 +66,10 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
     target_link_libraries(smd_tree_tests
         PRIVATE
             smd_tree
-            GTest::gtest
-            GTest::gtest_main
+            Catch2::Catch2WithMain
     )
 
     target_compile_features(smd_tree_tests PRIVATE cxx_std_23)
 
-    include(GoogleTest)
-    gtest_discover_tests(smd_tree_tests)
+    catch_discover_tests(smd_tree_tests)
 endif()

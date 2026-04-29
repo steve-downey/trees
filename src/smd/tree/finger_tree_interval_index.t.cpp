@@ -1,12 +1,12 @@
 #include <smd/tree/finger_tree_interval_index.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <optional>
 #include <string>
 #include <vector>
 
-TEST(FingerTreeIntervalIndexTest, WrapperOperations)
+TEST_CASE("FingerTreeIntervalIndexTest - WrapperOperations")
 {
     using Index = smd::tree::FingerTreeIntervalIndex<std::string>;
     using Entry = smd::tree::Interval<std::string>;
@@ -17,12 +17,12 @@ TEST(FingerTreeIntervalIndexTest, WrapperOperations)
         Entry{8U, 12U, "C"}
     });
 
-    EXPECT_EQ(idx.query_point(2U), (std::vector<std::string>{"A"}));
-    EXPECT_EQ(idx.query_point(4U), (std::vector<std::string>{"A", "B"}));
-    EXPECT_EQ(idx.query_overlap(9U, 11U), (std::vector<std::string>{"B", "C"}));
+    CHECK(idx.query_point(2U) == (std::vector<std::string>{"A"}));
+    CHECK(idx.query_point(4U) == (std::vector<std::string>{"A", "B"}));
+    CHECK(idx.query_overlap(9U, 11U) == (std::vector<std::string>{"B", "C"}));
 }
 
-TEST(FingerTreeIntervalIndexTest, FoldableTypeclass)
+TEST_CASE("FingerTreeIntervalIndexTest - FoldableTypeclass")
 {
     using Index = smd::tree::FingerTreeIntervalIndex<std::string>;
     using Entry = smd::tree::Interval<std::string>;
@@ -34,13 +34,13 @@ TEST(FingerTreeIntervalIndexTest, FoldableTypeclass)
     });
     const auto& foldable = smd::foldable_typeclass<Index>;
 
-    EXPECT_EQ(
-      foldable.fold_map([](const std::string& payload) { return payload; }, idx),
+    CHECK(
+      foldable.fold_map([](const std::string& payload) { return payload; }, idx) ==
       "ABC");
-    EXPECT_EQ(foldable.length(idx), 3U);
+    CHECK(foldable.length(idx) == 3U);
 }
 
-TEST(FingerTreeIntervalIndexTest, TraversableTypeclass)
+TEST_CASE("FingerTreeIntervalIndexTest - TraversableTypeclass")
 {
     using Index = smd::tree::FingerTreeIntervalIndex<std::string>;
     using Entry = smd::tree::Interval<std::string>;
@@ -57,9 +57,9 @@ TEST(FingerTreeIntervalIndexTest, TraversableTypeclass)
           return payload + "!";
       },
       idx);
-    ASSERT_TRUE(success.has_value());
-    EXPECT_EQ(success->query_point(4U), (std::vector<std::string>{"A!", "B!"}));
-    EXPECT_EQ(success->query_overlap(9U, 11U),
+    REQUIRE(success.has_value());
+    CHECK(success->query_point(4U) == (std::vector<std::string>{"A!", "B!"}));
+    CHECK(success->query_overlap(9U, 11U) ==
               (std::vector<std::string>{"B!", "C!"}));
 
     auto failure = traversable.traverse(
@@ -70,5 +70,5 @@ TEST(FingerTreeIntervalIndexTest, TraversableTypeclass)
           return payload;
       },
       idx);
-    EXPECT_FALSE(failure.has_value());
+    CHECK_FALSE(failure.has_value());
 }

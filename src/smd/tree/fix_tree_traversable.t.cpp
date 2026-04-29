@@ -1,11 +1,11 @@
 #include <smd/tree/fix_tree.hpp>
 #include <smd/tree/fix_tree_traversable.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <optional>
 
-TEST(FixTreeTraversableTest, TraverseOptionalSuccess)
+TEST_CASE("FixTreeTraversableTest - TraverseOptionalSuccess")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(2));
@@ -17,12 +17,12 @@ TEST(FixTreeTraversableTest, TraverseOptionalSuccess)
         },
         tree);
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(traversed->left().value(), 2);
-    EXPECT_EQ(traversed->right().value(), 3);
+    REQUIRE(traversed.has_value());
+    CHECK(traversed->left().value() == 2);
+    CHECK(traversed->right().value() == 3);
 }
 
-TEST(FixTreeTraversableTest, TraverseOptionalFailure)
+TEST_CASE("FixTreeTraversableTest - TraverseOptionalFailure")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(-2));
@@ -34,10 +34,10 @@ TEST(FixTreeTraversableTest, TraverseOptionalFailure)
         },
         tree);
 
-    EXPECT_FALSE(traversed.has_value());
+    CHECK_FALSE(traversed.has_value());
 }
 
-TEST(FixTreeTraversableTest, ForEachOptionalSuccess)
+TEST_CASE("FixTreeTraversableTest - ForEachOptionalSuccess")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(3), Tree::leaf(4));
@@ -47,7 +47,7 @@ TEST(FixTreeTraversableTest, ForEachOptionalSuccess)
         return std::optional<int>{x * 2};
     });
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(traversed->left().value(), 6);
-    EXPECT_EQ(traversed->right().value(), 8);
+    REQUIRE(traversed.has_value());
+    CHECK(traversed->left().value() == 6);
+    CHECK(traversed->right().value() == 8);
 }

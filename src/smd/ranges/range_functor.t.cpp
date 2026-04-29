@@ -1,6 +1,6 @@
 #include <smd/ranges/range_functor.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <ranges>
 #include <vector>
@@ -22,22 +22,22 @@ auto collect(RANGE&& range)
 
 }  // namespace
 
-TEST(RangeFunctorTest, FmapUsesLazyRangeSemantics)
+TEST_CASE("RangeFunctorTest - FmapUsesLazyRangeSemantics")
 {
     auto values = smd::ranges::all(std::views::iota(1, 5));
     const auto& functor = smd::functor_typeclass<decltype(values)>;
 
     auto mapped = functor.fmap([](int value) { return value * 10; }, values);
 
-    EXPECT_EQ(collect(mapped), (std::vector<int>{10, 20, 30, 40}));
+    CHECK(collect(mapped) == (std::vector<int>{10, 20, 30, 40}));
 }
 
-TEST(RangeFunctorTest, ReplaceKeepsRangeShape)
+TEST_CASE("RangeFunctorTest - ReplaceKeepsRangeShape")
 {
     auto values = smd::ranges::all(std::views::iota(0, 3));
     const auto& functor = smd::functor_typeclass<decltype(values)>;
 
     auto replaced = functor.replace(values, 9);
 
-    EXPECT_EQ(collect(replaced), (std::vector<int>{9, 9, 9}));
+    CHECK(collect(replaced) == (std::vector<int>{9, 9, 9}));
 }

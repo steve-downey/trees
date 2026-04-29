@@ -1,40 +1,40 @@
 #include <smd/typeclass/applicative.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <optional>
 
-TEST(ApplicativeTypeclassTest, PureOptional)
+TEST_CASE("ApplicativeTypeclassTest - PureOptional")
 {
     const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
     auto lifted = applicative.pure(7);
-    ASSERT_TRUE(lifted.has_value());
-    EXPECT_EQ(*lifted, 7);
+    REQUIRE(lifted.has_value());
+    CHECK(*lifted == 7);
 }
 
-TEST(ApplicativeTypeclassTest, ApplyOptional)
+TEST_CASE("ApplicativeTypeclassTest - ApplyOptional")
 {
     std::optional<int (*)(int)> function{+[](int x) { return x + 3; }};
     std::optional<int> argument{4};
     const auto& applicative = smd::applicative_typeclass<std::optional<int (*)(int)> >;
 
     auto result = applicative.apply(function, argument);
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(*result, 7);
+    REQUIRE(result.has_value());
+    CHECK(*result == 7);
 }
 
-TEST(ApplicativeTypeclassTest, InvokeOptional)
+TEST_CASE("ApplicativeTypeclassTest - InvokeOptional")
 {
     std::optional<int> ax{10};
     std::optional<int> ay{5};
     const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
 
     auto result = applicative.invoke([](int a, int b) { return a - b; }, ax, ay);
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(*result, 5);
+    REQUIRE(result.has_value());
+    CHECK(*result == 5);
 }
 
-TEST(ApplicativeTypeclassTest, InvokeOptionalTernaryUsesPartialApplication)
+TEST_CASE("ApplicativeTypeclassTest - InvokeOptionalTernaryUsesPartialApplication")
 {
     std::optional<int> ax{2};
     std::optional<int> ay{3};
@@ -46,11 +46,11 @@ TEST(ApplicativeTypeclassTest, InvokeOptionalTernaryUsesPartialApplication)
         ax,
         ay,
         az);
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(*result, 10);
+    REQUIRE(result.has_value());
+    CHECK(*result == 10);
 }
 
-TEST(ApplicativeTypeclassTest, ApplyPureOptionalTernary)
+TEST_CASE("ApplicativeTypeclassTest - ApplyPureOptionalTernary")
 {
     // 6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b
     std::optional<int> ax{2};
@@ -63,22 +63,22 @@ TEST(ApplicativeTypeclassTest, ApplyPureOptionalTernary)
         ax,
         ay,
         az);
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(*result, 10);
+    REQUIRE(result.has_value());
+    CHECK(*result == 10);
     // 6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end
 }
 
-TEST(ApplicativeTypeclassTest, MapOptional)
+TEST_CASE("ApplicativeTypeclassTest - MapOptional")
 {
     std::optional<int> value{21};
     const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
 
     auto result = applicative.map([](int x) { return x * 2; }, value);
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(*result, 42);
+    REQUIRE(result.has_value());
+    CHECK(*result == 42);
 }
 
-TEST(ApplicativeTypeclassTest, InvokeWithExplicitMap)
+TEST_CASE("ApplicativeTypeclassTest - InvokeWithExplicitMap")
 {
     std::optional<int> ax{10};
     std::optional<int> ay{5};
@@ -90,6 +90,6 @@ TEST(ApplicativeTypeclassTest, InvokeWithExplicitMap)
         [](int a, int b) { return a + b; },
         ax,
         ay);
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(*result, 15);
+    REQUIRE(result.has_value());
+    CHECK(*result == 15);
 }

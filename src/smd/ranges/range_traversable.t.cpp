@@ -1,7 +1,7 @@
 #include <smd/ranges/range_traversable.hpp>
 #include <smd/ziplist/zip_list_applicative.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <optional>
 #include <sstream>
@@ -67,7 +67,7 @@ auto to_vector_of_ziplists(const smd::zip_list<std::vector<int> >& zip_of_vector
 
 }  // namespace
 
-TEST(RangeTraversableTest, TraverseOptionalSuccess)
+TEST_CASE("RangeTraversableTest - TraverseOptionalSuccess")
 {
     auto values = smd::ranges::from_vector(std::vector<int>{1, 2, 3});
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
@@ -78,11 +78,11 @@ TEST(RangeTraversableTest, TraverseOptionalSuccess)
         },
         values);
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(collect(*traversed), (std::vector<int>{2, 3, 4}));
+    REQUIRE(traversed.has_value());
+    CHECK(collect(*traversed) == (std::vector<int>{2, 3, 4}));
 }
 
-TEST(RangeTraversableTest, TraverseOptionalFailure)
+TEST_CASE("RangeTraversableTest - TraverseOptionalFailure")
 {
     auto values = smd::ranges::from_vector(std::vector<int>{1, -2, 3});
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
@@ -94,10 +94,10 @@ TEST(RangeTraversableTest, TraverseOptionalFailure)
         },
         values);
 
-    EXPECT_FALSE(traversed.has_value());
+    CHECK_FALSE(traversed.has_value());
 }
 
-TEST(RangeTraversableTest, TraverseWithRangeApplicativeEnumeratesChoices)
+TEST_CASE("RangeTraversableTest - TraverseWithRangeApplicativeEnumeratesChoices")
 {
     auto values = smd::ranges::from_vector(std::vector<int>{1, 2});
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
@@ -108,12 +108,12 @@ TEST(RangeTraversableTest, TraverseWithRangeApplicativeEnumeratesChoices)
         },
         values);
 
-    EXPECT_EQ(
-        collect_nested(traversed),
+    CHECK(
+        collect_nested(traversed) ==
         (std::vector<std::vector<int> >{{1, 2}, {1, 12}, {11, 2}, {11, 12}}));
 }
 
-TEST(RangeTraversableTest, TraversableIsNotDefinedForInputOnlyRanges)
+TEST_CASE("RangeTraversableTest - TraversableIsNotDefinedForInputOnlyRanges")
 {
     using InputView = std::ranges::basic_istream_view<int, char>;
     using InputList = smd::ranges::list_range<InputView>;
@@ -123,7 +123,7 @@ TEST(RangeTraversableTest, TraversableIsNotDefinedForInputOnlyRanges)
         const std::false_type>);
 }
 
-TEST(RangeTraversableTest, SequenceConvertsRangeOfZiplistsToZiplistOfRanges)
+TEST_CASE("RangeTraversableTest - SequenceConvertsRangeOfZiplistsToZiplistOfRanges")
 {
     // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a
     using Zip = smd::zip_list<int>;
@@ -135,13 +135,13 @@ TEST(RangeTraversableTest, SequenceConvertsRangeOfZiplistsToZiplistOfRanges)
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
     auto sequenced = traversable.sequence(values);
 
-    ASSERT_EQ(sequenced.data.size(), 2U);
-    EXPECT_EQ(collect(sequenced.data[0]), (std::vector<int>{1, 10, 100}));
-    EXPECT_EQ(collect(sequenced.data[1]), (std::vector<int>{2, 20, 200}));
+    REQUIRE(sequenced.data.size() == 2U);
+    CHECK(collect(sequenced.data[0]) == (std::vector<int>{1, 10, 100}));
+    CHECK(collect(sequenced.data[1]) == (std::vector<int>{2, 20, 200}));
     // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end
 }
 
-TEST(RangeTraversableTest, SequenceConvertsRangeOfZiplistsToZiplistOfRangesLengthFive)
+TEST_CASE("RangeTraversableTest - SequenceConvertsRangeOfZiplistsToZiplistOfRangesLengthFive")
 {
     using Zip = smd::zip_list<int>;
     auto values = smd::ranges::from_vector(std::vector<Zip>{
@@ -152,15 +152,15 @@ TEST(RangeTraversableTest, SequenceConvertsRangeOfZiplistsToZiplistOfRangesLengt
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
     auto sequenced = traversable.sequence(values);
 
-    ASSERT_EQ(sequenced.data.size(), 5U);
-    EXPECT_EQ(collect(sequenced.data[0]), (std::vector<int>{1, 10, 100}));
-    EXPECT_EQ(collect(sequenced.data[1]), (std::vector<int>{2, 20, 200}));
-    EXPECT_EQ(collect(sequenced.data[2]), (std::vector<int>{3, 30, 300}));
-    EXPECT_EQ(collect(sequenced.data[3]), (std::vector<int>{4, 40, 400}));
-    EXPECT_EQ(collect(sequenced.data[4]), (std::vector<int>{5, 50, 500}));
+    REQUIRE(sequenced.data.size() == 5U);
+    CHECK(collect(sequenced.data[0]) == (std::vector<int>{1, 10, 100}));
+    CHECK(collect(sequenced.data[1]) == (std::vector<int>{2, 20, 200}));
+    CHECK(collect(sequenced.data[2]) == (std::vector<int>{3, 30, 300}));
+    CHECK(collect(sequenced.data[3]) == (std::vector<int>{4, 40, 400}));
+    CHECK(collect(sequenced.data[4]) == (std::vector<int>{5, 50, 500}));
 }
 
-TEST(RangeTraversableTest, ConvertZiplistOfVectorsToVectorOfZiplists)
+TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplists")
 {
     // 4be89584-35cc-4933-b3de-6d524d54371d
     smd::zip_list<std::vector<int> > zip_of_vectors{
@@ -168,24 +168,24 @@ TEST(RangeTraversableTest, ConvertZiplistOfVectorsToVectorOfZiplists)
 
     auto as_rows = to_vector_of_ziplists(zip_of_vectors);
 
-    ASSERT_EQ(as_rows.size(), 3U);
-    EXPECT_EQ(as_rows[0].data, (std::vector<int>{1, 2}));
-    EXPECT_EQ(as_rows[1].data, (std::vector<int>{10, 20}));
-    EXPECT_EQ(as_rows[2].data, (std::vector<int>{100, 200}));
+    REQUIRE(as_rows.size() == 3U);
+    CHECK(as_rows[0].data == (std::vector<int>{1, 2}));
+    CHECK(as_rows[1].data == (std::vector<int>{10, 20}));
+    CHECK(as_rows[2].data == (std::vector<int>{100, 200}));
     // 4be89584-35cc-4933-b3de-6d524d54371d end
 }
 
-TEST(RangeTraversableTest, ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive)
+TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive")
 {
     smd::zip_list<std::vector<int> > zip_of_vectors{
         {{1, 10, 100, 1000, 10000}, {2, 20, 200, 2000, 20000}}};
 
     auto as_rows = to_vector_of_ziplists(zip_of_vectors);
 
-    ASSERT_EQ(as_rows.size(), 5U);
-    EXPECT_EQ(as_rows[0].data, (std::vector<int>{1, 2}));
-    EXPECT_EQ(as_rows[1].data, (std::vector<int>{10, 20}));
-    EXPECT_EQ(as_rows[2].data, (std::vector<int>{100, 200}));
-    EXPECT_EQ(as_rows[3].data, (std::vector<int>{1000, 2000}));
-    EXPECT_EQ(as_rows[4].data, (std::vector<int>{10000, 20000}));
+    REQUIRE(as_rows.size() == 5U);
+    CHECK(as_rows[0].data == (std::vector<int>{1, 2}));
+    CHECK(as_rows[1].data == (std::vector<int>{10, 20}));
+    CHECK(as_rows[2].data == (std::vector<int>{100, 200}));
+    CHECK(as_rows[3].data == (std::vector<int>{1000, 2000}));
+    CHECK(as_rows[4].data == (std::vector<int>{10000, 20000}));
 }

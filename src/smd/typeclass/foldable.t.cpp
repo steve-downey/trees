@@ -1,7 +1,7 @@
 #include <smd/typeclass/foldable.hpp>
 #include <smd/typeclass/test/test_support.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <vector>
 
@@ -34,44 +34,44 @@ auto fold_right_with_nttp_lookup(const STRUCTURE& structure)
 
 }  // namespace
 
-TEST(FoldableTypeclassTest, LengthOnSequence)
+TEST_CASE("FoldableTypeclassTest - LengthOnSequence")
 {
     using Sequence = smd::typeclass::test::Sequence<int>;
     auto sequence = Sequence{{1, 2, 3}};
 
     const auto& foldable = smd::foldable_typeclass<Sequence>;
-    EXPECT_EQ(foldable.length(sequence), 3U);
+    CHECK(foldable.length(sequence) == 3U);
 }
 
-TEST(FoldableTypeclassTest, FoldMapSumOnSequence)
-{
-    using Sequence = smd::typeclass::test::Sequence<int>;
-    auto sequence = Sequence{{1, 2, 3}};
-
-    const auto& foldable = smd::foldable_typeclass<Sequence>;
-    const auto sum = foldable.fold_map([](int x) { return x; }, sequence);
-    EXPECT_EQ(sum, 6);
-}
-
-TEST(FoldableTypeclassTest, FoldMapWithExplicitObject)
+TEST_CASE("FoldableTypeclassTest - FoldMapSumOnSequence")
 {
     using Sequence = smd::typeclass::test::Sequence<int>;
     auto sequence = Sequence{{1, 2, 3}};
 
     const auto& foldable = smd::foldable_typeclass<Sequence>;
     const auto sum = foldable.fold_map([](int x) { return x; }, sequence);
-    EXPECT_EQ(sum, 6);
+    CHECK(sum == 6);
 }
 
-TEST(FoldableTypeclassTest, FoldMapWithNttpLookup)
+TEST_CASE("FoldableTypeclassTest - FoldMapWithExplicitObject")
 {
     using Sequence = smd::typeclass::test::Sequence<int>;
     auto sequence = Sequence{{1, 2, 3}};
 
-    EXPECT_EQ(sum_with_nttp_lookup(sequence), 6);
+    const auto& foldable = smd::foldable_typeclass<Sequence>;
+    const auto sum = foldable.fold_map([](int x) { return x; }, sequence);
+    CHECK(sum == 6);
 }
 
-TEST(FoldableTypeclassTest, FoldLeftAndRight)
+TEST_CASE("FoldableTypeclassTest - FoldMapWithNttpLookup")
+{
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto sequence = Sequence{{1, 2, 3}};
+
+    CHECK(sum_with_nttp_lookup(sequence) == 6);
+}
+
+TEST_CASE("FoldableTypeclassTest - FoldLeftAndRight")
 {
     using Sequence = smd::typeclass::test::Sequence<int>;
     auto sequence = Sequence{{1, 2, 3}};
@@ -84,11 +84,11 @@ TEST(FoldableTypeclassTest, FoldLeftAndRight)
         return x * 10 + acc;
     });
 
-    EXPECT_EQ(left, 123);
-    EXPECT_EQ(right, 60);
+    CHECK(left == 123);
+    CHECK(right == 60);
 }
 
-TEST(FoldableTypeclassTest, FoldLeftRightWithExplicitObject)
+TEST_CASE("FoldableTypeclassTest - FoldLeftRightWithExplicitObject")
 {
     using Sequence = smd::typeclass::test::Sequence<int>;
     auto sequence = Sequence{{1, 2, 3}};
@@ -101,35 +101,35 @@ TEST(FoldableTypeclassTest, FoldLeftRightWithExplicitObject)
         return x * 10 + acc;
     });
 
-    EXPECT_EQ(left, 123);
-    EXPECT_EQ(right, 60);
+    CHECK(left == 123);
+    CHECK(right == 60);
 }
 
-TEST(FoldableTypeclassTest, FoldLeftRightWithNttpLookup)
+TEST_CASE("FoldableTypeclassTest - FoldLeftRightWithNttpLookup")
 {
     using Sequence = smd::typeclass::test::Sequence<int>;
     auto sequence = Sequence{{1, 2, 3}};
 
-    EXPECT_EQ(fold_left_with_nttp_lookup(sequence), 123);
-    EXPECT_EQ(fold_right_with_nttp_lookup(sequence), 60);
+    CHECK(fold_left_with_nttp_lookup(sequence) == 123);
+    CHECK(fold_right_with_nttp_lookup(sequence) == 60);
 }
 
-TEST(FoldableTypeclassTest, PredicatesAndFind)
+TEST_CASE("FoldableTypeclassTest - PredicatesAndFind")
 {
     using Sequence = smd::typeclass::test::Sequence<int>;
     auto sequence = Sequence{{1, 2, 3}};
     const auto& foldable = smd::foldable_typeclass<Sequence>;
 
-    EXPECT_TRUE(foldable.any_of(sequence, [](int x) { return x == 2; }));
-    EXPECT_TRUE(foldable.all_of(sequence, [](int x) { return x > 0; }));
-    EXPECT_FALSE(foldable.empty(sequence));
+    CHECK(foldable.any_of(sequence, [](int x) { return x == 2; }));
+    CHECK(foldable.all_of(sequence, [](int x) { return x > 0; }));
+    CHECK_FALSE(foldable.empty(sequence));
 
     auto found = foldable.find_first(sequence, [](int x) { return x > 1; });
-    ASSERT_TRUE(found.has_value());
-    EXPECT_EQ(*found, 2);
+    REQUIRE(found.has_value());
+    CHECK(*found == 2);
 }
 
-TEST(FoldableTypeclassTest, ToVectorAndCombineAll)
+TEST_CASE("FoldableTypeclassTest - ToVectorAndCombineAll")
 {
     // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4
     using IntSequence = smd::typeclass::test::Sequence<int>;
@@ -137,15 +137,15 @@ TEST(FoldableTypeclassTest, ToVectorAndCombineAll)
     const auto& int_foldable = smd::foldable_typeclass<IntSequence>;
 
     const auto as_vector = int_foldable.to_vector(sequence);
-    EXPECT_EQ(as_vector, (std::vector<int>{1, 2, 3}));
+    CHECK(as_vector == (std::vector<int>{1, 2, 3}));
 
     using VectorSequence = smd::typeclass::test::Sequence<std::vector<int> >;
     auto vectors = VectorSequence{{{1, 2}, {3}}};
     const auto& vector_foldable = smd::foldable_typeclass<VectorSequence>;
     const auto combined = vector_foldable.combine_all(vectors);
-    EXPECT_EQ(combined, (std::vector<int>{1, 2, 3}));
+    CHECK(combined == (std::vector<int>{1, 2, 3}));
 
     const auto folded = vector_foldable.fold(vectors);
-    EXPECT_EQ(folded, (std::vector<int>{1, 2, 3}));
+    CHECK(folded == (std::vector<int>{1, 2, 3}));
     // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end
 }

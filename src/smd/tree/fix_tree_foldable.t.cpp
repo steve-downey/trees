@@ -2,7 +2,7 @@
 #include <smd/tree/fix_tree_foldable.hpp>
 #include <smd/typeclass/foldable.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <vector>
 
@@ -35,44 +35,44 @@ auto fold_right_with_nttp_lookup(const TREE& tree)
 
 }  // namespace
 
-TEST(FixTreeFoldableTest, Length)
+TEST_CASE("FixTreeFoldableTest - Length")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
 
     const auto& foldable = smd::foldable_typeclass<Tree>;
-    EXPECT_EQ(foldable.length(tree), 3U);
+    CHECK(foldable.length(tree) == 3U);
 }
 
-TEST(FixTreeFoldableTest, FoldMapSum)
-{
-    using Tree = smd::tree::FixTree<int>;
-    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-
-    const auto& foldable = smd::foldable_typeclass<Tree>;
-    const auto sum = foldable.fold_map([](int x) { return x; }, tree);
-    EXPECT_EQ(sum, 6);
-}
-
-TEST(FixTreeFoldableTest, FoldMapWithExplicitObject)
+TEST_CASE("FixTreeFoldableTest - FoldMapSum")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
 
     const auto& foldable = smd::foldable_typeclass<Tree>;
     const auto sum = foldable.fold_map([](int x) { return x; }, tree);
-    EXPECT_EQ(sum, 6);
+    CHECK(sum == 6);
 }
 
-TEST(FixTreeFoldableTest, FoldMapWithNttpLookup)
+TEST_CASE("FixTreeFoldableTest - FoldMapWithExplicitObject")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
 
-    EXPECT_EQ(sum_with_nttp_lookup(tree), 6);
+    const auto& foldable = smd::foldable_typeclass<Tree>;
+    const auto sum = foldable.fold_map([](int x) { return x; }, tree);
+    CHECK(sum == 6);
 }
 
-TEST(FixTreeFoldableTest, FoldLeftAndRight)
+TEST_CASE("FixTreeFoldableTest - FoldMapWithNttpLookup")
+{
+    using Tree = smd::tree::FixTree<int>;
+    auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
+
+    CHECK(sum_with_nttp_lookup(tree) == 6);
+}
+
+TEST_CASE("FixTreeFoldableTest - FoldLeftAndRight")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
@@ -85,11 +85,11 @@ TEST(FixTreeFoldableTest, FoldLeftAndRight)
         return x * 10 + acc;
     });
 
-    EXPECT_EQ(left, 123);
-    EXPECT_EQ(right, 60);
+    CHECK(left == 123);
+    CHECK(right == 60);
 }
 
-TEST(FixTreeFoldableTest, FoldLeftRightWithExplicitObject)
+TEST_CASE("FixTreeFoldableTest - FoldLeftRightWithExplicitObject")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
@@ -102,30 +102,30 @@ TEST(FixTreeFoldableTest, FoldLeftRightWithExplicitObject)
         return x * 10 + acc;
     });
 
-    EXPECT_EQ(left, 123);
-    EXPECT_EQ(right, 60);
+    CHECK(left == 123);
+    CHECK(right == 60);
 }
 
-TEST(FixTreeFoldableTest, FoldLeftRightWithNttpLookup)
+TEST_CASE("FixTreeFoldableTest - FoldLeftRightWithNttpLookup")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
 
-    EXPECT_EQ(fold_left_with_nttp_lookup(tree), 123);
-    EXPECT_EQ(fold_right_with_nttp_lookup(tree), 60);
+    CHECK(fold_left_with_nttp_lookup(tree) == 123);
+    CHECK(fold_right_with_nttp_lookup(tree) == 60);
 }
 
-TEST(FixTreeFoldableTest, PredicatesAndFind)
+TEST_CASE("FixTreeFoldableTest - PredicatesAndFind")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
     const auto& foldable = smd::foldable_typeclass<Tree>;
 
-    EXPECT_TRUE(foldable.any_of(tree, [](int x) { return x == 2; }));
-    EXPECT_TRUE(foldable.all_of(tree, [](int x) { return x > 0; }));
-    EXPECT_FALSE(foldable.empty(tree));
+    CHECK(foldable.any_of(tree, [](int x) { return x == 2; }));
+    CHECK(foldable.all_of(tree, [](int x) { return x > 0; }));
+    CHECK_FALSE(foldable.empty(tree));
 
     auto found = foldable.find_first(tree, [](int x) { return x > 1; });
-    ASSERT_TRUE(found.has_value());
-    EXPECT_EQ(*found, 2);
+    REQUIRE(found.has_value());
+    CHECK(*found == 2);
 }

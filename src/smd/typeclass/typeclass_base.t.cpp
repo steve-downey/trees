@@ -1,10 +1,10 @@
 #include <smd/typeclass/typeclass_base.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <type_traits>
 
-TEST(TypeclassBaseTest, RemoveCvrefAlias)
+TEST_CASE("TypeclassBaseTest - RemoveCvrefAlias")
 {
     static_assert(std::is_same_v<smd::remove_cvref_t<const int&>, int>);
 }

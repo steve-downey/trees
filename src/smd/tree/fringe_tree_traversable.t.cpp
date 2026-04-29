@@ -1,14 +1,14 @@
 #include <smd/tree/fringe_tree.hpp>
 #include <smd/tree/fringe_tree_traversable.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <beman/optional/optional.hpp>
 
 #include <optional>
 #include <vector>
 
-TEST(FringeTreeTraversableTest, TraverseOptional)
+TEST_CASE("FringeTreeTraversableTest - TraverseOptional")
 {
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
@@ -20,11 +20,11 @@ TEST(FringeTreeTraversableTest, TraverseOptional)
         },
         tree);
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(traversed->flatten(), (std::vector<int>{10, 20, 30}));
+    REQUIRE(traversed.has_value());
+    CHECK(traversed->flatten() == (std::vector<int>{10, 20, 30}));
 }
 
-TEST(FringeTreeTraversableTest, TraverseOptionalEmpty)
+TEST_CASE("FringeTreeTraversableTest - TraverseOptionalEmpty")
 {
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::empty();
@@ -36,11 +36,11 @@ TEST(FringeTreeTraversableTest, TraverseOptionalEmpty)
         },
         tree);
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_TRUE(traversed->is_empty());
+    REQUIRE(traversed.has_value());
+    CHECK(traversed->is_empty());
 }
 
-TEST(FringeTreeTraversableTest, TraverseBemanOptionalEmpty)
+TEST_CASE("FringeTreeTraversableTest - TraverseBemanOptionalEmpty")
 {
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::empty();
@@ -52,6 +52,6 @@ TEST(FringeTreeTraversableTest, TraverseBemanOptionalEmpty)
         },
         tree);
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_TRUE(traversed->is_empty());
+    REQUIRE(traversed.has_value());
+    CHECK(traversed->is_empty());
 }

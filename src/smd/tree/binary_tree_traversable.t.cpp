@@ -1,11 +1,11 @@
 #include <smd/tree/binary_tree.hpp>
 #include <smd/tree/binary_tree_traversable.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <optional>
 
-TEST(BinaryTreeTraversableTest, TraverseOptionalPreservesShape)
+TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalPreservesShape")
 {
     using Tree = smd::tree::BinaryTree<int>;
     auto tree = Tree::from_children_ptrs(
@@ -20,18 +20,18 @@ TEST(BinaryTreeTraversableTest, TraverseOptionalPreservesShape)
         },
         tree);
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(traversed->value(), 20);
-    ASSERT_TRUE(traversed->has_left());
-    EXPECT_EQ(traversed->left().value(), 10);
-    ASSERT_TRUE(traversed->has_right());
-    EXPECT_EQ(traversed->right().value(), 30);
-    EXPECT_FALSE(traversed->right().has_left());
-    ASSERT_TRUE(traversed->right().has_right());
-    EXPECT_EQ(traversed->right().right().value(), 40);
+    REQUIRE(traversed.has_value());
+    CHECK(traversed->value() == 20);
+    REQUIRE(traversed->has_left());
+    CHECK(traversed->left().value() == 10);
+    REQUIRE(traversed->has_right());
+    CHECK(traversed->right().value() == 30);
+    CHECK_FALSE(traversed->right().has_left());
+    REQUIRE(traversed->right().has_right());
+    CHECK(traversed->right().right().value() == 40);
 }
 
-TEST(BinaryTreeTraversableTest, TraverseOptionalDoesNotDuplicateRootEffect)
+TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalDoesNotDuplicateRootEffect")
 {
     using Tree = smd::tree::BinaryTree<int>;
     auto tree = Tree::from_children_ptrs(
@@ -48,10 +48,10 @@ TEST(BinaryTreeTraversableTest, TraverseOptionalDoesNotDuplicateRootEffect)
         },
         tree);
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(invocations, 2);
-    EXPECT_EQ(traversed->value(), 20);
-    EXPECT_FALSE(traversed->has_left());
-    ASSERT_TRUE(traversed->has_right());
-    EXPECT_EQ(traversed->right().value(), 50);
+    REQUIRE(traversed.has_value());
+    CHECK(invocations == 2);
+    CHECK(traversed->value() == 20);
+    CHECK_FALSE(traversed->has_left());
+    REQUIRE(traversed->has_right());
+    CHECK(traversed->right().value() == 50);
 }

@@ -1,11 +1,11 @@
 #include <smd/typeclass/test/test_support.hpp>
 #include <smd/typeclass/traversable.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <optional>
 
-TEST(TraversableTypeclassTest, TraverseOptionalSuccess)
+TEST_CASE("TraversableTypeclassTest - TraverseOptionalSuccess")
 {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{1};
@@ -17,11 +17,11 @@ TEST(TraversableTypeclassTest, TraverseOptionalSuccess)
         },
         identity);
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(traversed->value, 2);
+    REQUIRE(traversed.has_value());
+    CHECK(traversed->value == 2);
 }
 
-TEST(TraversableTypeclassTest, TraverseOptionalFailure)
+TEST_CASE("TraversableTypeclassTest - TraverseOptionalFailure")
 {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{-2};
@@ -33,10 +33,10 @@ TEST(TraversableTypeclassTest, TraverseOptionalFailure)
         },
         identity);
 
-    EXPECT_FALSE(traversed.has_value());
+    CHECK_FALSE(traversed.has_value());
 }
 
-TEST(TraversableTypeclassTest, ForEachOptionalSuccess)
+TEST_CASE("TraversableTypeclassTest - ForEachOptionalSuccess")
 {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{3};
@@ -46,11 +46,11 @@ TEST(TraversableTypeclassTest, ForEachOptionalSuccess)
         return std::optional<int>{x * 2};
     });
 
-    ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(traversed->value, 6);
+    REQUIRE(traversed.has_value());
+    CHECK(traversed->value == 6);
 }
 
-TEST(TraversableTypeclassTest, SequenceAndSequenceWith)
+TEST_CASE("TraversableTypeclassTest - SequenceAndSequenceWith")
 {
     // f1de12e0-2287-4568-98c7-75be4f6f7446
     using IdentityOpt = smd::typeclass::test::Identity<std::optional<int> >;
@@ -58,11 +58,11 @@ TEST(TraversableTypeclassTest, SequenceAndSequenceWith)
     const auto& traversable = smd::traversable_typeclass<IdentityOpt>;
 
     auto sequenced = traversable.sequence(identity);
-    ASSERT_TRUE(sequenced.has_value());
-    EXPECT_EQ(sequenced->value, 1);
+    REQUIRE(sequenced.has_value());
+    CHECK(sequenced->value == 1);
 
     auto sequenced_with = traversable.sequence_with(traversable, identity);
-    ASSERT_TRUE(sequenced_with.has_value());
-    EXPECT_EQ(sequenced_with->value, 1);
+    REQUIRE(sequenced_with.has_value());
+    CHECK(sequenced_with->value == 1);
     // f1de12e0-2287-4568-98c7-75be4f6f7446 end
 }

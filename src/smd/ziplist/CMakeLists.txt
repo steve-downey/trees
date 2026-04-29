@@ -18,7 +18,7 @@ install(
         COMPONENT smd_ziplist_development
 )
 
-if(TREE_ENABLE_TESTING AND GTest_FOUND)
+if(TREE_ENABLE_TESTING)
     add_executable(smd_ziplist_tests zip_list_applicative.t.cpp)
 
     target_include_directories(smd_ziplist_tests
@@ -29,12 +29,10 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
     target_link_libraries(smd_ziplist_tests
         PRIVATE
             smd_ziplist
-            GTest::gtest
-            GTest::gtest_main
+            Catch2::Catch2WithMain
     )
 
     target_compile_features(smd_ziplist_tests PRIVATE cxx_std_23)
 
-    include(GoogleTest)
-    gtest_discover_tests(smd_ziplist_tests)
+    catch_discover_tests(smd_ziplist_tests)
 endif()

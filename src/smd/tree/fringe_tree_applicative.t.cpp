@@ -1,11 +1,11 @@
 #include <smd/tree/fringe_tree.hpp>
 #include <smd/tree/fringe_tree_applicative.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <vector>
 
-TEST(FringeTreeApplicativeTest, Invoke)
+TEST_CASE("FringeTreeApplicativeTest - Invoke")
 {
     using Tree = smd::tree::FringeTree<int>;
     auto lhs = Tree::branch(Tree::leaf(1), Tree::leaf(2));
@@ -14,5 +14,5 @@ TEST(FringeTreeApplicativeTest, Invoke)
     const auto& applicative = smd::applicative_typeclass<Tree>;
     auto summed = applicative.invoke([](int a, int b) { return a + b; }, lhs, rhs);
 
-    EXPECT_EQ(summed.flatten(), (std::vector<int>{11, 22}));
+    CHECK(summed.flatten() == (std::vector<int>{11, 22}));
 }

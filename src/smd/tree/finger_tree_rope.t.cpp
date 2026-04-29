@@ -1,11 +1,11 @@
 #include <smd/tree/finger_tree_rope.hpp>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <optional>
 #include <string>
 
-TEST(FingerTreeRopeTest, WrapperOperations)
+TEST_CASE("FingerTreeRopeTest - WrapperOperations")
 {
     using Rope = smd::tree::FingerTreeRope;
 
@@ -14,26 +14,26 @@ TEST(FingerTreeRopeTest, WrapperOperations)
                     .erase(5, 2)
                     .replace(0, 2, "AB");
 
-    EXPECT_EQ(rope.to_string(), "AB--Cy");
-    EXPECT_EQ(rope.size_bytes(), 6U);
+    CHECK(rope.to_string() == "AB--Cy");
+    CHECK(rope.size_bytes() == 6U);
 }
 
-TEST(FingerTreeRopeTest, FoldableTypeclass)
+TEST_CASE("FingerTreeRopeTest - FoldableTypeclass")
 {
     using Rope = smd::tree::FingerTreeRope;
 
     auto rope = Rope::from_text("abcdefgh", 2);
     const auto& foldable = smd::foldable_typeclass<Rope>;
 
-    EXPECT_EQ(
+    CHECK(
       foldable.fold_map(
         [](const std::string& chunk) { return chunk.size(); },
-        rope),
+        rope) ==
       8U);
-    EXPECT_EQ(foldable.length(rope), 4U);
+    CHECK(foldable.length(rope) == 4U);
 }
 
-TEST(FingerTreeRopeTest, TraversableTypeclass)
+TEST_CASE("FingerTreeRopeTest - TraversableTypeclass")
 {
     using Rope = smd::tree::FingerTreeRope;
 
@@ -45,8 +45,8 @@ TEST(FingerTreeRopeTest, TraversableTypeclass)
           return chunk + "!";
       },
       rope);
-    ASSERT_TRUE(success.has_value());
-    EXPECT_EQ(success->to_string(), "ab!cd!");
+    REQUIRE(success.has_value());
+    CHECK(success->to_string() == "ab!cd!");
 
     auto failure = traversable.traverse(
       [](const std::string& chunk) -> std::optional<std::string> {
@@ -56,5 +56,5 @@ TEST(FingerTreeRopeTest, TraversableTypeclass)
           return chunk;
       },
       rope);
-    EXPECT_FALSE(failure.has_value());
+    CHECK_FALSE(failure.has_value());
 }
