@@ -107,6 +107,30 @@ That call performs compile-time lookup to the right map specialization.
 - Slide snippet sources are compiled via `smd_typeclass_slide_examples`.
 - Top-level target `slide_snippets_check` ensures presentation snippets remain compilable.
 
+## Applicative: Why invoke is required (not derived)
+
+In Haskell, the Applicative typeclass is minimal: just `pure` and `(<*>)` (binary apply).
+All n-ary operations like `liftA2`, `liftA3`, etc. can be derived because Haskell functions are **curried by default**.
+
+In C++, functions are not curried. A binary lambda `[](auto x, auto y) { ... }` cannot be partially applied.
+When we attempt to derive an n-ary `invoke` by left-folding `apply` calls:
+
+```
+invoke(f, x1, x2) = apply(apply(pure(f), x1), x2)
+```
+
+The issue is that `apply(pure(f), x1)` returns the **result type**, not a partially-applied function.
+The chain breaks because the second `apply` cannot work on a non-function type.
+
+**Solution:** Each Applicative Impl must provide `invoke` directly, with arity-specific handling.
+Examples:
+- `OptionalApplicativeImpl::invoke` checks all arguments are present, then invokes atomically.
+- `FixTreeApplicativeImpl::invoke` recursively maps the function over both leaf and node cases.
+
+This is a fundamental difference between curried languages and C++, and it's reflected in the contract:
+Applicative in this codebase requires `pure`, `apply`, **and** `invoke`. This is not less general than Haskell;
+it's simply the honest C++ binding of the same abstraction.
+
 ## Notes for future cleanup
 
 - Keep one consistent naming story between `conceptmap` and `typeclass` surfaces to avoid conceptual drift.
