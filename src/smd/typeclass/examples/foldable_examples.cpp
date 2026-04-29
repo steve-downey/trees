@@ -17,9 +17,10 @@ auto make_sample_tree() -> IntTree
 auto generic_length_example() -> std::size_t
 {
     auto tree = make_sample_tree();
+    const auto& foldable = smd::foldable_typeclass<IntTree>;
 
     // 9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa
-    auto n = smd::length(tree);
+    auto n = foldable.length(tree);
     // 9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end
 
     return n;

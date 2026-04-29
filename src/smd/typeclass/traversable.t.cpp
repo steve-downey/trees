@@ -20,7 +20,8 @@ TEST(TraversableTypeclassTest, TraverseOptionalSuccess)
         tree);
 
     ASSERT_TRUE(traversed.has_value());
-    EXPECT_EQ(smd::length(*traversed), 2U);
+    const auto& foldable = smd::foldable_typeclass<Tree>;
+    EXPECT_EQ(foldable.length(*traversed), 2U);
 }
 
 TEST(TraversableTypeclassTest, TraverseOptionalFailure)
