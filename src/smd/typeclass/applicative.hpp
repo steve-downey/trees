@@ -14,8 +14,11 @@
 namespace smd {
 
 // Applicative pattern invariants:
-// - Instances are single lookup objects that provide pure/apply/invoke.
-// - Optional derived operations (lift/ap/zip_with/discard_*) live on that object.
+// - Required: pure, apply, and invoke. Impl must provide all three.
+// - Note: Unlike Haskell (MINIMAL pure | <*>), C++ invoke must be explicit per impl
+//   because C++ functions are not curried. Derived left-fold apply doesn't preserve
+//   function types through the chain. Each Impl handles arity specifically.
+// - Derived operations (lift/ap/zip_with/discard_*) live on that object.
 // - Dispatch happens through a provided object or applicative_typeclass<Concrete>.
 // - Do not introduce hidden alternate semantics without a distinct map/type.
 
