@@ -407,6 +407,47 @@ TEST_CASE("FingerTreePersistenceTest - WeightedSharedVersionsKeepMeasures")
     CHECK(base.flatten() == (std::vector<int>{1, 2, 3}));
 }
 
+TEST_CASE("FingerTreePersistenceTest - RepeatedSplitPopAcrossSharedVersions")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto base = Tree::from_sequence({1, 2, 3, 4, 5, 6, 7, 8});
+    auto shared = base.append(Tree::from_sequence({9, 10, 11, 12}));
+
+    const auto base_snapshot = base.flatten();
+    const auto shared_snapshot = shared.flatten();
+
+    auto current = shared;
+    for (int round = 0; round < 4; ++round) {
+        const auto flat = current.flatten();
+        REQUIRE(flat.size() >= 4U);
+
+        auto split = current.split_at_index(flat.size() / 2U);
+        auto left_flat = split.d_left.flatten();
+        auto right_flat = split.d_right.flatten();
+
+        REQUIRE_FALSE(left_flat.empty());
+        REQUIRE_FALSE(right_flat.empty());
+
+        auto left_tail = split.d_left.tail();
+        auto right_init = split.d_right.init();
+        auto recombined = left_tail.append(right_init);
+
+        auto expected = flat;
+        expected.erase(expected.begin());
+        expected.pop_back();
+        CHECK(recombined.flatten() == expected);
+
+        auto rebuilt = split.d_left.append(split.d_right);
+        CHECK(rebuilt.flatten() == flat);
+
+        CHECK(base.flatten() == base_snapshot);
+        CHECK(shared.flatten() == shared_snapshot);
+
+        current = rebuilt.append(Tree::leaf(100 + round)).tail();
+    }
+}
+
 TEST_CASE("FingerTreeTest - DepthRemainsLogarithmic")
 {
     using Tree = smd::tree::FingerTree<int>;
