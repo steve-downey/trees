@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-04-30 Thu 14:06 -->
+<!-- 2026-04-30 Thu 14:11 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Algorithms for Trees: Foldable, Applicative, Traversable</title>
@@ -205,102 +205,102 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org31493d1">1. Algorithms For Trees</a>
+<li><a href="#orgcbb9641">1. Algorithms For Trees</a>
 <ul>
-<li><a href="#orgd75c419">1.1. Abstract</a></li>
-<li><a href="#orgc757aa1">1.2. Foldable</a></li>
-<li><a href="#org13dc191">1.3. Applicative</a></li>
-<li><a href="#orgeb9ed3c">1.4. Traversable</a></li>
-<li><a href="#org7ec2d6c">1.5. Not Monadic</a></li>
+<li><a href="#org2cf1dd3">1.1. Abstract</a></li>
+<li><a href="#orga5c95d5">1.2. Foldable</a></li>
+<li><a href="#org86db347">1.3. Applicative</a></li>
+<li><a href="#org0bb107c">1.4. Traversable</a></li>
+<li><a href="#org39d69cf">1.5. Not Monadic</a></li>
 </ul>
 </li>
-<li><a href="#orgba50bad">2. Ranges Flatten the World</a>
+<li><a href="#org7d6f318">2. Ranges Flatten the World</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orge47e577">2.0.1. Linearization as a design assumption</a></li>
-<li><a href="#orgc7fb65f">2.0.2. Where structure carries meaning</a></li>
-<li><a href="#org0c08aa4">2.0.3. Trees that are not sequences</a></li>
+<li><a href="#org0755745">2.0.1. Linearization as a design assumption</a></li>
+<li><a href="#orgd591ef1">2.0.2. Where structure carries meaning</a></li>
+<li><a href="#org5607174">2.0.3. Trees that are not sequences</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org2b67370">3. Visitors, Pattern Matching, and the Missing Syntax</a>
+<li><a href="#orga0ba339">3. Visitors, Pattern Matching, and the Missing Syntax</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org5bcdd4f">3.0.1. Visitor as manual recursion control</a></li>
-<li><a href="#orgcc9c31d">3.0.2. Pattern matching as the intended interface</a></li>
-<li><a href="#org3685e53">3.0.3. Designing today for tomorrow’s syntax</a></li>
+<li><a href="#orgc44b856">3.0.1. Visitor as manual recursion control</a></li>
+<li><a href="#orge6bb9bd">3.0.2. Pattern matching as the intended interface</a></li>
+<li><a href="#org4cbd556">3.0.3. Designing today for tomorrow’s syntax</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org694f5c8">4. Recursion Schemes You Can Actually Use</a>
+<li><a href="#org8ad4a4c">4. Recursion Schemes You Can Actually Use</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org97c3fd7">4.0.1. F-algebras: how to collapse one layer</a></li>
-<li><a href="#orga0e05c1">4.0.2. Catamorphisms as principled fold</a></li>
-<li><a href="#org7a4e94a">4.0.3. Separating recursion from business logic</a></li>
+<li><a href="#org7f1ee75">4.0.1. F-algebras: how to collapse one layer</a></li>
+<li><a href="#org30e44f0">4.0.2. Catamorphisms as principled fold</a></li>
+<li><a href="#orgd4da185">4.0.3. Separating recursion from business logic</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgefc5e91">5. Preserving Shape: Traversable and Friends</a>
+<li><a href="#orgbcb63e5">5. Preserving Shape: Traversable and Friends</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgdb487b4">5.0.1. Foldable vs Traversable: sequence vs shape</a></li>
-<li><a href="#org866bca6">5.0.2. Crisp contrast: flatten vs preserve shape</a></li>
-<li><a href="#orga56b0a9">5.0.3. Typeclass object lookup in three calls</a></li>
-<li><a href="#org6db5774">5.0.4. Typeclass object for implementors</a></li>
-<li><a href="#org65c05f2">5.0.5. How the implementation works: CRTP and deducing this</a></li>
-<li><a href="#orgb7256ea">5.0.6. Same algorithm, two tree representations</a></li>
-<li><a href="#org6bb2e11">5.0.7. Foldable API: one primitive, many derived operations</a></li>
-<li><a href="#org0c28023">5.0.8. Foldable proof: derived operations hold in tests</a></li>
-<li><a href="#org01ec6c0">5.0.9. Applicative model: pure function over effectful arguments</a></li>
-<li><a href="#org5957d0c">5.0.10. Applicative API: minimal core, user-facing invoke</a></li>
-<li><a href="#org76b4768">5.0.11. Applicative proof: n-ary use in tests</a></li>
-<li><a href="#orgba3acab">5.0.12. Traversable model: commute shape and effect</a></li>
-<li><a href="#org3232266">5.0.13. Traversable API: one primitive, many derived operations</a></li>
-<li><a href="#orgeed7d78">5.0.14. Traversable proof: derived operations hold in tests</a></li>
-<li><a href="#orgc17a798">5.0.15. Traversable commute: Range and ZipList</a></li>
-<li><a href="#org5eb9ce3">5.0.16. Laws that keep this honest</a></li>
-<li><a href="#orgb299e17">5.0.17. Tree Applicative as optional appendix</a></li>
+<li><a href="#orga8b127e">5.0.1. Foldable vs Traversable: sequence vs shape</a></li>
+<li><a href="#orgf6263c6">5.0.2. Crisp contrast: flatten vs preserve shape</a></li>
+<li><a href="#orgde1323f">5.0.3. Typeclass object lookup in three calls</a></li>
+<li><a href="#orgf5bdfdf">5.0.4. Typeclass object for implementors</a></li>
+<li><a href="#org421364f">5.0.5. How the implementation works: CRTP and deducing this</a></li>
+<li><a href="#org5060556">5.0.6. Same algorithm, two tree representations</a></li>
+<li><a href="#orgc05524f">5.0.7. Foldable API: one primitive, many derived operations</a></li>
+<li><a href="#org8afff5d">5.0.8. Foldable proof: derived operations hold in tests</a></li>
+<li><a href="#org9b9d8a2">5.0.9. Applicative model: pure function over effectful arguments</a></li>
+<li><a href="#orge1c155e">5.0.10. Applicative API: minimal core, user-facing invoke</a></li>
+<li><a href="#org0f62f3b">5.0.11. Applicative proof: n-ary use in tests</a></li>
+<li><a href="#org4654aef">5.0.12. Traversable model: commute shape and effect</a></li>
+<li><a href="#org40efa6f">5.0.13. Traversable API: one primitive, many derived operations</a></li>
+<li><a href="#org1d123a8">5.0.14. Traversable proof: derived operations hold in tests</a></li>
+<li><a href="#org98a7ca7">5.0.15. Traversable commute: Range and ZipList</a></li>
+<li><a href="#orgbac9e43">5.0.16. Laws that keep this honest</a></li>
+<li><a href="#orgc573e55">5.0.17. Tree Applicative as optional appendix</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org76d0b46">6. Monoids and Measured Trees</a>
+<li><a href="#orgf482838">6. Monoids and Measured Trees</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org46096f6">6.0.1. Associativity as algorithmic leverage</a></li>
-<li><a href="#orgc85a7d7">6.0.2. Annotations as summaries</a></li>
-<li><a href="#org72e4fe9">6.0.3. Search and split driven by measures</a></li>
+<li><a href="#org8da0eda">6.0.1. Associativity as algorithmic leverage</a></li>
+<li><a href="#org8553ed4">6.0.2. Annotations as summaries</a></li>
+<li><a href="#org8cb5d00">6.0.3. Search and split driven by measures</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org3472f60">7. Finger Trees as a Case Study</a>
+<li><a href="#orgea82b60">7. Finger Trees as a Case Study</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orge350bc9">7.0.1. Persistent concatenation and splitting</a></li>
-<li><a href="#orgff6ea02">7.0.2. One structure, many interpretations</a></li>
-<li><a href="#orgfb8ae44">7.0.3. Why this belongs in modern C++</a></li>
+<li><a href="#org042f773">7.0.1. Persistent concatenation and splitting</a></li>
+<li><a href="#org9cf77dc">7.0.2. One structure, many interpretations</a></li>
+<li><a href="#org4595772">7.0.3. Why this belongs in modern C++</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgac06d83">8. Designing APIs That Won’t Age Poorly</a>
+<li><a href="#org0f229d6">8. Designing APIs That Won’t Age Poorly</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org0e665df">8.0.1. Library abstractions anticipating language features</a></li>
-<li><a href="#org31dd59b">8.0.2. Avoiding the <code>std::bind</code> vs lambda overlap</a></li>
-<li><a href="#org461719e">8.0.3. Keeping the good path obvious</a></li>
+<li><a href="#org7f0cfce">8.0.1. Library abstractions anticipating language features</a></li>
+<li><a href="#org0a3d3b4">8.0.2. Avoiding the <code>std::bind</code> vs lambda overlap</a></li>
+<li><a href="#org75f2335">8.0.3. Keeping the good path obvious</a></li>
 </ul>
 </li>
 </ul>
@@ -308,8 +308,8 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org31493d1" class="outline-2">
-<h2 id="org31493d1"><span class="section-number-2">1.</span> Algorithms For Trees</h2>
+<div id="outline-container-orgcbb9641" class="outline-2">
+<h2 id="orgcbb9641"><span class="section-number-2">1.</span> Algorithms For Trees</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li>Foldable</li>
@@ -317,8 +317,8 @@
 <li>Traversable</li>
 </ul>
 </div>
-<div id="outline-container-orgd75c419" class="outline-3">
-<h3 id="orgd75c419"><span class="section-number-3">1.1.</span> Abstract</h3>
+<div id="outline-container-org2cf1dd3" class="outline-3">
+<h3 id="org2cf1dd3"><span class="section-number-3">1.1.</span> Abstract</h3>
 <div class="outline-text-3" id="text-1-1">
 <p>
 The use of the functor and monad patterns in ranges, sender-receiver, optional, and expected has been broadly and widely successful. There are other type classes that C++ can profitably adopt for use in generic programming that have proven to be useful in other languages and ecosystems in the last decade.
@@ -333,32 +333,32 @@ The eventual goal of this work is to provide <code>fingertree</code> to the stan
 </p>
 </div>
 </div>
-<div id="outline-container-orgc757aa1" class="outline-3">
-<h3 id="orgc757aa1"><span class="section-number-3">1.2.</span> Foldable</h3>
+<div id="outline-container-orga5c95d5" class="outline-3">
+<h3 id="orga5c95d5"><span class="section-number-3">1.2.</span> Foldable</h3>
 <div class="outline-text-3" id="text-1-2">
 <dl class="org-dl">
 <dt>Foldables</dt><dd>are types which can be made to look like a sequence of some sort, or a range, and support the basic <code>fold</code> operation which provides much of the power of std::ranges. Providing opt-in hooks for making a type Foldable rather than a Range is useful.</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org13dc191" class="outline-3">
-<h3 id="org13dc191"><span class="section-number-3">1.3.</span> Applicative</h3>
+<div id="outline-container-org86db347" class="outline-3">
+<h3 id="org86db347"><span class="section-number-3">1.3.</span> Applicative</h3>
 <div class="outline-text-3" id="text-1-3">
 <dl class="org-dl">
 <dt>Applicatives</dt><dd>were introduced to provide the pattern of 'pure function applied to funny arguments', where a type "supports its own peculiar way of giving meaning to the usual [notion of function invocation]." The implementation details of partially applied functions in a container turn out to be a distraction from understanding. They turn out to be widely relevant in contexts such as data parallel operations, and with less overhead than monadic operations.</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgeb9ed3c" class="outline-3">
-<h3 id="orgeb9ed3c"><span class="section-number-3">1.4.</span> Traversable</h3>
+<div id="outline-container-org0bb107c" class="outline-3">
+<h3 id="org0bb107c"><span class="section-number-3">1.4.</span> Traversable</h3>
 <div class="outline-text-3" id="text-1-4">
 <dl class="org-dl">
 <dt>Traversables</dt><dd>are generalizations of Foldables which allow preservation of the "shape" of a container, where a Foldable can only see the ordered sequence. A binary tree can be traversed and maintain the parent child relationships, where a fold can at most produce a range. Traversable also provides the ability to "commute" containers, generically, providing the ability to convert a range of tasks into a task producing a range.</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org7ec2d6c" class="outline-3">
-<h3 id="org7ec2d6c"><span class="section-number-3">1.5.</span> Not Monadic</h3>
+<div id="outline-container-org39d69cf" class="outline-3">
+<h3 id="org39d69cf"><span class="section-number-3">1.5.</span> Not Monadic</h3>
 <div class="outline-text-3" id="text-1-5">
 <p>
 sorry
@@ -366,12 +366,12 @@ sorry
 </div>
 </div>
 </div>
-<div id="outline-container-orgba50bad" class="outline-2">
-<h2 id="orgba50bad"><span class="section-number-2">2.</span> Ranges Flatten the World</h2>
+<div id="outline-container-org7d6f318" class="outline-2">
+<h2 id="org7d6f318"><span class="section-number-2">2.</span> Ranges Flatten the World</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orge47e577" class="outline-4">
-<h4 id="orge47e577"><span class="section-number-4">2.0.1.</span> Linearization as a design assumption</h4>
+<div id="outline-container-org0755745" class="outline-4">
+<h4 id="org0755745"><span class="section-number-4">2.0.1.</span> Linearization as a design assumption</h4>
 <div class="outline-text-4" id="text-2-0-1">
 <ul class="org-ul">
 <li>Ranges are a great default when the structure is inherently sequential.</li>
@@ -379,7 +379,7 @@ sorry
 <li>For trees, flattening throws away parent/child relationships and subtree boundaries.</li>
 </ul>
 
-<div class="notes" id="orgf899753">
+<div class="notes" id="orgef89cdc">
 <p>
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
@@ -389,8 +389,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgc7fb65f" class="outline-4">
-<h4 id="orgc7fb65f"><span class="section-number-4">2.0.2.</span> Where structure carries meaning</h4>
+<div id="outline-container-orgd591ef1" class="outline-4">
+<h4 id="orgd591ef1"><span class="section-number-4">2.0.2.</span> Where structure carries meaning</h4>
 <div class="outline-text-4" id="text-2-0-2">
 <ul class="org-ul">
 <li>Search paths, balancing, and decomposition points are part of the meaning.</li>
@@ -398,7 +398,7 @@ Source: (Steve Downey, 2026).
 <li>If we flatten too early, we lose algorithmic leverage.</li>
 </ul>
 
-<div class="notes" id="org44ea1b5">
+<div class="notes" id="org534e683">
 <p>
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
 Source: (Steve Downey, 2026).
@@ -407,8 +407,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org0c08aa4" class="outline-4">
-<h4 id="org0c08aa4"><span class="section-number-4">2.0.3.</span> Trees that are not sequences</h4>
+<div id="outline-container-org5607174" class="outline-4">
+<h4 id="org5607174"><span class="section-number-4">2.0.3.</span> Trees that are not sequences</h4>
 <div class="outline-text-4" id="text-2-0-3">
 <ul class="org-ul">
 <li>Expression trees: hierarchy controls precedence and rewrite legality.</li>
@@ -417,7 +417,7 @@ Source: (Steve Downey, 2026).
 <li>Measured trees: internal summaries define split/search interfaces and optimization direction.</li>
 </ul>
 
-<div class="notes" id="org357363f">
+<div class="notes" id="org2f18294">
 <p>
 A range view is still useful, but it should be derived, not the primary model.
 Source: (Steve Downey, 2026).
@@ -427,12 +427,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org2b67370" class="outline-2">
-<h2 id="org2b67370"><span class="section-number-2">3.</span> Visitors, Pattern Matching, and the Missing Syntax</h2>
+<div id="outline-container-orga0ba339" class="outline-2">
+<h2 id="orga0ba339"><span class="section-number-2">3.</span> Visitors, Pattern Matching, and the Missing Syntax</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org5bcdd4f" class="outline-4">
-<h4 id="org5bcdd4f"><span class="section-number-4">3.0.1.</span> Visitor as manual recursion control</h4>
+<div id="outline-container-orgc44b856" class="outline-4">
+<h4 id="orgc44b856"><span class="section-number-4">3.0.1.</span> Visitor as manual recursion control</h4>
 <div class="outline-text-4" id="text-3-0-1">
 <ul class="org-ul">
 <li>Visitor centralizes recursion, but at the cost of ceremony and indirection.</li>
@@ -440,7 +440,7 @@ Source: (Steve Downey, 2026).
 <li>The control flow is explicit, but often noisy.</li>
 </ul>
 
-<div class="notes" id="orgb6d0c97">
+<div class="notes" id="org9a082fd">
 <p>
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
 Source: (Steve Downey, 2026).
@@ -449,8 +449,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgcc9c31d" class="outline-4">
-<h4 id="orgcc9c31d"><span class="section-number-4">3.0.2.</span> Pattern matching as the intended interface</h4>
+<div id="outline-container-orge6bb9bd" class="outline-4">
+<h4 id="orge6bb9bd"><span class="section-number-4">3.0.2.</span> Pattern matching as the intended interface</h4>
 <div class="outline-text-4" id="text-3-0-2">
 <ul class="org-ul">
 <li>Pattern matching expresses what cases exist directly.</li>
@@ -458,7 +458,7 @@ Source: (Steve Downey, 2026).
 <li>Typeclass-style APIs can encode the same intent with today's language.</li>
 </ul>
 
-<div class="notes" id="org8fd2b64">
+<div class="notes" id="org3c86691">
 <p>
 Design now so the API maps naturally to future language features.
 Source: (Steve Downey, 2026).
@@ -467,8 +467,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org3685e53" class="outline-4">
-<h4 id="org3685e53"><span class="section-number-4">3.0.3.</span> Designing today for tomorrow’s syntax</h4>
+<div id="outline-container-org4cbd556" class="outline-4">
+<h4 id="org4cbd556"><span class="section-number-4">3.0.3.</span> Designing today for tomorrow’s syntax</h4>
 <div class="outline-text-4" id="text-3-0-3">
 <ul class="org-ul">
 <li>Keep recursion control in library algorithms, not business code.</li>
@@ -476,7 +476,7 @@ Source: (Steve Downey, 2026).
 <li>Make call sites read like intent, not machinery.</li>
 </ul>
 
-<div class="notes" id="org648d0fe">
+<div class="notes" id="org57bf69e">
 <p>
 The point is migration-friendly design, not speculative syntax tricks.
 Source: (Steve Downey, 2026).
@@ -486,12 +486,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org694f5c8" class="outline-2">
-<h2 id="org694f5c8"><span class="section-number-2">4.</span> Recursion Schemes You Can Actually Use</h2>
+<div id="outline-container-org8ad4a4c" class="outline-2">
+<h2 id="org8ad4a4c"><span class="section-number-2">4.</span> Recursion Schemes You Can Actually Use</h2>
 <div class="outline-text-2" id="text-4">
 </div>
-<div id="outline-container-org97c3fd7" class="outline-4">
-<h4 id="org97c3fd7"><span class="section-number-4">4.0.1.</span> F-algebras: how to collapse one layer</h4>
+<div id="outline-container-org7f1ee75" class="outline-4">
+<h4 id="org7f1ee75"><span class="section-number-4">4.0.1.</span> F-algebras: how to collapse one layer</h4>
 <div class="outline-text-4" id="text-4-0-1">
 <ul class="org-ul">
 <li>Think of an algebra as consume one layer and summarize it.</li>
@@ -499,7 +499,7 @@ Source: (Steve Downey, 2026).
 <li>This separation makes tree algorithms easier to reason about.</li>
 </ul>
 
-<div class="notes" id="org185c52b">
+<div class="notes" id="orgfa03b62">
 <p>
 I only need the intuition here, not full categorical development.
 Source: (Steve Downey, 2026).
@@ -508,8 +508,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orga0e05c1" class="outline-4">
-<h4 id="orga0e05c1"><span class="section-number-4">4.0.2.</span> Catamorphisms as principled fold</h4>
+<div id="outline-container-org30e44f0" class="outline-4">
+<h4 id="org30e44f0"><span class="section-number-4">4.0.2.</span> Catamorphisms as principled fold</h4>
 <div class="outline-text-4" id="text-4-0-2">
 <ul class="org-ul">
 <li>Catamorphism: apply the algebra recursively until the structure is collapsed.</li>
@@ -517,7 +517,7 @@ Source: (Steve Downey, 2026).
 <li>You get reuse without hardcoding each algorithm into the node type.</li>
 </ul>
 
-<div class="notes" id="org3107c3a">
+<div class="notes" id="orgebcecc3">
 <p>
 Foldable is the operational entry point for this in everyday code.
 Source: (Steve Downey, 2026).
@@ -526,8 +526,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org7a4e94a" class="outline-4">
-<h4 id="org7a4e94a"><span class="section-number-4">4.0.3.</span> Separating recursion from business logic</h4>
+<div id="outline-container-orgd4da185" class="outline-4">
+<h4 id="orgd4da185"><span class="section-number-4">4.0.3.</span> Separating recursion from business logic</h4>
 <div class="outline-text-4" id="text-4-0-3">
 <ul class="org-ul">
 <li>Business logic should answer how to combine results, not how to recurse.</li>
@@ -535,7 +535,7 @@ Source: (Steve Downey, 2026).
 <li>It also creates a natural place to enforce laws.</li>
 </ul>
 
-<div class="notes" id="org2378f3f">
+<div class="notes" id="org9f3e6c8">
 <p>
 When recursion is abstracted, law tests become executable documentation.
 Source: (Steve Downey, 2026).
@@ -545,12 +545,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgefc5e91" class="outline-2">
-<h2 id="orgefc5e91"><span class="section-number-2">5.</span> Preserving Shape: Traversable and Friends</h2>
+<div id="outline-container-orgbcb63e5" class="outline-2">
+<h2 id="orgbcb63e5"><span class="section-number-2">5.</span> Preserving Shape: Traversable and Friends</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-orgdb487b4" class="outline-4">
-<h4 id="orgdb487b4"><span class="section-number-4">5.0.1.</span> Foldable vs Traversable: sequence vs shape</h4>
+<div id="outline-container-orga8b127e" class="outline-4">
+<h4 id="orga8b127e"><span class="section-number-4">5.0.1.</span> Foldable vs Traversable: sequence vs shape</h4>
 <div class="outline-text-4" id="text-5-0-1">
 <ul class="org-ul">
 <li>Foldable consumes structure into a summary.</li>
@@ -559,8 +559,8 @@ Source: (Steve Downey, 2026).
 </ul>
 </div>
 </div>
-<div id="outline-container-org866bca6" class="outline-4">
-<h4 id="org866bca6"><span class="section-number-4">5.0.2.</span> Crisp contrast: flatten vs preserve shape</h4>
+<div id="outline-container-orgf6263c6" class="outline-4">
+<h4 id="orgf6263c6"><span class="section-number-4">5.0.2.</span> Crisp contrast: flatten vs preserve shape</h4>
 <div class="outline-text-4" id="text-5-0-2">
 <ul class="org-ul">
 <li>Two differently shaped trees can flatten to the same sequence under Foldable.</li>
@@ -568,7 +568,7 @@ Source: (Steve Downey, 2026).
 </ul>
 </div>
 <ol class="org-ol">
-<li><a id="org9788af7"></a>Foldable flattens and loses shape identity<br />
+<li><a id="orgf22c552"></a>Foldable flattens and loses shape identity<br />
 <div class="outline-text-5" id="text-5-0-2-1">
 <p>
 <i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
@@ -588,7 +588,7 @@ auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
 </p>
 </div>
 </li>
-<li><a id="org2fa11f0"></a>Traversable maps while preserving shape<br />
+<li><a id="orga938ef9"></a>Traversable maps while preserving shape<br />
 <div class="outline-text-5" id="text-5-0-2-2">
 <p>
 <i>/ d804ec63-77d1-4fa0-99a6-9effce6f741b
@@ -620,7 +620,7 @@ if (!mapped || mapped-&gt;is<sub>leaf</sub>()) {
 :lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
 </p>
 
-<div class="notes" id="orgf649c5e">
+<div class="notes" id="org4edd3bd">
 <p>
 Use this as the one-slide intuition.
 Foldable can collapse two different shapes to the same flat view.
@@ -632,8 +632,8 @@ Traversable keeps the tree skeleton and only transforms payloads.
 </li>
 </ol>
 </div>
-<div id="outline-container-orga56b0a9" class="outline-4">
-<h4 id="orga56b0a9"><span class="section-number-4">5.0.3.</span> Typeclass object lookup in three calls</h4>
+<div id="outline-container-orgde1323f" class="outline-4">
+<h4 id="orgde1323f"><span class="section-number-4">5.0.3.</span> Typeclass object lookup in three calls</h4>
 <div class="outline-text-4" id="text-5-0-3">
 <ul class="org-ul">
 <li>User code calls the looked-up object, not a node method.</li>
@@ -642,7 +642,7 @@ Traversable keeps the tree skeleton and only transforms payloads.
 <li>You can use implicit lookup, explicit object arguments, or NTTP pinning for tests and policy control.</li>
 </ul>
 
-<div class="notes" id="org599254b">
+<div class="notes" id="org6c1b859">
 <p>
 This replaces a long historical detour with one operational model.
 Call site intent stays stable while the representation changes.
@@ -651,8 +651,8 @@ Call site intent stays stable while the representation changes.
 </div>
 </div>
 </div>
-<div id="outline-container-org6db5774" class="outline-4">
-<h4 id="org6db5774"><span class="section-number-4">5.0.4.</span> Typeclass object for implementors</h4>
+<div id="outline-container-orgf5bdfdf" class="outline-4">
+<h4 id="orgf5bdfdf"><span class="section-number-4">5.0.4.</span> Typeclass object for implementors</h4>
 <div class="outline-text-4" id="text-5-0-4">
 <ul class="org-ul">
 <li>Implement one minimal hook per concept and inherit derived operations.</li>
@@ -662,7 +662,7 @@ Call site intent stays stable while the representation changes.
 <li>Keep traversal order and shape-preservation choices explicit in instance tests.</li>
 </ul>
 
-<div class="notes" id="org2dd02fe">
+<div class="notes" id="org0a85c53">
 <p>
 This is the key split.
 Implementor surface is small, and user surface is rich.
@@ -671,8 +671,8 @@ Implementor surface is small, and user surface is rich.
 </div>
 </div>
 </div>
-<div id="outline-container-org65c05f2" class="outline-4">
-<h4 id="org65c05f2"><span class="section-number-4">5.0.5.</span> How the implementation works: CRTP and deducing this</h4>
+<div id="outline-container-org421364f" class="outline-4">
+<h4 id="org421364f"><span class="section-number-4">5.0.5.</span> How the implementation works: CRTP and deducing this</h4>
 <div class="outline-text-4" id="text-5-0-5">
 <ul class="org-ul">
 <li>Each concept wrapper is a CRTP base that exposes derived API in terms of minimal hooks.</li>
@@ -681,7 +681,7 @@ Implementor surface is small, and user surface is rich.
 <li>This keeps dispatch static and local while avoiding repetitive forwarding boilerplate.</li>
 </ul>
 
-<div class="notes" id="org6022879">
+<div class="notes" id="orgebc5ecc">
 <p>
 CRTP supplies structure.
 Deducing this keeps wrappers generic without losing type information.
@@ -690,8 +690,8 @@ Deducing this keeps wrappers generic without losing type information.
 </div>
 </div>
 </div>
-<div id="outline-container-orgb7256ea" class="outline-4">
-<h4 id="orgb7256ea"><span class="section-number-4">5.0.6.</span> Same algorithm, two tree representations</h4>
+<div id="outline-container-org5060556" class="outline-4">
+<h4 id="org5060556"><span class="section-number-4">5.0.6.</span> Same algorithm, two tree representations</h4>
 <div class="outline-text-4" id="text-5-0-6">
 <ul class="org-ul">
 <li>Fixpoint tree and shared<sub>ptr</sub> binary tree can share the same Foldable call shape.</li>
@@ -699,7 +699,7 @@ Deducing this keeps wrappers generic without losing type information.
 </ul>
 </div>
 <ol class="org-ol">
-<li><a id="orga58b251"></a>Fixpoint tree<br />
+<li><a id="org0ba404d"></a>Fixpoint tree<br />
 <div class="outline-text-5" id="text-5-0-6-1">
 <p>
 <i>/ 9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa
@@ -798,7 +798,7 @@ auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
 </p>
 </div>
 </li>
-<li><a id="org4a06739"></a>shared<sub>ptr</sub> binary tree<br />
+<li><a id="org14862b1"></a>shared<sub>ptr</sub> binary tree<br />
 <div class="outline-text-5" id="text-5-0-6-2">
 <p>
 <i>/ 53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4
@@ -869,7 +869,7 @@ auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
 </p>
 </div>
 </li>
-<li><a id="orgabda01f"></a>fringetree (simplified fingertree)<br />
+<li><a id="orgf4b6f57"></a>fringetree (simplified fingertree)<br />
 <div class="outline-text-5" id="text-5-0-6-3">
 <p>
 <i>/ 7c2f11d9-ef09-45e2-80da-9229f3c8d82c
@@ -988,8 +988,8 @@ if (!mapped || mapped-&gt;is<sub>leaf</sub>()) {
 </li>
 </ol>
 </div>
-<div id="outline-container-org6bb2e11" class="outline-4">
-<h4 id="org6bb2e11"><span class="section-number-4">5.0.7.</span> Foldable API: one primitive, many derived operations</h4>
+<div id="outline-container-orgc05524f" class="outline-4">
+<h4 id="orgc05524f"><span class="section-number-4">5.0.7.</span> Foldable API: one primitive, many derived operations</h4>
 <div class="outline-text-4" id="text-5-0-7">
 <ul class="org-ul">
 <li>Minimal implementation hook: <code>fold_map</code>.</li>
@@ -1174,8 +1174,8 @@ inline constexpr auto foldable<sub>typeclass</sub> = std::false<sub>type</sub>{}
 </p>
 </div>
 </div>
-<div id="outline-container-org0c28023" class="outline-4">
-<h4 id="org0c28023"><span class="section-number-4">5.0.8.</span> Foldable proof: derived operations hold in tests</h4>
+<div id="outline-container-org8afff5d" class="outline-4">
+<h4 id="org8afff5d"><span class="section-number-4">5.0.8.</span> Foldable proof: derived operations hold in tests</h4>
 <div class="outline-text-4" id="text-5-0-8">
 <ul class="org-ul">
 <li><p>
@@ -1238,8 +1238,8 @@ auto found<sub>even</sub> = foldable.find<sub>first</sub>(mixed, [](int x) { ret
 </p>
 </div>
 </div>
-<div id="outline-container-org01ec6c0" class="outline-4">
-<h4 id="org01ec6c0"><span class="section-number-4">5.0.9.</span> Applicative model: pure function over effectful arguments</h4>
+<div id="outline-container-org9b9d8a2" class="outline-4">
+<h4 id="org9b9d8a2"><span class="section-number-4">5.0.9.</span> Applicative model: pure function over effectful arguments</h4>
 <div class="outline-text-4" id="text-5-0-9">
 <ul class="org-ul">
 <li>Applicative captures independent effectful arguments without full monadic sequencing.</li>
@@ -1277,8 +1277,8 @@ return sum;
 </p>
 </div>
 </div>
-<div id="outline-container-org5957d0c" class="outline-4">
-<h4 id="org5957d0c"><span class="section-number-4">5.0.10.</span> Applicative API: minimal core, user-facing invoke</h4>
+<div id="outline-container-orge1c155e" class="outline-4">
+<h4 id="orge1c155e"><span class="section-number-4">5.0.10.</span> Applicative API: minimal core, user-facing invoke</h4>
 <div class="outline-text-4" id="text-5-0-10">
 <ul class="org-ul">
 <li>Minimal implementation hook: <code>pure</code> and <code>apply</code>.</li>
@@ -1629,8 +1629,8 @@ inline constexpr auto applicative<sub>typeclass</sub>&lt;beman::optional::option
 </p>
 </div>
 </div>
-<div id="outline-container-org76b4768" class="outline-4">
-<h4 id="org76b4768"><span class="section-number-4">5.0.11.</span> Applicative proof: n-ary use in tests</h4>
+<div id="outline-container-org0f62f3b" class="outline-4">
+<h4 id="org0f62f3b"><span class="section-number-4">5.0.11.</span> Applicative proof: n-ary use in tests</h4>
 <div class="outline-text-4" id="text-5-0-11">
 <ul class="org-ul">
 <li><p>
@@ -2350,8 +2350,8 @@ CHECK(const<sub>map</sub><sub>result.value</sub> == 9);
 </p>
 </div>
 </div>
-<div id="outline-container-orgba3acab" class="outline-4">
-<h4 id="orgba3acab"><span class="section-number-4">5.0.12.</span> Traversable model: commute shape and effect</h4>
+<div id="outline-container-org4654aef" class="outline-4">
+<h4 id="org4654aef"><span class="section-number-4">5.0.12.</span> Traversable model: commute shape and effect</h4>
 <div class="outline-text-4" id="text-5-0-12">
 <ul class="org-ul">
 <li>Traversal commutes shape and effect: from shape of effects to effect of shape.</li>
@@ -2360,8 +2360,8 @@ CHECK(const<sub>map</sub><sub>result.value</sub> == 9);
 </ul>
 </div>
 </div>
-<div id="outline-container-org3232266" class="outline-4">
-<h4 id="org3232266"><span class="section-number-4">5.0.13.</span> Traversable API: one primitive, many derived operations</h4>
+<div id="outline-container-org40efa6f" class="outline-4">
+<h4 id="org40efa6f"><span class="section-number-4">5.0.13.</span> Traversable API: one primitive, many derived operations</h4>
 <div class="outline-text-4" id="text-5-0-13">
 <ul class="org-ul">
 <li>Minimal implementation hook: <code>traverse</code>.</li>
@@ -2437,8 +2437,8 @@ inline constexpr auto traversable<sub>typeclass</sub> = std::false<sub>type</sub
 </p>
 </div>
 </div>
-<div id="outline-container-orgeed7d78" class="outline-4">
-<h4 id="orgeed7d78"><span class="section-number-4">5.0.14.</span> Traversable proof: derived operations hold in tests</h4>
+<div id="outline-container-org1d123a8" class="outline-4">
+<h4 id="org1d123a8"><span class="section-number-4">5.0.14.</span> Traversable proof: derived operations hold in tests</h4>
 <div class="outline-text-4" id="text-5-0-14">
 <ul class="org-ul">
 <li><p>
@@ -2513,8 +2513,8 @@ auto via<sub>traverse</sub><sub>identity</sub> = traversable.traverse(
 </p>
 </div>
 </div>
-<div id="outline-container-orgc17a798" class="outline-4">
-<h4 id="orgc17a798"><span class="section-number-4">5.0.15.</span> Traversable commute: Range and ZipList</h4>
+<div id="outline-container-org98a7ca7" class="outline-4">
+<h4 id="org98a7ca7"><span class="section-number-4">5.0.15.</span> Traversable commute: Range and ZipList</h4>
 <div class="outline-text-4" id="text-5-0-15">
 <ul class="org-ul">
 <li>Traversable commutes a range of ZipLists into a ZipList of ranges.</li>
@@ -2656,7 +2656,7 @@ auto as<sub>rows</sub> = to<sub>vector</sub><sub>of</sub><sub>ziplists</sub>(zip
 :lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
 </p>
 
-<div class="notes" id="org655702b">
+<div class="notes" id="org86000ae">
 <p>
 Key law intuition: preserve shape and evaluation order discipline.
 Source: (Steve Downey, 2026).
@@ -2665,16 +2665,25 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org5eb9ce3" class="outline-4">
-<h4 id="org5eb9ce3"><span class="section-number-4">5.0.16.</span> Laws that keep this honest</h4>
+<div id="outline-container-orgbac9e43" class="outline-4">
+<h4 id="orgbac9e43"><span class="section-number-4">5.0.16.</span> Laws that keep this honest</h4>
 <div class="outline-text-4" id="text-5-0-16">
+<ul class="org-ul">
+<li>Target law set:
 <ul class="org-ul">
 <li>Applicative: identity, composition, homomorphism, interchange.</li>
 <li>Traversable: identity, naturality, composition.</li>
 <li>Foldable: derived operations agree with <code>fold_map</code>.</li>
+</ul></li>
+<li>Current automated checks in this repository:
+<ul class="org-ul">
+<li>Applicative: identity, homomorphism, invoke/ap equivalence, plus ZipList interchange and composition.</li>
+<li>Traversable: traverse/for<sub>each</sub>/sequence coherence and ZipList-Range commute examples.</li>
+<li>Foldable: derived operations (<code>length</code>, <code>fold_left</code>, <code>fold_right</code>, <code>to_vector</code>, predicates) are exercised against <code>fold_map</code>-based behavior.</li>
+</ul></li>
 </ul>
 
-<div class="notes" id="orgda7ecac">
+<div class="notes" id="orged111f1">
 <p>
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
 Source: (Steve Downey, 2026).
@@ -2683,8 +2692,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgb299e17" class="outline-4">
-<h4 id="orgb299e17"><span class="section-number-4">5.0.17.</span> Tree Applicative as optional appendix</h4>
+<div id="outline-container-orgc573e55" class="outline-4">
+<h4 id="orgc573e55"><span class="section-number-4">5.0.17.</span> Tree Applicative as optional appendix</h4>
 <div class="outline-text-4" id="text-5-0-17">
 <ul class="org-ul">
 <li>Treat tree applicative as a policy choice, not the core applicative story.</li>
@@ -2692,7 +2701,7 @@ Source: (Steve Downey, 2026).
 <li>Mainline examples should stay with optional, ranges, and ZipList.</li>
 </ul>
 
-<div class="notes" id="orge48ed5c">
+<div class="notes" id="org0464d48">
 <p>
 This avoids spending scarce slide time on semantics debates.
 The core teaching value of Applicative is already visible in optional/range/ZipList examples.
@@ -2702,12 +2711,12 @@ The core teaching value of Applicative is already visible in optional/range/ZipL
 </div>
 </div>
 </div>
-<div id="outline-container-org76d0b46" class="outline-2">
-<h2 id="org76d0b46"><span class="section-number-2">6.</span> Monoids and Measured Trees</h2>
+<div id="outline-container-orgf482838" class="outline-2">
+<h2 id="orgf482838"><span class="section-number-2">6.</span> Monoids and Measured Trees</h2>
 <div class="outline-text-2" id="text-6">
 </div>
-<div id="outline-container-org46096f6" class="outline-4">
-<h4 id="org46096f6"><span class="section-number-4">6.0.1.</span> Associativity as algorithmic leverage</h4>
+<div id="outline-container-org8da0eda" class="outline-4">
+<h4 id="org8da0eda"><span class="section-number-4">6.0.1.</span> Associativity as algorithmic leverage</h4>
 <div class="outline-text-4" id="text-6-0-1">
 <ul class="org-ul">
 <li>Associativity lets us regroup work without changing results.</li>
@@ -2715,7 +2724,7 @@ The core teaching value of Applicative is already visible in optional/range/ZipL
 <li>This is the bridge from algebra to explicit performance contracts.</li>
 </ul>
 
-<div class="notes" id="org26408ec">
+<div class="notes" id="orgddc63aa">
 <p>
 If the measure is a monoid, split/search become compositional.
 Source: (Steve Downey, 2026).
@@ -2724,8 +2733,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgc85a7d7" class="outline-4">
-<h4 id="orgc85a7d7"><span class="section-number-4">6.0.2.</span> Annotations as summaries</h4>
+<div id="outline-container-org8553ed4" class="outline-4">
+<h4 id="org8553ed4"><span class="section-number-4">6.0.2.</span> Annotations as summaries</h4>
 <div class="outline-text-4" id="text-6-0-2">
 <ul class="org-ul">
 <li>Each node caches a measure of its subtree.</li>
@@ -2733,7 +2742,7 @@ Source: (Steve Downey, 2026).
 <li>Updating structure updates summaries locally.</li>
 </ul>
 
-<div class="notes" id="orgaedf4e1">
+<div class="notes" id="orge60c278">
 <p>
 The data structure stays the same while behavior changes with the monoid.
 Source: (Steve Downey, 2026).
@@ -2742,8 +2751,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org72e4fe9" class="outline-4">
-<h4 id="org72e4fe9"><span class="section-number-4">6.0.3.</span> Search and split driven by measures</h4>
+<div id="outline-container-org8cb5d00" class="outline-4">
+<h4 id="org8cb5d00"><span class="section-number-4">6.0.3.</span> Search and split driven by measures</h4>
 <div class="outline-text-4" id="text-6-0-3">
 <ul class="org-ul">
 <li>Search is currently implemented by linear scan over the flattened sequence.</li>
@@ -2751,7 +2760,7 @@ Source: (Steve Downey, 2026).
 <li>This yields one structure with many interpretations.</li>
 </ul>
 
-<div class="notes" id="org69a1d2a">
+<div class="notes" id="org2f62b4c">
 <p>
 Sequence, priority queue, and rope are policy layers on one core tree.
 Original finger-tree papers promise stronger asymptotics with measured search.
@@ -2766,12 +2775,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org3472f60" class="outline-2">
-<h2 id="org3472f60"><span class="section-number-2">7.</span> Finger Trees as a Case Study</h2>
+<div id="outline-container-orgea82b60" class="outline-2">
+<h2 id="orgea82b60"><span class="section-number-2">7.</span> Finger Trees as a Case Study</h2>
 <div class="outline-text-2" id="text-7">
 </div>
-<div id="outline-container-orge350bc9" class="outline-4">
-<h4 id="orge350bc9"><span class="section-number-4">7.0.1.</span> Persistent concatenation and splitting</h4>
+<div id="outline-container-org042f773" class="outline-4">
+<h4 id="org042f773"><span class="section-number-4">7.0.1.</span> Persistent concatenation and splitting</h4>
 <div class="outline-text-4" id="text-7-0-1">
 <ul class="org-ul">
 <li>Current prototype gives cheap persistence-friendly concatenation.</li>
@@ -2780,7 +2789,7 @@ Source: (Steve Downey, 2026).
 <li>The API naturally composes with foldable/traversable abstractions.</li>
 </ul>
 
-<div class="notes" id="org29aa22a">
+<div class="notes" id="org705804f">
 <p>
 This is where abstractions meet implementation reality.
 Paper-level target bounds remain the north star.
@@ -2791,8 +2800,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgff6ea02" class="outline-4">
-<h4 id="orgff6ea02"><span class="section-number-4">7.0.2.</span> One structure, many interpretations</h4>
+<div id="outline-container-org9cf77dc" class="outline-4">
+<h4 id="org9cf77dc"><span class="section-number-4">7.0.2.</span> One structure, many interpretations</h4>
 <div class="outline-text-4" id="text-7-0-2">
 <ul class="org-ul">
 <li>Change the monoid, change the interpretation.</li>
@@ -2800,7 +2809,7 @@ Source: (Steve Downey, 2026).
 <li>Reuse is semantic, not just syntactic.</li>
 </ul>
 
-<div class="notes" id="orgf7aa9dd">
+<div class="notes" id="org22170ed">
 <p>
 This is the strongest argument for measured trees in a standard library context.
 Source: (Steve Downey, 2026).
@@ -2809,8 +2818,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgfb8ae44" class="outline-4">
-<h4 id="orgfb8ae44"><span class="section-number-4">7.0.3.</span> Why this belongs in modern C++</h4>
+<div id="outline-container-org4595772" class="outline-4">
+<h4 id="org4595772"><span class="section-number-4">7.0.3.</span> Why this belongs in modern C++</h4>
 <div class="outline-text-4" id="text-7-0-3">
 <ul class="org-ul">
 <li>Zero-cost abstractions and strong typing fit this design.</li>
@@ -2818,7 +2827,7 @@ Source: (Steve Downey, 2026).
 <li>This is not import Haskell; it is idiomatic modern C++ with better algebraic interfaces.</li>
 </ul>
 
-<div class="notes" id="orgc22feaa">
+<div class="notes" id="org91c0c95">
 <p>
 Pragmatic conclusion: values first, identity where required, and laws where possible.
 Source: (Steve Downey, 2026).
@@ -2828,12 +2837,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgac06d83" class="outline-2">
-<h2 id="orgac06d83"><span class="section-number-2">8.</span> Designing APIs That Won’t Age Poorly</h2>
+<div id="outline-container-org0f229d6" class="outline-2">
+<h2 id="org0f229d6"><span class="section-number-2">8.</span> Designing APIs That Won’t Age Poorly</h2>
 <div class="outline-text-2" id="text-8">
 </div>
-<div id="outline-container-org0e665df" class="outline-4">
-<h4 id="org0e665df"><span class="section-number-4">8.0.1.</span> Library abstractions anticipating language features</h4>
+<div id="outline-container-org7f0cfce" class="outline-4">
+<h4 id="org7f0cfce"><span class="section-number-4">8.0.1.</span> Library abstractions anticipating language features</h4>
 <div class="outline-text-4" id="text-8-0-1">
 <ul class="org-ul">
 <li>Favor explicit, composable operations over magical overload sets.</li>
@@ -2841,7 +2850,7 @@ Source: (Steve Downey, 2026).
 <li>Make future language support a simplification, not a rewrite.</li>
 </ul>
 
-<div class="notes" id="org72b2405">
+<div class="notes" id="org2c5532b">
 <p>
 Pattern matching and richer generic facilities should refine this API, not replace it.
 Source: (Steve Downey, 2026).
@@ -2850,8 +2859,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org31dd59b" class="outline-4">
-<h4 id="org31dd59b"><span class="section-number-4">8.0.2.</span> Avoiding the <code>std::bind</code> vs lambda overlap</h4>
+<div id="outline-container-org0a3d3b4" class="outline-4">
+<h4 id="org0a3d3b4"><span class="section-number-4">8.0.2.</span> Avoiding the <code>std::bind</code> vs lambda overlap</h4>
 <div class="outline-text-4" id="text-8-0-2">
 <ul class="org-ul">
 <li>Avoid parallel abstractions that solve the same use case differently.</li>
@@ -2859,7 +2868,7 @@ Source: (Steve Downey, 2026).
 <li>For Applicative, that path is <code>invoke</code>; <code>apply_pure</code> remains a teaching aid.</li>
 </ul>
 
-<div class="notes" id="org407dcf7">
+<div class="notes" id="org031bcef">
 <p>
 The goal is reducing cognitive branching in generic code.
 Source: (Steve Downey, 2026).
@@ -2868,8 +2877,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org461719e" class="outline-4">
-<h4 id="org461719e"><span class="section-number-4">8.0.3.</span> Keeping the good path obvious</h4>
+<div id="outline-container-org75f2335" class="outline-4">
+<h4 id="org75f2335"><span class="section-number-4">8.0.3.</span> Keeping the good path obvious</h4>
 <div class="outline-text-4" id="text-8-0-3">
 <ul class="org-ul">
 <li>Make lawful defaults easy and alternate policies explicit.</li>
@@ -2877,7 +2886,7 @@ Source: (Steve Downey, 2026).
 <li>Back claims with executable law tests.</li>
 </ul>
 
-<div class="notes" id="org9273141">
+<div class="notes" id="org8649541">
 <p>
 The best API docs in this space are tests that encode the laws.
 Source: (Steve Downey, 2026).
@@ -2891,7 +2900,7 @@ Source: (Steve Downey, 2026).
 <div id="postamble" class="status">
 <p class="date">Date: 2024-02-01 Thu 00:00</p>
 <p class="author">Author: Steve Downey</p>
-<p class="date">Created: 2026-04-30 Thu 14:06</p>
+<p class="date">Created: 2026-04-30 Thu 14:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

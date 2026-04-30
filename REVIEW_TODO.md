@@ -37,9 +37,15 @@ Source: deep research audit follow-up list.
 - [x] Repair bibliography and citations
   - Acceptance: replace unresolved citation placeholders in slide source/exports, and point Org bibliography config to a repository-local bib file.
   - References: 18103a0c
-- [ ] Fix markdown/html slide exports
-- [ ] Align slide claims with tested laws
-- [ ] Add CI gates for laws and coverage
+- [x] Fix markdown/html slide exports
+  - Acceptance: slide, flat html, and markdown exports regenerate from org source with tracked canonical artifacts and corrected dependency wiring.
+  - References: [commit TBD]
+- [x] Align slide claims with tested laws
+  - Acceptance: laws slide distinguishes target law set from currently automated checks; wording matches concrete test coverage in repo.
+  - References: [commit TBD]
+- [x] Add CI gates for laws and coverage
+  - Acceptance: CI workflow includes explicit law-focused test gate and coverage report presence gate.
+  - References: [commit TBD]
 
 ## Notes
 

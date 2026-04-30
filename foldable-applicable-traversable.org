@@ -366,9 +366,14 @@ Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Laws that keep this honest
-- Applicative: identity, composition, homomorphism, interchange.
-- Traversable: identity, naturality, composition.
-- Foldable: derived operations agree with ~fold_map~.
+- Target law set:
+	- Applicative: identity, composition, homomorphism, interchange.
+	- Traversable: identity, naturality, composition.
+	- Foldable: derived operations agree with ~fold_map~.
+- Current automated checks in this repository:
+	- Applicative: identity, homomorphism, invoke/ap equivalence, plus ZipList interchange and composition.
+	- Traversable: traverse/for_each/sequence coherence and ZipList-Range commute examples.
+	- Foldable: derived operations (~length~, ~fold_left~, ~fold_right~, ~to_vector~, predicates) are exercised against ~fold_map~-based behavior.
 
 #+begin_notes
 If these fail, abstractions become accidental APIs rather than reliable interfaces.

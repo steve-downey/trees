@@ -65,11 +65,27 @@ jobs:
         run: |
          source .venv/bin/activate
          make test
+      - name: Law-Focused Test Gate
+        shell: bash
+        run: |
+         source .venv/bin/activate
+         make compile
+         BUILD_PATH=$(make -pn | awk -F' := ' '/^_build_path := /{print $2; exit}')
+         uv run ctest --test-dir "$BUILD_PATH" --output-on-failure -C Asan \
+           -R "ApplicativeBehaviorTest|ZipListApplicativeTest - InterchangeLaw|ZipListApplicativeTest - CompositionLaw|ZipListApplicativeTest - IdentityHomomorphismAndInvokeViaHarness|TraversableTypeclassTest - SequenceMatchesTraverseIdentity|RangeTraversableTest - SequenceConvertsRangeOfZiplistsToZiplistOfRanges"
       - name: Generate Coverage Files
         shell: bash
         run: |
          source .venv/bin/activate
          make coverage
+      - name: Coverage Gate
+        shell: bash
+        run: |
+         set -e
+         BUILD_PATH=$(make -pn | awk -F' := ' '/^_build_path := /{print $2; exit}')
+         COVERAGE_HTML=$(find "$BUILD_PATH" -path "*/coverage/coverage.html" | head -n 1)
+         test -n "$COVERAGE_HTML"
+         test -f "$COVERAGE_HTML"
       - name: Lint
         shell: bash
         run: |

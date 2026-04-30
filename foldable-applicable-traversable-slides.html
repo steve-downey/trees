@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Generated on 2026-04-30 Thu 14:06 -->
+<!-- Generated on 2026-04-30 Thu 14:11 -->
 <meta charset="utf-8"/>
 <title>Algorithms for Trees: Foldable, Applicative, Traversable</title>
 <meta name="author" content="Steve Downey"/>
@@ -8715,9 +8715,20 @@ Source: (Steve Downey, 2026).
 <section id="slide-5-0-16">
 <h4 id="5-0-16"><span class="section-number-4">5.0.16.</span> Laws that keep this honest</h4>
 <ul>
+<li>Target law set:
+<ul>
 <li>Applicative: identity, composition, homomorphism, interchange.</li>
 <li>Traversable: identity, naturality, composition.</li>
 <li>Foldable: derived operations agree with <code>fold_map</code>.</li>
+
+</ul></li>
+<li>Current automated checks in this repository:
+<ul>
+<li>Applicative: identity, homomorphism, invoke/ap equivalence, plus ZipList interchange and composition.</li>
+<li>Traversable: traverse/for<sub>each</sub>/sequence coherence and ZipList-Range commute examples.</li>
+<li>Foldable: derived operations (<code>length</code>, <code>fold_left</code>, <code>fold_right</code>, <code>to_vector</code>, predicates) are exercised against <code>fold_map</code>-based behavior.</li>
+
+</ul></li>
 
 </ul>
 
