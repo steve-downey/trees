@@ -1,6 +1,16 @@
 #ifndef INCLUDE_SMD_TREE_FINGER_TREE_TRAVERSABLE_HPP
 #define INCLUDE_SMD_TREE_FINGER_TREE_TRAVERSABLE_HPP
 
+// Traversable constraint for FingerTree core:
+// - Materialization: traverse materializes the tree via flatten() into a vector.
+// - Preservation: monoid measure semantics are preserved through the traversal.
+// - Reconstruction: results are rebuilt via FingerTree<U>::from_sequence() with same measure policy.
+// - Applicative semantics: all traversals follow left-to-right order independent of tree structure.
+//
+// Rationale: FingerTree provides efficient structural operations (cons, snoc, split);
+// traversal is not a primary performance path, so O(n) materialization is acceptable.
+// Wrapper types override with specialized traversal that preserves wrapper invariants.
+
 #include <smd/tree/finger_tree.hpp>
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/traversable.hpp>

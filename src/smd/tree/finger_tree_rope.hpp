@@ -137,76 +137,7 @@ class FingerTreeRope {
 
 }  // namespace smd::tree
 
-namespace smd {
-
-struct FingerTreeRopeFoldableImpl {
-  template <class F>
-  auto fold_map(this auto&&,
-                F&& function,
-                const smd::tree::FingerTreeRope& rope)
-    -> remove_cvref_t<std::invoke_result_t<F, const std::string&>>
-  {
-    using Result =
-      remove_cvref_t<std::invoke_result_t<F, const std::string&>>;
-
-    auto acc = smd::typeclass::monoid_v<Result>.identity();
-    for (const auto& chunk : rope.chunks()) {
-      acc = smd::typeclass::monoid_v<Result>.combine(
-        std::move(acc),
-        std::invoke(function, chunk));
-    }
-
-    return acc;
-  }
-};
-
-struct FingerTreeRopeFoldableMap : Foldable<FingerTreeRopeFoldableImpl> {
-  using FingerTreeRopeFoldableImpl::fold_map;
-};
-
-template <>
-inline constexpr auto foldable_typeclass<smd::tree::FingerTreeRope> =
-  FingerTreeRopeFoldableMap{};
-
-struct FingerTreeRopeTraversableImpl {
-  template <class F>
-  auto traverse(this auto&&,
-                F&& function,
-                const smd::tree::FingerTreeRope& rope)
-  {
-    using Context = remove_cvref_t<std::invoke_result_t<F, const std::string&>>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
-    using U = smd::applicative_value_t<Context>;
-
-    auto accumulated = applicative.pure(std::vector<U>{});
-
-    for (const auto& chunk : rope.chunks()) {
-      auto lifted = std::invoke(function, chunk);
-      accumulated = applicative.invoke(
-        [](std::vector<U> values, U element) {
-          values.push_back(std::move(element));
-          return values;
-        },
-        std::move(accumulated),
-        std::move(lifted));
-    }
-
-    return applicative.invoke(
-      [](std::vector<U> values) {
-        return smd::tree::FingerTreeRope::from_chunks(std::move(values));
-      },
-      std::move(accumulated));
-  }
-};
-
-struct FingerTreeRopeTraversableMap : Traversable<FingerTreeRopeTraversableImpl> {
-  using FingerTreeRopeTraversableImpl::traverse;
-};
-
-template <>
-inline constexpr auto traversable_typeclass<smd::tree::FingerTreeRope> =
-  FingerTreeRopeTraversableMap{};
-
-}  // namespace smd
-
 #endif
+
+#include <smd/tree/finger_tree_rope_foldable.hpp>
+#include <smd/tree/finger_tree_rope_traversable.hpp>
