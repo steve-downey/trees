@@ -17,7 +17,11 @@ Source: deep research audit follow-up list.
 	- Acceptance: harness instantiated for optional, beman optional, BareIdentity, and ZipList.
 	- References: f18345ee
 - [ ] Constrain FingerTree Traversable instance
+  - Acceptance: core traversable semantics documented; materialization via flatten(), reconstruction via from_sequence().
+  - References: [commit TBD]
 - [ ] Separate raw core vs wrappers
+  - Acceptance: wrapper-specific Foldable/Traversable impls extracted to dedicated files (*_foldable.hpp, *_traversable.hpp); clear separation between core and wrapper layers.
+  - References: [commit TBD]
 - [ ] Optimize priority queue pop paths
 - [ ] Use measured pruning in interval queries
 - [ ] Reduce flatten-based random access costs
