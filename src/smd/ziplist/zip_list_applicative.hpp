@@ -7,10 +7,45 @@
 #include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <optional>
 #include <type_traits>
 #include <utility>
 
 namespace smd {
+
+namespace detail {
+
+template <class T>
+auto zip_list_finite_length(const zip_list<T>& list) -> std::optional<std::size_t>
+{
+  if (list.is_repeating()) {
+    return std::nullopt;
+  }
+  return list.finite_size();
+}
+
+template <class T>
+auto zip_list_value_at(const zip_list<T>& list, std::size_t index) -> const T&
+{
+  if (list.is_repeating()) {
+    return *list.repeated;
+  }
+  return list.data[index];
+}
+
+template <class FIRST, class... REST>
+auto zip_list_result_size(const FIRST& first, const REST&... rest)
+  -> std::optional<std::size_t>
+{
+  auto count = zip_list_finite_length(first);
+  ((count = count
+         ? std::optional<std::size_t>{std::min(*count, zip_list_finite_length(rest).value_or(*count))}
+         : zip_list_finite_length(rest)),
+   ...);
+  return count;
+}
+
+}  // namespace detail
 
 template <class T>
 struct ZipListApplicativeImpl {
@@ -18,21 +53,29 @@ struct ZipListApplicativeImpl {
   auto pure(this auto&&, VALUE&& value)
   {
     using U = remove_cvref_t<VALUE>;
-    return zip_list<U>{{std::forward<VALUE>(value)}};
+    return zip_list<U>::repeat(U(std::forward<VALUE>(value)));
   }
 
   template <class F, class A>
   auto apply(this auto&&, const zip_list<F>& functions, const zip_list<A>& arguments)
   {
     using Result = std::invoke_result_t<const F&, const A&>;
-    zip_list<remove_cvref_t<Result> > result;
+    using U = remove_cvref_t<Result>;
 
-    const auto count = std::min(functions.data.size(), arguments.data.size());
-    result.data.reserve(count);
+    const auto count = detail::zip_list_result_size(functions, arguments);
+    if (!count.has_value()) {
+      return zip_list<U>::repeat(
+        std::invoke(detail::zip_list_value_at(functions, 0),
+                    detail::zip_list_value_at(arguments, 0)));
+    }
 
-    for (std::size_t index = 0; index < count; ++index) {
+    zip_list<U> result;
+    result.data.reserve(*count);
+
+    for (std::size_t index = 0; index < *count; ++index) {
       result.data.push_back(
-        std::invoke(functions.data[index], arguments.data[index]));
+        std::invoke(detail::zip_list_value_at(functions, index),
+                    detail::zip_list_value_at(arguments, index)));
     }
 
     return result;
@@ -49,16 +92,25 @@ struct ZipListApplicativeImpl {
       const typename FIRST::value_type&,
       const typename REST::value_type&...>;
 
-    zip_list<remove_cvref_t<Result> > result;
-    auto count = first.data.size();
-    ((count = std::min(count, rest.data.size())), ...);
-    result.data.reserve(count);
+    using U = remove_cvref_t<Result>;
+    auto callable = std::forward<FUNCTION>(function);
+    const auto count = detail::zip_list_result_size(first, rest...);
 
-    for (std::size_t index = 0; index < count; ++index) {
+    if (!count.has_value()) {
+      return zip_list<U>::repeat(
+        std::invoke(callable,
+                    detail::zip_list_value_at(first, 0),
+                    detail::zip_list_value_at(rest, 0)...));
+    }
+
+    zip_list<U> result;
+    result.data.reserve(*count);
+
+    for (std::size_t index = 0; index < *count; ++index) {
       result.data.push_back(
-        std::invoke(std::forward<FUNCTION>(function),
-                    first.data[index],
-                    rest.data[index]...));
+        std::invoke(callable,
+                    detail::zip_list_value_at(first, index),
+                    detail::zip_list_value_at(rest, index)...));
     }
 
     return result;
