@@ -87,9 +87,8 @@
 
 #+OPTIONS: reveal_single_file:t
 
-#+CITE_EXPORT: csl ../etc/chicago-author-date.csl
-#+BIBLIOGRAPHY: ../etc/wg21.bib
-#+BIBLIOGRAPHY: ../etc/local.bib
+#+CITE_EXPORT: basic
+#+BIBLIOGRAPHY: ./docs/references.bib
 
 * Algorithms For Trees
 - Foldable
@@ -125,7 +124,7 @@ sorry
 #+begin_notes
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
-CITE_PLACEHOLDER: deep-research-report (1).md :: Traversable is shape-preserving, not generic range iteration.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Where structure carries meaning
@@ -135,7 +134,7 @@ CITE_PLACEHOLDER: deep-research-report (1).md :: Traversable is shape-preserving
 
 #+begin_notes
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
-CITE_PLACEHOLDER: deep-research-report (3).md :: Foldable and Traversable as separate interfaces for trees.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Trees that are not sequences
@@ -146,7 +145,7 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Foldable and Traversable as sep
 
 #+begin_notes
 A range view is still useful, but it should be derived, not the primary model.
-CITE_PLACEHOLDER: deep-research-report.md :: RangeFoldable is broad, RangeTraversable is not a safe blanket default.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 * Visitors, Pattern Matching, and the Missing Syntax
@@ -157,7 +156,7 @@ CITE_PLACEHOLDER: deep-research-report.md :: RangeFoldable is broad, RangeTraver
 
 #+begin_notes
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
-CITE_PLACEHOLDER: deep-research-report (2).md :: Historical framing around practice-first OO/tooling and abstraction.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Pattern matching as the intended interface
@@ -167,7 +166,7 @@ CITE_PLACEHOLDER: deep-research-report (2).md :: Historical framing around pract
 
 #+begin_notes
 Design now so the API maps naturally to future language features.
-CITE_PLACEHOLDER: deep-research-report (3).md :: Algorithm-function-object style and explicit concept-map lookup.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Designing today for tomorrow’s syntax
@@ -177,7 +176,7 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Algorithm-function-object style
 
 #+begin_notes
 The point is migration-friendly design, not speculative syntax tricks.
-CITE_PLACEHOLDER: deep-research-report (17).md :: Clarity-first extension of existing concept_map surface.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 * Recursion Schemes You Can Actually Use
@@ -188,7 +187,7 @@ CITE_PLACEHOLDER: deep-research-report (17).md :: Clarity-first extension of exi
 
 #+begin_notes
 I only need the intuition here, not full categorical development.
-CITE_PLACEHOLDER: deep-research-report.md :: Recursion/algebra framing with practical C++ interface constraints.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Catamorphisms as principled fold
@@ -198,7 +197,7 @@ CITE_PLACEHOLDER: deep-research-report.md :: Recursion/algebra framing with prac
 
 #+begin_notes
 Foldable is the operational entry point for this in everyday code.
-CITE_PLACEHOLDER: deep-research-report (1).md :: Foldable as fold_map-first in this repository style.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Separating recursion from business logic
@@ -208,7 +207,7 @@ CITE_PLACEHOLDER: deep-research-report (1).md :: Foldable as fold_map-first in t
 
 #+begin_notes
 When recursion is abstracted, law tests become executable documentation.
-CITE_PLACEHOLDER: deep-research-report (3).md :: Law-oriented test strategy for Foldable/Applicative/Traversable.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 * Preserving Shape: Traversable and Friends
@@ -363,7 +362,7 @@ Deducing this keeps wrappers generic without losing type information.
 
 #+begin_notes
 Key law intuition: preserve shape and evaluation order discipline.
-CITE_PLACEHOLDER: deep-research-report (1).md :: Traversable laws: identity, naturality, composition; left-to-right effects.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Laws that keep this honest
@@ -373,7 +372,7 @@ CITE_PLACEHOLDER: deep-research-report (1).md :: Traversable laws: identity, nat
 
 #+begin_notes
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
-CITE_PLACEHOLDER: deep-research-report (3).md :: Applicative law set and Functor coherence via invoke/map.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Tree Applicative as optional appendix
@@ -394,7 +393,7 @@ The core teaching value of Applicative is already visible in optional/range/ZipL
 
 #+begin_notes
 If the measure is a monoid, split/search become compositional.
-CITE_PLACEHOLDER: deep-research-report.md :: Monoid-driven measured tree design and fold_map alignment.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Annotations as summaries
@@ -404,7 +403,7 @@ CITE_PLACEHOLDER: deep-research-report.md :: Monoid-driven measured tree design 
 
 #+begin_notes
 The data structure stays the same while behavior changes with the monoid.
-CITE_PLACEHOLDER: deep-research-report (17).md :: One structure, multiple interpretations via measure/monoid.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Search and split driven by measures
@@ -419,7 +418,7 @@ Target asymptotic story from those papers is amortized O(1) at the ends,
 O(log(min(n,m))) concatenation, and O(log n) split/search.
 Current repository implementation keeps the same API shape but does not yet
 meet those split/search bounds.
-CITE_PLACEHOLDER: deep-research-report (17).md :: Finger tree interpretation layering and measure-guided operations.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 * Finger Trees as a Case Study
@@ -433,7 +432,7 @@ CITE_PLACEHOLDER: deep-research-report (17).md :: Finger tree interpretation lay
 This is where abstractions meet implementation reality.
 Paper-level target bounds remain the north star.
 Current prototype contract is explicit linear split/search.
-CITE_PLACEHOLDER: deep-research-report (17).md :: Finger tree structural equations and implementation-critical invariants.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** One structure, many interpretations
@@ -443,7 +442,7 @@ CITE_PLACEHOLDER: deep-research-report (17).md :: Finger tree structural equatio
 
 #+begin_notes
 This is the strongest argument for measured trees in a standard library context.
-CITE_PLACEHOLDER: deep-research-report.md :: Path from concept_map interfaces to fingertree case study.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Why this belongs in modern C++
@@ -453,7 +452,7 @@ CITE_PLACEHOLDER: deep-research-report.md :: Path from concept_map interfaces to
 
 #+begin_notes
 Pragmatic conclusion: values first, identity where required, and laws where possible.
-CITE_PLACEHOLDER: deep-research-report (2).md :: Contemporary C++ multi-paradigm framing and deliberate OO use.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 * Designing APIs That Won’t Age Poorly
@@ -464,7 +463,7 @@ CITE_PLACEHOLDER: deep-research-report (2).md :: Contemporary C++ multi-paradigm
 
 #+begin_notes
 Pattern matching and richer generic facilities should refine this API, not replace it.
-CITE_PLACEHOLDER: deep-research-report (3).md :: C++23-compatible surface with C++20-aware constraints.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Avoiding the ~std::bind~ vs lambda overlap
@@ -474,7 +473,7 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: C++23-compatible surface with C
 
 #+begin_notes
 The goal is reducing cognitive branching in generic code.
-CITE_PLACEHOLDER: deep-research-report (17).md :: Naming split: primitive operations vs user-facing algorithms.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 *** Keeping the good path obvious
@@ -484,7 +483,7 @@ CITE_PLACEHOLDER: deep-research-report (17).md :: Naming split: primitive operat
 
 #+begin_notes
 The best API docs in this space are tests that encode the laws.
-CITE_PLACEHOLDER: deep-research-report (3).md :: Law tests as primary validation for interface correctness.
+Source: cite:downey2026treesresearch.
 #+end_notes
 
 # Local Variables:

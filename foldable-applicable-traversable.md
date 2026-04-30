@@ -114,7 +114,7 @@ sorry
 <p>
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (1).md :: Traversable is shape-preserving, not generic range iteration.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -131,7 +131,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (1).md :: Traversable is shape-
 <div class="notes" id="orgf22c39a">
 <p>
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: Foldable and Traversable as separate interfaces for trees.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -149,7 +149,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: Foldable and Traversa
 <div class="notes" id="org0d4da3d">
 <p>
 A range view is still useful, but it should be derived, not the primary model.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report.md :: RangeFoldable is broad, RangeTraversable is not a safe blanket default.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -171,7 +171,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report.md :: RangeFoldable is broad, R
 <div class="notes" id="orgbd51f04">
 <p>
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (2).md :: Historical framing around practice-first OO/tooling and abstraction.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -188,7 +188,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (2).md :: Historical framing ar
 <div class="notes" id="orga163925">
 <p>
 Design now so the API maps naturally to future language features.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: Algorithm-function-object style and explicit concept-map lookup.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -205,7 +205,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: Algorithm-function-ob
 <div class="notes" id="orgcf2ea2f">
 <p>
 The point is migration-friendly design, not speculative syntax tricks.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: Clarity-first extension of existing concept<sub>map</sub> surface.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -227,7 +227,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: Clarity-first extens
 <div class="notes" id="orgffdf403">
 <p>
 I only need the intuition here, not full categorical development.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report.md :: Recursion/algebra framing with practical C++ interface constraints.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -244,7 +244,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report.md :: Recursion/algebra framing
 <div class="notes" id="orgcd9048d">
 <p>
 Foldable is the operational entry point for this in everyday code.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (1).md :: Foldable as fold<sub>map</sub>-first in this repository style.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -261,7 +261,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (1).md :: Foldable as fold<sub>
 <div class="notes" id="org5a06392">
 <p>
 When recursion is abstracted, law tests become executable documentation.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: Law-oriented test strategy for Foldable/Applicative/Traversable.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -802,7 +802,7 @@ REQUIRE(as<sub>rows.size</sub>() `= 5U); CHECK(as_rows[0].data =` (std::vector<i
 <div class="notes" id="org9d70620">
 <p>
 Key law intuition: preserve shape and evaluation order discipline.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (1).md :: Traversable laws: identity, naturality, composition; left-to-right effects.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -819,7 +819,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (1).md :: Traversable laws: ide
 <div class="notes" id="org8ebd5f4">
 <p>
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: Applicative law set and Functor coherence via invoke/map.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -858,7 +858,7 @@ The core teaching value of Applicative is already visible in optional/range/zipl
 <div class="notes" id="org26b6ed1">
 <p>
 If the measure is a monoid, split/search become compositional.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report.md :: Monoid-driven measured tree design and fold<sub>map</sub> alignment.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -875,7 +875,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report.md :: Monoid-driven measured tr
 <div class="notes" id="orgf85f935">
 <p>
 The data structure stays the same while behavior changes with the monoid.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: One structure, multiple interpretations via measure/monoid.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -897,7 +897,7 @@ Target asymptotic story from those papers is amortized O(1) at the ends,
 O(log(min(n,m))) concatenation, and O(log n) split/search.
 Current repository implementation keeps the same API shape but does not yet
 meet those split/search bounds.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: Finger tree interpretation layering and measure-guided operations.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -922,7 +922,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: Finger tree interpre
 This is where abstractions meet implementation reality.
 Paper-level target bounds remain the north star.
 Current prototype contract is explicit linear split/search.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: Finger tree structural equations and implementation-critical invariants.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -939,7 +939,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: Finger tree structur
 <div class="notes" id="orgb829e81">
 <p>
 This is the strongest argument for measured trees in a standard library context.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report.md :: Path from concept<sub>map</sub> interfaces to fingertree case study.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -956,7 +956,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report.md :: Path from concept<sub>map
 <div class="notes" id="org52bf63c">
 <p>
 Pragmatic conclusion: values first, identity where required, and laws where possible.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (2).md :: Contemporary C++ multi-paradigm framing and deliberate OO use.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -978,7 +978,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (2).md :: Contemporary C++ mult
 <div class="notes" id="orgcdd9b0e">
 <p>
 Pattern matching and richer generic facilities should refine this API, not replace it.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: C++23-compatible surface with C++20-aware constraints.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -995,7 +995,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: C++23-compatible surf
 <div class="notes" id="org31405dc">
 <p>
 The goal is reducing cognitive branching in generic code.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: Naming split: primitive operations vs user-facing algorithms.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>
@@ -1012,7 +1012,7 @@ CITE<sub>PLACEHOLDER</sub>: deep-research-report (17).md :: Naming split: primit
 <div class="notes" id="org41abe6a">
 <p>
 The best API docs in this space are tests that encode the laws.
-CITE<sub>PLACEHOLDER</sub>: deep-research-report (3).md :: Law tests as primary validation for interface correctness.
+Source: Downey 2026 research notes (internal project bibliography).
 </p>
 
 </div>

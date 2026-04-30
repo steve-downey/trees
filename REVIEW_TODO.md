@@ -34,7 +34,9 @@ Source: deep research audit follow-up list.
 - [x] Replace fold std::function programs
   - Acceptance: template-based composition infrastructure (IdentityFoldFunc, ComposedFoldFunc, LeftFoldProgramT, RightFoldProgramT) enables zero-cost function composition; foundation for eliminating virtual function dispatch overhead.
   - References: fe0f5982
-- [ ] Repair bibliography and citations
+- [x] Repair bibliography and citations
+  - Acceptance: replace unresolved citation placeholders in slide source/exports, and point Org bibliography config to a repository-local bib file.
+  - References: [commit TBD]
 - [ ] Fix markdown/html slide exports
 - [ ] Align slide claims with tested laws
 - [ ] Add CI gates for laws and coverage
