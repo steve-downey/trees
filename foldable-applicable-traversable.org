@@ -309,7 +309,7 @@ Deducing this keeps wrappers generic without losing type information.
 *** Applicative model: pure function over effectful arguments
 - Applicative captures independent effectful arguments without full monadic sequencing.
 - It is enough for lawful traversal in many practical cases.
-- In this talk, the convincing applicative instances are optional, ranges, and ziplist.
+- In this talk, the convincing applicative instances are optional, ranges, and ZipList.
 - Tree applicative semantics are possible, but not the main motivation here.
 - Public API should read as ordinary invocation over effectful values.
 - Prefer ~invoke~ for C++ audiences; it aligns with the ~std::invoke~ mental model.
@@ -352,8 +352,8 @@ Deducing this keeps wrappers generic without losing type information.
 :lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
 
 *** Traversable commute: Range and ZipList
-- Traversable commutes a range of ziplists into a ziplist of ranges.
-- The inverse matrix view (ziplist of vectors to vector of ziplists) is also tested.
+- Traversable commutes a range of ZipLists into a ZipList of ranges.
+- The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.
 
 #+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a]]
 :lines 2- :src cpp :end "0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end"
@@ -379,11 +379,11 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Applicative law set and Functor
 *** Tree Applicative as optional appendix
 - Treat tree applicative as a policy choice, not the core applicative story.
 - If presented, keep it brief and explicitly label semantics.
-- Mainline examples should stay with optional, ranges, and ziplist.
+- Mainline examples should stay with optional, ranges, and ZipList.
 
 #+begin_notes
 This avoids spending scarce slide time on semantics debates.
-The core teaching value of Applicative is already visible in optional/range/ziplist examples.
+The core teaching value of Applicative is already visible in optional/range/ZipList examples.
 #+end_notes
 
 * Monoids and Measured Trees

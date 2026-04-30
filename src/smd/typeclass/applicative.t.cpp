@@ -508,69 +508,41 @@ TEST_CASE("ApplicativeTypeclassTest - BareIdentityTypeMatrixCoverage")
 
 TEST_CASE("ApplicativeBehaviorTest - OptionalIdentityHomomorphismAndInvoke")
 {
-    const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
-
-    std::optional<int> value{8};
-
-    auto id_via_ap = applicative.ap(
-        applicative.pure(+[](int x) { return x; }),
-        value);
-    CHECK(id_via_ap == value);
-
-    auto hom_left = applicative.ap(
-        applicative.pure(+[](int x) { return x + 3; }),
-        applicative.pure(5));
-    auto hom_right = applicative.pure(8);
-    CHECK(hom_left == hom_right);
-
-    auto invoke_binary = applicative.invoke(
+    CHECK(smd::typeclass::test::check_applicative_identity_law(std::optional<int>{8}));
+    CHECK(smd::typeclass::test::check_applicative_homomorphism_law<std::optional<int> >(
+        +[](int x) { return x + 3; },
+        5));
+    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
         [](int a, int b) { return a * 10 + b; },
         std::optional<int>{2},
-        std::optional<int>{7});
-
-    auto pure_then_ap = applicative.ap(
-        applicative.ap(
-            applicative.pure([](int a) {
-                return [a](int b) { return a * 10 + b; };
-            }),
-            std::optional<int>{2}),
-        std::optional<int>{7});
-
-    CHECK(invoke_binary == pure_then_ap);
+        std::optional<int>{7}));
 }
 
 TEST_CASE("ApplicativeBehaviorTest - BareIdentityIdentityHomomorphismAndInvoke")
 {
     using BareIdentity = smd::typeclass::test::BareIdentity<int>;
-    const auto& applicative = smd::applicative_typeclass<BareIdentity>;
-
-    BareIdentity value{11};
-
-    auto id_via_ap = applicative.ap(
-        applicative.pure(+[](int x) { return x; }),
-        value);
-    CHECK(id_via_ap == value);
-
-    auto hom_left = applicative.ap(
-        applicative.pure(+[](int x) { return x * 4; }),
-        applicative.pure(3));
-    auto hom_right = applicative.pure(12);
-    CHECK(hom_left == hom_right);
-
-    auto invoke_binary = applicative.invoke(
+    CHECK(smd::typeclass::test::check_applicative_identity_law(BareIdentity{11}));
+    CHECK(smd::typeclass::test::check_applicative_homomorphism_law<BareIdentity>(
+        +[](int x) { return x * 4; },
+        3));
+    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
         [](int a, int b) { return a - b; },
         BareIdentity{20},
-        BareIdentity{6});
+        BareIdentity{6}));
+}
 
-    auto pure_then_ap = applicative.ap(
-        applicative.ap(
-            applicative.pure([](int a) {
-                return [a](int b) { return a - b; };
-            }),
-            BareIdentity{20}),
-        BareIdentity{6});
+TEST_CASE("ApplicativeBehaviorTest - BemanIdentityHomomorphismAndInvoke")
+{
+    using BemanOptional = beman::optional::optional<int>;
 
-    CHECK(invoke_binary == pure_then_ap);
+    CHECK(smd::typeclass::test::check_applicative_identity_law(BemanOptional{11}));
+    CHECK(smd::typeclass::test::check_applicative_homomorphism_law<BemanOptional>(
+        +[](int x) { return x * 4; },
+        3));
+    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
+        [](int a, int b) { return a - b; },
+        BemanOptional{20},
+        BemanOptional{6}));
 }
 
 TEST_CASE("ApplicativeBehaviorTest - OptionalShortCircuit")

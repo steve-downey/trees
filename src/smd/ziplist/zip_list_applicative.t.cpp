@@ -1,4 +1,5 @@
 #include <smd/typeclass/applicative.hpp>
+#include <smd/typeclass/test/test_support.hpp>
 #include <smd/ziplist/zip_list.hpp>
 #include <smd/ziplist/zip_list_applicative.hpp>
 
@@ -148,4 +149,17 @@ TEST_CASE("ZipListApplicativeTest - CompositionLaw")
     auto rhs = applicative.ap(u, applicative.ap(v, w));
 
     CHECK(lhs.data == rhs.data);
+}
+
+TEST_CASE("ZipListApplicativeTest - IdentityHomomorphismAndInvokeViaHarness")
+{
+    CHECK(smd::typeclass::test::check_applicative_identity_law(
+        smd::zip_list<int>{{4, 5, 6}}));
+    CHECK(smd::typeclass::test::check_applicative_homomorphism_law<smd::zip_list<int> >(
+        +[](int x) { return x + 9; },
+        3));
+    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
+        [](int a, int b) { return a * 10 + b; },
+        smd::zip_list<int>{{1, 2, 3}},
+        smd::zip_list<int>{{7, 8, 9}}));
 }

@@ -17,6 +17,50 @@ auto are_equal(LEFT&& left, RIGHT&& right) -> bool
     return std::forward<LEFT>(left) == std::forward<RIGHT>(right);
 }
 
+template <class CONTEXT>
+auto check_applicative_identity_law(const CONTEXT& value) -> bool
+{
+  const auto& applicative = smd::applicative_typeclass<smd::remove_cvref_t<CONTEXT> >;
+  auto result = applicative.ap(
+    applicative.pure([](const auto& x) { return x; }),
+    value);
+  return result == value;
+}
+
+template <class CONTEXT, class FUNCTION, class VALUE>
+auto check_applicative_homomorphism_law(const FUNCTION& function, const VALUE& value)
+  -> bool
+{
+  const auto& applicative = smd::applicative_typeclass<smd::remove_cvref_t<CONTEXT> >;
+  auto left = applicative.ap(
+    applicative.pure(function),
+    applicative.pure(value));
+  auto right = applicative.pure(std::invoke(function, value));
+  return left == right;
+}
+
+template <class CONTEXT, class FUNCTION>
+auto check_applicative_invoke_binary_law(const FUNCTION& function,
+                                         const CONTEXT& first,
+                                         const CONTEXT& second)
+  -> bool
+{
+  const auto& applicative = smd::applicative_typeclass<smd::remove_cvref_t<CONTEXT> >;
+  auto invoke_result = applicative.invoke(function, first, second);
+
+  auto ap_result = applicative.ap(
+    applicative.ap(
+      applicative.pure([function](const auto& lhs) {
+        return [function, lhs](const auto& rhs) {
+          return std::invoke(function, lhs, rhs);
+        };
+      }),
+      first),
+    second);
+
+  return invoke_result == ap_result;
+}
+
 template <class VALUE_TYPE>
 struct Identity {
     using value_type = VALUE_TYPE;
