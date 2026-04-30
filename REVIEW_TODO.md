@@ -36,7 +36,7 @@ Source: deep research audit follow-up list.
   - References: fe0f5982
 - [x] Repair bibliography and citations
   - Acceptance: replace unresolved citation placeholders in slide source/exports, and point Org bibliography config to a repository-local bib file.
-  - References: [commit TBD]
+  - References: 18103a0c
 - [ ] Fix markdown/html slide exports
 - [ ] Align slide claims with tested laws
 - [ ] Add CI gates for laws and coverage
