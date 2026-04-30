@@ -7,7 +7,6 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
-#include <functional>
 #include <memory>
 #include <optional>
 #include <type_traits>
@@ -74,7 +73,7 @@ class FingerTree {
 
   struct Segment;
   using SegmentPtr = std::shared_ptr<const Segment>;
-  using SegmentThunk = std::function<const SegmentPtr&()>;
+  using SegmentThunk = detail::erased_thunk<SegmentPtr>;
 
   static auto tag_identity() -> Tag
   {
@@ -265,8 +264,9 @@ class FingerTree {
 
   static auto make_middle_from_segment(SegmentPtr seg) -> MiddleEdge
   {
+    auto metadata = segment_metadata(seg);
     return MiddleEdge{
-      segment_metadata(seg),
+      std::move(metadata),
       detail::thunk([seg = std::move(seg)]() -> SegmentPtr { return seg; })};
   }
 
@@ -340,8 +340,10 @@ class FingerTree {
       return make_segment_from_middle(left);
     }
 
+    auto metadata = concat_metadata(left.d_metadata, segment_metadata(right));
+
     return make_suspended_segment(
-      concat_metadata(left.d_metadata, segment_metadata(right)),
+      std::move(metadata),
       detail::thunk(
         [left, right = std::move(right)]() mutable -> SegmentPtr {
           return make_concat(left.force(), right);
@@ -357,8 +359,10 @@ class FingerTree {
       return left;
     }
 
+    auto metadata = concat_metadata(segment_metadata(left), segment_metadata(right));
+
     return make_suspended_segment(
-      concat_metadata(segment_metadata(left), segment_metadata(right)),
+      std::move(metadata),
       detail::thunk([left = std::move(left), right = std::move(right)]() mutable -> SegmentPtr {
         return make_concat(std::move(left), std::move(right));
       }));
