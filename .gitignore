@@ -13,4 +13,6 @@ uv.lock
 /.emacs.d/elpa/
 *.deps
 *.html
+!foldable-applicable-traversable.html
+!foldable-applicable-traversable-slides.html
 /docs/html/
