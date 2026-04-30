@@ -7,6 +7,7 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <type_traits>
@@ -73,13 +74,7 @@ class FingerTree {
 
   struct Segment;
   using SegmentPtr = std::shared_ptr<const Segment>;
-
-  static auto make_segment_thunk(SegmentPtr eager,
-                                 std::shared_ptr<const std::vector<T>> values = {},
-                                 std::size_t begin = 0,
-                                 std::size_t end = 0);
-  using SegmentThunk = decltype(make_segment_thunk(
-    SegmentPtr{}, std::shared_ptr<const std::vector<T>>{}, std::size_t{}, std::size_t{}));
+  using SegmentThunk = std::function<const SegmentPtr&()>;
 
   static auto tag_identity() -> Tag
   {
@@ -126,8 +121,6 @@ class FingerTree {
     std::size_t d_depth;
     Tag d_tag;
   };
-
-  static auto make_suspended_segment(SegmentMetadata metadata, SegmentThunk thunk) -> SegmentPtr;
 
   struct Segment {
     virtual ~Segment() = default;
@@ -272,15 +265,20 @@ class FingerTree {
 
   static auto make_middle_from_segment(SegmentPtr seg) -> MiddleEdge
   {
-    return MiddleEdge{segment_metadata(seg), make_segment_thunk(seg)};
+    return MiddleEdge{
+      segment_metadata(seg),
+      detail::thunk([seg = std::move(seg)]() -> SegmentPtr { return seg; })};
   }
 
   static auto make_middle_from_range(const std::shared_ptr<const std::vector<T>>& values,
                                      std::size_t begin,
                                      std::size_t end) -> MiddleEdge
   {
-    return MiddleEdge{range_metadata(values, begin, end),
-                      make_segment_thunk(nullptr, values, begin, end)};
+    return MiddleEdge{
+      range_metadata(values, begin, end),
+      detail::thunk([values, begin, end]() -> SegmentPtr {
+        return FingerTree::build_balanced(values, begin, end);
+      })};
   }
 
   struct SuspendedSegment final : Segment {
@@ -317,10 +315,11 @@ class FingerTree {
 
   static auto force_segment(const SegmentPtr& seg) -> SegmentPtr
   {
-    if (const auto* suspended = dynamic_cast<const SuspendedSegment*>(seg.get())) {
-      return suspended->force();
+    auto current = seg;
+    while (const auto* suspended = dynamic_cast<const SuspendedSegment*>(current.get())) {
+      current = suspended->force();
     }
-    return seg;
+    return current;
   }
 
   static auto make_segment_from_middle(const MiddleEdge& edge) -> SegmentPtr
@@ -434,6 +433,9 @@ class FingerTree {
   static auto make_concat(SegmentPtr left, SegmentPtr right) -> SegmentPtr
   {
     auto make_node = [](SegmentPtr lhs, SegmentPtr rhs) -> SegmentPtr {
+      lhs = force_segment(lhs);
+      rhs = force_segment(rhs);
+
       if (!lhs) {
         return rhs;
       }
@@ -463,7 +465,7 @@ class FingerTree {
             return make_node(std::move(lhs), std::move(rhs));
           }
 
-          if (seg_depth(l->d_left) < seg_depth(l->d_right)) {
+          if (seg_depth(l->d_left) < l->d_right.depth()) {
             const auto* lr = as_concat(l->d_right.force());
             if (lr) {
               lhs = make_node(l->d_left, lr->d_left);
@@ -539,20 +541,6 @@ class FingerTree {
     auto mid = begin + (end - begin) / 2;
     return make_concat(build_balanced(values, begin, mid),
                        make_middle_from_range(values, mid, end));
-  }
-
-  static auto make_segment_thunk(SegmentPtr eager,
-                                 std::shared_ptr<const std::vector<T>> values,
-                                 std::size_t begin,
-                                 std::size_t end)
-  {
-    return detail::thunk(
-      [eager = std::move(eager), values = std::move(values), begin, end]() -> SegmentPtr {
-        if (eager) {
-          return eager;
-        }
-        return build_balanced(values, begin, end);
-      });
   }
 
   template <typename PREDICATE>

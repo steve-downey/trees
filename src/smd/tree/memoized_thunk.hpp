@@ -53,7 +53,7 @@ auto measured_thunk(Measure measure, Callable&& c, Args&&... args)
   return [measure = std::move(measure), delayed = std::move(delayed)]() mutable {
     struct MeasuredThunkAccess {
       Measure d_measure;
-      decltype(delayed) d_force;
+      mutable decltype(delayed) d_force;
 
       [[nodiscard]] auto cached_measure() const -> const Measure&
       {

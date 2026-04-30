@@ -343,6 +343,70 @@ TEST_CASE("FingerTreeTest - SplitAtMeasureConvenience")
     CHECK(weighted_split.d_right.flatten() == (std::vector<int>{3, 4}));
 }
 
+TEST_CASE("FingerTreePersistenceTest - SharedVersionsSurviveAppendAndPops")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto base = Tree::from_sequence({1, 2, 3, 4});
+    auto appended = base.append(Tree::from_sequence({5, 6}));
+    auto left_popped = appended.tail();
+    auto right_popped = appended.init();
+
+    CHECK(base.flatten() == (std::vector<int>{1, 2, 3, 4}));
+    CHECK(base.head() == 1);
+    CHECK(base.last() == 4);
+
+    CHECK(appended.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6}));
+    CHECK(left_popped.flatten() == (std::vector<int>{2, 3, 4, 5, 6}));
+    CHECK(right_popped.flatten() == (std::vector<int>{1, 2, 3, 4, 5}));
+
+    CHECK(base.flatten() == (std::vector<int>{1, 2, 3, 4}));
+}
+
+TEST_CASE("FingerTreePersistenceTest - SharedVersionsSurviveSearchAndSplit")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto base = Tree::from_sequence({1, 2, 3, 4, 5, 6});
+    auto appended = base.append(Tree::from_sequence({7, 8, 9}));
+    auto split = appended.split([](std::size_t prefix) { return prefix >= 7U; });
+    REQUIRE(split.has_value());
+
+    auto count_split = appended.split_at_index(4U);
+    auto found = appended.search([](std::size_t prefix) { return prefix >= 8U; });
+
+    REQUIRE(found.has_value());
+    CHECK(*found == 8);
+    CHECK(split->d_left.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6}));
+    CHECK(split->d_pivot == 7);
+    CHECK(split->d_right.flatten() == (std::vector<int>{8, 9}));
+    CHECK(count_split.d_left.flatten() == (std::vector<int>{1, 2, 3, 4}));
+    CHECK(count_split.d_right.flatten() == (std::vector<int>{5, 6, 7, 8, 9}));
+
+    CHECK(base.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6}));
+    CHECK(base.search([](std::size_t prefix) { return prefix >= 4U; }) == std::optional<int>{4});
+}
+
+TEST_CASE("FingerTreePersistenceTest - WeightedSharedVersionsKeepMeasures")
+{
+    using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
+
+    auto base = Tree::from_sequence({1, 2, 3});
+    auto appended = base.append(Tree::from_sequence({4, 5}));
+    auto split = appended.split_at_measure(Weighted{60U});
+
+    CHECK(base.measure() == Weighted{60U});
+    CHECK(base.flatten() == (std::vector<int>{1, 2, 3}));
+
+    CHECK(appended.measure() == Weighted{150U});
+    CHECK(appended.flatten() == (std::vector<int>{1, 2, 3, 4, 5}));
+    CHECK(split.d_left.measure() == Weighted{30U});
+    CHECK(split.d_right.measure() == Weighted{120U});
+
+    CHECK(base.measure() == Weighted{60U});
+    CHECK(base.flatten() == (std::vector<int>{1, 2, 3}));
+}
+
 TEST_CASE("FingerTreeTest - DepthRemainsLogarithmic")
 {
     using Tree = smd::tree::FingerTree<int>;
