@@ -415,7 +415,7 @@ class FingerTree {
   static auto make_concat(SegmentPtr left, MiddleEdge right) -> SegmentPtr
   {
     if (!left) {
-      return right.force();
+      return make_segment_from_middle(right);
     }
     if (right.size() == 0U) {
       return left;
@@ -583,7 +583,7 @@ class FingerTree {
       return search_segment(concat->d_left, predicate, prefix);
     }
 
-    return search_segment(concat->d_right.force(), predicate, left_prefix);
+    return search_segment(make_segment_from_middle(concat->d_right), predicate, left_prefix);
   }
 
   struct SegmentSplit {
@@ -631,7 +631,7 @@ class FingerTree {
                           make_concat(left_split->d_right, concat->d_right)};
     }
 
-    auto right_split = split_segment(concat->d_right.force(), predicate, left_prefix);
+    auto right_split = split_segment(make_segment_from_middle(concat->d_right), predicate, left_prefix);
     if (!right_split.has_value()) {
       return std::nullopt;
     }
@@ -667,10 +667,10 @@ class FingerTree {
     }
 
     if (index == left_size) {
-      return {concat->d_left, concat->d_right.force()};
+      return {concat->d_left, make_segment_from_middle(concat->d_right)};
     }
 
-    auto split_right = split_at_count(concat->d_right.force(), index - left_size);
+    auto split_right = split_at_count(make_segment_from_middle(concat->d_right), index - left_size);
     return {make_concat(concat->d_left, split_right.first), split_right.second};
   }
 
