@@ -114,6 +114,23 @@ TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkSharesAcrossCopies")
     CHECK(evaluations.load(std::memory_order_relaxed) == 1);
 }
 
+TEST_CASE("FingerTreeStrictnessTest - MeasuredThunkExposesCachedMeasureWithoutForce")
+{
+    std::atomic<int> evaluations{0};
+    auto delayed = smd::tree::detail::measured_thunk(
+        std::size_t{99},
+        [&evaluations]() {
+            evaluations.fetch_add(1, std::memory_order_relaxed);
+            return 123;
+        });
+
+    CHECK(delayed.cached_measure() == 99U);
+    CHECK(evaluations.load(std::memory_order_relaxed) == 0);
+    CHECK(delayed.force() == 123);
+    CHECK(delayed.cached_measure() == 99U);
+    CHECK(evaluations.load(std::memory_order_relaxed) == 1);
+}
+
 TEST_CASE("FingerTreeTest - FromSequenceConsSnocAndMemberAppend")
 {
     using Tree = smd::tree::FingerTree<int>;

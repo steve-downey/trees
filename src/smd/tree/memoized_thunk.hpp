@@ -45,6 +45,31 @@ auto thunk(Callable&& c, Args&&... args)
   };
 }
 
+template <typename Measure, typename Callable, typename... Args>
+auto measured_thunk(Measure measure, Callable&& c, Args&&... args)
+{
+  auto delayed = thunk(std::forward<Callable>(c), std::forward<Args>(args)...);
+
+  return [measure = std::move(measure), delayed = std::move(delayed)]() mutable {
+    struct MeasuredThunkAccess {
+      Measure d_measure;
+      decltype(delayed) d_force;
+
+      [[nodiscard]] auto cached_measure() const -> const Measure&
+      {
+        return d_measure;
+      }
+
+      [[nodiscard]] auto force() const -> decltype(auto)
+      {
+        return d_force();
+      }
+    };
+
+    return MeasuredThunkAccess{std::move(measure), std::move(delayed)};
+  }();
+}
+
 }  // namespace smd::tree::detail
 
 #endif
