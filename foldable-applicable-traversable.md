@@ -1,55 +1,55 @@
-- [Algorithms For Trees](#orgb04055e)
-  - [Abstract](#org1bcf2fa)
-  - [Foldable](#org367f05f)
-  - [Applicative](#org7aafb9f)
-  - [Traversable](#orgca4f366)
-  - [Not Monadic](#org5d2f1fd)
-- [Ranges Flatten the World](#org234eb32)
-    - [Linearization as a design assumption](#orgc640e27)
-    - [Where structure carries meaning](#org7fd7d14)
-    - [Trees that are not sequences](#orgb8d0493)
-- [Visitors, Pattern Matching, and the Missing Syntax](#org7745e54)
-    - [Visitor as manual recursion control](#org6360aab)
-    - [Pattern matching as the intended interface](#orgb04b9ac)
-    - [Designing today for tomorrow’s syntax](#org93fc453)
-- [Recursion Schemes You Can Actually Use](#org073f55b)
-    - [F-algebras: how to collapse one layer](#org81d82d6)
-    - [Catamorphisms as principled fold](#org63d568e)
-    - [Separating recursion from business logic](#orgb9f584f)
-- [Preserving Shape: Traversable and Friends](#org1b56824)
-    - [Foldable vs Traversable: sequence vs shape](#org618cacb)
-    - [Crisp contrast: flatten vs preserve shape](#org1a3c432)
-    - [Typeclass object lookup in three calls](#org8a03ae8)
-    - [Typeclass object for implementors](#orgee625cd)
-    - [How the implementation works: CRTP and deducing this](#org92cca91)
-    - [Same algorithm, two tree representations](#org2866c15)
-    - [Foldable API: one primitive, many derived operations](#org7025fcc)
-    - [Foldable proof: derived operations hold in tests](#org7f0b54a)
-    - [Applicative model: pure function over effectful arguments](#orgffebeab)
-    - [Applicative API: minimal core, user-facing invoke](#orgf7cd335)
-    - [Applicative proof: n-ary use in tests](#org664bc02)
-    - [Traversable model: commute shape and effect](#org36f6596)
-    - [Traversable API: one primitive, many derived operations](#orgf3e54bf)
-    - [Traversable proof: derived operations hold in tests](#orgba83a9d)
-    - [Traversable commute: Range and ZipList](#org4bed635)
-    - [Laws that keep this honest](#orgd859537)
-    - [Tree Applicative as optional appendix](#orgca3e976)
-- [Monoids and Measured Trees](#org3f9fef1)
-    - [Associativity as algorithmic leverage](#orgcd7d6ca)
-    - [Annotations as summaries](#org62a6ddc)
-    - [Search and split driven by measures](#org1ff1fd9)
-- [Finger Trees as a Case Study](#org128204a)
-    - [Persistent concatenation and splitting](#orge22edb4)
-    - [One structure, many interpretations](#orgf77d695)
-    - [Why this belongs in modern C++](#org110f8a3)
-- [Designing APIs That Won’t Age Poorly](#org3508f39)
-    - [Library abstractions anticipating language features](#orgaebadaa)
-    - [Avoiding the `std::bind` vs lambda overlap](#orgc40afe1)
-    - [Keeping the good path obvious](#org4e08291)
+- [Algorithms For Trees](#orgb37fb63)
+  - [Abstract](#orgf0e6afa)
+  - [Foldable](#org6783486)
+  - [Applicative](#orgddd31c5)
+  - [Traversable](#org9cb506e)
+  - [Not Monadic](#org303537a)
+- [Ranges Flatten the World](#org9e44a78)
+    - [Linearization as a design assumption](#org879df3d)
+    - [Where structure carries meaning](#orgd0ce2e9)
+    - [Trees that are not sequences](#orga23d43a)
+- [Visitors, Pattern Matching, and the Missing Syntax](#orga46d17c)
+    - [Visitor as manual recursion control](#org99a8a5d)
+    - [Pattern matching as the intended interface](#orgc658c50)
+    - [Designing today for tomorrow’s syntax](#org105033f)
+- [Recursion Schemes You Can Actually Use](#orgfe5c058)
+    - [F-algebras: how to collapse one layer](#org831dc82)
+    - [Catamorphisms as principled fold](#orgcc6fcc1)
+    - [Separating recursion from business logic](#orgda11076)
+- [Preserving Shape: Traversable and Friends](#org7f71973)
+    - [Foldable vs Traversable: sequence vs shape](#orge821431)
+    - [Crisp contrast: flatten vs preserve shape](#org2428d9e)
+    - [Typeclass object lookup in three calls](#orge4fc1c5)
+    - [Typeclass object for implementors](#orgb48b097)
+    - [How the implementation works: CRTP and deducing this](#org63693e4)
+    - [Same algorithm, two tree representations](#org1f8de47)
+    - [Foldable API: one primitive, many derived operations](#org91b0962)
+    - [Foldable proof: derived operations hold in tests](#org6ac88b7)
+    - [Applicative model: pure function over effectful arguments](#orgc87762a)
+    - [Applicative API: minimal core, user-facing invoke](#org49f5349)
+    - [Applicative proof: n-ary use in tests](#orgff838ec)
+    - [Traversable model: commute shape and effect](#orgde11a93)
+    - [Traversable API: one primitive, many derived operations](#orgd560936)
+    - [Traversable proof: derived operations hold in tests](#org05e1f1c)
+    - [Traversable commute: Range and ZipList](#org49ace6c)
+    - [Laws that keep this honest](#org57e18f7)
+    - [Tree Applicative as optional appendix](#org58058a6)
+- [Monoids and Measured Trees](#org32e98a9)
+    - [Associativity as algorithmic leverage](#org982cfc0)
+    - [Annotations as summaries](#orgaf9e4d1)
+    - [Search and split driven by measures](#org3fed4f6)
+- [Finger Trees as a Case Study](#org7855831)
+    - [Persistent concatenation and splitting](#org568d4e8)
+    - [One structure, many interpretations](#org7aed6f9)
+    - [Why this belongs in modern C++](#orgc953209)
+- [Designing APIs That Won’t Age Poorly](#orgdbc468a)
+    - [Library abstractions anticipating language features](#org9e70d01)
+    - [Avoiding the `std::bind` vs lambda overlap](#org83cf7f9)
+    - [Keeping the good path obvious](#orgabe34eb)
 
 
 
-<a id="orgb04055e"></a>
+<a id="orgb37fb63"></a>
 
 # Algorithms For Trees
 
@@ -58,7 +58,7 @@
 -   Traversable
 
 
-<a id="org1bcf2fa"></a>
+<a id="orgf0e6afa"></a>
 
 ## Abstract
 
@@ -69,40 +69,40 @@ In particular, I am interested in better support for algorithms over trees, and 
 The eventual goal of this work is to provide `fingertree` to the standard library, as well as support for application domain trees in use today, such as expression evaluators and syntax trees.
 
 
-<a id="org367f05f"></a>
+<a id="org6783486"></a>
 
 ## Foldable
 
 -   **Foldables:** are types which can be made to look like a sequence of some sort, or a range, and support the basic `fold` operation which provides much of the power of std::ranges. Providing opt-in hooks for making a type Foldable rather than a Range is useful.
 
 
-<a id="org7aafb9f"></a>
+<a id="orgddd31c5"></a>
 
 ## Applicative
 
 -   **Applicatives:** were introduced to provide the pattern of 'pure function applied to funny arguments', where a type "supports its own peculiar way of giving meaning to the usual [notion of function invocation]." The implementation details of partially applied functions in a container turn out to be a distraction from understanding. They turn out to be widely relevant in contexts such as data parallel operations, and with less overhead than monadic operations.
 
 
-<a id="orgca4f366"></a>
+<a id="org9cb506e"></a>
 
 ## Traversable
 
 -   **Traversables:** are generalizations of Foldables which allow preservation of the "shape" of a container, where a Foldable can only see the ordered sequence. A binary tree can be traversed and maintain the parent child relationships, where a fold can at most produce a range. Traversable also provides the ability to "commute" containers, generically, providing the ability to convert a range of tasks into a task producing a range.
 
 
-<a id="org5d2f1fd"></a>
+<a id="org303537a"></a>
 
 ## Not Monadic
 
 sorry
 
 
-<a id="org234eb32"></a>
+<a id="org9e44a78"></a>
 
 # Ranges Flatten the World
 
 
-<a id="orgc640e27"></a>
+<a id="org879df3d"></a>
 
 ### Linearization as a design assumption
 
@@ -110,17 +110,17 @@ sorry
 -   Many generic algorithms quietly assume that flattening first is semantically neutral.
 -   For trees, flattening throws away parent/child relationships and subtree boundaries.
 
-<div class="notes" id="org8ed5b42">
+<div class="notes" id="orgcf847c7">
 <p>
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org7fd7d14"></a>
+<a id="orgd0ce2e9"></a>
 
 ### Where structure carries meaning
 
@@ -128,16 +128,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   The same inorder sequence can come from many different trees.
 -   If we flatten too early, we lose algorithmic leverage.
 
-<div class="notes" id="orgf22c39a">
+<div class="notes" id="org5410037">
 <p>
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="orgb8d0493"></a>
+<a id="orga23d43a"></a>
 
 ### Trees that are not sequences
 
@@ -146,21 +146,21 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Measured trees: internal summaries drive efficient split/search.
 -   Measured trees: internal summaries define split/search interfaces and optimization direction.
 
-<div class="notes" id="org0d4da3d">
+<div class="notes" id="orgea6daa0">
 <p>
 A range view is still useful, but it should be derived, not the primary model.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org7745e54"></a>
+<a id="orga46d17c"></a>
 
 # Visitors, Pattern Matching, and the Missing Syntax
 
 
-<a id="org6360aab"></a>
+<a id="org99a8a5d"></a>
 
 ### Visitor as manual recursion control
 
@@ -168,16 +168,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Every new operation requires another visitor type or lambda nest.
 -   The control flow is explicit, but often noisy.
 
-<div class="notes" id="orgbd51f04">
+<div class="notes" id="org2be2f6a">
 <p>
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="orgb04b9ac"></a>
+<a id="orgc658c50"></a>
 
 ### Pattern matching as the intended interface
 
@@ -185,16 +185,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   C++ is moving in this direction, but we still need practical libraries now.
 -   Typeclass-style APIs can encode the same intent with today's language.
 
-<div class="notes" id="orga163925">
+<div class="notes" id="org634f6fb">
 <p>
 Design now so the API maps naturally to future language features.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org93fc453"></a>
+<a id="org105033f"></a>
 
 ### Designing today for tomorrow’s syntax
 
@@ -202,21 +202,21 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Expose a small vocabulary: `fold_map`, `invoke`, `traverse`.
 -   Make call sites read like intent, not machinery.
 
-<div class="notes" id="orgcf2ea2f">
+<div class="notes" id="orga3708d3">
 <p>
 The point is migration-friendly design, not speculative syntax tricks.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org073f55b"></a>
+<a id="orgfe5c058"></a>
 
 # Recursion Schemes You Can Actually Use
 
 
-<a id="org81d82d6"></a>
+<a id="org831dc82"></a>
 
 ### F-algebras: how to collapse one layer
 
@@ -224,16 +224,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   The recursion pattern stays fixed while business logic changes.
 -   This separation makes tree algorithms easier to reason about.
 
-<div class="notes" id="orgffdf403">
+<div class="notes" id="org81f6ceb">
 <p>
 I only need the intuition here, not full categorical development.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org63d568e"></a>
+<a id="orgcc6fcc1"></a>
 
 ### Catamorphisms as principled fold
 
@@ -241,16 +241,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   In C++, this corresponds to a disciplined fold over a recursive representation.
 -   You get reuse without hardcoding each algorithm into the node type.
 
-<div class="notes" id="orgcd9048d">
+<div class="notes" id="org7f6282d">
 <p>
 Foldable is the operational entry point for this in everyday code.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="orgb9f584f"></a>
+<a id="orgda11076"></a>
 
 ### Separating recursion from business logic
 
@@ -258,21 +258,21 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   This yields smaller tests and more reusable algorithms.
 -   It also creates a natural place to enforce laws.
 
-<div class="notes" id="org5a06392">
+<div class="notes" id="org2acefbb">
 <p>
 When recursion is abstracted, law tests become executable documentation.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org1b56824"></a>
+<a id="org7f71973"></a>
 
 # Preserving Shape: Traversable and Friends
 
 
-<a id="org618cacb"></a>
+<a id="orge821431"></a>
 
 ### Foldable vs Traversable: sequence vs shape
 
@@ -281,7 +281,7 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   For trees, this is the difference between count nodes and relabel nodes in place.
 
 
-<a id="org1a3c432"></a>
+<a id="org2428d9e"></a>
 
 ### Crisp contrast: flatten vs preserve shape
 
@@ -306,7 +306,7 @@ Source: Downey 2026 research notes (internal project bibliography).
     
     } // close namespace smd::typeclass::examples :lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
     
-    <div class="notes" id="orgcb01d3c">
+    <div class="notes" id="org5f317af">
     <p>
     Use this as the one-slide intuition.
     Foldable can collapse two different shapes to the same flat view.
@@ -316,7 +316,7 @@ Source: Downey 2026 research notes (internal project bibliography).
     </div>
 
 
-<a id="org8a03ae8"></a>
+<a id="orge4fc1c5"></a>
 
 ### Typeclass object lookup in three calls
 
@@ -325,7 +325,7 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   The same pattern applies to `applicative_typeclass<Context>` and `traversable_typeclass<Tree>`.
 -   You can use implicit lookup, explicit object arguments, or NTTP pinning for tests and policy control.
 
-<div class="notes" id="orgc87000b">
+<div class="notes" id="orgbfa99f7">
 <p>
 This replaces a long historical detour with one operational model.
 Call site intent stays stable while the representation changes.
@@ -334,7 +334,7 @@ Call site intent stays stable while the representation changes.
 </div>
 
 
-<a id="orgee625cd"></a>
+<a id="orgb48b097"></a>
 
 ### Typeclass object for implementors
 
@@ -344,7 +344,7 @@ Call site intent stays stable while the representation changes.
 -   Traversable implements `traverse` and gets `for_each` and `sequence` helpers.
 -   Keep traversal order and shape-preservation choices explicit in instance tests.
 
-<div class="notes" id="org87aa19d">
+<div class="notes" id="org127c6e3">
 <p>
 This is the key split.
 Implementor surface is small, and user surface is rich.
@@ -353,7 +353,7 @@ Implementor surface is small, and user surface is rich.
 </div>
 
 
-<a id="org92cca91"></a>
+<a id="org63693e4"></a>
 
 ### How the implementation works: CRTP and deducing this
 
@@ -362,7 +362,7 @@ Implementor surface is small, and user surface is rich.
 -   The wrapper can call either default derived behavior or an instance override when provided.
 -   This keeps dispatch static and local while avoiding repetitive forwarding boilerplate.
 
-<div class="notes" id="orgde8dcbb">
+<div class="notes" id="org52d03cc">
 <p>
 CRTP supplies structure.
 Deducing this keeps wrappers generic without losing type information.
@@ -371,7 +371,7 @@ Deducing this keeps wrappers generic without losing type information.
 </div>
 
 
-<a id="org2866c15"></a>
+<a id="org1f8de47"></a>
 
 ### Same algorithm, two tree representations
 
@@ -471,7 +471,7 @@ Deducing this keeps wrappers generic without losing type information.
     } // close namespace smd::typeclass::examples :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
 
 
-<a id="org7025fcc"></a>
+<a id="org91b0962"></a>
 
 ### Foldable API: one primitive, many derived operations
 
@@ -523,7 +523,7 @@ template <class T> inline constexpr auto foldable<sub>typeclass</sub> = std::fal
 \#endif :lines 2- :src cpp :end "e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end"
 
 
-<a id="org7f0b54a"></a>
+<a id="org6ac88b7"></a>
 
 ### Foldable proof: derived operations hold in tests
 
@@ -537,16 +537,24 @@ template <class T> inline constexpr auto foldable<sub>typeclass</sub> = std::fal
     
     const auto folded = vector<sub>foldable.fold</sub>(vectors); CHECK(folded == (std::vector<int>{1, 2, 3})); // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end
 
-} :lines 2- :src cpp :end "4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end"
+}
+
+TEST<sub>CASE</sub>("FoldableTypeclassTest - AllOfAndFindFirstEdgeCases") { using Sequence = smd::typeclass::test::Sequence<int>; const auto& foldable = smd::foldable<sub>typeclass</sub><Sequence>;
+
+auto mixed = Sequence{{2, -1, 4}}; CHECK<sub>FALSE</sub>(foldable.all<sub>of</sub>(mixed, [](int x) { return x > 0; }));
+
+auto found<sub>even</sub> = foldable.find<sub>first</sub>(mixed, [](int x) { return x % 2 `= 0; }); REQUIRE(found_even.has_value()); CHECK(*found_even =` 2);
+
+auto found<sub>large</sub> = foldable.find<sub>first</sub>(mixed, [](int x) { return x > 100; }); CHECK<sub>FALSE</sub>(found<sub>large.has</sub><sub>value</sub>()); } :lines 2- :src cpp :end "4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end"
 
 
-<a id="orgffebeab"></a>
+<a id="orgc87762a"></a>
 
 ### Applicative model: pure function over effectful arguments
 
 -   Applicative captures independent effectful arguments without full monadic sequencing.
 -   It is enough for lawful traversal in many practical cases.
--   In this talk, the convincing applicative instances are optional, ranges, and ziplist.
+-   In this talk, the convincing applicative instances are optional, ranges, and ZipList.
 -   Tree applicative semantics are possible, but not the main motivation here.
 -   Public API should read as ordinary invocation over effectful values.
 -   Prefer `invoke` for C++ audiences; it aligns with the `std::invoke` mental model.
@@ -562,7 +570,7 @@ template <class T> inline constexpr auto foldable<sub>typeclass</sub> = std::fal
 } // close namespace smd::typeclass::examples :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
 
 
-<a id="orgf7cd335"></a>
+<a id="org49f5349"></a>
 
 ### Applicative API: minimal core, user-facing invoke
 
@@ -637,7 +645,7 @@ template <class VALUE<sub>TYPE</sub>> requires(!std::same<sub>as</sub><beman::op
 \#endif :lines 2- :src cpp :end "a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end"
 
 
-<a id="org664bc02"></a>
+<a id="orgff838ec"></a>
 
 ### Applicative proof: n-ary use in tests
 
@@ -689,6 +697,10 @@ auto lifted = applicative.pure(11); REQUIRE(lifted.has<sub>value</sub>()); CHECK
 
 beman::optional::optional<int (\*)(int)> function{+[](int x) { return x + 5; }}; BemanOptional argument{7}; auto applied = applicative.apply(function, argument); REQUIRE(applied.has<sub>value</sub>()); CHECK(\*applied == 12);
 
+beman::optional::optional<int (\*)(int)> no<sub>function</sub>{}; auto no<sub>function</sub><sub>applied</sub> = applicative.apply(no<sub>function</sub>, argument); CHECK<sub>FALSE</sub>(no<sub>function</sub><sub>applied.has</sub><sub>value</sub>());
+
+BemanOptional no<sub>argument</sub>{}; auto no<sub>argument</sub><sub>applied</sub> = applicative.apply(function, no<sub>argument</sub>); CHECK<sub>FALSE</sub>(no<sub>argument</sub><sub>applied.has</sub><sub>value</sub>());
+
 auto invoked = applicative.invoke( [](int a, int b) { return a \* b; }, BemanOptional{3}, BemanOptional{4}); REQUIRE(invoked.has<sub>value</sub>()); CHECK(\*invoked == 12);
 
 auto empty<sub>invoked</sub> = applicative.invoke( [](int a, int b) { return a \* b; }, BemanOptional{}, BemanOptional{4}); CHECK<sub>FALSE</sub>(empty<sub>invoked.has</sub><sub>value</sub>()); }
@@ -701,10 +713,124 @@ TEST<sub>CASE</sub>("ApplicativeTypeclassTest - TerminatingPartialExtendsAndInvo
 
 auto partial2 = partial(1); auto partial3 = partial2(2); CHECK(partial3(3) == 123);
 
-const auto const<sub>partial</sub> = smd::detail::make<sub>terminating</sub><sub>partial</sub>( [](int a, int b) { return a - b; }); auto const<sub>partial2</sub> = const<sub>partial</sub>(9); const auto const<sub>partial3</sub> = const<sub>partial2</sub>; CHECK(const<sub>partial3</sub>(4) == 5); } :lines 2- :src cpp :end "6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end"
+const auto const<sub>partial</sub> = smd::detail::make<sub>terminating</sub><sub>partial</sub>( [](int a, int b) { return a - b; }); auto const<sub>partial2</sub> = const<sub>partial</sub>(9); const auto const<sub>partial3</sub> = const<sub>partial2</sub>; CHECK(const<sub>partial3</sub>(4) == 5); }
+
+TEST<sub>CASE</sub>("ApplicativeTypeclassTest - IdentityMapUsesDerivedInvokePath") { using Identity = smd::typeclass::test::Identity<int>; const auto& applicative = smd::applicative<sub>typeclass</sub><Identity>;
+
+auto binary = applicative.invoke( [](int a, int b) { return a + b; }, Identity{2}, Identity{3}); CHECK(binary.value == 5);
+
+auto ternary = applicative.apply<sub>pure</sub>( [](int a, int b, int c) { return a \* 100 + b \* 10 + c; }, Identity{1}, Identity{2}, Identity{3}); CHECK(ternary.value == 123); }
+
+TEST<sub>CASE</sub>("ApplicativeTypeclassTest - CustomInvokeDispatchPath") { const auto& default<sub>applicative</sub> = smd::applicative<sub>typeclass</sub><std::optional<int> >;
+
+auto result = default<sub>applicative.invoke</sub><sub>with</sub>( direct<sub>invoke</sub><sub>map</sub>, [](int a, int b, int c) { return a + b + c; }, smd::typeclass::test::Identity<int>{4}, smd::typeclass::test::Identity<int>{5}, smd::typeclass::test::Identity<int>{6}); CHECK(result.value == 15);
+
+auto nttp<sub>result</sub> = default<sub>applicative.invoke</sub><sub>with</sub><direct<sub>invoke</sub><sub>map</sub>>( [](int a, int b) { return a \* b; }, smd::typeclass::test::Identity<int>{7}, smd::typeclass::test::Identity<int>{8}); CHECK(nttp<sub>result.value</sub> == 56); }
+
+TEST<sub>CASE</sub>("ApplicativeTypeclassTest - OptionalAndBemanVectorInstantiationPaths") { const auto& optional<sub>applicative</sub> = smd::applicative<sub>typeclass</sub><std::optional<std::vector<int> > >;
+
+auto lifted<sub>vector</sub> = optional<sub>applicative.pure</sub>(std::vector<int>{1, 2, 3}); REQUIRE(lifted<sub>vector.has</sub><sub>value</sub>()); CHECK(lifted<sub>vector</sub>->size() == 3);
+
+std::optional<std::vector<int> (\*)(std::vector<int>)> append<sub>value</sub>{ +[](std::vector<int> v) { v.push<sub>back</sub>(4); return v; }}; auto applied<sub>vector</sub> = optional<sub>applicative.apply</sub>(append<sub>value</sub>, lifted<sub>vector</sub>); REQUIRE(applied<sub>vector.has</sub><sub>value</sub>()); CHECK(applied<sub>vector</sub>->size() == 4);
+
+using BemanVectorOptional = beman::optional::optional<std::vector<int> >; const auto& beman<sub>applicative</sub> = smd::applicative<sub>typeclass</sub><BemanVectorOptional>;
+
+auto beman<sub>lifted</sub> = beman<sub>applicative.pure</sub>(std::vector<int>{8, 9}); REQUIRE(beman<sub>lifted.has</sub><sub>value</sub>()); CHECK(beman<sub>lifted</sub>->size() == 2);
+
+beman::optional::optional<std::vector<int> (\*)(std::vector<int>)> beman<sub>append</sub>{ +[](std::vector<int> v) { v.push<sub>back</sub>(10); return v; }}; auto beman<sub>applied</sub> = beman<sub>applicative.apply</sub>(beman<sub>append</sub>, beman<sub>lifted</sub>); REQUIRE(beman<sub>applied.has</sub><sub>value</sub>()); CHECK(beman<sub>applied</sub>->size() == 3); }
+
+TEST<sub>CASE</sub>("ApplicativeTypeclassTest - IdentityWrapperMethods") { using Identity = smd::typeclass::test::Identity<int>; const auto& applicative = smd::applicative<sub>typeclass</sub><Identity>;
+
+auto mapped = applicative.map([](int x) { return x + 1; }, Identity{9}); CHECK(mapped.value == 10);
+
+auto zipped = applicative.zip<sub>with</sub>( [](int a, int b) { return a - b; }, Identity{20}, Identity{3}); CHECK(zipped.value == 17);
+
+auto ap<sub>result</sub> = applicative.ap( smd::typeclass::test::Identity<int (\*)(int)>{+[](int x) { return x \* 5; }}, Identity{6}); CHECK(ap<sub>result.value</sub> == 30); }
+
+TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BareIdentityInvokeAndApplyChain") { using BareIdentity = smd::typeclass::test::BareIdentity<int>; const auto& applicative = smd::applicative<sub>typeclass</sub><BareIdentity>;
+
+auto unary = applicative.invoke([](int x) { return x + 1; }, BareIdentity{4}); CHECK(unary.value == 5);
+
+auto ternary = applicative.invoke( [](int a, int b, int c) { return a \* b + c; }, BareIdentity{2}, BareIdentity{3}, BareIdentity{4}); CHECK(ternary.value == 10);
+
+auto quaternary = applicative.apply<sub>pure</sub>( [](int a, int b, int c, int d) { return a + b + c + d; }, BareIdentity{1}, BareIdentity{2}, BareIdentity{3}, BareIdentity{4}); CHECK(quaternary.value == 10); }
+
+TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BareIdentityWrapperCoverage") { using BareIdentity = smd::typeclass::test::BareIdentity<int>; const auto& applicative = smd::applicative<sub>typeclass</sub><BareIdentity>;
+
+auto lifted = applicative.lift(33); CHECK(lifted.value == 33);
+
+auto mapped = applicative.map([](int x) { return x \* 2; }, BareIdentity{11}); CHECK(mapped.value == 22);
+
+auto applied = applicative.ap( smd::typeclass::test::BareIdentity<int (\*)(int)>{+[](int x) { return x - 2; }}, BareIdentity{9}); CHECK(applied.value == 7);
+
+auto zipped = applicative.zip<sub>with</sub>( [](int a, int b) { return a - b; }, BareIdentity{40}, BareIdentity{8}); CHECK(zipped.value == 32);
+
+auto keep<sub>right</sub> = applicative.discard<sub>first</sub>(BareIdentity{5}, BareIdentity{6}); CHECK(keep<sub>right.value</sub> == 6);
+
+auto keep<sub>left</sub> = applicative.discard<sub>second</sub>(BareIdentity{5}, BareIdentity{6}); CHECK(keep<sub>left.value</sub> == 5); }
+
+TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BareIdentityInvokeWithMapCoverage") { using BareIdentity = smd::typeclass::test::BareIdentity<int>; const auto& default<sub>applicative</sub> = smd::applicative<sub>typeclass</sub><std::optional<int> >; const auto& bare<sub>identity</sub><sub>applicative</sub> = smd::applicative<sub>typeclass</sub><BareIdentity>;
+
+auto explicit<sub>map</sub><sub>result</sub> = default<sub>applicative.invoke</sub><sub>with</sub>( bare<sub>identity</sub><sub>applicative</sub>, [](int a, int b, int c) { return a + b + c; }, BareIdentity{3}, BareIdentity{4}, BareIdentity{5}); CHECK(explicit<sub>map</sub><sub>result.value</sub> == 12);
+
+auto explicit<sub>apply</sub><sub>pure</sub><sub>result</sub> = default<sub>applicative.apply</sub><sub>pure</sub><sub>with</sub>( bare<sub>identity</sub><sub>applicative</sub>, [](int a, int b) { return a \* b; }, BareIdentity{7}, BareIdentity{6}); CHECK(explicit<sub>apply</sub><sub>pure</sub><sub>result.value</sub> == 42);
+
+auto nttp<sub>map</sub><sub>result</sub> = default<sub>applicative.invoke</sub><sub>with</sub><bare<sub>identity</sub><sub>applicative</sub>>( [](int a, int b) { return a - b; }, BareIdentity{20}, BareIdentity{9}); CHECK(nttp<sub>map</sub><sub>result.value</sub> == 11);
+
+auto nttp<sub>apply</sub><sub>pure</sub><sub>result</sub> = default<sub>applicative.apply</sub><sub>pure</sub><sub>with</sub><bare<sub>identity</sub><sub>applicative</sub>>( [](int a, int b, int c) { return a + b \* c; }, BareIdentity{2}, BareIdentity{3}, BareIdentity{4}); CHECK(nttp<sub>apply</sub><sub>pure</sub><sub>result.value</sub> == 14); }
+
+TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BareIdentityTypeMatrixCoverage") { run<sub>bare</sub><sub>identity</sub><sub>matrix</sub><sub>case</sub><int, short, unsigned>(3, 4, 5U); run<sub>bare</sub><sub>identity</sub><sub>matrix</sub><sub>case</sub><long, int, long long>(10L, 20, 30LL); run<sub>bare</sub><sub>identity</sub><sub>matrix</sub><sub>case</sub><float, double, int>(1.5F, 2.25, 3); }
+
+TEST<sub>CASE</sub>("ApplicativeBehaviorTest - OptionalIdentityHomomorphismAndInvoke") { CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>identity</sub><sub>law</sub>(std::optional<int>{8})); CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>homomorphism</sub><sub>law</sub><std::optional<int> >( +[](int x) { return x + 3; }, 5)); CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>invoke</sub><sub>binary</sub><sub>law</sub>( [](int a, int b) { return a \* 10 + b; }, std::optional<int>{2}, std::optional<int>{7})); }
+
+TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BareIdentityIdentityHomomorphismAndInvoke") { using BareIdentity = smd::typeclass::test::BareIdentity<int>; CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>identity</sub><sub>law</sub>(BareIdentity{11})); CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>homomorphism</sub><sub>law</sub><BareIdentity>( +[](int x) { return x \* 4; }, 3)); CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>invoke</sub><sub>binary</sub><sub>law</sub>( [](int a, int b) { return a - b; }, BareIdentity{20}, BareIdentity{6})); }
+
+TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BemanIdentityHomomorphismAndInvoke") { using BemanOptional = beman::optional::optional<int>;
+
+CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>identity</sub><sub>law</sub>(BemanOptional{11})); CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>homomorphism</sub><sub>law</sub><BemanOptional>( +[](int x) { return x \* 4; }, 3)); CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>invoke</sub><sub>binary</sub><sub>law</sub>( [](int a, int b) { return a - b; }, BemanOptional{20}, BemanOptional{6})); }
+
+TEST<sub>CASE</sub>("ApplicativeBehaviorTest - OptionalShortCircuit") { const auto& applicative = smd::applicative<sub>typeclass</sub><std::optional<int> >;
+
+std::optional<std::function<int(int)> > no<sub>function</sub>{}; auto no<sub>function</sub><sub>result</sub> = applicative.ap(no<sub>function</sub>, std::optional<int>{4}); CHECK<sub>FALSE</sub>(no<sub>function</sub><sub>result.has</sub><sub>value</sub>());
+
+std::optional<std::function<int(int)> > function{ [](int x) { return x + 1; }}; auto no<sub>argument</sub><sub>result</sub> = applicative.ap(function, std::optional<int>{}); CHECK<sub>FALSE</sub>(no<sub>argument</sub><sub>result.has</sub><sub>value</sub>());
+
+int calls = 0; auto invoke<sub>result</sub> = applicative.invoke( [&calls](int lhs, int rhs) { ++calls; return lhs + rhs; }, std::optional<int>{3}, std::optional<int>{}); CHECK<sub>FALSE</sub>(invoke<sub>result.has</sub><sub>value</sub>()); CHECK(calls == 0); }
+
+TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BemanShortCircuit") { using BemanOptional = beman::optional::optional<int>; const auto& applicative = smd::applicative<sub>typeclass</sub><BemanOptional>;
+
+beman::optional::optional<std::function<int(int)> > no<sub>function</sub>{}; auto no<sub>function</sub><sub>result</sub> = applicative.ap(no<sub>function</sub>, BemanOptional{5}); CHECK<sub>FALSE</sub>(no<sub>function</sub><sub>result.has</sub><sub>value</sub>());
+
+beman::optional::optional<std::function<int(int)> > function{ [](int x) { return x \* 2; }}; auto no<sub>argument</sub><sub>result</sub> = applicative.ap(function, BemanOptional{}); CHECK<sub>FALSE</sub>(no<sub>argument</sub><sub>result.has</sub><sub>value</sub>());
+
+int calls = 0; auto invoke<sub>result</sub> = applicative.invoke( [&calls](int lhs, int rhs) { ++calls; return lhs - rhs; }, BemanOptional{9}, BemanOptional{}); CHECK<sub>FALSE</sub>(invoke<sub>result.has</sub><sub>value</sub>()); CHECK(calls == 0); }
+
+TEST<sub>CASE</sub>("ApplicativeBehaviorTest - InvokeDispatchThroughBaseAndDerivedPaths") { DirectInvokeIdentityApplicativeMap<int> custom<sub>map</sub>{}; auto& custom<sub>base</sub> = static<sub>cast</sub><smd::Applicative<DirectInvokeIdentityApplicativeImpl<int> >&>( custom<sub>map</sub>);
+
+auto custom<sub>dispatched</sub> = custom<sub>base.invoke</sub>( [](int a, int b, int c) { return a + b + c; }, smd::typeclass::test::Identity<int>{1}, smd::typeclass::test::Identity<int>{2}, smd::typeclass::test::Identity<int>{3}); CHECK(custom<sub>dispatched.value</sub> == 6);
+
+smd::BareIdentityApplicativeMap<int> bare<sub>map</sub>{}; auto& bare<sub>base</sub> = static<sub>cast</sub><smd::Applicative<smd::BareIdentityApplicativeImpl<int> >&>(bare<sub>map</sub>);
+
+auto derived<sub>dispatched</sub> = bare<sub>base.invoke</sub>( [](int a, int b, int c) { return a \* 100 + b \* 10 + c; }, smd::typeclass::test::BareIdentity<int>{4}, smd::typeclass::test::BareIdentity<int>{5}, smd::typeclass::test::BareIdentity<int>{6}); CHECK(derived<sub>dispatched.value</sub> == 456); }
+
+TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BareIdentityConstAndNonConstInvokeApMap") { smd::BareIdentityApplicativeMap<int> mutable<sub>map</sub>{}; auto& mutable<sub>base</sub> = static<sub>cast</sub><smd::Applicative<smd::BareIdentityApplicativeImpl<int> >&>(mutable<sub>map</sub>);
+
+auto non<sub>const</sub><sub>invoke</sub> = mutable<sub>base.invoke</sub>( [](int a, int b) { return a + b; }, smd::typeclass::test::BareIdentity<int>{10}, smd::typeclass::test::BareIdentity<int>{4}); CHECK(non<sub>const</sub><sub>invoke.value</sub> == 14);
+
+auto non<sub>const</sub><sub>map</sub> = mutable<sub>base.map</sub>( [](int x) { return x \* 3; }, smd::typeclass::test::BareIdentity<int>{7}); CHECK(non<sub>const</sub><sub>map.value</sub> == 21);
+
+auto non<sub>const</sub><sub>ap</sub> = mutable<sub>base.ap</sub>( smd::typeclass::test::BareIdentity<std::function<int(int)> >{ [](int x) { return x - 5; }}, smd::typeclass::test::BareIdentity<int>{12}); CHECK(non<sub>const</sub><sub>ap.value</sub> == 7);
+
+const smd::BareIdentityApplicativeMap<int> const<sub>map</sub>{}; const auto& const<sub>base</sub> = static<sub>cast</sub><const smd::Applicative<smd::BareIdentityApplicativeImpl<int> >&>( const<sub>map</sub>);
+
+auto const<sub>invoke</sub> = const<sub>base.invoke</sub>( [](int a, int b, int c) { return a \* b + c; }, smd::typeclass::test::BareIdentity<int>{3}, smd::typeclass::test::BareIdentity<int>{5}, smd::typeclass::test::BareIdentity<int>{2}); CHECK(const<sub>invoke.value</sub> == 17);
+
+auto const<sub>map</sub><sub>result</sub> = const<sub>base.map</sub>( [](int x) { return x + 8; }, smd::typeclass::test::BareIdentity<int>{1}); CHECK(const<sub>map</sub><sub>result.value</sub> == 9);
+
+auto const<sub>ap</sub><sub>result</sub> = const<sub>base.ap</sub>( smd::typeclass::test::BareIdentity<std::function<int(int)> >{ [](int x) { return x \* x; }}, smd::typeclass::test::BareIdentity<int>{6}); CHECK(const<sub>ap</sub><sub>result.value</sub> == 36); } :lines 2- :src cpp :end "6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end"
 
 
-<a id="org36f6596"></a>
+<a id="orgde11a93"></a>
 
 ### Traversable model: commute shape and effect
 
@@ -713,7 +839,7 @@ const auto const<sub>partial</sub> = smd::detail::make<sub>terminating</sub><sub
 -   Use this to model validation, partial relabeling, and structured transformations.
 
 
-<a id="orgf3e54bf"></a>
+<a id="orgd560936"></a>
 
 ### Traversable API: one primitive, many derived operations
 
@@ -739,7 +865,7 @@ template <class T> inline constexpr auto traversable<sub>typeclass</sub> = std::
 \#endif :lines 2- :src cpp :end "8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end"
 
 
-<a id="orgba83a9d"></a>
+<a id="org05e1f1c"></a>
 
 ### Traversable proof: derived operations hold in tests
 
@@ -751,15 +877,27 @@ template <class T> inline constexpr auto traversable<sub>typeclass</sub> = std::
     
     auto sequenced<sub>with</sub> = traversable.sequence<sub>with</sub>(traversable, identity); REQUIRE(sequenced<sub>with.has</sub><sub>value</sub>()); CHECK(sequenced<sub>with</sub>->value == 1); // f1de12e0-2287-4568-98c7-75be4f6f7446 end
 
-} :lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
+}
+
+TEST<sub>CASE</sub>("TraversableTypeclassTest - ForEachMatchesTraverse") { using Identity = smd::typeclass::test::Identity<int>; auto identity = Identity{4}; const auto& traversable = smd::traversable<sub>typeclass</sub><Identity>;
+
+auto via<sub>traverse</sub> = traversable.traverse( [](int x) -> std::optional<int> { return std::optional<int>{x + 7}; }, identity); auto via<sub>for</sub><sub>each</sub> = traversable.for<sub>each</sub>( identity, [](int x) -> std::optional<int> { return std::optional<int>{x + 7}; });
+
+CHECK(via<sub>traverse</sub> == via<sub>for</sub><sub>each</sub>); }
+
+TEST<sub>CASE</sub>("TraversableTypeclassTest - SequenceMatchesTraverseIdentity") { using IdentityOpt = smd::typeclass::test::Identity<std::optional<int> >; auto identity = IdentityOpt{std::optional<int>{5}}; const auto& traversable = smd::traversable<sub>typeclass</sub><IdentityOpt>;
+
+auto via<sub>sequence</sub> = traversable.sequence(identity); auto via<sub>traverse</sub><sub>identity</sub> = traversable.traverse( [](auto&& x) { return std::forward<decltype(x)>(x); }, identity);
+
+CHECK(via<sub>sequence</sub> == via<sub>traverse</sub><sub>identity</sub>); } :lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
 
 
-<a id="org4bed635"></a>
+<a id="org49ace6c"></a>
 
 ### Traversable commute: Range and ZipList
 
--   Traversable commutes a range of ziplists into a ziplist of ranges.
--   The inverse matrix view (ziplist of vectors to vector of ziplists) is also tested.
+-   Traversable commutes a range of ZipLists into a ZipList of ranges.
+-   The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.
     
     // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a using Zip = smd::zip<sub>list</sub><int>; auto values = smd::ranges::from<sub>vector</sub>(std::vector<Zip>{ Zip{{1, 2, 3}}, Zip{{10, 20}}, Zip{{100, 200, 300, 400}}});
     
@@ -799,16 +937,16 @@ auto as<sub>rows</sub> = to<sub>vector</sub><sub>of</sub><sub>ziplists</sub>(zip
 
 REQUIRE(as<sub>rows.size</sub>() `= 5U); CHECK(as_rows[0].data =` (std::vector<int>{1, 2})); CHECK(as<sub>rows</sub>[1].data `= (std::vector<int>{10, 20})); CHECK(as_rows[2].data =` (std::vector<int>{100, 200})); CHECK(as<sub>rows</sub>[3].data `= (std::vector<int>{1000, 2000})); CHECK(as_rows[4].data =` (std::vector<int>{10000, 20000})); } :lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
 
-<div class="notes" id="org9d70620">
+<div class="notes" id="orgf67951e">
 <p>
 Key law intuition: preserve shape and evaluation order discipline.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="orgd859537"></a>
+<a id="org57e18f7"></a>
 
 ### Laws that keep this honest
 
@@ -816,38 +954,38 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Traversable: identity, naturality, composition.
 -   Foldable: derived operations agree with `fold_map`.
 
-<div class="notes" id="org8ebd5f4">
+<div class="notes" id="orgbced943">
 <p>
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="orgca3e976"></a>
+<a id="org58058a6"></a>
 
 ### Tree Applicative as optional appendix
 
 -   Treat tree applicative as a policy choice, not the core applicative story.
 -   If presented, keep it brief and explicitly label semantics.
--   Mainline examples should stay with optional, ranges, and ziplist.
+-   Mainline examples should stay with optional, ranges, and ZipList.
 
-<div class="notes" id="orgccbcbde">
+<div class="notes" id="orge504239">
 <p>
 This avoids spending scarce slide time on semantics debates.
-The core teaching value of Applicative is already visible in optional/range/ziplist examples.
+The core teaching value of Applicative is already visible in optional/range/ZipList examples.
 </p>
 
 </div>
 
 
-<a id="org3f9fef1"></a>
+<a id="org32e98a9"></a>
 
 # Monoids and Measured Trees
 
 
-<a id="orgcd7d6ca"></a>
+<a id="org982cfc0"></a>
 
 ### Associativity as algorithmic leverage
 
@@ -855,16 +993,16 @@ The core teaching value of Applicative is already visible in optional/range/zipl
 -   Measured trees exploit this to maintain summaries incrementally.
 -   This is the bridge from algebra to explicit performance contracts.
 
-<div class="notes" id="org26b6ed1">
+<div class="notes" id="orge4df3d2">
 <p>
 If the measure is a monoid, split/search become compositional.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org62a6ddc"></a>
+<a id="orgaf9e4d1"></a>
 
 ### Annotations as summaries
 
@@ -872,16 +1010,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Measures are domain-specific: size, min priority, span, or cost.
 -   Updating structure updates summaries locally.
 
-<div class="notes" id="orgf85f935">
+<div class="notes" id="org5076b77">
 <p>
 The data structure stays the same while behavior changes with the monoid.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org1ff1fd9"></a>
+<a id="org3fed4f6"></a>
 
 ### Search and split driven by measures
 
@@ -889,7 +1027,7 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Split currently follows the first predicate flip in that linear scan.
 -   This yields one structure with many interpretations.
 
-<div class="notes" id="org374b231">
+<div class="notes" id="org628999a">
 <p>
 Sequence, priority queue, and rope are policy layers on one core tree.
 Original finger-tree papers promise stronger asymptotics with measured search.
@@ -897,18 +1035,18 @@ Target asymptotic story from those papers is amortized O(1) at the ends,
 O(log(min(n,m))) concatenation, and O(log n) split/search.
 Current repository implementation keeps the same API shape but does not yet
 meet those split/search bounds.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org128204a"></a>
+<a id="org7855831"></a>
 
 # Finger Trees as a Case Study
 
 
-<a id="orge22edb4"></a>
+<a id="org568d4e8"></a>
 
 ### Persistent concatenation and splitting
 
@@ -917,18 +1055,18 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   The API is designed so split/search can be optimized later without changing call sites.
 -   The API naturally composes with foldable/traversable abstractions.
 
-<div class="notes" id="orgc19983e">
+<div class="notes" id="org72fea50">
 <p>
 This is where abstractions meet implementation reality.
 Paper-level target bounds remain the north star.
 Current prototype contract is explicit linear split/search.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="orgf77d695"></a>
+<a id="org7aed6f9"></a>
 
 ### One structure, many interpretations
 
@@ -936,16 +1074,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Same implementation can model sequence, priority queue, or rope.
 -   Reuse is semantic, not just syntactic.
 
-<div class="notes" id="orgb829e81">
+<div class="notes" id="orgf403f73">
 <p>
 This is the strongest argument for measured trees in a standard library context.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org110f8a3"></a>
+<a id="orgc953209"></a>
 
 ### Why this belongs in modern C++
 
@@ -953,21 +1091,21 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Multiple paradigms can coexist: value types, OO boundaries, generic algorithms.
 -   This is not import Haskell; it is idiomatic modern C++ with better algebraic interfaces.
 
-<div class="notes" id="org52bf63c">
+<div class="notes" id="org494fef3">
 <p>
 Pragmatic conclusion: values first, identity where required, and laws where possible.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org3508f39"></a>
+<a id="orgdbc468a"></a>
 
 # Designing APIs That Won’t Age Poorly
 
 
-<a id="orgaebadaa"></a>
+<a id="org9e70d01"></a>
 
 ### Library abstractions anticipating language features
 
@@ -975,16 +1113,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Keep extension points separate from core type definitions.
 -   Make future language support a simplification, not a rewrite.
 
-<div class="notes" id="orgcdd9b0e">
+<div class="notes" id="orgf6f6c4d">
 <p>
 Pattern matching and richer generic facilities should refine this API, not replace it.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="orgc40afe1"></a>
+<a id="org83cf7f9"></a>
 
 ### Avoiding the `std::bind` vs lambda overlap
 
@@ -992,16 +1130,16 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Choose one clear good path per concept.
 -   For Applicative, that path is `invoke`; `apply_pure` remains a teaching aid.
 
-<div class="notes" id="org31405dc">
+<div class="notes" id="org92c9f4e">
 <p>
 The goal is reducing cognitive branching in generic code.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>
 
 
-<a id="org4e08291"></a>
+<a id="orgabe34eb"></a>
 
 ### Keeping the good path obvious
 
@@ -1009,10 +1147,10 @@ Source: Downey 2026 research notes (internal project bibliography).
 -   Keep naming consistent across concepts.
 -   Back claims with executable law tests.
 
-<div class="notes" id="org41abe6a">
+<div class="notes" id="org365aca6">
 <p>
 The best API docs in this space are tests that encode the laws.
-Source: Downey 2026 research notes (internal project bibliography).
+Source: (Steve Downey, 2026).
 </p>
 
 </div>

@@ -124,7 +124,7 @@ sorry
 #+begin_notes
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Where structure carries meaning
@@ -134,7 +134,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Trees that are not sequences
@@ -145,7 +145,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 A range view is still useful, but it should be derived, not the primary model.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 * Visitors, Pattern Matching, and the Missing Syntax
@@ -156,7 +156,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Pattern matching as the intended interface
@@ -166,7 +166,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 Design now so the API maps naturally to future language features.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Designing today for tomorrow’s syntax
@@ -176,7 +176,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 The point is migration-friendly design, not speculative syntax tricks.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 * Recursion Schemes You Can Actually Use
@@ -187,7 +187,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 I only need the intuition here, not full categorical development.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Catamorphisms as principled fold
@@ -197,7 +197,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 Foldable is the operational entry point for this in everyday code.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Separating recursion from business logic
@@ -207,7 +207,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 When recursion is abstracted, law tests become executable documentation.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 * Preserving Shape: Traversable and Friends
@@ -362,7 +362,7 @@ Deducing this keeps wrappers generic without losing type information.
 
 #+begin_notes
 Key law intuition: preserve shape and evaluation order discipline.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Laws that keep this honest
@@ -372,7 +372,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Tree Applicative as optional appendix
@@ -393,7 +393,7 @@ The core teaching value of Applicative is already visible in optional/range/ZipL
 
 #+begin_notes
 If the measure is a monoid, split/search become compositional.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Annotations as summaries
@@ -403,7 +403,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 The data structure stays the same while behavior changes with the monoid.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Search and split driven by measures
@@ -418,7 +418,7 @@ Target asymptotic story from those papers is amortized O(1) at the ends,
 O(log(min(n,m))) concatenation, and O(log n) split/search.
 Current repository implementation keeps the same API shape but does not yet
 meet those split/search bounds.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 * Finger Trees as a Case Study
@@ -432,7 +432,7 @@ Source: cite:downey2026treesresearch.
 This is where abstractions meet implementation reality.
 Paper-level target bounds remain the north star.
 Current prototype contract is explicit linear split/search.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** One structure, many interpretations
@@ -442,7 +442,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 This is the strongest argument for measured trees in a standard library context.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Why this belongs in modern C++
@@ -452,7 +452,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 Pragmatic conclusion: values first, identity where required, and laws where possible.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 * Designing APIs That Won’t Age Poorly
@@ -463,7 +463,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 Pattern matching and richer generic facilities should refine this API, not replace it.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Avoiding the ~std::bind~ vs lambda overlap
@@ -473,7 +473,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 The goal is reducing cognitive branching in generic code.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Keeping the good path obvious
@@ -483,7 +483,7 @@ Source: cite:downey2026treesresearch.
 
 #+begin_notes
 The best API docs in this space are tests that encode the laws.
-Source: cite:downey2026treesresearch.
+Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 # Local Variables:

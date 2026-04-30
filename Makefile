@@ -296,7 +296,7 @@ ORGFILES := $(wildcard *.org)
 	echo "  $<" \\ >> $@.deps
 	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $@.deps
 
--include $(ORGFILES:%.org=%-slides.html.deps)
+-include $(ORGFILES:%.org=%.md.deps)
 
 .PHONY: clean-emacs.d
 clean-emacs.d:
