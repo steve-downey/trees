@@ -66,6 +66,7 @@
 #+STARTUP: showeverything
 
 #+OPTIONS: reveal_width:1600 reveal_height:900
+#+OPTIONS: ^:nil
 #+REVEAL_TRANS: fade
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../etc/modus-vivendi-tinted.css" />
 

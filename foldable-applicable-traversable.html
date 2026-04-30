@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-04-30 Thu 14:11 -->
+<!-- 2026-04-30 Thu 14:21 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Algorithms for Trees: Foldable, Applicative, Traversable</title>
@@ -205,102 +205,102 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgcbb9641">1. Algorithms For Trees</a>
+<li><a href="#orgf6a8352">1. Algorithms For Trees</a>
 <ul>
-<li><a href="#org2cf1dd3">1.1. Abstract</a></li>
-<li><a href="#orga5c95d5">1.2. Foldable</a></li>
-<li><a href="#org86db347">1.3. Applicative</a></li>
-<li><a href="#org0bb107c">1.4. Traversable</a></li>
-<li><a href="#org39d69cf">1.5. Not Monadic</a></li>
+<li><a href="#org872d6b4">1.1. Abstract</a></li>
+<li><a href="#orgde44275">1.2. Foldable</a></li>
+<li><a href="#org9f150ff">1.3. Applicative</a></li>
+<li><a href="#org619fa79">1.4. Traversable</a></li>
+<li><a href="#org1bec5f0">1.5. Not Monadic</a></li>
 </ul>
 </li>
-<li><a href="#org7d6f318">2. Ranges Flatten the World</a>
+<li><a href="#org793251d">2. Ranges Flatten the World</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org0755745">2.0.1. Linearization as a design assumption</a></li>
-<li><a href="#orgd591ef1">2.0.2. Where structure carries meaning</a></li>
-<li><a href="#org5607174">2.0.3. Trees that are not sequences</a></li>
+<li><a href="#orga737236">2.0.1. Linearization as a design assumption</a></li>
+<li><a href="#orgb7c0baf">2.0.2. Where structure carries meaning</a></li>
+<li><a href="#org0e3fde6">2.0.3. Trees that are not sequences</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orga0ba339">3. Visitors, Pattern Matching, and the Missing Syntax</a>
+<li><a href="#org7d92fdf">3. Visitors, Pattern Matching, and the Missing Syntax</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgc44b856">3.0.1. Visitor as manual recursion control</a></li>
-<li><a href="#orge6bb9bd">3.0.2. Pattern matching as the intended interface</a></li>
-<li><a href="#org4cbd556">3.0.3. Designing today for tomorrow’s syntax</a></li>
+<li><a href="#orgd542f69">3.0.1. Visitor as manual recursion control</a></li>
+<li><a href="#org3b6dc4b">3.0.2. Pattern matching as the intended interface</a></li>
+<li><a href="#orgf3ba5ee">3.0.3. Designing today for tomorrow’s syntax</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org8ad4a4c">4. Recursion Schemes You Can Actually Use</a>
+<li><a href="#orgdb5e796">4. Recursion Schemes You Can Actually Use</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org7f1ee75">4.0.1. F-algebras: how to collapse one layer</a></li>
-<li><a href="#org30e44f0">4.0.2. Catamorphisms as principled fold</a></li>
-<li><a href="#orgd4da185">4.0.3. Separating recursion from business logic</a></li>
+<li><a href="#org275da1c">4.0.1. F-algebras: how to collapse one layer</a></li>
+<li><a href="#org7e345bf">4.0.2. Catamorphisms as principled fold</a></li>
+<li><a href="#org9505f59">4.0.3. Separating recursion from business logic</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgbcb63e5">5. Preserving Shape: Traversable and Friends</a>
+<li><a href="#orga4f27a4">5. Preserving Shape: Traversable and Friends</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orga8b127e">5.0.1. Foldable vs Traversable: sequence vs shape</a></li>
-<li><a href="#orgf6263c6">5.0.2. Crisp contrast: flatten vs preserve shape</a></li>
-<li><a href="#orgde1323f">5.0.3. Typeclass object lookup in three calls</a></li>
-<li><a href="#orgf5bdfdf">5.0.4. Typeclass object for implementors</a></li>
-<li><a href="#org421364f">5.0.5. How the implementation works: CRTP and deducing this</a></li>
-<li><a href="#org5060556">5.0.6. Same algorithm, two tree representations</a></li>
-<li><a href="#orgc05524f">5.0.7. Foldable API: one primitive, many derived operations</a></li>
-<li><a href="#org8afff5d">5.0.8. Foldable proof: derived operations hold in tests</a></li>
-<li><a href="#org9b9d8a2">5.0.9. Applicative model: pure function over effectful arguments</a></li>
-<li><a href="#orge1c155e">5.0.10. Applicative API: minimal core, user-facing invoke</a></li>
-<li><a href="#org0f62f3b">5.0.11. Applicative proof: n-ary use in tests</a></li>
-<li><a href="#org4654aef">5.0.12. Traversable model: commute shape and effect</a></li>
-<li><a href="#org40efa6f">5.0.13. Traversable API: one primitive, many derived operations</a></li>
-<li><a href="#org1d123a8">5.0.14. Traversable proof: derived operations hold in tests</a></li>
-<li><a href="#org98a7ca7">5.0.15. Traversable commute: Range and ZipList</a></li>
-<li><a href="#orgbac9e43">5.0.16. Laws that keep this honest</a></li>
-<li><a href="#orgc573e55">5.0.17. Tree Applicative as optional appendix</a></li>
+<li><a href="#orgd4f36b8">5.0.1. Foldable vs Traversable: sequence vs shape</a></li>
+<li><a href="#orgad35c87">5.0.2. Crisp contrast: flatten vs preserve shape</a></li>
+<li><a href="#org268e154">5.0.3. Typeclass object lookup in three calls</a></li>
+<li><a href="#org12d7f63">5.0.4. Typeclass object for implementors</a></li>
+<li><a href="#orgf7df95b">5.0.5. How the implementation works: CRTP and deducing this</a></li>
+<li><a href="#org008f7cd">5.0.6. Same algorithm, two tree representations</a></li>
+<li><a href="#orga31de71">5.0.7. Foldable API: one primitive, many derived operations</a></li>
+<li><a href="#org0ce6540">5.0.8. Foldable proof: derived operations hold in tests</a></li>
+<li><a href="#org9ded522">5.0.9. Applicative model: pure function over effectful arguments</a></li>
+<li><a href="#org32d7eed">5.0.10. Applicative API: minimal core, user-facing invoke</a></li>
+<li><a href="#org18e7e2f">5.0.11. Applicative proof: n-ary use in tests</a></li>
+<li><a href="#orgbcf1e28">5.0.12. Traversable model: commute shape and effect</a></li>
+<li><a href="#orga07e964">5.0.13. Traversable API: one primitive, many derived operations</a></li>
+<li><a href="#org992c713">5.0.14. Traversable proof: derived operations hold in tests</a></li>
+<li><a href="#org0586406">5.0.15. Traversable commute: Range and ZipList</a></li>
+<li><a href="#orgd3af6ee">5.0.16. Laws that keep this honest</a></li>
+<li><a href="#orgea14afc">5.0.17. Tree Applicative as optional appendix</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgf482838">6. Monoids and Measured Trees</a>
+<li><a href="#org6599562">6. Monoids and Measured Trees</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org8da0eda">6.0.1. Associativity as algorithmic leverage</a></li>
-<li><a href="#org8553ed4">6.0.2. Annotations as summaries</a></li>
-<li><a href="#org8cb5d00">6.0.3. Search and split driven by measures</a></li>
+<li><a href="#orgbd73106">6.0.1. Associativity as algorithmic leverage</a></li>
+<li><a href="#orged69f1d">6.0.2. Annotations as summaries</a></li>
+<li><a href="#orge66989b">6.0.3. Search and split driven by measures</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgea82b60">7. Finger Trees as a Case Study</a>
+<li><a href="#org140ee9b">7. Finger Trees as a Case Study</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org042f773">7.0.1. Persistent concatenation and splitting</a></li>
-<li><a href="#org9cf77dc">7.0.2. One structure, many interpretations</a></li>
-<li><a href="#org4595772">7.0.3. Why this belongs in modern C++</a></li>
+<li><a href="#org0755140">7.0.1. Persistent concatenation and splitting</a></li>
+<li><a href="#orgf477856">7.0.2. One structure, many interpretations</a></li>
+<li><a href="#orge4ce133">7.0.3. Why this belongs in modern C++</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org0f229d6">8. Designing APIs That Won’t Age Poorly</a>
+<li><a href="#orgd323a47">8. Designing APIs That Won’t Age Poorly</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org7f0cfce">8.0.1. Library abstractions anticipating language features</a></li>
-<li><a href="#org0a3d3b4">8.0.2. Avoiding the <code>std::bind</code> vs lambda overlap</a></li>
-<li><a href="#org75f2335">8.0.3. Keeping the good path obvious</a></li>
+<li><a href="#orgb06fb50">8.0.1. Library abstractions anticipating language features</a></li>
+<li><a href="#org12dfe39">8.0.2. Avoiding the <code>std::bind</code> vs lambda overlap</a></li>
+<li><a href="#org8d19b7a">8.0.3. Keeping the good path obvious</a></li>
 </ul>
 </li>
 </ul>
@@ -308,8 +308,8 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-orgcbb9641" class="outline-2">
-<h2 id="orgcbb9641"><span class="section-number-2">1.</span> Algorithms For Trees</h2>
+<div id="outline-container-orgf6a8352" class="outline-2">
+<h2 id="orgf6a8352"><span class="section-number-2">1.</span> Algorithms For Trees</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li>Foldable</li>
@@ -317,8 +317,8 @@
 <li>Traversable</li>
 </ul>
 </div>
-<div id="outline-container-org2cf1dd3" class="outline-3">
-<h3 id="org2cf1dd3"><span class="section-number-3">1.1.</span> Abstract</h3>
+<div id="outline-container-org872d6b4" class="outline-3">
+<h3 id="org872d6b4"><span class="section-number-3">1.1.</span> Abstract</h3>
 <div class="outline-text-3" id="text-1-1">
 <p>
 The use of the functor and monad patterns in ranges, sender-receiver, optional, and expected has been broadly and widely successful. There are other type classes that C++ can profitably adopt for use in generic programming that have proven to be useful in other languages and ecosystems in the last decade.
@@ -333,32 +333,32 @@ The eventual goal of this work is to provide <code>fingertree</code> to the stan
 </p>
 </div>
 </div>
-<div id="outline-container-orga5c95d5" class="outline-3">
-<h3 id="orga5c95d5"><span class="section-number-3">1.2.</span> Foldable</h3>
+<div id="outline-container-orgde44275" class="outline-3">
+<h3 id="orgde44275"><span class="section-number-3">1.2.</span> Foldable</h3>
 <div class="outline-text-3" id="text-1-2">
 <dl class="org-dl">
 <dt>Foldables</dt><dd>are types which can be made to look like a sequence of some sort, or a range, and support the basic <code>fold</code> operation which provides much of the power of std::ranges. Providing opt-in hooks for making a type Foldable rather than a Range is useful.</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org86db347" class="outline-3">
-<h3 id="org86db347"><span class="section-number-3">1.3.</span> Applicative</h3>
+<div id="outline-container-org9f150ff" class="outline-3">
+<h3 id="org9f150ff"><span class="section-number-3">1.3.</span> Applicative</h3>
 <div class="outline-text-3" id="text-1-3">
 <dl class="org-dl">
 <dt>Applicatives</dt><dd>were introduced to provide the pattern of 'pure function applied to funny arguments', where a type "supports its own peculiar way of giving meaning to the usual [notion of function invocation]." The implementation details of partially applied functions in a container turn out to be a distraction from understanding. They turn out to be widely relevant in contexts such as data parallel operations, and with less overhead than monadic operations.</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org0bb107c" class="outline-3">
-<h3 id="org0bb107c"><span class="section-number-3">1.4.</span> Traversable</h3>
+<div id="outline-container-org619fa79" class="outline-3">
+<h3 id="org619fa79"><span class="section-number-3">1.4.</span> Traversable</h3>
 <div class="outline-text-3" id="text-1-4">
 <dl class="org-dl">
 <dt>Traversables</dt><dd>are generalizations of Foldables which allow preservation of the "shape" of a container, where a Foldable can only see the ordered sequence. A binary tree can be traversed and maintain the parent child relationships, where a fold can at most produce a range. Traversable also provides the ability to "commute" containers, generically, providing the ability to convert a range of tasks into a task producing a range.</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org39d69cf" class="outline-3">
-<h3 id="org39d69cf"><span class="section-number-3">1.5.</span> Not Monadic</h3>
+<div id="outline-container-org1bec5f0" class="outline-3">
+<h3 id="org1bec5f0"><span class="section-number-3">1.5.</span> Not Monadic</h3>
 <div class="outline-text-3" id="text-1-5">
 <p>
 sorry
@@ -366,12 +366,12 @@ sorry
 </div>
 </div>
 </div>
-<div id="outline-container-org7d6f318" class="outline-2">
-<h2 id="org7d6f318"><span class="section-number-2">2.</span> Ranges Flatten the World</h2>
+<div id="outline-container-org793251d" class="outline-2">
+<h2 id="org793251d"><span class="section-number-2">2.</span> Ranges Flatten the World</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-org0755745" class="outline-4">
-<h4 id="org0755745"><span class="section-number-4">2.0.1.</span> Linearization as a design assumption</h4>
+<div id="outline-container-orga737236" class="outline-4">
+<h4 id="orga737236"><span class="section-number-4">2.0.1.</span> Linearization as a design assumption</h4>
 <div class="outline-text-4" id="text-2-0-1">
 <ul class="org-ul">
 <li>Ranges are a great default when the structure is inherently sequential.</li>
@@ -379,7 +379,7 @@ sorry
 <li>For trees, flattening throws away parent/child relationships and subtree boundaries.</li>
 </ul>
 
-<div class="notes" id="orgef89cdc">
+<div class="notes" id="orgebeb037">
 <p>
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
@@ -389,8 +389,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgd591ef1" class="outline-4">
-<h4 id="orgd591ef1"><span class="section-number-4">2.0.2.</span> Where structure carries meaning</h4>
+<div id="outline-container-orgb7c0baf" class="outline-4">
+<h4 id="orgb7c0baf"><span class="section-number-4">2.0.2.</span> Where structure carries meaning</h4>
 <div class="outline-text-4" id="text-2-0-2">
 <ul class="org-ul">
 <li>Search paths, balancing, and decomposition points are part of the meaning.</li>
@@ -398,7 +398,7 @@ Source: (Steve Downey, 2026).
 <li>If we flatten too early, we lose algorithmic leverage.</li>
 </ul>
 
-<div class="notes" id="org534e683">
+<div class="notes" id="orgc5c2485">
 <p>
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
 Source: (Steve Downey, 2026).
@@ -407,8 +407,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org5607174" class="outline-4">
-<h4 id="org5607174"><span class="section-number-4">2.0.3.</span> Trees that are not sequences</h4>
+<div id="outline-container-org0e3fde6" class="outline-4">
+<h4 id="org0e3fde6"><span class="section-number-4">2.0.3.</span> Trees that are not sequences</h4>
 <div class="outline-text-4" id="text-2-0-3">
 <ul class="org-ul">
 <li>Expression trees: hierarchy controls precedence and rewrite legality.</li>
@@ -417,7 +417,7 @@ Source: (Steve Downey, 2026).
 <li>Measured trees: internal summaries define split/search interfaces and optimization direction.</li>
 </ul>
 
-<div class="notes" id="org2f18294">
+<div class="notes" id="org60b7cac">
 <p>
 A range view is still useful, but it should be derived, not the primary model.
 Source: (Steve Downey, 2026).
@@ -427,12 +427,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orga0ba339" class="outline-2">
-<h2 id="orga0ba339"><span class="section-number-2">3.</span> Visitors, Pattern Matching, and the Missing Syntax</h2>
+<div id="outline-container-org7d92fdf" class="outline-2">
+<h2 id="org7d92fdf"><span class="section-number-2">3.</span> Visitors, Pattern Matching, and the Missing Syntax</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-orgc44b856" class="outline-4">
-<h4 id="orgc44b856"><span class="section-number-4">3.0.1.</span> Visitor as manual recursion control</h4>
+<div id="outline-container-orgd542f69" class="outline-4">
+<h4 id="orgd542f69"><span class="section-number-4">3.0.1.</span> Visitor as manual recursion control</h4>
 <div class="outline-text-4" id="text-3-0-1">
 <ul class="org-ul">
 <li>Visitor centralizes recursion, but at the cost of ceremony and indirection.</li>
@@ -440,7 +440,7 @@ Source: (Steve Downey, 2026).
 <li>The control flow is explicit, but often noisy.</li>
 </ul>
 
-<div class="notes" id="org9a082fd">
+<div class="notes" id="org0354f39">
 <p>
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
 Source: (Steve Downey, 2026).
@@ -449,8 +449,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orge6bb9bd" class="outline-4">
-<h4 id="orge6bb9bd"><span class="section-number-4">3.0.2.</span> Pattern matching as the intended interface</h4>
+<div id="outline-container-org3b6dc4b" class="outline-4">
+<h4 id="org3b6dc4b"><span class="section-number-4">3.0.2.</span> Pattern matching as the intended interface</h4>
 <div class="outline-text-4" id="text-3-0-2">
 <ul class="org-ul">
 <li>Pattern matching expresses what cases exist directly.</li>
@@ -458,7 +458,7 @@ Source: (Steve Downey, 2026).
 <li>Typeclass-style APIs can encode the same intent with today's language.</li>
 </ul>
 
-<div class="notes" id="org3c86691">
+<div class="notes" id="orgd600ddc">
 <p>
 Design now so the API maps naturally to future language features.
 Source: (Steve Downey, 2026).
@@ -467,8 +467,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org4cbd556" class="outline-4">
-<h4 id="org4cbd556"><span class="section-number-4">3.0.3.</span> Designing today for tomorrow’s syntax</h4>
+<div id="outline-container-orgf3ba5ee" class="outline-4">
+<h4 id="orgf3ba5ee"><span class="section-number-4">3.0.3.</span> Designing today for tomorrow’s syntax</h4>
 <div class="outline-text-4" id="text-3-0-3">
 <ul class="org-ul">
 <li>Keep recursion control in library algorithms, not business code.</li>
@@ -476,7 +476,7 @@ Source: (Steve Downey, 2026).
 <li>Make call sites read like intent, not machinery.</li>
 </ul>
 
-<div class="notes" id="org57bf69e">
+<div class="notes" id="org99959c7">
 <p>
 The point is migration-friendly design, not speculative syntax tricks.
 Source: (Steve Downey, 2026).
@@ -486,12 +486,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org8ad4a4c" class="outline-2">
-<h2 id="org8ad4a4c"><span class="section-number-2">4.</span> Recursion Schemes You Can Actually Use</h2>
+<div id="outline-container-orgdb5e796" class="outline-2">
+<h2 id="orgdb5e796"><span class="section-number-2">4.</span> Recursion Schemes You Can Actually Use</h2>
 <div class="outline-text-2" id="text-4">
 </div>
-<div id="outline-container-org7f1ee75" class="outline-4">
-<h4 id="org7f1ee75"><span class="section-number-4">4.0.1.</span> F-algebras: how to collapse one layer</h4>
+<div id="outline-container-org275da1c" class="outline-4">
+<h4 id="org275da1c"><span class="section-number-4">4.0.1.</span> F-algebras: how to collapse one layer</h4>
 <div class="outline-text-4" id="text-4-0-1">
 <ul class="org-ul">
 <li>Think of an algebra as consume one layer and summarize it.</li>
@@ -499,7 +499,7 @@ Source: (Steve Downey, 2026).
 <li>This separation makes tree algorithms easier to reason about.</li>
 </ul>
 
-<div class="notes" id="orgfa03b62">
+<div class="notes" id="org897ab1d">
 <p>
 I only need the intuition here, not full categorical development.
 Source: (Steve Downey, 2026).
@@ -508,8 +508,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org30e44f0" class="outline-4">
-<h4 id="org30e44f0"><span class="section-number-4">4.0.2.</span> Catamorphisms as principled fold</h4>
+<div id="outline-container-org7e345bf" class="outline-4">
+<h4 id="org7e345bf"><span class="section-number-4">4.0.2.</span> Catamorphisms as principled fold</h4>
 <div class="outline-text-4" id="text-4-0-2">
 <ul class="org-ul">
 <li>Catamorphism: apply the algebra recursively until the structure is collapsed.</li>
@@ -517,7 +517,7 @@ Source: (Steve Downey, 2026).
 <li>You get reuse without hardcoding each algorithm into the node type.</li>
 </ul>
 
-<div class="notes" id="orgebcecc3">
+<div class="notes" id="orgdd3862c">
 <p>
 Foldable is the operational entry point for this in everyday code.
 Source: (Steve Downey, 2026).
@@ -526,8 +526,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgd4da185" class="outline-4">
-<h4 id="orgd4da185"><span class="section-number-4">4.0.3.</span> Separating recursion from business logic</h4>
+<div id="outline-container-org9505f59" class="outline-4">
+<h4 id="org9505f59"><span class="section-number-4">4.0.3.</span> Separating recursion from business logic</h4>
 <div class="outline-text-4" id="text-4-0-3">
 <ul class="org-ul">
 <li>Business logic should answer how to combine results, not how to recurse.</li>
@@ -535,7 +535,7 @@ Source: (Steve Downey, 2026).
 <li>It also creates a natural place to enforce laws.</li>
 </ul>
 
-<div class="notes" id="org9f3e6c8">
+<div class="notes" id="org528924d">
 <p>
 When recursion is abstracted, law tests become executable documentation.
 Source: (Steve Downey, 2026).
@@ -545,12 +545,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgbcb63e5" class="outline-2">
-<h2 id="orgbcb63e5"><span class="section-number-2">5.</span> Preserving Shape: Traversable and Friends</h2>
+<div id="outline-container-orga4f27a4" class="outline-2">
+<h2 id="orga4f27a4"><span class="section-number-2">5.</span> Preserving Shape: Traversable and Friends</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-orga8b127e" class="outline-4">
-<h4 id="orga8b127e"><span class="section-number-4">5.0.1.</span> Foldable vs Traversable: sequence vs shape</h4>
+<div id="outline-container-orgd4f36b8" class="outline-4">
+<h4 id="orgd4f36b8"><span class="section-number-4">5.0.1.</span> Foldable vs Traversable: sequence vs shape</h4>
 <div class="outline-text-4" id="text-5-0-1">
 <ul class="org-ul">
 <li>Foldable consumes structure into a summary.</li>
@@ -559,8 +559,8 @@ Source: (Steve Downey, 2026).
 </ul>
 </div>
 </div>
-<div id="outline-container-orgf6263c6" class="outline-4">
-<h4 id="orgf6263c6"><span class="section-number-4">5.0.2.</span> Crisp contrast: flatten vs preserve shape</h4>
+<div id="outline-container-orgad35c87" class="outline-4">
+<h4 id="orgad35c87"><span class="section-number-4">5.0.2.</span> Crisp contrast: flatten vs preserve shape</h4>
 <div class="outline-text-4" id="text-5-0-2">
 <ul class="org-ul">
 <li>Two differently shaped trees can flatten to the same sequence under Foldable.</li>
@@ -568,17 +568,17 @@ Source: (Steve Downey, 2026).
 </ul>
 </div>
 <ol class="org-ol">
-<li><a id="orgf22c552"></a>Foldable flattens and loses shape identity<br />
+<li><a id="org8f4e8f9"></a>Foldable flattens and loses shape identity<br />
 <div class="outline-text-5" id="text-5-0-2-1">
 <p>
 <i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
-auto left<sub>flat</sub> = foldable.to<sub>vector</sub>(left<sub>heavy</sub>);
-auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
+auto left_flat = foldable.to_vector(left_heavy);
+auto right_flat = foldable.to_vector(right_heavy);
 /</i> b1fd4b92-b060-4c47-8c08-97328ec02329 end
 </p>
 
 <p>
-	return left<sub>flat</sub> == right<sub>flat</sub>;
+	return left_flat == right_flat;
 }
 </p>
 
@@ -588,7 +588,7 @@ auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
 </p>
 </div>
 </li>
-<li><a id="orga938ef9"></a>Traversable maps while preserving shape<br />
+<li><a id="orged388c3"></a>Traversable maps while preserving shape<br />
 <div class="outline-text-5" id="text-5-0-2-2">
 <p>
 <i>/ d804ec63-77d1-4fa0-99a6-9effce6f741b
@@ -599,18 +599,18 @@ auto mapped = traversable.traverse(
 </p>
 
 <p>
-if (!mapped || mapped-&gt;is<sub>leaf</sub>()) {
+if (!mapped || mapped-&gt;is_leaf()) {
 	return false;
 }
 </p>
 
 <p>
-	return mapped-&gt;left().is<sub>leaf</sub>() &amp;&amp;
+	return mapped-&gt;left().is_leaf() &amp;&amp;
 		     mapped-&gt;left().value() <code>= 11 &amp;&amp;
 		     !mapped-&gt;right().is_leaf() &amp;&amp;
 		     mapped-&gt;right().left().is_leaf() &amp;&amp;
 		     mapped-&gt;right().left().value() =</code> 12 &amp;&amp;
-		     mapped-&gt;right().right().is<sub>leaf</sub>() &amp;&amp;
+		     mapped-&gt;right().right().is_leaf() &amp;&amp;
 		     mapped-&gt;right().right().value() == 13;
 }
 </p>
@@ -620,7 +620,7 @@ if (!mapped || mapped-&gt;is<sub>leaf</sub>()) {
 :lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
 </p>
 
-<div class="notes" id="org4edd3bd">
+<div class="notes" id="org6ae7554">
 <p>
 Use this as the one-slide intuition.
 Foldable can collapse two different shapes to the same flat view.
@@ -632,8 +632,8 @@ Traversable keeps the tree skeleton and only transforms payloads.
 </li>
 </ol>
 </div>
-<div id="outline-container-orgde1323f" class="outline-4">
-<h4 id="orgde1323f"><span class="section-number-4">5.0.3.</span> Typeclass object lookup in three calls</h4>
+<div id="outline-container-org268e154" class="outline-4">
+<h4 id="org268e154"><span class="section-number-4">5.0.3.</span> Typeclass object lookup in three calls</h4>
 <div class="outline-text-4" id="text-5-0-3">
 <ul class="org-ul">
 <li>User code calls the looked-up object, not a node method.</li>
@@ -642,7 +642,7 @@ Traversable keeps the tree skeleton and only transforms payloads.
 <li>You can use implicit lookup, explicit object arguments, or NTTP pinning for tests and policy control.</li>
 </ul>
 
-<div class="notes" id="org6c1b859">
+<div class="notes" id="orgb93f669">
 <p>
 This replaces a long historical detour with one operational model.
 Call site intent stays stable while the representation changes.
@@ -651,8 +651,8 @@ Call site intent stays stable while the representation changes.
 </div>
 </div>
 </div>
-<div id="outline-container-orgf5bdfdf" class="outline-4">
-<h4 id="orgf5bdfdf"><span class="section-number-4">5.0.4.</span> Typeclass object for implementors</h4>
+<div id="outline-container-org12d7f63" class="outline-4">
+<h4 id="org12d7f63"><span class="section-number-4">5.0.4.</span> Typeclass object for implementors</h4>
 <div class="outline-text-4" id="text-5-0-4">
 <ul class="org-ul">
 <li>Implement one minimal hook per concept and inherit derived operations.</li>
@@ -662,7 +662,7 @@ Call site intent stays stable while the representation changes.
 <li>Keep traversal order and shape-preservation choices explicit in instance tests.</li>
 </ul>
 
-<div class="notes" id="org0a85c53">
+<div class="notes" id="org76e9b16">
 <p>
 This is the key split.
 Implementor surface is small, and user surface is rich.
@@ -671,8 +671,8 @@ Implementor surface is small, and user surface is rich.
 </div>
 </div>
 </div>
-<div id="outline-container-org421364f" class="outline-4">
-<h4 id="org421364f"><span class="section-number-4">5.0.5.</span> How the implementation works: CRTP and deducing this</h4>
+<div id="outline-container-orgf7df95b" class="outline-4">
+<h4 id="orgf7df95b"><span class="section-number-4">5.0.5.</span> How the implementation works: CRTP and deducing this</h4>
 <div class="outline-text-4" id="text-5-0-5">
 <ul class="org-ul">
 <li>Each concept wrapper is a CRTP base that exposes derived API in terms of minimal hooks.</li>
@@ -681,7 +681,7 @@ Implementor surface is small, and user surface is rich.
 <li>This keeps dispatch static and local while avoiding repetitive forwarding boilerplate.</li>
 </ul>
 
-<div class="notes" id="orgebc5ecc">
+<div class="notes" id="orge21b93b">
 <p>
 CRTP supplies structure.
 Deducing this keeps wrappers generic without losing type information.
@@ -690,16 +690,16 @@ Deducing this keeps wrappers generic without losing type information.
 </div>
 </div>
 </div>
-<div id="outline-container-org5060556" class="outline-4">
-<h4 id="org5060556"><span class="section-number-4">5.0.6.</span> Same algorithm, two tree representations</h4>
+<div id="outline-container-org008f7cd" class="outline-4">
+<h4 id="org008f7cd"><span class="section-number-4">5.0.6.</span> Same algorithm, two tree representations</h4>
 <div class="outline-text-4" id="text-5-0-6">
 <ul class="org-ul">
-<li>Fixpoint tree and shared<sub>ptr</sub> binary tree can share the same Foldable call shape.</li>
+<li>Fixpoint tree and shared_ptr binary tree can share the same Foldable call shape.</li>
 <li>The representation changes; the typeclass API and algorithm intent stay the same.</li>
 </ul>
 </div>
 <ol class="org-ol">
-<li><a id="org0ba404d"></a>Fixpoint tree<br />
+<li><a id="org8550da0"></a>Fixpoint tree<br />
 <div class="outline-text-5" id="text-5-0-6-1">
 <p>
 <i>/ 9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa
@@ -713,20 +713,20 @@ auto n = foldable.length(tree);
 </p>
 
 <p>
-auto generic<sub>length</sub><sub>binary</sub><sub>tree</sub><sub>example</sub>() -&gt; std::size<sub>t</sub>
+auto generic_length_binary_tree_example() -&gt; std::size_t
 {
     using IntBinaryTree = smd::tree::BinaryTree&lt;int&gt;;
-    auto tree = IntBinaryTree::from<sub>children</sub><sub>ptrs</sub>(
+    auto tree = IntBinaryTree::from_children_ptrs(
       2,
-      IntBinaryTree::make<sub>ptr</sub>(IntBinaryTree::leaf(1)),
-      IntBinaryTree::make<sub>ptr</sub>(IntBinaryTree::from<sub>children</sub><sub>ptrs</sub>(
+      IntBinaryTree::make_ptr(IntBinaryTree::leaf(1)),
+      IntBinaryTree::make_ptr(IntBinaryTree::from_children_ptrs(
 	3,
 	{},
-	IntBinaryTree::make<sub>ptr</sub>(IntBinaryTree::leaf(4)))));
+	IntBinaryTree::make_ptr(IntBinaryTree::leaf(4)))));
 </p>
 
 <p>
-const auto&amp; foldable = smd::foldable<sub>typeclass</sub>&lt;IntBinaryTree&gt;;
+const auto&amp; foldable = smd::foldable_typeclass&lt;IntBinaryTree&gt;;
 </p>
 
 <p>
@@ -741,7 +741,7 @@ auto n = foldable.length(tree);
 </p>
 
 <p>
-auto generic<sub>length</sub><sub>fringe</sub><sub>tree</sub><sub>example</sub>() -&gt; std::size<sub>t</sub>
+auto generic_length_fringe_tree_example() -&gt; std::size_t
 {
 	using Fringe = smd::tree::FringeTree&lt;int&gt;;
 	auto tree = Fringe::branch(
@@ -750,7 +750,7 @@ auto generic<sub>length</sub><sub>fringe</sub><sub>tree</sub><sub>example</sub>(
 </p>
 
 <p>
-const auto&amp; foldable = smd::foldable<sub>typeclass</sub>&lt;Fringe&gt;;
+const auto&amp; foldable = smd::foldable_typeclass&lt;Fringe&gt;;
 </p>
 
 <p>
@@ -765,30 +765,30 @@ auto n = foldable.length(tree);
 </p>
 
 <p>
-auto foldable<sub>flattens</sub><sub>shape</sub><sub>example</sub>() -&gt; bool
+auto foldable_flattens_shape_example() -&gt; bool
 {
 	using Tree = smd::tree::FixTree&lt;int&gt;;
-	auto left<sub>heavy</sub> = Tree::branch(
+	auto left_heavy = Tree::branch(
 	    Tree::leaf(1),
 	    Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-	auto right<sub>heavy</sub> = Tree::branch(
+	auto right_heavy = Tree::branch(
 	    Tree::branch(Tree::leaf(1), Tree::leaf(2)),
 	    Tree::leaf(3));
 </p>
 
 <p>
-const auto&amp; foldable = smd::foldable<sub>typeclass</sub>&lt;Tree&gt;;
+const auto&amp; foldable = smd::foldable_typeclass&lt;Tree&gt;;
 </p>
 
 <p>
 <i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
-auto left<sub>flat</sub> = foldable.to<sub>vector</sub>(left<sub>heavy</sub>);
-auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
+auto left_flat = foldable.to_vector(left_heavy);
+auto right_flat = foldable.to_vector(right_heavy);
 /</i> b1fd4b92-b060-4c47-8c08-97328ec02329 end
 </p>
 
 <p>
-	return left<sub>flat</sub> == right<sub>flat</sub>;
+	return left_flat == right_flat;
 }
 </p>
 
@@ -798,7 +798,7 @@ auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
 </p>
 </div>
 </li>
-<li><a id="org14862b1"></a>shared<sub>ptr</sub> binary tree<br />
+<li><a id="orgc7260a7"></a>shared_ptr binary tree<br />
 <div class="outline-text-5" id="text-5-0-6-2">
 <p>
 <i>/ 53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4
@@ -812,7 +812,7 @@ auto n = foldable.length(tree);
 </p>
 
 <p>
-auto generic<sub>length</sub><sub>fringe</sub><sub>tree</sub><sub>example</sub>() -&gt; std::size<sub>t</sub>
+auto generic_length_fringe_tree_example() -&gt; std::size_t
 {
 	using Fringe = smd::tree::FringeTree&lt;int&gt;;
 	auto tree = Fringe::branch(
@@ -821,7 +821,7 @@ auto generic<sub>length</sub><sub>fringe</sub><sub>tree</sub><sub>example</sub>(
 </p>
 
 <p>
-const auto&amp; foldable = smd::foldable<sub>typeclass</sub>&lt;Fringe&gt;;
+const auto&amp; foldable = smd::foldable_typeclass&lt;Fringe&gt;;
 </p>
 
 <p>
@@ -836,30 +836,30 @@ auto n = foldable.length(tree);
 </p>
 
 <p>
-auto foldable<sub>flattens</sub><sub>shape</sub><sub>example</sub>() -&gt; bool
+auto foldable_flattens_shape_example() -&gt; bool
 {
 	using Tree = smd::tree::FixTree&lt;int&gt;;
-	auto left<sub>heavy</sub> = Tree::branch(
+	auto left_heavy = Tree::branch(
 	    Tree::leaf(1),
 	    Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-	auto right<sub>heavy</sub> = Tree::branch(
+	auto right_heavy = Tree::branch(
 	    Tree::branch(Tree::leaf(1), Tree::leaf(2)),
 	    Tree::leaf(3));
 </p>
 
 <p>
-const auto&amp; foldable = smd::foldable<sub>typeclass</sub>&lt;Tree&gt;;
+const auto&amp; foldable = smd::foldable_typeclass&lt;Tree&gt;;
 </p>
 
 <p>
 <i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
-auto left<sub>flat</sub> = foldable.to<sub>vector</sub>(left<sub>heavy</sub>);
-auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
+auto left_flat = foldable.to_vector(left_heavy);
+auto right_flat = foldable.to_vector(right_heavy);
 /</i> b1fd4b92-b060-4c47-8c08-97328ec02329 end
 </p>
 
 <p>
-	return left<sub>flat</sub> == right<sub>flat</sub>;
+	return left_flat == right_flat;
 }
 </p>
 
@@ -869,7 +869,7 @@ auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
 </p>
 </div>
 </li>
-<li><a id="orgf4b6f57"></a>fringetree (simplified fingertree)<br />
+<li><a id="org4277910"></a>fringetree (simplified fingertree)<br />
 <div class="outline-text-5" id="text-5-0-6-3">
 <p>
 <i>/ 7c2f11d9-ef09-45e2-80da-9229f3c8d82c
@@ -883,30 +883,30 @@ auto n = foldable.length(tree);
 </p>
 
 <p>
-auto foldable<sub>flattens</sub><sub>shape</sub><sub>example</sub>() -&gt; bool
+auto foldable_flattens_shape_example() -&gt; bool
 {
 	using Tree = smd::tree::FixTree&lt;int&gt;;
-	auto left<sub>heavy</sub> = Tree::branch(
+	auto left_heavy = Tree::branch(
 	    Tree::leaf(1),
 	    Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-	auto right<sub>heavy</sub> = Tree::branch(
+	auto right_heavy = Tree::branch(
 	    Tree::branch(Tree::leaf(1), Tree::leaf(2)),
 	    Tree::leaf(3));
 </p>
 
 <p>
-const auto&amp; foldable = smd::foldable<sub>typeclass</sub>&lt;Tree&gt;;
+const auto&amp; foldable = smd::foldable_typeclass&lt;Tree&gt;;
 </p>
 
 <p>
 <i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
-auto left<sub>flat</sub> = foldable.to<sub>vector</sub>(left<sub>heavy</sub>);
-auto right<sub>flat</sub> = foldable.to<sub>vector</sub>(right<sub>heavy</sub>);
+auto left_flat = foldable.to_vector(left_heavy);
+auto right_flat = foldable.to_vector(right_heavy);
 /</i> b1fd4b92-b060-4c47-8c08-97328ec02329 end
 </p>
 
 <p>
-	return left<sub>flat</sub> == right<sub>flat</sub>;
+	return left_flat == right_flat;
 }
 </p>
 
@@ -936,13 +936,13 @@ if (!relabelled) {
 </p>
 
 <p>
-    const auto&amp; foldable = smd::foldable<sub>typeclass</sub>&lt;IntTree&gt;;
+    const auto&amp; foldable = smd::foldable_typeclass&lt;IntTree&gt;;
     return foldable.length(*relabelled);
 }
 </p>
 
 <p>
-auto traversable<sub>preserves</sub><sub>shape</sub><sub>example</sub>() -&gt; bool
+auto traversable_preserves_shape_example() -&gt; bool
 {
 	using IntTree = smd::tree::FixTree&lt;int&gt;;
 	using beman::optional::optional;
@@ -952,7 +952,7 @@ auto traversable<sub>preserves</sub><sub>shape</sub><sub>example</sub>() -&gt; b
 auto tree = IntTree::branch(
     IntTree::leaf(1),
     IntTree::branch(IntTree::leaf(2), IntTree::leaf(3)));
-const auto&amp; traversable = smd::traversable<sub>typeclass</sub>&lt;IntTree&gt;;
+const auto&amp; traversable = smd::traversable_typeclass&lt;IntTree&gt;;
 </p>
 
 <p>
@@ -964,18 +964,18 @@ auto mapped = traversable.traverse(
 </p>
 
 <p>
-if (!mapped || mapped-&gt;is<sub>leaf</sub>()) {
+if (!mapped || mapped-&gt;is_leaf()) {
 	return false;
 }
 </p>
 
 <p>
-	return mapped-&gt;left().is<sub>leaf</sub>() &amp;&amp;
+	return mapped-&gt;left().is_leaf() &amp;&amp;
 		     mapped-&gt;left().value() <code>= 11 &amp;&amp;
 		     !mapped-&gt;right().is_leaf() &amp;&amp;
 		     mapped-&gt;right().left().is_leaf() &amp;&amp;
 		     mapped-&gt;right().left().value() =</code> 12 &amp;&amp;
-		     mapped-&gt;right().right().is<sub>leaf</sub>() &amp;&amp;
+		     mapped-&gt;right().right().is_leaf() &amp;&amp;
 		     mapped-&gt;right().right().value() == 13;
 }
 </p>
@@ -988,8 +988,8 @@ if (!mapped || mapped-&gt;is<sub>leaf</sub>()) {
 </li>
 </ol>
 </div>
-<div id="outline-container-orgc05524f" class="outline-4">
-<h4 id="orgc05524f"><span class="section-number-4">5.0.7.</span> Foldable API: one primitive, many derived operations</h4>
+<div id="outline-container-orga31de71" class="outline-4">
+<h4 id="orga31de71"><span class="section-number-4">5.0.7.</span> Foldable API: one primitive, many derived operations</h4>
 <div class="outline-text-4" id="text-5-0-7">
 <ul class="org-ul">
 <li>Minimal implementation hook: <code>fold_map</code>.</li>
@@ -1003,70 +1003,70 @@ User-facing operations like <code>length</code>, <code>fold_left</code>, <code>f
 
 <p>
 template &lt;class T&gt;
-auto length(this auto&amp;&amp; self, T&amp;&amp; value) -&gt; std::size<sub>t</sub>
+auto length(this auto&amp;&amp; self, T&amp;&amp; value) -&gt; std::size_t
 {
-  const auto count = self.fold<sub>map</sub>(
+  const auto count = self.fold_map(
     [](const auto&amp;) { return typeclass::Count{1}; },
     std::forward&lt;T&gt;(value));
-  return count.d<sub>value</sub>;
+  return count.d_value;
 }
 </p>
 
 <p>
 template &lt;class T, class STATE, class F&gt;
-auto fold<sub>left</sub>(this auto&amp;&amp; self, T&amp;&amp; value, STATE initial<sub>state</sub>, F&amp;&amp; function)
+auto fold_left(this auto&amp;&amp; self, T&amp;&amp; value, STATE initial_state, F&amp;&amp; function)
 {
-  using StateType = remove<sub>cvref</sub><sub>t</sub>&lt;STATE&gt;;
+  using StateType = remove_cvref_t&lt;STATE&gt;;
   auto step = std::forward&lt;F&gt;(function);
 </p>
 
 <p>
-const auto program = self.fold<sub>map</sub>(
+const auto program = self.fold_map(
   [&amp;step](const auto&amp; x) {
-    using ValueType = remove<sub>cvref</sub><sub>t</sub>&lt;decltype(x)&gt;;
+    using ValueType = remove_cvref_t&lt;decltype(x)&gt;;
     return detail::LeftFoldProgram&lt;StateType&gt;{
-      [x<sub>copy</sub> = ValueType(x), &amp;step](StateType s) {
-	return std::invoke(step, std::move(s), x<sub>copy</sub>);
+      [x_copy = ValueType(x), &amp;step](StateType s) {
+	return std::invoke(step, std::move(s), x_copy);
       }};
   },
   std::forward&lt;T&gt;(value));
 </p>
 
 <p>
-  return program(StateType(std::move(initial<sub>state</sub>)));
+  return program(StateType(std::move(initial_state)));
 }
 </p>
 
 <p>
 template &lt;class T, class STATE, class F&gt;
-auto fold<sub>right</sub>(this auto&amp;&amp; self, T&amp;&amp; value, STATE initial<sub>state</sub>, F&amp;&amp; function)
+auto fold_right(this auto&amp;&amp; self, T&amp;&amp; value, STATE initial_state, F&amp;&amp; function)
 {
-  using StateType = remove<sub>cvref</sub><sub>t</sub>&lt;STATE&gt;;
+  using StateType = remove_cvref_t&lt;STATE&gt;;
   auto step = std::forward&lt;F&gt;(function);
 </p>
 
 <p>
-const auto program = self.fold<sub>map</sub>(
+const auto program = self.fold_map(
   [&amp;step](const auto&amp; x) {
-    using ValueType = remove<sub>cvref</sub><sub>t</sub>&lt;decltype(x)&gt;;
+    using ValueType = remove_cvref_t&lt;decltype(x)&gt;;
     return detail::RightFoldProgram&lt;StateType&gt;{
-      [x<sub>copy</sub> = ValueType(x), &amp;step](StateType s) {
-	return std::invoke(step, x<sub>copy</sub>, std::move(s));
+      [x_copy = ValueType(x), &amp;step](StateType s) {
+	return std::invoke(step, x_copy, std::move(s));
       }};
   },
   std::forward&lt;T&gt;(value));
 </p>
 
 <p>
-  return program(StateType(std::move(initial<sub>state</sub>)));
+  return program(StateType(std::move(initial_state)));
 }
 </p>
 
 <p>
 template &lt;class T&gt;
-auto combine<sub>all</sub>(this auto&amp;&amp; self, T&amp;&amp; value)
+auto combine_all(this auto&amp;&amp; self, T&amp;&amp; value)
 {
-  return self.fold<sub>map</sub>([](const auto&amp; x) { return x; },
+  return self.fold_map([](const auto&amp; x) { return x; },
 	     std::forward&lt;T&gt;(value));
 }
 </p>
@@ -1075,15 +1075,15 @@ auto combine<sub>all</sub>(this auto&amp;&amp; self, T&amp;&amp; value)
 template &lt;class T&gt;
 auto fold(this auto&amp;&amp; self, T&amp;&amp; value)
 {
-  return self.combine<sub>all</sub>(std::forward&lt;T&gt;(value));
+  return self.combine_all(std::forward&lt;T&gt;(value));
 }
 </p>
 
 <p>
 template &lt;class T, class PREDICATE&gt;
-auto any<sub>of</sub>(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate) -&gt; bool
+auto any_of(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate) -&gt; bool
 {
-  const auto result = self.fold<sub>map</sub>(
+  const auto result = self.fold_map(
     [&amp;predicate](const auto&amp; x) {
       return detail::Any{std::invoke(predicate, x)};
     },
@@ -1091,15 +1091,15 @@ auto any<sub>of</sub>(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp
 </p>
 
 <p>
-  return result.d<sub>value</sub>;
+  return result.d_value;
 }
 </p>
 
 <p>
 template &lt;class T, class PREDICATE&gt;
-auto all<sub>of</sub>(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate) -&gt; bool
+auto all_of(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate) -&gt; bool
 {
-  const auto result = self.fold<sub>map</sub>(
+  const auto result = self.fold_map(
     [&amp;predicate](const auto&amp; x) {
       return detail::All{std::invoke(predicate, x)};
     },
@@ -1107,7 +1107,7 @@ auto all<sub>of</sub>(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp
 </p>
 
 <p>
-  return result.d<sub>value</sub>;
+  return result.d_value;
 }
 </p>
 
@@ -1115,7 +1115,7 @@ auto all<sub>of</sub>(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp
 template &lt;class T&gt;
 auto empty(this auto&amp;&amp; self, T&amp;&amp; value) -&gt; bool
 {
-  return !self.any<sub>of</sub>(std::forward&lt;T&gt;(value), [](const auto&amp;) {
+  return !self.any_of(std::forward&lt;T&gt;(value), [](const auto&amp;) {
     return true;
   });
 }
@@ -1123,11 +1123,11 @@ auto empty(this auto&amp;&amp; self, T&amp;&amp; value) -&gt; bool
 
 <p>
 template &lt;class T&gt;
-auto to<sub>vector</sub>(this auto&amp;&amp; self, T&amp;&amp; value)
+auto to_vector(this auto&amp;&amp; self, T&amp;&amp; value)
 {
-  return self.fold<sub>map</sub>(
+  return self.fold_map(
     [](const auto&amp; x) {
-      using ValueType = remove<sub>cvref</sub><sub>t</sub>&lt;decltype(x)&gt;;
+      using ValueType = remove_cvref_t&lt;decltype(x)&gt;;
       return std::vector&lt;ValueType&gt;{x};
     },
     std::forward&lt;T&gt;(value));
@@ -1137,11 +1137,11 @@ auto to<sub>vector</sub>(this auto&amp;&amp; self, T&amp;&amp; value)
 
 <p>
 template &lt;class T, class PREDICATE&gt;
-auto find<sub>first</sub>(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate)
+auto find_first(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate)
 {
-  const auto result = self.fold<sub>map</sub>(
+  const auto result = self.fold_map(
     [&amp;predicate](const auto&amp; x) {
-      using X = remove<sub>cvref</sub><sub>t</sub>&lt;decltype(x)&gt;;
+      using X = remove_cvref_t&lt;decltype(x)&gt;;
       if (std::invoke(predicate, x)) {
 	return detail::First&lt;X&gt;{{x}};
       }
@@ -1151,7 +1151,7 @@ auto find<sub>first</sub>(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE
 </p>
 
 <p>
-  return result.d<sub>value</sub>;
+  return result.d_value;
 }
 </p></li>
 </ul>
@@ -1161,7 +1161,7 @@ auto find<sub>first</sub>(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE
 
 <p>
 template &lt;class T&gt;
-inline constexpr auto foldable<sub>typeclass</sub> = std::false<sub>type</sub>{};
+inline constexpr auto foldable_typeclass = std::false_type{};
 </p>
 
 <p>
@@ -1174,8 +1174,8 @@ inline constexpr auto foldable<sub>typeclass</sub> = std::false<sub>type</sub>{}
 </p>
 </div>
 </div>
-<div id="outline-container-org8afff5d" class="outline-4">
-<h4 id="org8afff5d"><span class="section-number-4">5.0.8.</span> Foldable proof: derived operations hold in tests</h4>
+<div id="outline-container-org0ce6540" class="outline-4">
+<h4 id="org0ce6540"><span class="section-number-4">5.0.8.</span> Foldable proof: derived operations hold in tests</h4>
 <div class="outline-text-4" id="text-5-0-8">
 <ul class="org-ul">
 <li><p>
@@ -1186,24 +1186,24 @@ Derived operations agree operationally with the <code>fold_map</code> contract.
 // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4
 using IntSequence = smd::typeclass::test::Sequence&lt;int&gt;;
 auto sequence = IntSequence{{1, 2, 3}};
-const auto&amp; int<sub>foldable</sub> = smd::foldable<sub>typeclass</sub>&lt;IntSequence&gt;;
+const auto&amp; int_foldable = smd::foldable_typeclass&lt;IntSequence&gt;;
 </p>
 
 <p>
-const auto as<sub>vector</sub> = int<sub>foldable.to</sub><sub>vector</sub>(sequence);
-CHECK(as<sub>vector</sub> == (std::vector&lt;int&gt;{1, 2, 3}));
+const auto as_vector = int_foldable.to_vector(sequence);
+CHECK(as_vector == (std::vector&lt;int&gt;{1, 2, 3}));
 </p>
 
 <p>
 using VectorSequence = smd::typeclass::test::Sequence&lt;std::vector&lt;int&gt; &gt;;
 auto vectors = VectorSequence{{{1, 2}, {3}}};
-const auto&amp; vector<sub>foldable</sub> = smd::foldable<sub>typeclass</sub>&lt;VectorSequence&gt;;
-const auto combined = vector<sub>foldable.combine</sub><sub>all</sub>(vectors);
+const auto&amp; vector_foldable = smd::foldable_typeclass&lt;VectorSequence&gt;;
+const auto combined = vector_foldable.combine_all(vectors);
 CHECK(combined == (std::vector&lt;int&gt;{1, 2, 3}));
 </p>
 
 <p>
-const auto folded = vector<sub>foldable.fold</sub>(vectors);
+const auto folded = vector_foldable.fold(vectors);
 CHECK(folded == (std::vector&lt;int&gt;{1, 2, 3}));
 // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end
 </p></li>
@@ -1213,33 +1213,33 @@ CHECK(folded == (std::vector&lt;int&gt;{1, 2, 3}));
 </p>
 
 <p>
-TEST<sub>CASE</sub>("FoldableTypeclassTest - AllOfAndFindFirstEdgeCases")
+TEST_CASE("FoldableTypeclassTest - AllOfAndFindFirstEdgeCases")
 {
     using Sequence = smd::typeclass::test::Sequence&lt;int&gt;;
-    const auto&amp; foldable = smd::foldable<sub>typeclass</sub>&lt;Sequence&gt;;
+    const auto&amp; foldable = smd::foldable_typeclass&lt;Sequence&gt;;
 </p>
 
 <p>
 auto mixed = Sequence{{2, -1, 4}};
-CHECK<sub>FALSE</sub>(foldable.all<sub>of</sub>(mixed, [](int x) { return x &gt; 0; }));
+CHECK_FALSE(foldable.all_of(mixed, [](int x) { return x &gt; 0; }));
 </p>
 
 <p>
-auto found<sub>even</sub> = foldable.find<sub>first</sub>(mixed, [](int x) { return x % 2 <code>= 0; });
+auto found_even = foldable.find_first(mixed, [](int x) { return x % 2 <code>= 0; });
     REQUIRE(found_even.has_value());
     CHECK(*found_even =</code> 2);
 </p>
 
 <p>
-    auto found<sub>large</sub> = foldable.find<sub>first</sub>(mixed, [](int x) { return x &gt; 100; });
-    CHECK<sub>FALSE</sub>(found<sub>large.has</sub><sub>value</sub>());
+    auto found_large = foldable.find_first(mixed, [](int x) { return x &gt; 100; });
+    CHECK_FALSE(found_large.has_value());
 }
 :lines 2- :src cpp :end "4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end"
 </p>
 </div>
 </div>
-<div id="outline-container-org9b9d8a2" class="outline-4">
-<h4 id="org9b9d8a2"><span class="section-number-4">5.0.9.</span> Applicative model: pure function over effectful arguments</h4>
+<div id="outline-container-org9ded522" class="outline-4">
+<h4 id="org9ded522"><span class="section-number-4">5.0.9.</span> Applicative model: pure function over effectful arguments</h4>
 <div class="outline-text-4" id="text-5-0-9">
 <ul class="org-ul">
 <li>Applicative captures independent effectful arguments without full monadic sequencing.</li>
@@ -1277,8 +1277,8 @@ return sum;
 </p>
 </div>
 </div>
-<div id="outline-container-orge1c155e" class="outline-4">
-<h4 id="orge1c155e"><span class="section-number-4">5.0.10.</span> Applicative API: minimal core, user-facing invoke</h4>
+<div id="outline-container-org32d7eed" class="outline-4">
+<h4 id="org32d7eed"><span class="section-number-4">5.0.10.</span> Applicative API: minimal core, user-facing invoke</h4>
 <div class="outline-text-4" id="text-5-0-10">
 <ul class="org-ul">
 <li>Minimal implementation hook: <code>pure</code> and <code>apply</code>.</li>
@@ -1291,46 +1291,46 @@ return sum;
 <i>/ a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11
 /</i> Teaching-friendly alias for "apply pure function to effectful arguments".
 // Prefer invoke as the primary C++ spelling (std::invoke model).
-template &lt;class FUNCTION, class FIRST<sub>ARGUMENT</sub>, class&hellip; REST<sub>ARGUMENTS</sub>&gt;
-auto apply<sub>pure</sub>(this auto&amp;&amp; self,
+template &lt;class FUNCTION, class FIRST_ARGUMENT, class&hellip; REST_ARGUMENTS&gt;
+auto apply_pure(this auto&amp;&amp; self,
 		FUNCTION&amp;&amp; function,
-		FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-		REST<sub>ARGUMENTS</sub>&amp;&amp;&hellip; rest<sub>arguments</sub>)
+		FIRST_ARGUMENT&amp;&amp; first_argument,
+		REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
 {
   return self.invoke(std::forward&lt;FUNCTION&gt;(function),
-		     std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-		     std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+		     std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+		     std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
 }
 </p>
 
 <p>
-template &lt;class FUNCTION, class FIRST<sub>ARGUMENT</sub>, class&hellip; REST<sub>ARGUMENTS</sub>&gt;
+template &lt;class FUNCTION, class FIRST_ARGUMENT, class&hellip; REST_ARGUMENTS&gt;
 auto invoke(this auto&amp;&amp; self,
 	    FUNCTION&amp;&amp; function,
-	    FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-	    REST<sub>ARGUMENTS</sub>&amp;&amp;&hellip; rest<sub>arguments</sub>)
+	    FIRST_ARGUMENT&amp;&amp; first_argument,
+	    REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
 {
-  using SELF = std::remove<sub>reference</sub><sub>t</sub>&lt;decltype(self)&gt;;
-  using IMPL<sub>BASE</sub> =
-    std::conditional<sub>t</sub>&lt;std::is<sub>const</sub><sub>v</sub>&lt;SELF&gt;, const Impl, Impl&gt;;
+  using SELF = std::remove_reference_t&lt;decltype(self)&gt;;
+  using IMPL_BASE =
+    std::conditional_t&lt;std::is_const_v&lt;SELF&gt;, const Impl, Impl&gt;;
 </p>
 
 <p>
-  if constexpr (requires(IMPL<sub>BASE</sub>&amp; impl) {
+  if constexpr (requires(IMPL_BASE&amp; impl) {
 		  impl.invoke(std::forward&lt;FUNCTION&gt;(function),
-			      std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-			      std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+			      std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+			      std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
 		}) {
-    return static<sub>cast</sub>&lt;IMPL<sub>BASE</sub>&amp;&gt;(self).invoke(
+    return static_cast&lt;IMPL_BASE&amp;&gt;(self).invoke(
       std::forward&lt;FUNCTION&gt;(function),
-      std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-      std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+      std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+      std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
   } else {
-    auto lifted<sub>function</sub> =
-      self.pure(detail::make<sub>terminating</sub><sub>partial</sub>(std::forward&lt;FUNCTION&gt;(function)));
-    return self.apply<sub>chain</sub>(
-      self.ap(std::move(lifted<sub>function</sub>), std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>)),
-      std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+    auto lifted_function =
+      self.pure(detail::make_terminating_partial(std::forward&lt;FUNCTION&gt;(function)));
+    return self.apply_chain(
+      self.ap(std::move(lifted_function), std::forward&lt;FIRST_ARGUMENT&gt;(first_argument)),
+      std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
   }
 }
 // a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end
@@ -1339,26 +1339,26 @@ auto invoke(this auto&amp;&amp; self,
 <p>
 private:
  template &lt;class ACCUMULATED&gt;
- auto apply<sub>chain</sub>(this auto&amp;&amp;, ACCUMULATED&amp;&amp; accumulated)
+ auto apply_chain(this auto&amp;&amp;, ACCUMULATED&amp;&amp; accumulated)
  {
    return std::forward&lt;ACCUMULATED&gt;(accumulated);
  }
 </p>
 
 <p>
-template &lt;class ACCUMULATED, class NEXT<sub>ARGUMENT</sub>, class&hellip; REST<sub>ARGUMENTS</sub>&gt;
-auto apply<sub>chain</sub>(this auto&amp;&amp; self,
+template &lt;class ACCUMULATED, class NEXT_ARGUMENT, class&hellip; REST_ARGUMENTS&gt;
+auto apply_chain(this auto&amp;&amp; self,
 		 ACCUMULATED&amp;&amp; accumulated,
-		 NEXT<sub>ARGUMENT</sub>&amp;&amp; next<sub>argument</sub>,
-		 REST<sub>ARGUMENTS</sub>&amp;&amp;&hellip; rest<sub>arguments</sub>)
+		 NEXT_ARGUMENT&amp;&amp; next_argument,
+		 REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
 {
   auto next = self.ap(std::forward&lt;ACCUMULATED&gt;(accumulated),
-		      std::forward&lt;NEXT<sub>ARGUMENT</sub>&gt;(next<sub>argument</sub>));
-  if constexpr (sizeof&hellip;(REST<sub>ARGUMENTS</sub>) == 0) {
+		      std::forward&lt;NEXT_ARGUMENT&gt;(next_argument));
+  if constexpr (sizeof&hellip;(REST_ARGUMENTS) == 0) {
     return next;
   } else {
-    return self.apply<sub>chain</sub>(std::move(next),
-			    std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+    return self.apply_chain(std::move(next),
+			    std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
   }
 }
 </p>
@@ -1382,122 +1382,122 @@ auto lift(this auto&amp;&amp; self, VALUE&amp;&amp; value)
 </p>
 
 <p>
-template &lt;class FUNCTION<sub>IN</sub><sub>CONTEXT</sub>, class ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&gt;
+template &lt;class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT&gt;
 auto ap(this auto&amp;&amp; self,
-	FUNCTION<sub>IN</sub><sub>CONTEXT</sub>&amp;&amp; function,
-	ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&amp;&amp; argument)
+	FUNCTION_IN_CONTEXT&amp;&amp; function,
+	ARGUMENT_IN_CONTEXT&amp;&amp; argument)
 {
-  return self.apply(std::forward&lt;FUNCTION<sub>IN</sub><sub>CONTEXT</sub>&gt;(function),
-		    std::forward&lt;ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&gt;(argument));
+  return self.apply(std::forward&lt;FUNCTION_IN_CONTEXT&gt;(function),
+		    std::forward&lt;ARGUMENT_IN_CONTEXT&gt;(argument));
 }
 </p>
 
 <p>
-template &lt;class FUNCTION, class FIRST<sub>ARGUMENT</sub>, class SECOND<sub>ARGUMENT</sub>&gt;
-auto zip<sub>with</sub>(this auto&amp;&amp; self,
+template &lt;class FUNCTION, class FIRST_ARGUMENT, class SECOND_ARGUMENT&gt;
+auto zip_with(this auto&amp;&amp; self,
 	      FUNCTION&amp;&amp; function,
-	      FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-	      SECOND<sub>ARGUMENT</sub>&amp;&amp; second<sub>argument</sub>)
+	      FIRST_ARGUMENT&amp;&amp; first_argument,
+	      SECOND_ARGUMENT&amp;&amp; second_argument)
 {
   return self.invoke(std::forward&lt;FUNCTION&gt;(function),
-		     std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-		     std::forward&lt;SECOND<sub>ARGUMENT</sub>&gt;(second<sub>argument</sub>));
+		     std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+		     std::forward&lt;SECOND_ARGUMENT&gt;(second_argument));
 }
 </p>
 
 <p>
-template &lt;class FIRST<sub>ARGUMENT</sub>, class SECOND<sub>ARGUMENT</sub>&gt;
-auto discard<sub>first</sub>(this auto&amp;&amp; self,
-		   FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-		   SECOND<sub>ARGUMENT</sub>&amp;&amp; second<sub>argument</sub>)
+template &lt;class FIRST_ARGUMENT, class SECOND_ARGUMENT&gt;
+auto discard_first(this auto&amp;&amp; self,
+		   FIRST_ARGUMENT&amp;&amp; first_argument,
+		   SECOND_ARGUMENT&amp;&amp; second_argument)
 {
   return self.invoke(
     [](const auto&amp;, auto&amp;&amp; rhs) {
       return std::forward&lt;decltype(rhs)&gt;(rhs);
     },
-    std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-    std::forward&lt;SECOND<sub>ARGUMENT</sub>&gt;(second<sub>argument</sub>));
+    std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+    std::forward&lt;SECOND_ARGUMENT&gt;(second_argument));
 }
 </p>
 
 <p>
-template &lt;class FIRST<sub>ARGUMENT</sub>, class SECOND<sub>ARGUMENT</sub>&gt;
-auto discard<sub>second</sub>(this auto&amp;&amp; self,
-		    FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-		    SECOND<sub>ARGUMENT</sub>&amp;&amp; second<sub>argument</sub>)
+template &lt;class FIRST_ARGUMENT, class SECOND_ARGUMENT&gt;
+auto discard_second(this auto&amp;&amp; self,
+		    FIRST_ARGUMENT&amp;&amp; first_argument,
+		    SECOND_ARGUMENT&amp;&amp; second_argument)
 {
   return self.invoke(
     [](auto&amp;&amp; lhs, const auto&amp;) {
       return std::forward&lt;decltype(lhs)&gt;(lhs);
     },
-    std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-    std::forward&lt;SECOND<sub>ARGUMENT</sub>&gt;(second<sub>argument</sub>));
+    std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+    std::forward&lt;SECOND_ARGUMENT&gt;(second_argument));
 }
 </p>
 
 <p>
-template &lt;class APPLICATIVE<sub>MAP</sub>,
+template &lt;class APPLICATIVE_MAP,
 	  class FUNCTION,
-	  class FIRST<sub>ARGUMENT</sub>,
-	  class&hellip; REST<sub>ARGUMENTS</sub>&gt;
-auto invoke<sub>with</sub>(this auto&amp;&amp;,
-		 const APPLICATIVE<sub>MAP</sub>&amp; applicative<sub>map</sub>,
+	  class FIRST_ARGUMENT,
+	  class&hellip; REST_ARGUMENTS&gt;
+auto invoke_with(this auto&amp;&amp;,
+		 const APPLICATIVE_MAP&amp; applicative_map,
 		 FUNCTION&amp;&amp; function,
-		 FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-		 REST<sub>ARGUMENTS</sub>&amp;&amp;&hellip; rest<sub>arguments</sub>)
+		 FIRST_ARGUMENT&amp;&amp; first_argument,
+		 REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
 {
-  return applicative<sub>map.invoke</sub>(std::forward&lt;FUNCTION&gt;(function),
-				std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-				std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+  return applicative_map.invoke(std::forward&lt;FUNCTION&gt;(function),
+				std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+				std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
 }
 </p>
 
 <p>
-template &lt;class APPLICATIVE<sub>MAP</sub>,
+template &lt;class APPLICATIVE_MAP,
 	  class FUNCTION,
-	  class FIRST<sub>ARGUMENT</sub>,
-	  class&hellip; REST<sub>ARGUMENTS</sub>&gt;
-auto apply<sub>pure</sub><sub>with</sub>(this auto&amp;&amp;,
-		     const APPLICATIVE<sub>MAP</sub>&amp; applicative<sub>map</sub>,
+	  class FIRST_ARGUMENT,
+	  class&hellip; REST_ARGUMENTS&gt;
+auto apply_pure_with(this auto&amp;&amp;,
+		     const APPLICATIVE_MAP&amp; applicative_map,
 		     FUNCTION&amp;&amp; function,
-		     FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-		     REST<sub>ARGUMENTS</sub>&amp;&amp;&hellip; rest<sub>arguments</sub>)
+		     FIRST_ARGUMENT&amp;&amp; first_argument,
+		     REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
 {
-  return applicative<sub>map.invoke</sub>(std::forward&lt;FUNCTION&gt;(function),
-				std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-				std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+  return applicative_map.invoke(std::forward&lt;FUNCTION&gt;(function),
+				std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+				std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
 }
 </p>
 
 <p>
-template &lt;const auto&amp; APPLICATIVE<sub>MAP</sub>,
+template &lt;const auto&amp; APPLICATIVE_MAP,
 	  class FUNCTION,
-	  class FIRST<sub>ARGUMENT</sub>,
-	  class&hellip; REST<sub>ARGUMENTS</sub>&gt;
-auto invoke<sub>with</sub>(this auto&amp;&amp;,
+	  class FIRST_ARGUMENT,
+	  class&hellip; REST_ARGUMENTS&gt;
+auto invoke_with(this auto&amp;&amp;,
 		 FUNCTION&amp;&amp; function,
-		 FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-		 REST<sub>ARGUMENTS</sub>&amp;&amp;&hellip; rest<sub>arguments</sub>)
+		 FIRST_ARGUMENT&amp;&amp; first_argument,
+		 REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
 {
-  return APPLICATIVE<sub>MAP.invoke</sub>(std::forward&lt;FUNCTION&gt;(function),
-				std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-				std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+  return APPLICATIVE_MAP.invoke(std::forward&lt;FUNCTION&gt;(function),
+				std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+				std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
 }
 </p>
 
 <p>
-template &lt;const auto&amp; APPLICATIVE<sub>MAP</sub>,
+template &lt;const auto&amp; APPLICATIVE_MAP,
 	  class FUNCTION,
-	  class FIRST<sub>ARGUMENT</sub>,
-	  class&hellip; REST<sub>ARGUMENTS</sub>&gt;
-auto apply<sub>pure</sub><sub>with</sub>(this auto&amp;&amp;,
+	  class FIRST_ARGUMENT,
+	  class&hellip; REST_ARGUMENTS&gt;
+auto apply_pure_with(this auto&amp;&amp;,
 		     FUNCTION&amp;&amp; function,
-		     FIRST<sub>ARGUMENT</sub>&amp;&amp; first<sub>argument</sub>,
-		     REST<sub>ARGUMENTS</sub>&amp;&amp;&hellip; rest<sub>arguments</sub>)
+		     FIRST_ARGUMENT&amp;&amp; first_argument,
+		     REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
 {
-  return APPLICATIVE<sub>MAP.invoke</sub>(std::forward&lt;FUNCTION&gt;(function),
-				std::forward&lt;FIRST<sub>ARGUMENT</sub>&gt;(first<sub>argument</sub>),
-				std::forward&lt;REST<sub>ARGUMENTS</sub>&gt;(rest<sub>arguments</sub>)&hellip;);
+  return APPLICATIVE_MAP.invoke(std::forward&lt;FUNCTION&gt;(function),
+				std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
+				std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
 }
 </p></li>
 </ul>
@@ -1507,116 +1507,116 @@ auto apply<sub>pure</sub><sub>with</sub>(this auto&amp;&amp;,
 
 <p>
 template &lt;class T&gt;
-inline constexpr auto applicative<sub>typeclass</sub> = std::false<sub>type</sub>{};
+inline constexpr auto applicative_typeclass = std::false_type{};
 </p>
 
 <p>
-template &lt;class VALUE<sub>TYPE</sub>&gt;
+template &lt;class VALUE_TYPE&gt;
 struct OptionalApplicativeImpl {
   template &lt;class VALUE&gt;
-  auto pure(this auto&amp;&amp;, VALUE&amp;&amp; value) -&gt; std::optional&lt;remove<sub>cvref</sub><sub>t</sub>&lt;VALUE&gt; &gt;
+  auto pure(this auto&amp;&amp;, VALUE&amp;&amp; value) -&gt; std::optional&lt;remove_cvref_t&lt;VALUE&gt; &gt;
   {
-    return std::optional&lt;remove<sub>cvref</sub><sub>t</sub>&lt;VALUE&gt; &gt;{std::forward&lt;VALUE&gt;(value)};
+    return std::optional&lt;remove_cvref_t&lt;VALUE&gt; &gt;{std::forward&lt;VALUE&gt;(value)};
   }
 </p>
 
 <p>
-template &lt;class FUNCTION<sub>IN</sub><sub>CONTEXT</sub>, class ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&gt;
+template &lt;class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT&gt;
 auto apply(this auto&amp;&amp;,
-	   FUNCTION<sub>IN</sub><sub>CONTEXT</sub>&amp;&amp; function,
-	   ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&amp;&amp; argument)
+	   FUNCTION_IN_CONTEXT&amp;&amp; function,
+	   ARGUMENT_IN_CONTEXT&amp;&amp; argument)
 {
   using Result =
-    std::invoke<sub>result</sub><sub>t</sub>&lt;decltype(*function), decltype(*argument)&gt;;
+    std::invoke_result_t&lt;decltype(*function), decltype(*argument)&gt;;
 </p>
 
 <p>
 if (!function || !argument) {
-  return std::optional&lt;remove<sub>cvref</sub><sub>t</sub>&lt;Result&gt; &gt;{};
+  return std::optional&lt;remove_cvref_t&lt;Result&gt; &gt;{};
 }
 </p>
 
 <p>
-    return std::optional&lt;remove<sub>cvref</sub><sub>t</sub>&lt;Result&gt; &gt;{
-      std::invoke(*std::forward&lt;FUNCTION<sub>IN</sub><sub>CONTEXT</sub>&gt;(function),
-	    *std::forward&lt;ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&gt;(argument))};
+    return std::optional&lt;remove_cvref_t&lt;Result&gt; &gt;{
+      std::invoke(*std::forward&lt;FUNCTION_IN_CONTEXT&gt;(function),
+	    *std::forward&lt;ARGUMENT_IN_CONTEXT&gt;(argument))};
   }
 };
 </p>
 
 <p>
-template &lt;class VALUE<sub>TYPE</sub>&gt;
-struct OptionalApplicativeMap : Applicative&lt;OptionalApplicativeImpl&lt;VALUE<sub>TYPE</sub>&gt; &gt; {
-  using OptionalApplicativeImpl&lt;VALUE<sub>TYPE</sub>&gt;::apply;
-  using OptionalApplicativeImpl&lt;VALUE<sub>TYPE</sub>&gt;::pure;
+template &lt;class VALUE_TYPE&gt;
+struct OptionalApplicativeMap : Applicative&lt;OptionalApplicativeImpl&lt;VALUE_TYPE&gt; &gt; {
+  using OptionalApplicativeImpl&lt;VALUE_TYPE&gt;::apply;
+  using OptionalApplicativeImpl&lt;VALUE_TYPE&gt;::pure;
 };
 </p>
 
 <p>
-template &lt;class VALUE<sub>TYPE</sub>&gt;
-  requires(!std::same<sub>as</sub>&lt;beman::optional::optional&lt;VALUE<sub>TYPE</sub>&gt;,
-			 std::optional&lt;VALUE<sub>TYPE</sub>&gt; &gt;)
+template &lt;class VALUE_TYPE&gt;
+  requires(!std::same_as&lt;beman::optional::optional&lt;VALUE_TYPE&gt;,
+			 std::optional&lt;VALUE_TYPE&gt; &gt;)
 struct BemanOptionalApplicativeImpl {
   template &lt;class VALUE&gt;
   auto pure(this auto&amp;&amp;, VALUE&amp;&amp; value)
-    -&gt; beman::optional::optional&lt;remove<sub>cvref</sub><sub>t</sub>&lt;VALUE&gt; &gt;
+    -&gt; beman::optional::optional&lt;remove_cvref_t&lt;VALUE&gt; &gt;
   {
-    return beman::optional::optional&lt;remove<sub>cvref</sub><sub>t</sub>&lt;VALUE&gt; &gt;{
+    return beman::optional::optional&lt;remove_cvref_t&lt;VALUE&gt; &gt;{
       std::forward&lt;VALUE&gt;(value)};
   }
 </p>
 
 <p>
-template &lt;class FUNCTION<sub>IN</sub><sub>CONTEXT</sub>, class ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&gt;
+template &lt;class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT&gt;
 auto apply(this auto&amp;&amp;,
-	   FUNCTION<sub>IN</sub><sub>CONTEXT</sub>&amp;&amp; function,
-	   ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&amp;&amp; argument)
+	   FUNCTION_IN_CONTEXT&amp;&amp; function,
+	   ARGUMENT_IN_CONTEXT&amp;&amp; argument)
 {
   using Result =
-    std::invoke<sub>result</sub><sub>t</sub>&lt;decltype(*function), decltype(*argument)&gt;;
+    std::invoke_result_t&lt;decltype(*function), decltype(*argument)&gt;;
 </p>
 
 <p>
 if (!function || !argument) {
-  return beman::optional::optional&lt;remove<sub>cvref</sub><sub>t</sub>&lt;Result&gt; &gt;{};
+  return beman::optional::optional&lt;remove_cvref_t&lt;Result&gt; &gt;{};
 }
 </p>
 
 <p>
-    return beman::optional::optional&lt;remove<sub>cvref</sub><sub>t</sub>&lt;Result&gt; &gt;{
-      std::invoke(*std::forward&lt;FUNCTION<sub>IN</sub><sub>CONTEXT</sub>&gt;(function),
-	    *std::forward&lt;ARGUMENT<sub>IN</sub><sub>CONTEXT</sub>&gt;(argument))};
+    return beman::optional::optional&lt;remove_cvref_t&lt;Result&gt; &gt;{
+      std::invoke(*std::forward&lt;FUNCTION_IN_CONTEXT&gt;(function),
+	    *std::forward&lt;ARGUMENT_IN_CONTEXT&gt;(argument))};
   }
 };
 </p>
 
 <p>
-template &lt;class VALUE<sub>TYPE</sub>&gt;
-  requires(!std::same<sub>as</sub>&lt;beman::optional::optional&lt;VALUE<sub>TYPE</sub>&gt;,
-			 std::optional&lt;VALUE<sub>TYPE</sub>&gt; &gt;)
+template &lt;class VALUE_TYPE&gt;
+  requires(!std::same_as&lt;beman::optional::optional&lt;VALUE_TYPE&gt;,
+			 std::optional&lt;VALUE_TYPE&gt; &gt;)
 struct BemanOptionalApplicativeMap
 </p>
 <pre class="example">
 Applicative&lt;BemanOptionalApplicativeImpl&lt;VALUE_TYPE&gt; &gt; {
 </pre>
 <p>
-  using BemanOptionalApplicativeImpl&lt;VALUE<sub>TYPE</sub>&gt;::apply;
-  using BemanOptionalApplicativeImpl&lt;VALUE<sub>TYPE</sub>&gt;::pure;
+  using BemanOptionalApplicativeImpl&lt;VALUE_TYPE&gt;::apply;
+  using BemanOptionalApplicativeImpl&lt;VALUE_TYPE&gt;::pure;
 };
 </p>
 
 <p>
-template &lt;class VALUE<sub>TYPE</sub>&gt;
-inline constexpr auto applicative<sub>typeclass</sub>&lt;std::optional&lt;VALUE<sub>TYPE</sub>&gt; &gt; =
-    OptionalApplicativeMap&lt;VALUE<sub>TYPE</sub>&gt;{};
+template &lt;class VALUE_TYPE&gt;
+inline constexpr auto applicative_typeclass&lt;std::optional&lt;VALUE_TYPE&gt; &gt; =
+    OptionalApplicativeMap&lt;VALUE_TYPE&gt;{};
 </p>
 
 <p>
-template &lt;class VALUE<sub>TYPE</sub>&gt;
-  requires(!std::same<sub>as</sub>&lt;beman::optional::optional&lt;VALUE<sub>TYPE</sub>&gt;,
-			 std::optional&lt;VALUE<sub>TYPE</sub>&gt; &gt;)
-inline constexpr auto applicative<sub>typeclass</sub>&lt;beman::optional::optional&lt;VALUE<sub>TYPE</sub>&gt; &gt; =
-    BemanOptionalApplicativeMap&lt;VALUE<sub>TYPE</sub>&gt;{};
+template &lt;class VALUE_TYPE&gt;
+  requires(!std::same_as&lt;beman::optional::optional&lt;VALUE_TYPE&gt;,
+			 std::optional&lt;VALUE_TYPE&gt; &gt;)
+inline constexpr auto applicative_typeclass&lt;beman::optional::optional&lt;VALUE_TYPE&gt; &gt; =
+    BemanOptionalApplicativeMap&lt;VALUE_TYPE&gt;{};
 </p>
 
 <p>
@@ -1629,8 +1629,8 @@ inline constexpr auto applicative<sub>typeclass</sub>&lt;beman::optional::option
 </p>
 </div>
 </div>
-<div id="outline-container-org0f62f3b" class="outline-4">
-<h4 id="org0f62f3b"><span class="section-number-4">5.0.11.</span> Applicative proof: n-ary use in tests</h4>
+<div id="outline-container-org18e7e2f" class="outline-4">
+<h4 id="org18e7e2f"><span class="section-number-4">5.0.11.</span> Applicative proof: n-ary use in tests</h4>
 <div class="outline-text-4" id="text-5-0-11">
 <ul class="org-ul">
 <li><p>
@@ -1642,16 +1642,16 @@ The same API handles arity &gt; 2 without per-call-site plumbing.
 std::optional&lt;int&gt; ax{2};
 std::optional&lt;int&gt; ay{3};
 std::optional&lt;int&gt; az{4};
-const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
-auto result = applicative.apply<sub>pure</sub>(
+auto result = applicative.apply_pure(
     [](int a, int b, int c) { return a * b + c; },
     ax,
     ay,
     az);
-REQUIRE(result.has<sub>value</sub>());
+REQUIRE(result.has_value());
 CHECK(*result == 10);
 // 6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end
 </p></li>
@@ -1661,146 +1661,146 @@ CHECK(*result == 10);
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - MapOptional")
+TEST_CASE("ApplicativeTypeclassTest - MapOptional")
 {
     std::optional&lt;int&gt; value{21};
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
     auto result = applicative.map([](int x) { return x * 2; }, value);
-    REQUIRE(result.has<sub>value</sub>());
+    REQUIRE(result.has_value());
     CHECK(*result == 42);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - InvokeWithExplicitMap")
+TEST_CASE("ApplicativeTypeclassTest - InvokeWithExplicitMap")
 {
     std::optional&lt;int&gt; ax{10};
     std::optional&lt;int&gt; ay{5};
-    const auto&amp; default<sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
-    const auto&amp; optional<sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; optional_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
-    auto result = default<sub>applicative.invoke</sub><sub>with</sub>(
-	optional<sub>applicative</sub>,
+    auto result = default_applicative.invoke_with(
+	optional_applicative,
 	[](int a, int b) { return a + b; },
 	ax,
 	ay);
-    REQUIRE(result.has<sub>value</sub>());
+    REQUIRE(result.has_value());
     CHECK(*result == 15);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - OptionalEmptyPaths")
+TEST_CASE("ApplicativeTypeclassTest - OptionalEmptyPaths")
 {
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
-std::optional&lt;int (*)(int)&gt; no<sub>function</sub>{};
+std::optional&lt;int (*)(int)&gt; no_function{};
 std::optional&lt;int&gt; argument{4};
-auto no<sub>function</sub><sub>result</sub> = applicative.apply(no<sub>function</sub>, argument);
-CHECK<sub>FALSE</sub>(no<sub>function</sub><sub>result.has</sub><sub>value</sub>());
+auto no_function_result = applicative.apply(no_function, argument);
+CHECK_FALSE(no_function_result.has_value());
 </p>
 
 <p>
 std::optional&lt;int (*)(int)&gt; function{+[](int x) { return x + 3; }};
-std::optional&lt;int&gt; no<sub>argument</sub>{};
-auto no<sub>argument</sub><sub>result</sub> = applicative.apply(function, no<sub>argument</sub>);
-CHECK<sub>FALSE</sub>(no<sub>argument</sub><sub>result.has</sub><sub>value</sub>());
+std::optional&lt;int&gt; no_argument{};
+auto no_argument_result = applicative.apply(function, no_argument);
+CHECK_FALSE(no_argument_result.has_value());
 </p>
 
 <p>
     std::optional&lt;int&gt; ax{1};
     std::optional&lt;int&gt; ay{};
-    auto invoke<sub>result</sub> = applicative.invoke([](int a, int b) { return a + b; }, ax, ay);
-    CHECK<sub>FALSE</sub>(invoke<sub>result.has</sub><sub>value</sub>());
+    auto invoke_result = applicative.invoke([](int a, int b) { return a + b; }, ax, ay);
+    CHECK_FALSE(invoke_result.has_value());
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - DerivedOperations")
+TEST_CASE("ApplicativeTypeclassTest - DerivedOperations")
 {
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
 auto lifted = applicative.lift(9);
-REQUIRE(lifted.has<sub>value</sub>());
+REQUIRE(lifted.has_value());
 CHECK(*lifted == 9);
 </p>
 
 <p>
 std::optional&lt;int (*)(int)&gt; function{+[](int x) { return x * 3; }};
 auto applied = applicative.ap(function, std::optional&lt;int&gt;{7});
-REQUIRE(applied.has<sub>value</sub>());
+REQUIRE(applied.has_value());
 CHECK(*applied == 21);
 </p>
 
 <p>
-auto zipped = applicative.zip<sub>with</sub>(
+auto zipped = applicative.zip_with(
     [](int a, int b) { return a * b; },
     std::optional&lt;int&gt;{6},
     std::optional&lt;int&gt;{5});
-REQUIRE(zipped.has<sub>value</sub>());
+REQUIRE(zipped.has_value());
 CHECK(*zipped == 30);
 </p>
 
 <p>
-auto keep<sub>right</sub> = applicative.discard<sub>first</sub>(std::optional&lt;int&gt;{1}, std::optional&lt;int&gt;{2});
-REQUIRE(keep<sub>right.has</sub><sub>value</sub>());
-CHECK(*keep<sub>right</sub> == 2);
+auto keep_right = applicative.discard_first(std::optional&lt;int&gt;{1}, std::optional&lt;int&gt;{2});
+REQUIRE(keep_right.has_value());
+CHECK(*keep_right == 2);
 </p>
 
 <p>
-    auto keep<sub>left</sub> = applicative.discard<sub>second</sub>(std::optional&lt;int&gt;{1}, std::optional&lt;int&gt;{2});
-    REQUIRE(keep<sub>left.has</sub><sub>value</sub>());
-    CHECK(*keep<sub>left</sub> == 1);
+    auto keep_left = applicative.discard_second(std::optional&lt;int&gt;{1}, std::optional&lt;int&gt;{2});
+    REQUIRE(keep_left.has_value());
+    CHECK(*keep_left == 1);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - InvokeWithNttpMap")
+TEST_CASE("ApplicativeTypeclassTest - InvokeWithNttpMap")
 {
-    const auto&amp; default<sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
-auto result = default<sub>applicative.invoke</sub><sub>with</sub>&lt;
-    smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;&gt;(
+auto result = default_applicative.invoke_with&lt;
+    smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;&gt;(
     [](int a, int b, int c) { return a + b + c; },
     std::optional&lt;int&gt;{1},
     std::optional&lt;int&gt;{2},
     std::optional&lt;int&gt;{3});
-REQUIRE(result.has<sub>value</sub>());
+REQUIRE(result.has_value());
 CHECK(*result == 6);
 </p>
 
 <p>
-    auto apply<sub>pure</sub><sub>result</sub> = default<sub>applicative.apply</sub><sub>pure</sub><sub>with</sub>&lt;
-	smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;&gt;(
+    auto apply_pure_result = default_applicative.apply_pure_with&lt;
+	smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;&gt;(
 	[](int a, int b) { return a - b; },
 	std::optional&lt;int&gt;{8},
 	std::optional&lt;int&gt;{5});
-    REQUIRE(apply<sub>pure</sub><sub>result.has</sub><sub>value</sub>());
-    CHECK(*apply<sub>pure</sub><sub>result</sub> == 3);
+    REQUIRE(apply_pure_result.has_value());
+    CHECK(*apply_pure_result == 3);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BemanOptional")
+TEST_CASE("ApplicativeTypeclassTest - BemanOptional")
 {
     using BemanOptional = beman::optional::optional&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;BemanOptional&gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;BemanOptional&gt;;
 </p>
 
 <p>
 auto lifted = applicative.pure(11);
-REQUIRE(lifted.has<sub>value</sub>());
+REQUIRE(lifted.has_value());
 CHECK(*lifted == 11);
 </p>
 
@@ -1808,20 +1808,20 @@ CHECK(*lifted == 11);
 beman::optional::optional&lt;int (*)(int)&gt; function{+[](int x) { return x + 5; }};
 BemanOptional argument{7};
 auto applied = applicative.apply(function, argument);
-REQUIRE(applied.has<sub>value</sub>());
+REQUIRE(applied.has_value());
 CHECK(*applied == 12);
 </p>
 
 <p>
-beman::optional::optional&lt;int (*)(int)&gt; no<sub>function</sub>{};
-auto no<sub>function</sub><sub>applied</sub> = applicative.apply(no<sub>function</sub>, argument);
-CHECK<sub>FALSE</sub>(no<sub>function</sub><sub>applied.has</sub><sub>value</sub>());
+beman::optional::optional&lt;int (*)(int)&gt; no_function{};
+auto no_function_applied = applicative.apply(no_function, argument);
+CHECK_FALSE(no_function_applied.has_value());
 </p>
 
 <p>
-BemanOptional no<sub>argument</sub>{};
-auto no<sub>argument</sub><sub>applied</sub> = applicative.apply(function, no<sub>argument</sub>);
-CHECK<sub>FALSE</sub>(no<sub>argument</sub><sub>applied.has</sub><sub>value</sub>());
+BemanOptional no_argument{};
+auto no_argument_applied = applicative.apply(function, no_argument);
+CHECK_FALSE(no_argument_applied.has_value());
 </p>
 
 <p>
@@ -1829,42 +1829,42 @@ auto invoked = applicative.invoke(
     [](int a, int b) { return a * b; },
     BemanOptional{3},
     BemanOptional{4});
-REQUIRE(invoked.has<sub>value</sub>());
+REQUIRE(invoked.has_value());
 CHECK(*invoked == 12);
 </p>
 
 <p>
-    auto empty<sub>invoked</sub> = applicative.invoke(
+    auto empty_invoked = applicative.invoke(
 	[](int a, int b) { return a * b; },
 	BemanOptional{},
 	BemanOptional{4});
-    CHECK<sub>FALSE</sub>(empty<sub>invoked.has</sub><sub>value</sub>());
+    CHECK_FALSE(empty_invoked.has_value());
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - ApplyPureWithExplicitMap")
+TEST_CASE("ApplicativeTypeclassTest - ApplyPureWithExplicitMap")
 {
-    const auto&amp; default<sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
-    const auto&amp; optional<sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; optional_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
-    auto result = default<sub>applicative.apply</sub><sub>pure</sub><sub>with</sub>(
-	optional<sub>applicative</sub>,
+    auto result = default_applicative.apply_pure_with(
+	optional_applicative,
 	[](int a, int b, int c) { return a + b + c; },
 	std::optional&lt;int&gt;{4},
 	std::optional&lt;int&gt;{5},
 	std::optional&lt;int&gt;{6});
-    REQUIRE(result.has<sub>value</sub>());
+    REQUIRE(result.has_value());
     CHECK(*result == 15);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - TerminatingPartialExtendsAndInvokes")
+TEST_CASE("ApplicativeTypeclassTest - TerminatingPartialExtendsAndInvokes")
 {
-    auto partial = smd::detail::make<sub>terminating</sub><sub>partial</sub>(
+    auto partial = smd::detail::make_terminating_partial(
 	[](int a, int b, int c) { return a * 100 + b * 10 + c; });
 </p>
 
@@ -1875,19 +1875,19 @@ CHECK(partial3(3) == 123);
 </p>
 
 <p>
-    const auto const<sub>partial</sub> = smd::detail::make<sub>terminating</sub><sub>partial</sub>(
+    const auto const_partial = smd::detail::make_terminating_partial(
 	[](int a, int b) { return a - b; });
-    auto const<sub>partial2</sub> = const<sub>partial</sub>(9);
-    const auto const<sub>partial3</sub> = const<sub>partial2</sub>;
-    CHECK(const<sub>partial3</sub>(4) == 5);
+    auto const_partial2 = const_partial(9);
+    const auto const_partial3 = const_partial2;
+    CHECK(const_partial3(4) == 5);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - IdentityMapUsesDerivedInvokePath")
+TEST_CASE("ApplicativeTypeclassTest - IdentityMapUsesDerivedInvokePath")
 {
     using Identity = smd::typeclass::test::Identity&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;Identity&gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;Identity&gt;;
 </p>
 
 <p>
@@ -1899,7 +1899,7 @@ CHECK(binary.value == 5);
 </p>
 
 <p>
-    auto ternary = applicative.apply<sub>pure</sub>(
+    auto ternary = applicative.apply_pure(
 	[](int a, int b, int c) { return a * 100 + b * 10 + c; },
 	Identity{1},
 	Identity{2},
@@ -1909,14 +1909,14 @@ CHECK(binary.value == 5);
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - CustomInvokeDispatchPath")
+TEST_CASE("ApplicativeTypeclassTest - CustomInvokeDispatchPath")
 {
-    const auto&amp; default<sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
-auto result = default<sub>applicative.invoke</sub><sub>with</sub>(
-    direct<sub>invoke</sub><sub>map</sub>,
+auto result = default_applicative.invoke_with(
+    direct_invoke_map,
     [](int a, int b, int c) { return a + b + c; },
     smd::typeclass::test::Identity&lt;int&gt;{4},
     smd::typeclass::test::Identity&lt;int&gt;{5},
@@ -1925,66 +1925,66 @@ CHECK(result.value == 15);
 </p>
 
 <p>
-    auto nttp<sub>result</sub> = default<sub>applicative.invoke</sub><sub>with</sub>&lt;direct<sub>invoke</sub><sub>map</sub>&gt;(
+    auto nttp_result = default_applicative.invoke_with&lt;direct_invoke_map&gt;(
 	[](int a, int b) { return a * b; },
 	smd::typeclass::test::Identity&lt;int&gt;{7},
 	smd::typeclass::test::Identity&lt;int&gt;{8});
-    CHECK(nttp<sub>result.value</sub> == 56);
+    CHECK(nttp_result.value == 56);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - OptionalAndBemanVectorInstantiationPaths")
+TEST_CASE("ApplicativeTypeclassTest - OptionalAndBemanVectorInstantiationPaths")
 {
-    const auto&amp; optional<sub>applicative</sub> =
-	smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;std::vector&lt;int&gt; &gt; &gt;;
+    const auto&amp; optional_applicative =
+	smd::applicative_typeclass&lt;std::optional&lt;std::vector&lt;int&gt; &gt; &gt;;
 </p>
 
 <p>
-auto lifted<sub>vector</sub> = optional<sub>applicative.pure</sub>(std::vector&lt;int&gt;{1, 2, 3});
-REQUIRE(lifted<sub>vector.has</sub><sub>value</sub>());
-CHECK(lifted<sub>vector</sub>-&gt;size() == 3);
+auto lifted_vector = optional_applicative.pure(std::vector&lt;int&gt;{1, 2, 3});
+REQUIRE(lifted_vector.has_value());
+CHECK(lifted_vector-&gt;size() == 3);
 </p>
 
 <p>
-std::optional&lt;std::vector&lt;int&gt; (*)(std::vector&lt;int&gt;)&gt; append<sub>value</sub>{
+std::optional&lt;std::vector&lt;int&gt; (*)(std::vector&lt;int&gt;)&gt; append_value{
     +[](std::vector&lt;int&gt; v) {
-	v.push<sub>back</sub>(4);
+	v.push_back(4);
 	return v;
     }};
-auto applied<sub>vector</sub> = optional<sub>applicative.apply</sub>(append<sub>value</sub>, lifted<sub>vector</sub>);
-REQUIRE(applied<sub>vector.has</sub><sub>value</sub>());
-CHECK(applied<sub>vector</sub>-&gt;size() == 4);
+auto applied_vector = optional_applicative.apply(append_value, lifted_vector);
+REQUIRE(applied_vector.has_value());
+CHECK(applied_vector-&gt;size() == 4);
 </p>
 
 <p>
 using BemanVectorOptional = beman::optional::optional&lt;std::vector&lt;int&gt; &gt;;
-const auto&amp; beman<sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;BemanVectorOptional&gt;;
+const auto&amp; beman_applicative = smd::applicative_typeclass&lt;BemanVectorOptional&gt;;
 </p>
 
 <p>
-auto beman<sub>lifted</sub> = beman<sub>applicative.pure</sub>(std::vector&lt;int&gt;{8, 9});
-REQUIRE(beman<sub>lifted.has</sub><sub>value</sub>());
-CHECK(beman<sub>lifted</sub>-&gt;size() == 2);
+auto beman_lifted = beman_applicative.pure(std::vector&lt;int&gt;{8, 9});
+REQUIRE(beman_lifted.has_value());
+CHECK(beman_lifted-&gt;size() == 2);
 </p>
 
 <p>
-    beman::optional::optional&lt;std::vector&lt;int&gt; (*)(std::vector&lt;int&gt;)&gt; beman<sub>append</sub>{
+    beman::optional::optional&lt;std::vector&lt;int&gt; (*)(std::vector&lt;int&gt;)&gt; beman_append{
 	+[](std::vector&lt;int&gt; v) {
-	    v.push<sub>back</sub>(10);
+	    v.push_back(10);
 	    return v;
 	}};
-    auto beman<sub>applied</sub> = beman<sub>applicative.apply</sub>(beman<sub>append</sub>, beman<sub>lifted</sub>);
-    REQUIRE(beman<sub>applied.has</sub><sub>value</sub>());
-    CHECK(beman<sub>applied</sub>-&gt;size() == 3);
+    auto beman_applied = beman_applicative.apply(beman_append, beman_lifted);
+    REQUIRE(beman_applied.has_value());
+    CHECK(beman_applied-&gt;size() == 3);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - IdentityWrapperMethods")
+TEST_CASE("ApplicativeTypeclassTest - IdentityWrapperMethods")
 {
     using Identity = smd::typeclass::test::Identity&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;Identity&gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;Identity&gt;;
 </p>
 
 <p>
@@ -1993,7 +1993,7 @@ CHECK(mapped.value == 10);
 </p>
 
 <p>
-auto zipped = applicative.zip<sub>with</sub>(
+auto zipped = applicative.zip_with(
     [](int a, int b) { return a - b; },
     Identity{20},
     Identity{3});
@@ -2001,18 +2001,18 @@ CHECK(zipped.value == 17);
 </p>
 
 <p>
-    auto ap<sub>result</sub> = applicative.ap(
+    auto ap_result = applicative.ap(
 	smd::typeclass::test::Identity&lt;int (*)(int)&gt;{+[](int x) { return x * 5; }},
 	Identity{6});
-    CHECK(ap<sub>result.value</sub> == 30);
+    CHECK(ap_result.value == 30);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BareIdentityInvokeAndApplyChain")
+TEST_CASE("ApplicativeTypeclassTest - BareIdentityInvokeAndApplyChain")
 {
     using BareIdentity = smd::typeclass::test::BareIdentity&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;BareIdentity&gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;BareIdentity&gt;;
 </p>
 
 <p>
@@ -2030,7 +2030,7 @@ CHECK(ternary.value == 10);
 </p>
 
 <p>
-    auto quaternary = applicative.apply<sub>pure</sub>(
+    auto quaternary = applicative.apply_pure(
 	[](int a, int b, int c, int d) { return a + b + c + d; },
 	BareIdentity{1},
 	BareIdentity{2},
@@ -2041,10 +2041,10 @@ CHECK(ternary.value == 10);
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BareIdentityWrapperCoverage")
+TEST_CASE("ApplicativeTypeclassTest - BareIdentityWrapperCoverage")
 {
     using BareIdentity = smd::typeclass::test::BareIdentity&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;BareIdentity&gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;BareIdentity&gt;;
 </p>
 
 <p>
@@ -2065,7 +2065,7 @@ CHECK(applied.value == 7);
 </p>
 
 <p>
-auto zipped = applicative.zip<sub>with</sub>(
+auto zipped = applicative.zip_with(
     [](int a, int b) { return a - b; },
     BareIdentity{40},
     BareIdentity{8});
@@ -2073,78 +2073,78 @@ CHECK(zipped.value == 32);
 </p>
 
 <p>
-auto keep<sub>right</sub> = applicative.discard<sub>first</sub>(BareIdentity{5}, BareIdentity{6});
-CHECK(keep<sub>right.value</sub> == 6);
+auto keep_right = applicative.discard_first(BareIdentity{5}, BareIdentity{6});
+CHECK(keep_right.value == 6);
 </p>
 
 <p>
-    auto keep<sub>left</sub> = applicative.discard<sub>second</sub>(BareIdentity{5}, BareIdentity{6});
-    CHECK(keep<sub>left.value</sub> == 5);
+    auto keep_left = applicative.discard_second(BareIdentity{5}, BareIdentity{6});
+    CHECK(keep_left.value == 5);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BareIdentityInvokeWithMapCoverage")
+TEST_CASE("ApplicativeTypeclassTest - BareIdentityInvokeWithMapCoverage")
 {
     using BareIdentity = smd::typeclass::test::BareIdentity&lt;int&gt;;
-    const auto&amp; default<sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
-    const auto&amp; bare<sub>identity</sub><sub>applicative</sub> = smd::applicative<sub>typeclass</sub>&lt;BareIdentity&gt;;
+    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; bare_identity_applicative = smd::applicative_typeclass&lt;BareIdentity&gt;;
 </p>
 
 <p>
-auto explicit<sub>map</sub><sub>result</sub> = default<sub>applicative.invoke</sub><sub>with</sub>(
-    bare<sub>identity</sub><sub>applicative</sub>,
+auto explicit_map_result = default_applicative.invoke_with(
+    bare_identity_applicative,
     [](int a, int b, int c) { return a + b + c; },
     BareIdentity{3},
     BareIdentity{4},
     BareIdentity{5});
-CHECK(explicit<sub>map</sub><sub>result.value</sub> == 12);
+CHECK(explicit_map_result.value == 12);
 </p>
 
 <p>
-auto explicit<sub>apply</sub><sub>pure</sub><sub>result</sub> = default<sub>applicative.apply</sub><sub>pure</sub><sub>with</sub>(
-    bare<sub>identity</sub><sub>applicative</sub>,
+auto explicit_apply_pure_result = default_applicative.apply_pure_with(
+    bare_identity_applicative,
     [](int a, int b) { return a * b; },
     BareIdentity{7},
     BareIdentity{6});
-CHECK(explicit<sub>apply</sub><sub>pure</sub><sub>result.value</sub> == 42);
+CHECK(explicit_apply_pure_result.value == 42);
 </p>
 
 <p>
-auto nttp<sub>map</sub><sub>result</sub> = default<sub>applicative.invoke</sub><sub>with</sub>&lt;bare<sub>identity</sub><sub>applicative</sub>&gt;(
+auto nttp_map_result = default_applicative.invoke_with&lt;bare_identity_applicative&gt;(
     [](int a, int b) { return a - b; },
     BareIdentity{20},
     BareIdentity{9});
-CHECK(nttp<sub>map</sub><sub>result.value</sub> == 11);
+CHECK(nttp_map_result.value == 11);
 </p>
 
 <p>
-    auto nttp<sub>apply</sub><sub>pure</sub><sub>result</sub> = default<sub>applicative.apply</sub><sub>pure</sub><sub>with</sub>&lt;bare<sub>identity</sub><sub>applicative</sub>&gt;(
+    auto nttp_apply_pure_result = default_applicative.apply_pure_with&lt;bare_identity_applicative&gt;(
 	[](int a, int b, int c) { return a + b * c; },
 	BareIdentity{2},
 	BareIdentity{3},
 	BareIdentity{4});
-    CHECK(nttp<sub>apply</sub><sub>pure</sub><sub>result.value</sub> == 14);
+    CHECK(nttp_apply_pure_result.value == 14);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeTypeclassTest - BareIdentityTypeMatrixCoverage")
+TEST_CASE("ApplicativeTypeclassTest - BareIdentityTypeMatrixCoverage")
 {
-    run<sub>bare</sub><sub>identity</sub><sub>matrix</sub><sub>case</sub>&lt;int, short, unsigned&gt;(3, 4, 5U);
-    run<sub>bare</sub><sub>identity</sub><sub>matrix</sub><sub>case</sub>&lt;long, int, long long&gt;(10L, 20, 30LL);
-    run<sub>bare</sub><sub>identity</sub><sub>matrix</sub><sub>case</sub>&lt;float, double, int&gt;(1.5F, 2.25, 3);
+    run_bare_identity_matrix_case&lt;int, short, unsigned&gt;(3, 4, 5U);
+    run_bare_identity_matrix_case&lt;long, int, long long&gt;(10L, 20, 30LL);
+    run_bare_identity_matrix_case&lt;float, double, int&gt;(1.5F, 2.25, 3);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeBehaviorTest - OptionalIdentityHomomorphismAndInvoke")
+TEST_CASE("ApplicativeBehaviorTest - OptionalIdentityHomomorphismAndInvoke")
 {
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>identity</sub><sub>law</sub>(std::optional&lt;int&gt;{8}));
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>homomorphism</sub><sub>law</sub>&lt;std::optional&lt;int&gt; &gt;(
+    CHECK(smd::typeclass::test::check_applicative_identity_law(std::optional&lt;int&gt;{8}));
+    CHECK(smd::typeclass::test::check_applicative_homomorphism_law&lt;std::optional&lt;int&gt; &gt;(
 	+[](int x) { return x + 3; },
 	5));
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>invoke</sub><sub>binary</sub><sub>law</sub>(
+    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
 	[](int a, int b) { return a * 10 + b; },
 	std::optional&lt;int&gt;{2},
 	std::optional&lt;int&gt;{7}));
@@ -2152,14 +2152,14 @@ TEST<sub>CASE</sub>("ApplicativeBehaviorTest - OptionalIdentityHomomorphismAndIn
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BareIdentityIdentityHomomorphismAndInvoke")
+TEST_CASE("ApplicativeBehaviorTest - BareIdentityIdentityHomomorphismAndInvoke")
 {
     using BareIdentity = smd::typeclass::test::BareIdentity&lt;int&gt;;
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>identity</sub><sub>law</sub>(BareIdentity{11}));
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>homomorphism</sub><sub>law</sub>&lt;BareIdentity&gt;(
+    CHECK(smd::typeclass::test::check_applicative_identity_law(BareIdentity{11}));
+    CHECK(smd::typeclass::test::check_applicative_homomorphism_law&lt;BareIdentity&gt;(
 	+[](int x) { return x * 4; },
 	3));
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>invoke</sub><sub>binary</sub><sub>law</sub>(
+    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
 	[](int a, int b) { return a - b; },
 	BareIdentity{20},
 	BareIdentity{6}));
@@ -2167,17 +2167,17 @@ TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BareIdentityIdentityHomomorphismA
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BemanIdentityHomomorphismAndInvoke")
+TEST_CASE("ApplicativeBehaviorTest - BemanIdentityHomomorphismAndInvoke")
 {
     using BemanOptional = beman::optional::optional&lt;int&gt;;
 </p>
 
 <p>
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>identity</sub><sub>law</sub>(BemanOptional{11}));
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>homomorphism</sub><sub>law</sub>&lt;BemanOptional&gt;(
+    CHECK(smd::typeclass::test::check_applicative_identity_law(BemanOptional{11}));
+    CHECK(smd::typeclass::test::check_applicative_homomorphism_law&lt;BemanOptional&gt;(
 	+[](int x) { return x * 4; },
 	3));
-    CHECK(smd::typeclass::test::check<sub>applicative</sub><sub>invoke</sub><sub>binary</sub><sub>law</sub>(
+    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
 	[](int a, int b) { return a - b; },
 	BemanOptional{20},
 	BemanOptional{6}));
@@ -2185,173 +2185,173 @@ TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BemanIdentityHomomorphismAndInvok
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeBehaviorTest - OptionalShortCircuit")
+TEST_CASE("ApplicativeBehaviorTest - OptionalShortCircuit")
 {
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;std::optional&lt;int&gt; &gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
 </p>
 
 <p>
-std::optional&lt;std::function&lt;int(int)&gt; &gt; no<sub>function</sub>{};
-auto no<sub>function</sub><sub>result</sub> = applicative.ap(no<sub>function</sub>, std::optional&lt;int&gt;{4});
-CHECK<sub>FALSE</sub>(no<sub>function</sub><sub>result.has</sub><sub>value</sub>());
+std::optional&lt;std::function&lt;int(int)&gt; &gt; no_function{};
+auto no_function_result = applicative.ap(no_function, std::optional&lt;int&gt;{4});
+CHECK_FALSE(no_function_result.has_value());
 </p>
 
 <p>
 std::optional&lt;std::function&lt;int(int)&gt; &gt; function{
     [](int x) { return x + 1; }};
-auto no<sub>argument</sub><sub>result</sub> = applicative.ap(function, std::optional&lt;int&gt;{});
-CHECK<sub>FALSE</sub>(no<sub>argument</sub><sub>result.has</sub><sub>value</sub>());
+auto no_argument_result = applicative.ap(function, std::optional&lt;int&gt;{});
+CHECK_FALSE(no_argument_result.has_value());
 </p>
 
 <p>
     int calls = 0;
-    auto invoke<sub>result</sub> = applicative.invoke(
+    auto invoke_result = applicative.invoke(
 	[&amp;calls](int lhs, int rhs) {
 	    ++calls;
 	    return lhs + rhs;
 	},
 	std::optional&lt;int&gt;{3},
 	std::optional&lt;int&gt;{});
-    CHECK<sub>FALSE</sub>(invoke<sub>result.has</sub><sub>value</sub>());
+    CHECK_FALSE(invoke_result.has_value());
     CHECK(calls == 0);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BemanShortCircuit")
+TEST_CASE("ApplicativeBehaviorTest - BemanShortCircuit")
 {
     using BemanOptional = beman::optional::optional&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative<sub>typeclass</sub>&lt;BemanOptional&gt;;
+    const auto&amp; applicative = smd::applicative_typeclass&lt;BemanOptional&gt;;
 </p>
 
 <p>
-beman::optional::optional&lt;std::function&lt;int(int)&gt; &gt; no<sub>function</sub>{};
-auto no<sub>function</sub><sub>result</sub> = applicative.ap(no<sub>function</sub>, BemanOptional{5});
-CHECK<sub>FALSE</sub>(no<sub>function</sub><sub>result.has</sub><sub>value</sub>());
+beman::optional::optional&lt;std::function&lt;int(int)&gt; &gt; no_function{};
+auto no_function_result = applicative.ap(no_function, BemanOptional{5});
+CHECK_FALSE(no_function_result.has_value());
 </p>
 
 <p>
 beman::optional::optional&lt;std::function&lt;int(int)&gt; &gt; function{
     [](int x) { return x * 2; }};
-auto no<sub>argument</sub><sub>result</sub> = applicative.ap(function, BemanOptional{});
-CHECK<sub>FALSE</sub>(no<sub>argument</sub><sub>result.has</sub><sub>value</sub>());
+auto no_argument_result = applicative.ap(function, BemanOptional{});
+CHECK_FALSE(no_argument_result.has_value());
 </p>
 
 <p>
     int calls = 0;
-    auto invoke<sub>result</sub> = applicative.invoke(
+    auto invoke_result = applicative.invoke(
 	[&amp;calls](int lhs, int rhs) {
 	    ++calls;
 	    return lhs - rhs;
 	},
 	BemanOptional{9},
 	BemanOptional{});
-    CHECK<sub>FALSE</sub>(invoke<sub>result.has</sub><sub>value</sub>());
+    CHECK_FALSE(invoke_result.has_value());
     CHECK(calls == 0);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeBehaviorTest - InvokeDispatchThroughBaseAndDerivedPaths")
+TEST_CASE("ApplicativeBehaviorTest - InvokeDispatchThroughBaseAndDerivedPaths")
 {
-    DirectInvokeIdentityApplicativeMap&lt;int&gt; custom<sub>map</sub>{};
-    auto&amp; custom<sub>base</sub> =
-	static<sub>cast</sub>&lt;smd::Applicative&lt;DirectInvokeIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(
-	    custom<sub>map</sub>);
+    DirectInvokeIdentityApplicativeMap&lt;int&gt; custom_map{};
+    auto&amp; custom_base =
+	static_cast&lt;smd::Applicative&lt;DirectInvokeIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(
+	    custom_map);
 </p>
 
 <p>
-auto custom<sub>dispatched</sub> = custom<sub>base.invoke</sub>(
+auto custom_dispatched = custom_base.invoke(
     [](int a, int b, int c) { return a + b + c; },
     smd::typeclass::test::Identity&lt;int&gt;{1},
     smd::typeclass::test::Identity&lt;int&gt;{2},
     smd::typeclass::test::Identity&lt;int&gt;{3});
-CHECK(custom<sub>dispatched.value</sub> == 6);
+CHECK(custom_dispatched.value == 6);
 </p>
 
 <p>
-smd::BareIdentityApplicativeMap&lt;int&gt; bare<sub>map</sub>{};
-auto&amp; bare<sub>base</sub> =
-    static<sub>cast</sub>&lt;smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(bare<sub>map</sub>);
+smd::BareIdentityApplicativeMap&lt;int&gt; bare_map{};
+auto&amp; bare_base =
+    static_cast&lt;smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(bare_map);
 </p>
 
 <p>
-    auto derived<sub>dispatched</sub> = bare<sub>base.invoke</sub>(
+    auto derived_dispatched = bare_base.invoke(
 	[](int a, int b, int c) { return a * 100 + b * 10 + c; },
 	smd::typeclass::test::BareIdentity&lt;int&gt;{4},
 	smd::typeclass::test::BareIdentity&lt;int&gt;{5},
 	smd::typeclass::test::BareIdentity&lt;int&gt;{6});
-    CHECK(derived<sub>dispatched.value</sub> == 456);
+    CHECK(derived_dispatched.value == 456);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("ApplicativeBehaviorTest - BareIdentityConstAndNonConstInvokeApMap")
+TEST_CASE("ApplicativeBehaviorTest - BareIdentityConstAndNonConstInvokeApMap")
 {
-    smd::BareIdentityApplicativeMap&lt;int&gt; mutable<sub>map</sub>{};
-    auto&amp; mutable<sub>base</sub> =
-	static<sub>cast</sub>&lt;smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(mutable<sub>map</sub>);
+    smd::BareIdentityApplicativeMap&lt;int&gt; mutable_map{};
+    auto&amp; mutable_base =
+	static_cast&lt;smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(mutable_map);
 </p>
 
 <p>
-auto non<sub>const</sub><sub>invoke</sub> = mutable<sub>base.invoke</sub>(
+auto non_const_invoke = mutable_base.invoke(
     [](int a, int b) { return a + b; },
     smd::typeclass::test::BareIdentity&lt;int&gt;{10},
     smd::typeclass::test::BareIdentity&lt;int&gt;{4});
-CHECK(non<sub>const</sub><sub>invoke.value</sub> == 14);
+CHECK(non_const_invoke.value == 14);
 </p>
 
 <p>
-auto non<sub>const</sub><sub>map</sub> = mutable<sub>base.map</sub>(
+auto non_const_map = mutable_base.map(
     [](int x) { return x * 3; },
     smd::typeclass::test::BareIdentity&lt;int&gt;{7});
-CHECK(non<sub>const</sub><sub>map.value</sub> == 21);
+CHECK(non_const_map.value == 21);
 </p>
 
 <p>
-auto non<sub>const</sub><sub>ap</sub> = mutable<sub>base.ap</sub>(
+auto non_const_ap = mutable_base.ap(
     smd::typeclass::test::BareIdentity&lt;std::function&lt;int(int)&gt; &gt;{
 	[](int x) { return x - 5; }},
     smd::typeclass::test::BareIdentity&lt;int&gt;{12});
-CHECK(non<sub>const</sub><sub>ap.value</sub> == 7);
+CHECK(non_const_ap.value == 7);
 </p>
 
 <p>
-const smd::BareIdentityApplicativeMap&lt;int&gt; const<sub>map</sub>{};
-const auto&amp; const<sub>base</sub> =
-    static<sub>cast</sub>&lt;const smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(
-	const<sub>map</sub>);
+const smd::BareIdentityApplicativeMap&lt;int&gt; const_map{};
+const auto&amp; const_base =
+    static_cast&lt;const smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(
+	const_map);
 </p>
 
 <p>
-auto const<sub>invoke</sub> = const<sub>base.invoke</sub>(
+auto const_invoke = const_base.invoke(
     [](int a, int b, int c) { return a * b + c; },
     smd::typeclass::test::BareIdentity&lt;int&gt;{3},
     smd::typeclass::test::BareIdentity&lt;int&gt;{5},
     smd::typeclass::test::BareIdentity&lt;int&gt;{2});
-CHECK(const<sub>invoke.value</sub> == 17);
+CHECK(const_invoke.value == 17);
 </p>
 
 <p>
-auto const<sub>map</sub><sub>result</sub> = const<sub>base.map</sub>(
+auto const_map_result = const_base.map(
     [](int x) { return x + 8; },
     smd::typeclass::test::BareIdentity&lt;int&gt;{1});
-CHECK(const<sub>map</sub><sub>result.value</sub> == 9);
+CHECK(const_map_result.value == 9);
 </p>
 
 <p>
-    auto const<sub>ap</sub><sub>result</sub> = const<sub>base.ap</sub>(
+    auto const_ap_result = const_base.ap(
 	smd::typeclass::test::BareIdentity&lt;std::function&lt;int(int)&gt; &gt;{
 	    [](int x) { return x * x; }},
 	smd::typeclass::test::BareIdentity&lt;int&gt;{6});
-    CHECK(const<sub>ap</sub><sub>result.value</sub> == 36);
+    CHECK(const_ap_result.value == 36);
 }
 :lines 2- :src cpp :end "6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end"
 </p>
 </div>
 </div>
-<div id="outline-container-org4654aef" class="outline-4">
-<h4 id="org4654aef"><span class="section-number-4">5.0.12.</span> Traversable model: commute shape and effect</h4>
+<div id="outline-container-orgbcf1e28" class="outline-4">
+<h4 id="orgbcf1e28"><span class="section-number-4">5.0.12.</span> Traversable model: commute shape and effect</h4>
 <div class="outline-text-4" id="text-5-0-12">
 <ul class="org-ul">
 <li>Traversal commutes shape and effect: from shape of effects to effect of shape.</li>
@@ -2360,8 +2360,8 @@ CHECK(const<sub>map</sub><sub>result.value</sub> == 9);
 </ul>
 </div>
 </div>
-<div id="outline-container-org40efa6f" class="outline-4">
-<h4 id="org40efa6f"><span class="section-number-4">5.0.13.</span> Traversable API: one primitive, many derived operations</h4>
+<div id="outline-container-orga07e964" class="outline-4">
+<h4 id="orga07e964"><span class="section-number-4">5.0.13.</span> Traversable API: one primitive, many derived operations</h4>
 <div class="outline-text-4" id="text-5-0-13">
 <ul class="org-ul">
 <li>Minimal implementation hook: <code>traverse</code>.</li>
@@ -2375,7 +2375,7 @@ CHECK(const<sub>map</sub><sub>result.value</sub> == 9);
 
 <p>
 template &lt;class T, class F&gt;
-auto for<sub>each</sub>(this auto&amp;&amp; self, T&amp;&amp; value, F&amp;&amp; function)
+auto for_each(this auto&amp;&amp; self, T&amp;&amp; value, F&amp;&amp; function)
 {
     return self.traverse(std::forward&lt;F&gt;(function),
 			 std::forward&lt;T&gt;(value));
@@ -2393,25 +2393,25 @@ auto sequence(this auto&amp;&amp; self, T&amp;&amp; value)
 </p>
 
 <p>
-template &lt;class TRAVERSABLE<sub>MAP</sub>, class T, class F&gt;
-auto traverse<sub>with</sub>(this auto&amp;&amp;,
-		   const TRAVERSABLE<sub>MAP</sub>&amp; traversable<sub>map</sub>,
+template &lt;class TRAVERSABLE_MAP, class T, class F&gt;
+auto traverse_with(this auto&amp;&amp;,
+		   const TRAVERSABLE_MAP&amp; traversable_map,
 		   F&amp;&amp; function,
 		   T&amp;&amp; value)
 {
-    return traversable<sub>map.traverse</sub>(std::forward&lt;F&gt;(function),
+    return traversable_map.traverse(std::forward&lt;F&gt;(function),
 				    std::forward&lt;T&gt;(value));
 }
 </p>
 
 <p>
-template &lt;class TRAVERSABLE<sub>MAP</sub>, class T&gt;
-auto sequence<sub>with</sub>(this auto&amp;&amp; self,
-		   const TRAVERSABLE<sub>MAP</sub>&amp; traversable<sub>map</sub>,
+template &lt;class TRAVERSABLE_MAP, class T&gt;
+auto sequence_with(this auto&amp;&amp; self,
+		   const TRAVERSABLE_MAP&amp; traversable_map,
 		   T&amp;&amp; value)
 {
-    return self.traverse<sub>with</sub>(
-	traversable<sub>map</sub>,
+    return self.traverse_with(
+	traversable_map,
 	[](auto&amp;&amp; x) { return std::forward&lt;decltype(x)&gt;(x); },
 	std::forward&lt;T&gt;(value));
 }
@@ -2424,7 +2424,7 @@ auto sequence<sub>with</sub>(this auto&amp;&amp; self,
 
 <p>
 template &lt;class T&gt;
-inline constexpr auto traversable<sub>typeclass</sub> = std::false<sub>type</sub>{};
+inline constexpr auto traversable_typeclass = std::false_type{};
 </p>
 
 <p>
@@ -2437,8 +2437,8 @@ inline constexpr auto traversable<sub>typeclass</sub> = std::false<sub>type</sub
 </p>
 </div>
 </div>
-<div id="outline-container-org1d123a8" class="outline-4">
-<h4 id="org1d123a8"><span class="section-number-4">5.0.14.</span> Traversable proof: derived operations hold in tests</h4>
+<div id="outline-container-org992c713" class="outline-4">
+<h4 id="org992c713"><span class="section-number-4">5.0.14.</span> Traversable proof: derived operations hold in tests</h4>
 <div class="outline-text-4" id="text-5-0-14">
 <ul class="org-ul">
 <li><p>
@@ -2449,19 +2449,19 @@ Sequencing works both via implicit lookup and explicit object selection.
 // f1de12e0-2287-4568-98c7-75be4f6f7446
 using IdentityOpt = smd::typeclass::test::Identity&lt;std::optional&lt;int&gt; &gt;;
 auto identity = IdentityOpt{std::optional&lt;int&gt;{1}};
-const auto&amp; traversable = smd::traversable<sub>typeclass</sub>&lt;IdentityOpt&gt;;
+const auto&amp; traversable = smd::traversable_typeclass&lt;IdentityOpt&gt;;
 </p>
 
 <p>
 auto sequenced = traversable.sequence(identity);
-REQUIRE(sequenced.has<sub>value</sub>());
+REQUIRE(sequenced.has_value());
 CHECK(sequenced-&gt;value == 1);
 </p>
 
 <p>
-auto sequenced<sub>with</sub> = traversable.sequence<sub>with</sub>(traversable, identity);
-REQUIRE(sequenced<sub>with.has</sub><sub>value</sub>());
-CHECK(sequenced<sub>with</sub>-&gt;value == 1);
+auto sequenced_with = traversable.sequence_with(traversable, identity);
+REQUIRE(sequenced_with.has_value());
+CHECK(sequenced_with-&gt;value == 1);
 // f1de12e0-2287-4568-98c7-75be4f6f7446 end
 </p></li>
 </ul>
@@ -2470,51 +2470,51 @@ CHECK(sequenced<sub>with</sub>-&gt;value == 1);
 </p>
 
 <p>
-TEST<sub>CASE</sub>("TraversableTypeclassTest - ForEachMatchesTraverse")
+TEST_CASE("TraversableTypeclassTest - ForEachMatchesTraverse")
 {
     using Identity = smd::typeclass::test::Identity&lt;int&gt;;
     auto identity = Identity{4};
-    const auto&amp; traversable = smd::traversable<sub>typeclass</sub>&lt;Identity&gt;;
+    const auto&amp; traversable = smd::traversable_typeclass&lt;Identity&gt;;
 </p>
 
 <p>
-auto via<sub>traverse</sub> = traversable.traverse(
+auto via_traverse = traversable.traverse(
     [](int x) -&gt; std::optional&lt;int&gt; { return std::optional&lt;int&gt;{x + 7}; },
     identity);
-auto via<sub>for</sub><sub>each</sub> = traversable.for<sub>each</sub>(
+auto via_for_each = traversable.for_each(
     identity,
     [](int x) -&gt; std::optional&lt;int&gt; { return std::optional&lt;int&gt;{x + 7}; });
 </p>
 
 <p>
-    CHECK(via<sub>traverse</sub> == via<sub>for</sub><sub>each</sub>);
+    CHECK(via_traverse == via_for_each);
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("TraversableTypeclassTest - SequenceMatchesTraverseIdentity")
+TEST_CASE("TraversableTypeclassTest - SequenceMatchesTraverseIdentity")
 {
     using IdentityOpt = smd::typeclass::test::Identity&lt;std::optional&lt;int&gt; &gt;;
     auto identity = IdentityOpt{std::optional&lt;int&gt;{5}};
-    const auto&amp; traversable = smd::traversable<sub>typeclass</sub>&lt;IdentityOpt&gt;;
+    const auto&amp; traversable = smd::traversable_typeclass&lt;IdentityOpt&gt;;
 </p>
 
 <p>
-auto via<sub>sequence</sub> = traversable.sequence(identity);
-auto via<sub>traverse</sub><sub>identity</sub> = traversable.traverse(
+auto via_sequence = traversable.sequence(identity);
+auto via_traverse_identity = traversable.traverse(
     [](auto&amp;&amp; x) { return std::forward&lt;decltype(x)&gt;(x); },
     identity);
 </p>
 
 <p>
-    CHECK(via<sub>sequence</sub> == via<sub>traverse</sub><sub>identity</sub>);
+    CHECK(via_sequence == via_traverse_identity);
 }
 :lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
 </p>
 </div>
 </div>
-<div id="outline-container-org98a7ca7" class="outline-4">
-<h4 id="org98a7ca7"><span class="section-number-4">5.0.15.</span> Traversable commute: Range and ZipList</h4>
+<div id="outline-container-org0586406" class="outline-4">
+<h4 id="org0586406"><span class="section-number-4">5.0.15.</span> Traversable commute: Range and ZipList</h4>
 <div class="outline-text-4" id="text-5-0-15">
 <ul class="org-ul">
 <li>Traversable commutes a range of ZipLists into a ZipList of ranges.</li>
@@ -2524,15 +2524,15 @@ The inverse matrix view (ZipList of vectors to vector of ZipLists) is also teste
 
 <p>
 // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a
-using Zip = smd::zip<sub>list</sub>&lt;int&gt;;
-auto values = smd::ranges::from<sub>vector</sub>(std::vector&lt;Zip&gt;{
+using Zip = smd::zip_list&lt;int&gt;;
+auto values = smd::ranges::from_vector(std::vector&lt;Zip&gt;{
     Zip{{1, 2, 3}},
     Zip{{10, 20}},
     Zip{{100, 200, 300, 400}}});
 </p>
 
 <p>
-const auto&amp; traversable = smd::traversable<sub>typeclass</sub>&lt;decltype(values)&gt;;
+const auto&amp; traversable = smd::traversable_typeclass&lt;decltype(values)&gt;;
 auto sequenced = traversable.sequence(values);
 </p>
 
@@ -2548,17 +2548,17 @@ CHECK(collect(sequenced.data[1]) == (std::vector&lt;int&gt;{2, 20, 200}));
 </p>
 
 <p>
-TEST<sub>CASE</sub>("RangeTraversableTest - SequenceConvertsRangeOfZiplistsToZiplistOfRangesLengthFive")
+TEST_CASE("RangeTraversableTest - SequenceConvertsRangeOfZiplistsToZiplistOfRangesLengthFive")
 {
-    using Zip = smd::zip<sub>list</sub>&lt;int&gt;;
-    auto values = smd::ranges::from<sub>vector</sub>(std::vector&lt;Zip&gt;{
+    using Zip = smd::zip_list&lt;int&gt;;
+    auto values = smd::ranges::from_vector(std::vector&lt;Zip&gt;{
 	Zip{{1, 2, 3, 4, 5}},
 	Zip{{10, 20, 30, 40, 50}},
 	Zip{{100, 200, 300, 400, 500}}});
 </p>
 
 <p>
-const auto&amp; traversable = smd::traversable<sub>typeclass</sub>&lt;decltype(values)&gt;;
+const auto&amp; traversable = smd::traversable_typeclass&lt;decltype(values)&gt;;
 auto sequenced = traversable.sequence(values);
 </p>
 
@@ -2573,43 +2573,43 @@ auto sequenced = traversable.sequence(values);
 </p>
 
 <p>
-TEST<sub>CASE</sub>("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplists")
+TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplists")
 {
     // 4be89584-35cc-4933-b3de-6d524d54371d
-    smd::zip<sub>list</sub>&lt;std::vector&lt;int&gt; &gt; zip<sub>of</sub><sub>vectors</sub>{
+    smd::zip_list&lt;std::vector&lt;int&gt; &gt; zip_of_vectors{
 	{{1, 10, 100}, {2, 20, 200}}};
 </p>
 
 <p>
-auto as<sub>rows</sub> = to<sub>vector</sub><sub>of</sub><sub>ziplists</sub>(zip<sub>of</sub><sub>vectors</sub>);
+auto as_rows = to_vector_of_ziplists(zip_of_vectors);
 </p>
 
 <p>
-    REQUIRE(as<sub>rows.size</sub>() <code>= 3U);
+    REQUIRE(as_rows.size() <code>= 3U);
     CHECK(as_rows[0].data =</code> (std::vector&lt;int&gt;{1, 2}));
-    CHECK(as<sub>rows</sub>[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
+    CHECK(as_rows[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
     CHECK(as_rows[2].data =</code> (std::vector&lt;int&gt;{100, 200}));
     // 4be89584-35cc-4933-b3de-6d524d54371d end
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive")
+TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive")
 {
-    smd::zip<sub>list</sub>&lt;std::vector&lt;int&gt; &gt; zip<sub>of</sub><sub>vectors</sub>{
+    smd::zip_list&lt;std::vector&lt;int&gt; &gt; zip_of_vectors{
 	{{1, 10, 100, 1000, 10000}, {2, 20, 200, 2000, 20000}}};
 </p>
 
 <p>
-auto as<sub>rows</sub> = to<sub>vector</sub><sub>of</sub><sub>ziplists</sub>(zip<sub>of</sub><sub>vectors</sub>);
+auto as_rows = to_vector_of_ziplists(zip_of_vectors);
 </p>
 
 <p>
-    REQUIRE(as<sub>rows.size</sub>() <code>= 5U);
+    REQUIRE(as_rows.size() <code>= 5U);
     CHECK(as_rows[0].data =</code> (std::vector&lt;int&gt;{1, 2}));
-    CHECK(as<sub>rows</sub>[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
+    CHECK(as_rows[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
     CHECK(as_rows[2].data =</code> (std::vector&lt;int&gt;{100, 200}));
-    CHECK(as<sub>rows</sub>[3].data <code>= (std::vector&lt;int&gt;{1000, 2000}));
+    CHECK(as_rows[3].data <code>= (std::vector&lt;int&gt;{1000, 2000}));
     CHECK(as_rows[4].data =</code> (std::vector&lt;int&gt;{10000, 20000}));
 }
 :lines 2- :src cpp :end "0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end"
@@ -2617,46 +2617,46 @@ auto as<sub>rows</sub> = to<sub>vector</sub><sub>of</sub><sub>ziplists</sub>(zip
 
 <p>
 // 4be89584-35cc-4933-b3de-6d524d54371d
-smd::zip<sub>list</sub>&lt;std::vector&lt;int&gt; &gt; zip<sub>of</sub><sub>vectors</sub>{
+smd::zip_list&lt;std::vector&lt;int&gt; &gt; zip_of_vectors{
     {{1, 10, 100}, {2, 20, 200}}};
 </p>
 
 <p>
-auto as<sub>rows</sub> = to<sub>vector</sub><sub>of</sub><sub>ziplists</sub>(zip<sub>of</sub><sub>vectors</sub>);
+auto as_rows = to_vector_of_ziplists(zip_of_vectors);
 </p>
 
 <p>
-    REQUIRE(as<sub>rows.size</sub>() <code>= 3U);
+    REQUIRE(as_rows.size() <code>= 3U);
     CHECK(as_rows[0].data =</code> (std::vector&lt;int&gt;{1, 2}));
-    CHECK(as<sub>rows</sub>[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
+    CHECK(as_rows[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
     CHECK(as_rows[2].data =</code> (std::vector&lt;int&gt;{100, 200}));
     // 4be89584-35cc-4933-b3de-6d524d54371d end
 }
 </p>
 
 <p>
-TEST<sub>CASE</sub>("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive")
+TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive")
 {
-    smd::zip<sub>list</sub>&lt;std::vector&lt;int&gt; &gt; zip<sub>of</sub><sub>vectors</sub>{
+    smd::zip_list&lt;std::vector&lt;int&gt; &gt; zip_of_vectors{
 	{{1, 10, 100, 1000, 10000}, {2, 20, 200, 2000, 20000}}};
 </p>
 
 <p>
-auto as<sub>rows</sub> = to<sub>vector</sub><sub>of</sub><sub>ziplists</sub>(zip<sub>of</sub><sub>vectors</sub>);
+auto as_rows = to_vector_of_ziplists(zip_of_vectors);
 </p>
 
 <p>
-    REQUIRE(as<sub>rows.size</sub>() <code>= 5U);
+    REQUIRE(as_rows.size() <code>= 5U);
     CHECK(as_rows[0].data =</code> (std::vector&lt;int&gt;{1, 2}));
-    CHECK(as<sub>rows</sub>[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
+    CHECK(as_rows[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
     CHECK(as_rows[2].data =</code> (std::vector&lt;int&gt;{100, 200}));
-    CHECK(as<sub>rows</sub>[3].data <code>= (std::vector&lt;int&gt;{1000, 2000}));
+    CHECK(as_rows[3].data <code>= (std::vector&lt;int&gt;{1000, 2000}));
     CHECK(as_rows[4].data =</code> (std::vector&lt;int&gt;{10000, 20000}));
 }
 :lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
 </p>
 
-<div class="notes" id="org86000ae">
+<div class="notes" id="orgcfa6b62">
 <p>
 Key law intuition: preserve shape and evaluation order discipline.
 Source: (Steve Downey, 2026).
@@ -2665,8 +2665,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgbac9e43" class="outline-4">
-<h4 id="orgbac9e43"><span class="section-number-4">5.0.16.</span> Laws that keep this honest</h4>
+<div id="outline-container-orgd3af6ee" class="outline-4">
+<h4 id="orgd3af6ee"><span class="section-number-4">5.0.16.</span> Laws that keep this honest</h4>
 <div class="outline-text-4" id="text-5-0-16">
 <ul class="org-ul">
 <li>Target law set:
@@ -2678,12 +2678,12 @@ Source: (Steve Downey, 2026).
 <li>Current automated checks in this repository:
 <ul class="org-ul">
 <li>Applicative: identity, homomorphism, invoke/ap equivalence, plus ZipList interchange and composition.</li>
-<li>Traversable: traverse/for<sub>each</sub>/sequence coherence and ZipList-Range commute examples.</li>
+<li>Traversable: traverse/for_each/sequence coherence and ZipList-Range commute examples.</li>
 <li>Foldable: derived operations (<code>length</code>, <code>fold_left</code>, <code>fold_right</code>, <code>to_vector</code>, predicates) are exercised against <code>fold_map</code>-based behavior.</li>
 </ul></li>
 </ul>
 
-<div class="notes" id="orged111f1">
+<div class="notes" id="orgb37c3c9">
 <p>
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
 Source: (Steve Downey, 2026).
@@ -2692,8 +2692,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgc573e55" class="outline-4">
-<h4 id="orgc573e55"><span class="section-number-4">5.0.17.</span> Tree Applicative as optional appendix</h4>
+<div id="outline-container-orgea14afc" class="outline-4">
+<h4 id="orgea14afc"><span class="section-number-4">5.0.17.</span> Tree Applicative as optional appendix</h4>
 <div class="outline-text-4" id="text-5-0-17">
 <ul class="org-ul">
 <li>Treat tree applicative as a policy choice, not the core applicative story.</li>
@@ -2701,7 +2701,7 @@ Source: (Steve Downey, 2026).
 <li>Mainline examples should stay with optional, ranges, and ZipList.</li>
 </ul>
 
-<div class="notes" id="org0464d48">
+<div class="notes" id="org73dd302">
 <p>
 This avoids spending scarce slide time on semantics debates.
 The core teaching value of Applicative is already visible in optional/range/ZipList examples.
@@ -2711,12 +2711,12 @@ The core teaching value of Applicative is already visible in optional/range/ZipL
 </div>
 </div>
 </div>
-<div id="outline-container-orgf482838" class="outline-2">
-<h2 id="orgf482838"><span class="section-number-2">6.</span> Monoids and Measured Trees</h2>
+<div id="outline-container-org6599562" class="outline-2">
+<h2 id="org6599562"><span class="section-number-2">6.</span> Monoids and Measured Trees</h2>
 <div class="outline-text-2" id="text-6">
 </div>
-<div id="outline-container-org8da0eda" class="outline-4">
-<h4 id="org8da0eda"><span class="section-number-4">6.0.1.</span> Associativity as algorithmic leverage</h4>
+<div id="outline-container-orgbd73106" class="outline-4">
+<h4 id="orgbd73106"><span class="section-number-4">6.0.1.</span> Associativity as algorithmic leverage</h4>
 <div class="outline-text-4" id="text-6-0-1">
 <ul class="org-ul">
 <li>Associativity lets us regroup work without changing results.</li>
@@ -2724,7 +2724,7 @@ The core teaching value of Applicative is already visible in optional/range/ZipL
 <li>This is the bridge from algebra to explicit performance contracts.</li>
 </ul>
 
-<div class="notes" id="orgddc63aa">
+<div class="notes" id="orgc70e077">
 <p>
 If the measure is a monoid, split/search become compositional.
 Source: (Steve Downey, 2026).
@@ -2733,8 +2733,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org8553ed4" class="outline-4">
-<h4 id="org8553ed4"><span class="section-number-4">6.0.2.</span> Annotations as summaries</h4>
+<div id="outline-container-orged69f1d" class="outline-4">
+<h4 id="orged69f1d"><span class="section-number-4">6.0.2.</span> Annotations as summaries</h4>
 <div class="outline-text-4" id="text-6-0-2">
 <ul class="org-ul">
 <li>Each node caches a measure of its subtree.</li>
@@ -2742,7 +2742,7 @@ Source: (Steve Downey, 2026).
 <li>Updating structure updates summaries locally.</li>
 </ul>
 
-<div class="notes" id="orge60c278">
+<div class="notes" id="orgef979ae">
 <p>
 The data structure stays the same while behavior changes with the monoid.
 Source: (Steve Downey, 2026).
@@ -2751,8 +2751,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org8cb5d00" class="outline-4">
-<h4 id="org8cb5d00"><span class="section-number-4">6.0.3.</span> Search and split driven by measures</h4>
+<div id="outline-container-orge66989b" class="outline-4">
+<h4 id="orge66989b"><span class="section-number-4">6.0.3.</span> Search and split driven by measures</h4>
 <div class="outline-text-4" id="text-6-0-3">
 <ul class="org-ul">
 <li>Search is currently implemented by linear scan over the flattened sequence.</li>
@@ -2760,7 +2760,7 @@ Source: (Steve Downey, 2026).
 <li>This yields one structure with many interpretations.</li>
 </ul>
 
-<div class="notes" id="org2f62b4c">
+<div class="notes" id="orge95428c">
 <p>
 Sequence, priority queue, and rope are policy layers on one core tree.
 Original finger-tree papers promise stronger asymptotics with measured search.
@@ -2775,12 +2775,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-orgea82b60" class="outline-2">
-<h2 id="orgea82b60"><span class="section-number-2">7.</span> Finger Trees as a Case Study</h2>
+<div id="outline-container-org140ee9b" class="outline-2">
+<h2 id="org140ee9b"><span class="section-number-2">7.</span> Finger Trees as a Case Study</h2>
 <div class="outline-text-2" id="text-7">
 </div>
-<div id="outline-container-org042f773" class="outline-4">
-<h4 id="org042f773"><span class="section-number-4">7.0.1.</span> Persistent concatenation and splitting</h4>
+<div id="outline-container-org0755140" class="outline-4">
+<h4 id="org0755140"><span class="section-number-4">7.0.1.</span> Persistent concatenation and splitting</h4>
 <div class="outline-text-4" id="text-7-0-1">
 <ul class="org-ul">
 <li>Current prototype gives cheap persistence-friendly concatenation.</li>
@@ -2789,7 +2789,7 @@ Source: (Steve Downey, 2026).
 <li>The API naturally composes with foldable/traversable abstractions.</li>
 </ul>
 
-<div class="notes" id="org705804f">
+<div class="notes" id="org3776f83">
 <p>
 This is where abstractions meet implementation reality.
 Paper-level target bounds remain the north star.
@@ -2800,8 +2800,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org9cf77dc" class="outline-4">
-<h4 id="org9cf77dc"><span class="section-number-4">7.0.2.</span> One structure, many interpretations</h4>
+<div id="outline-container-orgf477856" class="outline-4">
+<h4 id="orgf477856"><span class="section-number-4">7.0.2.</span> One structure, many interpretations</h4>
 <div class="outline-text-4" id="text-7-0-2">
 <ul class="org-ul">
 <li>Change the monoid, change the interpretation.</li>
@@ -2809,7 +2809,7 @@ Source: (Steve Downey, 2026).
 <li>Reuse is semantic, not just syntactic.</li>
 </ul>
 
-<div class="notes" id="org22170ed">
+<div class="notes" id="org06238a5">
 <p>
 This is the strongest argument for measured trees in a standard library context.
 Source: (Steve Downey, 2026).
@@ -2818,8 +2818,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org4595772" class="outline-4">
-<h4 id="org4595772"><span class="section-number-4">7.0.3.</span> Why this belongs in modern C++</h4>
+<div id="outline-container-orge4ce133" class="outline-4">
+<h4 id="orge4ce133"><span class="section-number-4">7.0.3.</span> Why this belongs in modern C++</h4>
 <div class="outline-text-4" id="text-7-0-3">
 <ul class="org-ul">
 <li>Zero-cost abstractions and strong typing fit this design.</li>
@@ -2827,7 +2827,7 @@ Source: (Steve Downey, 2026).
 <li>This is not import Haskell; it is idiomatic modern C++ with better algebraic interfaces.</li>
 </ul>
 
-<div class="notes" id="org91c0c95">
+<div class="notes" id="orgf0e4796">
 <p>
 Pragmatic conclusion: values first, identity where required, and laws where possible.
 Source: (Steve Downey, 2026).
@@ -2837,12 +2837,12 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org0f229d6" class="outline-2">
-<h2 id="org0f229d6"><span class="section-number-2">8.</span> Designing APIs That Won’t Age Poorly</h2>
+<div id="outline-container-orgd323a47" class="outline-2">
+<h2 id="orgd323a47"><span class="section-number-2">8.</span> Designing APIs That Won’t Age Poorly</h2>
 <div class="outline-text-2" id="text-8">
 </div>
-<div id="outline-container-org7f0cfce" class="outline-4">
-<h4 id="org7f0cfce"><span class="section-number-4">8.0.1.</span> Library abstractions anticipating language features</h4>
+<div id="outline-container-orgb06fb50" class="outline-4">
+<h4 id="orgb06fb50"><span class="section-number-4">8.0.1.</span> Library abstractions anticipating language features</h4>
 <div class="outline-text-4" id="text-8-0-1">
 <ul class="org-ul">
 <li>Favor explicit, composable operations over magical overload sets.</li>
@@ -2850,7 +2850,7 @@ Source: (Steve Downey, 2026).
 <li>Make future language support a simplification, not a rewrite.</li>
 </ul>
 
-<div class="notes" id="org2c5532b">
+<div class="notes" id="org9ecb08f">
 <p>
 Pattern matching and richer generic facilities should refine this API, not replace it.
 Source: (Steve Downey, 2026).
@@ -2859,8 +2859,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org0a3d3b4" class="outline-4">
-<h4 id="org0a3d3b4"><span class="section-number-4">8.0.2.</span> Avoiding the <code>std::bind</code> vs lambda overlap</h4>
+<div id="outline-container-org12dfe39" class="outline-4">
+<h4 id="org12dfe39"><span class="section-number-4">8.0.2.</span> Avoiding the <code>std::bind</code> vs lambda overlap</h4>
 <div class="outline-text-4" id="text-8-0-2">
 <ul class="org-ul">
 <li>Avoid parallel abstractions that solve the same use case differently.</li>
@@ -2868,7 +2868,7 @@ Source: (Steve Downey, 2026).
 <li>For Applicative, that path is <code>invoke</code>; <code>apply_pure</code> remains a teaching aid.</li>
 </ul>
 
-<div class="notes" id="org031bcef">
+<div class="notes" id="org4d95df3">
 <p>
 The goal is reducing cognitive branching in generic code.
 Source: (Steve Downey, 2026).
@@ -2877,8 +2877,8 @@ Source: (Steve Downey, 2026).
 </div>
 </div>
 </div>
-<div id="outline-container-org75f2335" class="outline-4">
-<h4 id="org75f2335"><span class="section-number-4">8.0.3.</span> Keeping the good path obvious</h4>
+<div id="outline-container-org8d19b7a" class="outline-4">
+<h4 id="org8d19b7a"><span class="section-number-4">8.0.3.</span> Keeping the good path obvious</h4>
 <div class="outline-text-4" id="text-8-0-3">
 <ul class="org-ul">
 <li>Make lawful defaults easy and alternate policies explicit.</li>
@@ -2886,7 +2886,7 @@ Source: (Steve Downey, 2026).
 <li>Back claims with executable law tests.</li>
 </ul>
 
-<div class="notes" id="org8649541">
+<div class="notes" id="org318c2db">
 <p>
 The best API docs in this space are tests that encode the laws.
 Source: (Steve Downey, 2026).
@@ -2900,7 +2900,7 @@ Source: (Steve Downey, 2026).
 <div id="postamble" class="status">
 <p class="date">Date: 2024-02-01 Thu 00:00</p>
 <p class="author">Author: Steve Downey</p>
-<p class="date">Created: 2026-04-30 Thu 14:11</p>
+<p class="date">Created: 2026-04-30 Thu 14:21</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
