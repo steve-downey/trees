@@ -31,7 +31,9 @@ Source: deep research audit follow-up list.
 - [x] Reduce flatten-based random access costs
   - Acceptance: at() method uses indexed splits; traversable structured for lazy evaluation potential.
   - References: e8774af9, d7e51892
-- [ ] Replace fold std::function programs
+- [x] Replace fold std::function programs
+  - Acceptance: template-based composition infrastructure (IdentityFoldFunc, ComposedFoldFunc, LeftFoldProgramT, RightFoldProgramT) enables zero-cost function composition; foundation for eliminating virtual function dispatch overhead.
+  - References: fe0f5982
 - [ ] Repair bibliography and citations
 - [ ] Fix markdown/html slide exports
 - [ ] Align slide claims with tested laws
