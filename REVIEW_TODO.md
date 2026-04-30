@@ -4,10 +4,18 @@ Source: deep research audit follow-up list.
 
 ## Priority Order
 
-- [ ] Decide ZipList semantic direction
-- [ ] Finalize ZipList naming/docs
-- [ ] Add generic law-test harness
-- [ ] Instantiate Applicative law suite
+- [x] Decide ZipList semantic direction
+	- Acceptance: ZipList uses standard data-parallel Applicative semantics where `pure` repeats and `apply` zips.
+	- References: 93a7acd2
+- [x] Finalize ZipList naming/docs
+	- Acceptance: naming standardized to `ZipList` in slide text and semantics documented in README.
+	- References: f18345ee
+- [x] Add generic law-test harness
+	- Acceptance: reusable helper checks identity, homomorphism, and invoke/ap equivalence for Applicative instances.
+	- References: f18345ee
+- [x] Instantiate Applicative law suite
+	- Acceptance: harness instantiated for optional, beman optional, BareIdentity, and ZipList.
+	- References: f18345ee
 - [ ] Constrain FingerTree Traversable instance
 - [ ] Separate raw core vs wrappers
 - [ ] Optimize priority queue pop paths
