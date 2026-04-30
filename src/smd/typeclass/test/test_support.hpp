@@ -26,6 +26,15 @@ struct Identity {
     friend auto operator==(const Identity&, const Identity&) -> bool = default;
 };
 
+  template <class VALUE_TYPE>
+  struct BareIdentity {
+    using value_type = VALUE_TYPE;
+
+    VALUE_TYPE value;
+
+    friend auto operator==(const BareIdentity&, const BareIdentity&) -> bool = default;
+  };
+
 template <class VALUE_TYPE>
 struct Sequence {
     using value_type = VALUE_TYPE;
@@ -77,6 +86,41 @@ struct TestIdentityApplicativeMap
 template <class VALUE_TYPE>
 inline constexpr auto applicative_typeclass<smd::typeclass::test::Identity<VALUE_TYPE> > =
     TestIdentityApplicativeMap<VALUE_TYPE>{};
+
+template <class VALUE_TYPE>
+struct BareIdentityApplicativeImpl {
+  template <class VALUE>
+  auto pure(this auto&&, VALUE&& value)
+  {
+    return smd::typeclass::test::BareIdentity<remove_cvref_t<VALUE> >{
+      std::forward<VALUE>(value)};
+  }
+
+  template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
+  auto apply(this auto&&,
+             FUNCTION_IN_CONTEXT&& function,
+             ARGUMENT_IN_CONTEXT&& argument)
+  {
+    using Result = std::invoke_result_t<
+      decltype(std::forward<FUNCTION_IN_CONTEXT>(function).value),
+      decltype(std::forward<ARGUMENT_IN_CONTEXT>(argument).value)>;
+
+    return smd::typeclass::test::BareIdentity<remove_cvref_t<Result> >{
+      std::invoke(std::forward<FUNCTION_IN_CONTEXT>(function).value,
+                  std::forward<ARGUMENT_IN_CONTEXT>(argument).value)};
+  }
+};
+
+template <class VALUE_TYPE>
+struct BareIdentityApplicativeMap
+    : Applicative<BareIdentityApplicativeImpl<VALUE_TYPE> > {
+  using BareIdentityApplicativeImpl<VALUE_TYPE>::apply;
+  using BareIdentityApplicativeImpl<VALUE_TYPE>::pure;
+};
+
+template <class VALUE_TYPE>
+inline constexpr auto applicative_typeclass<smd::typeclass::test::BareIdentity<VALUE_TYPE> > =
+    BareIdentityApplicativeMap<VALUE_TYPE>{};
 
 template <class VALUE_TYPE>
 struct TestSequenceFoldableImpl {

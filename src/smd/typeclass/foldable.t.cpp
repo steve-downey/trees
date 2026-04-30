@@ -149,3 +149,19 @@ TEST_CASE("FoldableTypeclassTest - ToVectorAndCombineAll")
     CHECK(folded == (std::vector<int>{1, 2, 3}));
     // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end
 }
+
+TEST_CASE("FoldableTypeclassTest - AllOfAndFindFirstEdgeCases")
+{
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    const auto& foldable = smd::foldable_typeclass<Sequence>;
+
+    auto mixed = Sequence{{2, -1, 4}};
+    CHECK_FALSE(foldable.all_of(mixed, [](int x) { return x > 0; }));
+
+    auto found_even = foldable.find_first(mixed, [](int x) { return x % 2 == 0; });
+    REQUIRE(found_even.has_value());
+    CHECK(*found_even == 2);
+
+    auto found_large = foldable.find_first(mixed, [](int x) { return x > 100; });
+    CHECK_FALSE(found_large.has_value());
+}

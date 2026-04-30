@@ -66,3 +66,33 @@ TEST_CASE("TraversableTypeclassTest - SequenceAndSequenceWith")
     CHECK(sequenced_with->value == 1);
     // f1de12e0-2287-4568-98c7-75be4f6f7446 end
 }
+
+TEST_CASE("TraversableTypeclassTest - ForEachMatchesTraverse")
+{
+    using Identity = smd::typeclass::test::Identity<int>;
+    auto identity = Identity{4};
+    const auto& traversable = smd::traversable_typeclass<Identity>;
+
+    auto via_traverse = traversable.traverse(
+        [](int x) -> std::optional<int> { return std::optional<int>{x + 7}; },
+        identity);
+    auto via_for_each = traversable.for_each(
+        identity,
+        [](int x) -> std::optional<int> { return std::optional<int>{x + 7}; });
+
+    CHECK(via_traverse == via_for_each);
+}
+
+TEST_CASE("TraversableTypeclassTest - SequenceMatchesTraverseIdentity")
+{
+    using IdentityOpt = smd::typeclass::test::Identity<std::optional<int> >;
+    auto identity = IdentityOpt{std::optional<int>{5}};
+    const auto& traversable = smd::traversable_typeclass<IdentityOpt>;
+
+    auto via_sequence = traversable.sequence(identity);
+    auto via_traverse_identity = traversable.traverse(
+        [](auto&& x) { return std::forward<decltype(x)>(x); },
+        identity);
+
+    CHECK(via_sequence == via_traverse_identity);
+}

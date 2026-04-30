@@ -199,6 +199,16 @@ class FingerTree {
     return std::make_shared<const FlatSegment>(std::move(values));
   }
 
+  static auto make_flat_range(const std::shared_ptr<const std::vector<T>>& values,
+                              std::size_t begin,
+                              std::size_t end) -> SegmentPtr
+  {
+    if (begin >= end) {
+      return nullptr;
+    }
+    return std::make_shared<const FlatSegment>(values, begin, end);
+  }
+
   struct ConcatSegment final : Segment {
     SegmentPtr d_left;
     SegmentPtr d_right;
@@ -264,13 +274,223 @@ class FingerTree {
 
   static auto make_concat(SegmentPtr left, SegmentPtr right) -> SegmentPtr
   {
+    auto make_node = [](SegmentPtr lhs, SegmentPtr rhs) -> SegmentPtr {
+      if (!lhs) {
+        return rhs;
+      }
+      if (!rhs) {
+        return lhs;
+      }
+      return std::make_shared<const ConcatSegment>(std::move(lhs), std::move(rhs));
+    };
+
+    auto as_concat = [](const SegmentPtr& seg) -> const ConcatSegment* {
+      return dynamic_cast<const ConcatSegment*>(seg.get());
+    };
+
+    auto balance = [&](SegmentPtr lhs, SegmentPtr rhs) -> SegmentPtr {
+      while (true) {
+        auto lhs_depth = seg_depth(lhs);
+        auto rhs_depth = seg_depth(rhs);
+
+        if (lhs_depth <= rhs_depth + 1 && rhs_depth <= lhs_depth + 1) {
+          return make_node(std::move(lhs), std::move(rhs));
+        }
+
+        if (lhs_depth > rhs_depth + 1) {
+          const auto* l = as_concat(lhs);
+          if (!l) {
+            return make_node(std::move(lhs), std::move(rhs));
+          }
+
+          if (seg_depth(l->d_left) < seg_depth(l->d_right)) {
+            const auto* lr = as_concat(l->d_right);
+            if (lr) {
+              lhs = make_node(l->d_left, lr->d_left);
+              rhs = make_node(lr->d_right, std::move(rhs));
+              continue;
+            }
+          }
+
+          rhs = make_node(l->d_right, std::move(rhs));
+          lhs = l->d_left;
+          continue;
+        }
+
+        const auto* r = as_concat(rhs);
+        if (!r) {
+          return make_node(std::move(lhs), std::move(rhs));
+        }
+
+        if (seg_depth(r->d_right) < seg_depth(r->d_left)) {
+          const auto* rl = as_concat(r->d_left);
+          if (rl) {
+            lhs = make_node(std::move(lhs), rl->d_left);
+            rhs = make_node(rl->d_right, r->d_right);
+            continue;
+          }
+        }
+
+        lhs = make_node(std::move(lhs), r->d_left);
+        rhs = r->d_right;
+      }
+    };
+
     if (!left) {
       return right;
     }
     if (!right) {
       return left;
     }
-    return std::make_shared<const ConcatSegment>(std::move(left), std::move(right));
+
+    auto left_depth = seg_depth(left);
+    auto right_depth = seg_depth(right);
+
+    if (left_depth > right_depth + 1) {
+      if (const auto* l = as_concat(left)) {
+        return balance(l->d_left, make_concat(l->d_right, std::move(right)));
+      }
+    }
+
+    if (right_depth > left_depth + 1) {
+      if (const auto* r = as_concat(right)) {
+        return balance(make_concat(std::move(left), r->d_left), r->d_right);
+      }
+    }
+
+    return balance(std::move(left), std::move(right));
+  }
+
+  static auto build_balanced(const std::shared_ptr<const std::vector<T>>& values,
+                             std::size_t begin,
+                             std::size_t end) -> SegmentPtr
+  {
+    if (begin >= end) {
+      return nullptr;
+    }
+    if (end - begin == 1) {
+      return make_flat_range(values, begin, end);
+    }
+
+    auto mid = begin + (end - begin) / 2;
+    return make_concat(build_balanced(values, begin, mid),
+                       build_balanced(values, mid, end));
+  }
+
+  template <typename PREDICATE>
+  static auto search_segment(const SegmentPtr& seg,
+                             const PREDICATE& predicate,
+                             Tag prefix) -> std::optional<T>
+  {
+    if (!seg) {
+      return std::nullopt;
+    }
+
+    if (const auto* flat = dynamic_cast<const FlatSegment*>(seg.get())) {
+      for (std::size_t i = flat->d_begin; i < flat->d_end; ++i) {
+        prefix = tag_combine(prefix, tag_value((*flat->d_values)[i]));
+        if (predicate(prefix)) {
+          return (*flat->d_values)[i];
+        }
+      }
+      return std::nullopt;
+    }
+
+    const auto* concat = dynamic_cast<const ConcatSegment*>(seg.get());
+    assert(concat != nullptr);
+
+    auto left_prefix = tag_combine(prefix, seg_tag(concat->d_left));
+    if (predicate(left_prefix)) {
+      return search_segment(concat->d_left, predicate, prefix);
+    }
+
+    return search_segment(concat->d_right, predicate, left_prefix);
+  }
+
+  struct SegmentSplit {
+    SegmentPtr d_left;
+    T d_pivot;
+    SegmentPtr d_right;
+  };
+
+  template <typename PREDICATE>
+  static auto split_segment(const SegmentPtr& seg,
+                            const PREDICATE& predicate,
+                            Tag prefix) -> std::optional<SegmentSplit>
+  {
+    if (!seg) {
+      return std::nullopt;
+    }
+
+    if (const auto* flat = dynamic_cast<const FlatSegment*>(seg.get())) {
+      auto running = prefix;
+      for (std::size_t i = flat->d_begin; i < flat->d_end; ++i) {
+        running = tag_combine(running, tag_value((*flat->d_values)[i]));
+        if (predicate(running)) {
+          return SegmentSplit{
+            make_flat_range(flat->d_values, flat->d_begin, i),
+            (*flat->d_values)[i],
+            make_flat_range(flat->d_values, i + 1, flat->d_end)};
+        }
+      }
+      return std::nullopt;
+    }
+
+    const auto* concat = dynamic_cast<const ConcatSegment*>(seg.get());
+    assert(concat != nullptr);
+
+    auto left_prefix = tag_combine(prefix, seg_tag(concat->d_left));
+    if (predicate(left_prefix)) {
+      auto left_split = split_segment(concat->d_left, predicate, prefix);
+      if (!left_split.has_value()) {
+        return std::nullopt;
+      }
+
+      return SegmentSplit{left_split->d_left,
+                          left_split->d_pivot,
+                          make_concat(left_split->d_right, concat->d_right)};
+    }
+
+    auto right_split = split_segment(concat->d_right, predicate, left_prefix);
+    if (!right_split.has_value()) {
+      return std::nullopt;
+    }
+
+    return SegmentSplit{make_concat(concat->d_left, right_split->d_left),
+                        right_split->d_pivot,
+                        right_split->d_right};
+  }
+
+  static auto split_at_count(const SegmentPtr& seg,
+                             std::size_t index) -> std::pair<SegmentPtr, SegmentPtr>
+  {
+    if (!seg) {
+      return {nullptr, nullptr};
+    }
+
+    if (const auto* flat = dynamic_cast<const FlatSegment*>(seg.get())) {
+      auto size = flat->d_end - flat->d_begin;
+      auto pivot = index > size ? size : index;
+      return {
+        make_flat_range(flat->d_values, flat->d_begin, flat->d_begin + pivot),
+        make_flat_range(flat->d_values, flat->d_begin + pivot, flat->d_end)};
+    }
+
+    const auto* concat = dynamic_cast<const ConcatSegment*>(seg.get());
+    assert(concat != nullptr);
+
+    auto left_size = seg_size(concat->d_left);
+    if (index < left_size) {
+      auto split_left = split_at_count(concat->d_left, index);
+      return {split_left.first, make_concat(split_left.second, concat->d_right)};
+    }
+
+    if (index == left_size) {
+      return {concat->d_left, concat->d_right};
+    }
+
+    auto split_right = split_at_count(concat->d_right, index - left_size);
+    return {make_concat(concat->d_left, split_right.first), split_right.second};
   }
 
   SegmentPtr d_root;
@@ -288,6 +508,21 @@ class FingerTree {
   FingerTree() = default;
 
  public:
+  // Current complexity contract (prototype implementation):
+  // - O(1): empty, leaf, is_empty/is_leaf/is_branch,
+  //         is_empty/is_leaf/is_branch, measure, breadth, depth, value.
+  // - O(log n): cons, snoc, append/branch/concat,
+  //             view_l/view_r, head/last, tail/init,
+  //             search, split, split_at, split_at_index, split_at_measure.
+  // - O(n): flatten, from_sequence.
+  //
+  // This keeps a stable API while leaving room for future asymptotic
+  // improvements in search/split without changing call sites.
+  //
+  // Original finger-tree papers target stronger bounds with measured search:
+  // amortized O(1) for end operations, O(log(min(n,m))) concatenation,
+  // and O(log n) split/search.
+
   using value_type = T;
   using tag_type = Tag;
 
@@ -382,80 +617,41 @@ class FingerTree {
   template <typename PREDICATE>
   auto search(PREDICATE&& predicate) const -> std::optional<T>
   {
-    auto acc = tag_identity();
-    for (const auto& value : flatten()) {
-      acc = tag_combine(acc, tag_value(value));
-      if (predicate(acc)) {
-        return value;
-      }
-    }
-    return std::nullopt;
+    return search_segment(d_root, predicate, tag_identity());
   }
 
   template <typename PREDICATE>
   auto split(PREDICATE&& predicate) const -> std::optional<Split>
   {
-    auto values = flatten();
-    auto acc = tag_identity();
-
-    for (std::size_t i = 0; i < values.size(); ++i) {
-      acc = tag_combine(acc, tag_value(values[i]));
-      if (predicate(acc)) {
-        std::vector<T> left_values;
-        left_values.reserve(i);
-        left_values.insert(left_values.end(), values.begin(), values.begin() + static_cast<std::ptrdiff_t>(i));
-
-        std::vector<T> right_values;
-        right_values.reserve(values.size() - i - 1);
-        right_values.insert(right_values.end(), values.begin() + static_cast<std::ptrdiff_t>(i + 1), values.end());
-
-        return Split{from_sequence(std::move(left_values)), std::move(values[i]), from_sequence(std::move(right_values))};
-      }
+    auto split_result = split_segment(d_root, predicate, tag_identity());
+    if (!split_result.has_value()) {
+      return std::nullopt;
     }
 
-    return std::nullopt;
+    return Split{FingerTree(split_result->d_left),
+                 std::move(split_result->d_pivot),
+                 FingerTree(split_result->d_right)};
   }
 
   template <typename PREDICATE>
   auto split_at(PREDICATE&& predicate) const -> SplitAt
   {
-    auto values = flatten();
-    auto acc = tag_identity();
-
-    for (std::size_t i = 0; i < values.size(); ++i) {
-      acc = tag_combine(acc, tag_value(values[i]));
-      if (predicate(acc)) {
-        std::vector<T> left_values;
-        left_values.reserve(i);
-        left_values.insert(left_values.end(), values.begin(), values.begin() + static_cast<std::ptrdiff_t>(i));
-
-        std::vector<T> right_values;
-        right_values.reserve(values.size() - i);
-        right_values.insert(right_values.end(), values.begin() + static_cast<std::ptrdiff_t>(i), values.end());
-
-        return SplitAt{from_sequence(std::move(left_values)), from_sequence(std::move(right_values))};
-      }
+    auto split_result = split_segment(d_root, predicate, tag_identity());
+    if (!split_result.has_value()) {
+      return SplitAt{*this, empty()};
     }
 
-    return SplitAt{*this, empty()};
+    auto right_with_pivot = make_concat(
+      make_flat(std::vector<T>{split_result->d_pivot}), split_result->d_right);
+
+    return SplitAt{FingerTree(split_result->d_left), FingerTree(right_with_pivot)};
   }
 
   auto split_at_index(std::size_t index) const -> SplitAt
   {
-    auto values = flatten();
-    if (index > values.size()) {
-      index = values.size();
-    }
-
-    std::vector<T> left_values;
-    left_values.reserve(index);
-    left_values.insert(left_values.end(), values.begin(), values.begin() + static_cast<std::ptrdiff_t>(index));
-
-    std::vector<T> right_values;
-    right_values.reserve(values.size() - index);
-    right_values.insert(right_values.end(), values.begin() + static_cast<std::ptrdiff_t>(index), values.end());
-
-    return SplitAt{from_sequence(std::move(left_values)), from_sequence(std::move(right_values))};
+    auto clamped = index > breadth() ? breadth() : index;
+    auto split_result = split_at_count(d_root, clamped);
+    return SplitAt{FingerTree(split_result.first), FingerTree(split_result.second)};
   }
 
   auto split_at_measure(const Tag& threshold) const -> SplitAt
@@ -468,7 +664,8 @@ class FingerTree {
 
   static auto from_sequence(std::vector<T> values) -> FingerTree
   {
-    return FingerTree(make_flat(std::move(values)));
+    auto shared = std::make_shared<const std::vector<T>>(std::move(values));
+    return FingerTree(build_balanced(shared, 0, shared->size()));
   }
 
   auto view_l() const -> std::optional<View>

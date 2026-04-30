@@ -15,6 +15,8 @@ TEST_CASE("TypeclassExamples - SlideExamplesRemainExecutable")
     auto traversable_result = traversable_relabel_example();
     REQUIRE(traversable_result);
     CHECK(*traversable_result == 2U);
+    CHECK(traversable_preserves_shape_example());
+    CHECK(foldable_flattens_shape_example());
     CHECK(bad_applicative_example() == 1U);
 
     auto explicit_lookup = explicit_object_lookup_example();

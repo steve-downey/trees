@@ -142,6 +142,7 @@ CITE_PLACEHOLDER: deep-research-report (3).md :: Foldable and Traversable as sep
 - Expression trees: hierarchy controls precedence and rewrite legality.
 - Syntax trees: children have roles, not just positions.
 - Measured trees: internal summaries drive efficient split/search.
+- Measured trees: internal summaries define split/search interfaces and optimization direction.
 
 #+begin_notes
 A range view is still useful, but it should be derived, not the primary model.
@@ -389,7 +390,7 @@ The core teaching value of Applicative is already visible in optional/range/zipl
 *** Associativity as algorithmic leverage
 - Associativity lets us regroup work without changing results.
 - Measured trees exploit this to maintain summaries incrementally.
-- This is the bridge from algebra to asymptotic performance.
+- This is the bridge from algebra to explicit performance contracts.
 
 #+begin_notes
 If the measure is a monoid, split/search become compositional.
@@ -407,23 +408,31 @@ CITE_PLACEHOLDER: deep-research-report (17).md :: One structure, multiple interp
 #+end_notes
 
 *** Search and split driven by measures
-- Search is done against accumulated measure, not by linear scan.
-- Split follows the measure boundary where a predicate flips.
+- Search is currently implemented by linear scan over the flattened sequence.
+- Split currently follows the first predicate flip in that linear scan.
 - This yields one structure with many interpretations.
 
 #+begin_notes
 Sequence, priority queue, and rope are policy layers on one core tree.
+Original finger-tree papers promise stronger asymptotics with measured search.
+Target asymptotic story from those papers is amortized O(1) at the ends,
+O(log(min(n,m))) concatenation, and O(log n) split/search.
+Current repository implementation keeps the same API shape but does not yet
+meet those split/search bounds.
 CITE_PLACEHOLDER: deep-research-report (17).md :: Finger tree interpretation layering and measure-guided operations.
 #+end_notes
 
 * Finger Trees as a Case Study
 *** Persistent concatenation and splitting
-- Finger trees give cheap persistence-friendly concatenation and splitting.
-- They support practical editor and queue workloads with strong asymptotics.
+- Current prototype gives cheap persistence-friendly concatenation.
+- Current split/search paths are correct with linear-time upper bounds.
+- The API is designed so split/search can be optimized later without changing call sites.
 - The API naturally composes with foldable/traversable abstractions.
 
 #+begin_notes
 This is where abstractions meet implementation reality.
+Paper-level target bounds remain the north star.
+Current prototype contract is explicit linear split/search.
 CITE_PLACEHOLDER: deep-research-report (17).md :: Finger tree structural equations and implementation-critical invariants.
 #+end_notes
 

@@ -10,6 +10,21 @@
 
 namespace {
 
+auto ceil_log2(std::size_t n) -> std::size_t
+{
+    if (n <= 1U) {
+        return 0U;
+    }
+
+    std::size_t value = 1U;
+    std::size_t bits = 0U;
+    while (value < n) {
+        value <<= 1U;
+        ++bits;
+    }
+    return bits;
+}
+
 struct Weighted {
     std::size_t d_total;
 
@@ -278,6 +293,26 @@ TEST_CASE("FingerTreeTest - SplitAtMeasureConvenience")
     auto weighted_split = weighted_tree.split_at_measure(Weighted{35U});
     CHECK(weighted_split.d_left.flatten() == (std::vector<int>{1, 2}));
     CHECK(weighted_split.d_right.flatten() == (std::vector<int>{3, 4}));
+}
+
+TEST_CASE("FingerTreeTest - DepthRemainsLogarithmic")
+{
+    using Tree = smd::tree::FingerTree<int>;
+    constexpr std::size_t kSize = 1024U;
+
+    auto by_snoc = Tree::empty();
+    for (std::size_t i = 0; i < kSize; ++i) {
+        by_snoc = by_snoc.snoc(static_cast<int>(i));
+    }
+
+    auto bound = 2U * ceil_log2(kSize + 1U) + 1U;
+    CHECK(by_snoc.depth() <= bound);
+
+    auto by_append = Tree::empty();
+    for (std::size_t i = 0; i < kSize; ++i) {
+        by_append = by_append.append(Tree::leaf(static_cast<int>(i)));
+    }
+    CHECK(by_append.depth() <= bound);
 }
 
 TEST_CASE("FingerTreeFoldableTest - FoldMapAndDerivedOperations")

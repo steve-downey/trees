@@ -1,5 +1,8 @@
 {
     "chat.tools.terminal.autoApprove": {
-        "make": true
+        "make": true,
+        "awk": true,
+        "xmllint": true,
+        "uniq": true
     }
 }

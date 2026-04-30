@@ -246,7 +246,12 @@ Measure = length
 Classic rope structure
 
 Concatenation is cheap
-splitting is logarithmic
+current split/search upper bound is linear
+
+Paper target bounds:
+amortized O(1) ends,
+O(log(min(n,m))) concat,
+O(log n) split/search
 
 This is a real application
 #+end_notes

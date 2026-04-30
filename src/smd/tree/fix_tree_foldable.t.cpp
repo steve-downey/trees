@@ -129,3 +129,24 @@ TEST_CASE("FixTreeFoldableTest - PredicatesAndFind")
     REQUIRE(found.has_value());
     CHECK(*found == 2);
 }
+
+TEST_CASE("FixTreeTest - CoreConstructionAndAccess")
+{
+    using Tree = smd::tree::FixTree<int>;
+
+    auto l = Tree::leaf(4);
+    CHECK(l.is_leaf());
+    CHECK(l.value() == 4);
+
+    auto via_node = Tree::node(Tree::leaf(1), Tree::leaf(2));
+    CHECK_FALSE(via_node.is_leaf());
+    CHECK(via_node.left().is_leaf());
+    CHECK(via_node.right().is_leaf());
+    CHECK(via_node.left().value() == 1);
+    CHECK(via_node.right().value() == 2);
+
+    auto via_branch = Tree::branch(Tree::leaf(7), Tree::leaf(8));
+    CHECK_FALSE(via_branch.is_leaf());
+    CHECK(via_branch.left().value() == 7);
+    CHECK(via_branch.right().value() == 8);
+}
