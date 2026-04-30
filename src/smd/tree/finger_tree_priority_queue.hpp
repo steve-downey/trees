@@ -108,7 +108,14 @@ class FingerTreePriorityQueue {
     }
 
     auto new_min_tree = remove_one(d_min_tree, *m);
-    auto new_max_tree = MaxTree::from_sequence(new_min_tree.flatten());
+    // Use synchronized split instead of flatten + rebuild
+    // Find and remove same element from max_tree without materializing
+    auto max_split = d_max_tree.split([&m](const MaxTag<T>& prefix) {
+      return prefix.d_value.has_value() && prefix.d_value.value() == *m;
+    });
+    auto new_max_tree = max_split.has_value() 
+      ? MaxTree::concat(max_split->d_left, max_split->d_right)
+      : d_max_tree;
 
     return std::pair<T, FingerTreePriorityQueue>{
       *m,
@@ -132,7 +139,14 @@ class FingerTreePriorityQueue {
     }
 
     auto rebuilt_max = MaxTree::concat(split->d_left, split->d_right);
-    auto rebuilt_min = MinTree::from_sequence(rebuilt_max.flatten());
+    // Use synchronized split instead of flatten + rebuild
+    // Find and remove same element from min_tree without materializing
+    auto min_split = d_min_tree.split([&m](const MinTag<T>& prefix) {
+      return prefix.d_value.has_value() && prefix.d_value.value() == *m;
+    });
+    auto rebuilt_min = min_split.has_value()
+      ? MinTree::concat(min_split->d_left, min_split->d_right)
+      : d_min_tree;
 
     return std::pair<T, FingerTreePriorityQueue>{
       *m,
