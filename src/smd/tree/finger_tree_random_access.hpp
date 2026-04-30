@@ -44,7 +44,12 @@ class FingerTreeRandomAccess {
     if (index >= size()) {
       return std::nullopt;
     }
-    return d_tree.flatten()[index];
+    // Use indexed split to minimize materialization
+    // Split at index+1 to get everything up to and including the element
+    auto parts = d_tree.split_at_index(index + 1);
+    // The element at index is the last element of the left part
+    auto left_vec = parts.d_left.flatten();
+    return left_vec.back();
   }
 
   auto push_back(T value) const -> FingerTreeRandomAccess
