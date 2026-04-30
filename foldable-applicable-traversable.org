@@ -239,7 +239,7 @@ Traversable keeps the tree skeleton and only transforms payloads.
 *** Typeclass object lookup in three calls
 - User code calls the looked-up object, not a node method.
 - Lookup is a variable-template selection such as ~foldable_typeclass<Tree>~.
-- The same pattern applies to ~applicative_typeclass<Tree>~ and ~traversable_typeclass<Tree>~.
+- The same pattern applies to ~applicative_typeclass<Context>~ and ~traversable_typeclass<Tree>~.
 - You can use implicit lookup, explicit object arguments, or NTTP pinning for tests and policy control.
 
 #+begin_notes
@@ -308,6 +308,8 @@ Deducing this keeps wrappers generic without losing type information.
 *** Applicative model: pure function over effectful arguments
 - Applicative captures independent effectful arguments without full monadic sequencing.
 - It is enough for lawful traversal in many practical cases.
+- In this talk, the convincing applicative instances are optional, ranges, and ziplist.
+- Tree applicative semantics are possible, but not the main motivation here.
 - Public API should read as ordinary invocation over effectful values.
 - Prefer ~invoke~ for C++ audiences; it aligns with the ~std::invoke~ mental model.
 - This follows McBride's "apply pure functions in effectful contexts" reading, with normalization to ~pure~ + ~apply~ under the covers.
@@ -373,13 +375,15 @@ If these fail, abstractions become accidental APIs rather than reliable interfac
 CITE_PLACEHOLDER: deep-research-report (3).md :: Applicative law set and Functor coherence via invoke/map.
 #+end_notes
 
-*** Bad Applicative is easy to spot
-- A tree Applicative should preserve structural meaning.
-- Expanding shape during application changes semantics.
-- Keep alternate semantics explicit, never surprising defaults.
+*** Tree Applicative as optional appendix
+- Treat tree applicative as a policy choice, not the core applicative story.
+- If presented, keep it brief and explicitly label semantics.
+- Mainline examples should stay with optional, ranges, and ziplist.
 
-#+transclude: [[file:src/smd/typeclass/examples/applicative_bad.cpp::d2e7a1c9-0f3b-4b2e-9d55-1a8e7c4b2f90]]
-:lines 2- :src cpp :end "d2e7a1c9-0f3b-4b2e-9d55-1a8e7c4b2f90 end"
+#+begin_notes
+This avoids spending scarce slide time on semantics debates.
+The core teaching value of Applicative is already visible in optional/range/ziplist examples.
+#+end_notes
 
 * Monoids and Measured Trees
 *** Associativity as algorithmic leverage
