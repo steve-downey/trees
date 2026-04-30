@@ -1,6 +1,7 @@
 #ifndef INCLUDE_SMD_TREE_FINGER_TREE_HPP
 #define INCLUDE_SMD_TREE_FINGER_TREE_HPP
 
+#include <smd/tree/memoized_thunk.hpp>
 #include <smd/typeclass/monoid.hpp>
 
 #include <cassert>
@@ -73,6 +74,13 @@ class FingerTree {
   struct Segment;
   using SegmentPtr = std::shared_ptr<const Segment>;
 
+  static auto make_segment_thunk(SegmentPtr eager,
+                                 std::shared_ptr<const std::vector<T>> values = {},
+                                 std::size_t begin = 0,
+                                 std::size_t end = 0);
+  using SegmentThunk = decltype(make_segment_thunk(
+    SegmentPtr{}, std::shared_ptr<const std::vector<T>>{}, std::size_t{}, std::size_t{}));
+
   static auto tag_identity() -> Tag
   {
     return smd::typeclass::monoid_v<Tag>.identity();
@@ -98,6 +106,26 @@ class FingerTree {
     }
     return result;
   }
+
+  static auto balanced_depth(std::size_t count) -> std::size_t
+  {
+    if (count == 0U) {
+      return 0U;
+    }
+    if (count == 1U) {
+      return 1U;
+    }
+
+    auto left_count = count / 2U;
+    auto right_count = count - left_count;
+    return std::max(balanced_depth(left_count), balanced_depth(right_count)) + 1U;
+  }
+
+  struct SegmentMetadata {
+    std::size_t d_size;
+    std::size_t d_depth;
+    Tag d_tag;
+  };
 
   struct Segment {
     virtual ~Segment() = default;
@@ -209,19 +237,55 @@ class FingerTree {
     return std::make_shared<const FlatSegment>(values, begin, end);
   }
 
+  static auto segment_metadata(const SegmentPtr& seg) -> SegmentMetadata
+  {
+    return SegmentMetadata{seg_size(seg), seg_depth(seg), seg_tag(seg)};
+  }
+
+  static auto range_metadata(const std::shared_ptr<const std::vector<T>>& values,
+                             std::size_t begin,
+                             std::size_t end) -> SegmentMetadata
+  {
+    auto count = end > begin ? end - begin : 0U;
+    return SegmentMetadata{count, balanced_depth(count), tag_range(values, begin, end)};
+  }
+
+  struct MiddleEdge {
+    SegmentMetadata d_metadata;
+    mutable SegmentThunk d_force;
+
+    [[nodiscard]] auto size() const -> std::size_t { return d_metadata.d_size; }
+    [[nodiscard]] auto depth() const -> std::size_t { return d_metadata.d_depth; }
+    [[nodiscard]] auto tag() const -> const Tag& { return d_metadata.d_tag; }
+    [[nodiscard]] auto force() const -> const SegmentPtr& { return d_force(); }
+  };
+
+  static auto make_middle_from_segment(SegmentPtr seg) -> MiddleEdge
+  {
+    return MiddleEdge{segment_metadata(seg), make_segment_thunk(seg)};
+  }
+
+  static auto make_middle_from_range(const std::shared_ptr<const std::vector<T>>& values,
+                                     std::size_t begin,
+                                     std::size_t end) -> MiddleEdge
+  {
+    return MiddleEdge{range_metadata(values, begin, end),
+                      make_segment_thunk(nullptr, values, begin, end)};
+  }
+
   struct ConcatSegment final : Segment {
     SegmentPtr d_left;
-    SegmentPtr d_right;
+    MiddleEdge d_right;
     std::size_t d_size;
     std::size_t d_depth;
     Tag d_tag;
 
-    ConcatSegment(SegmentPtr left, SegmentPtr right)
+    ConcatSegment(SegmentPtr left, MiddleEdge right)
       : d_left(std::move(left))
       , d_right(std::move(right))
-      , d_size(seg_size(d_left) + seg_size(d_right))
-      , d_depth(std::max(seg_depth(d_left), seg_depth(d_right)) + std::size_t{1})
-      , d_tag(tag_combine(seg_tag(d_left), seg_tag(d_right)))
+      , d_size(seg_size(d_left) + d_right.size())
+      , d_depth(std::max(seg_depth(d_left), d_right.depth()) + std::size_t{1})
+      , d_tag(tag_combine(seg_tag(d_left), d_right.tag()))
     {
     }
 
@@ -234,14 +298,14 @@ class FingerTree {
       if (d_left) {
         d_left->flatten_into(out);
       }
-      if (d_right) {
-        d_right->flatten_into(out);
+      if (d_right.size() != 0U) {
+        d_right.force()->flatten_into(out);
       }
     }
 
     [[nodiscard]] auto pop_left() const -> std::optional<std::pair<T, SegmentPtr>> override
     {
-      if (!d_left && !d_right) {
+      if (!d_left && d_right.size() == 0U) {
         return std::nullopt;
       }
 
@@ -252,17 +316,17 @@ class FingerTree {
         }
       }
 
-      return d_right ? d_right->pop_left() : std::nullopt;
+      return d_right.size() != 0U ? d_right.force()->pop_left() : std::nullopt;
     }
 
     [[nodiscard]] auto pop_right() const -> std::optional<std::pair<T, SegmentPtr>> override
     {
-      if (!d_left && !d_right) {
+      if (!d_left && d_right.size() == 0U) {
         return std::nullopt;
       }
 
-      if (d_right) {
-        auto r = d_right->pop_right();
+      if (d_right.size() != 0U) {
+        auto r = d_right.force()->pop_right();
         if (r.has_value()) {
           return std::pair<T, SegmentPtr>{std::move(r->first), make_concat(d_left, std::move(r->second))};
         }
@@ -271,6 +335,17 @@ class FingerTree {
       return d_left ? d_left->pop_right() : std::nullopt;
     }
   };
+
+  static auto make_concat(SegmentPtr left, MiddleEdge right) -> SegmentPtr
+  {
+    if (!left) {
+      return right.force();
+    }
+    if (right.size() == 0U) {
+      return left;
+    }
+    return std::make_shared<const ConcatSegment>(std::move(left), std::move(right));
+  }
 
   static auto make_concat(SegmentPtr left, SegmentPtr right) -> SegmentPtr
   {
@@ -281,7 +356,7 @@ class FingerTree {
       if (!rhs) {
         return lhs;
       }
-      return std::make_shared<const ConcatSegment>(std::move(lhs), std::move(rhs));
+      return std::make_shared<const ConcatSegment>(std::move(lhs), make_middle_from_segment(std::move(rhs)));
     };
 
     auto as_concat = [](const SegmentPtr& seg) -> const ConcatSegment* {
@@ -304,15 +379,15 @@ class FingerTree {
           }
 
           if (seg_depth(l->d_left) < seg_depth(l->d_right)) {
-            const auto* lr = as_concat(l->d_right);
+            const auto* lr = as_concat(l->d_right.force());
             if (lr) {
               lhs = make_node(l->d_left, lr->d_left);
-              rhs = make_node(lr->d_right, std::move(rhs));
+              rhs = make_concat(lr->d_right.force(), std::move(rhs));
               continue;
             }
           }
 
-          rhs = make_node(l->d_right, std::move(rhs));
+          rhs = make_concat(l->d_right.force(), std::move(rhs));
           lhs = l->d_left;
           continue;
         }
@@ -322,17 +397,17 @@ class FingerTree {
           return make_node(std::move(lhs), std::move(rhs));
         }
 
-        if (seg_depth(r->d_right) < seg_depth(r->d_left)) {
+        if (r->d_right.depth() < seg_depth(r->d_left)) {
           const auto* rl = as_concat(r->d_left);
           if (rl) {
             lhs = make_node(std::move(lhs), rl->d_left);
-            rhs = make_node(rl->d_right, r->d_right);
+            rhs = make_concat(rl->d_right.force(), r->d_right.force());
             continue;
           }
         }
 
         lhs = make_node(std::move(lhs), r->d_left);
-        rhs = r->d_right;
+        rhs = r->d_right.force();
       }
     };
 
@@ -348,13 +423,13 @@ class FingerTree {
 
     if (left_depth > right_depth + 1) {
       if (const auto* l = as_concat(left)) {
-        return balance(l->d_left, make_concat(l->d_right, std::move(right)));
+        return balance(l->d_left, make_concat(l->d_right.force(), std::move(right)));
       }
     }
 
     if (right_depth > left_depth + 1) {
       if (const auto* r = as_concat(right)) {
-        return balance(make_concat(std::move(left), r->d_left), r->d_right);
+        return balance(make_concat(std::move(left), r->d_left), r->d_right.force());
       }
     }
 
@@ -374,7 +449,21 @@ class FingerTree {
 
     auto mid = begin + (end - begin) / 2;
     return make_concat(build_balanced(values, begin, mid),
-                       build_balanced(values, mid, end));
+                       make_middle_from_range(values, mid, end));
+  }
+
+  static auto make_segment_thunk(SegmentPtr eager,
+                                 std::shared_ptr<const std::vector<T>> values,
+                                 std::size_t begin,
+                                 std::size_t end)
+  {
+    return detail::thunk(
+      [eager = std::move(eager), values = std::move(values), begin, end]() -> SegmentPtr {
+        if (eager) {
+          return eager;
+        }
+        return build_balanced(values, begin, end);
+      });
   }
 
   template <typename PREDICATE>
@@ -404,7 +493,7 @@ class FingerTree {
       return search_segment(concat->d_left, predicate, prefix);
     }
 
-    return search_segment(concat->d_right, predicate, left_prefix);
+    return search_segment(concat->d_right.force(), predicate, left_prefix);
   }
 
   struct SegmentSplit {
@@ -451,7 +540,7 @@ class FingerTree {
                           make_concat(left_split->d_right, concat->d_right)};
     }
 
-    auto right_split = split_segment(concat->d_right, predicate, left_prefix);
+    auto right_split = split_segment(concat->d_right.force(), predicate, left_prefix);
     if (!right_split.has_value()) {
       return std::nullopt;
     }
@@ -486,10 +575,10 @@ class FingerTree {
     }
 
     if (index == left_size) {
-      return {concat->d_left, concat->d_right};
+      return {concat->d_left, concat->d_right.force()};
     }
 
-    auto split_right = split_at_count(concat->d_right, index - left_size);
+    auto split_right = split_at_count(concat->d_right.force(), index - left_size);
     return {make_concat(concat->d_left, split_right.first), split_right.second};
   }
 
