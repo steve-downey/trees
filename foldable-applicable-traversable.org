@@ -108,7 +108,7 @@ The eventual goal of this work is to provide ~fingertree~ to the standard librar
 - Foldables :: are types which can be made to look like a sequence of some sort, or a range, and support the basic ~fold~ operation which provides much of the power of std::ranges. Providing opt-in hooks for making a type Foldable rather than a Range is useful.
 
 ** Applicative
-- Applicatives :: were introduced to provide the pattern of 'pure function applied to funny arguments', where a type "supports its own peculiar way of giving meaning to the usual [notion of function invocation]." The implementation details of partially applied functions in a container turn out to be a distraction from understanding. They turn out to be widely relevant in contexts such as data parallel operations, and with less overhead than monadic operations.
+- Applicatives :: were introduced to provide the pattern of 'pure function applied to funny arguments', where a type "supports its own peculiar way of giving meaning to the usual [notion of function invocation]." The implementation details of partially applied functions in a container turn out to be a distraction from understanding. They turn out to be widely relevant in contexts such as data parallel operations, and often require less sequencing machinery than monadic formulations for independent effects.
 
 ** Traversable
 - Traversables :: are generalizations of Foldables which allow preservation of the "shape" of a container, where a Foldable can only see the ordered sequence. A binary tree can be traversed and maintain the parent child relationships, where a fold can at most produce a range. Traversable also provides the ability to "commute" containers, generically, providing the ability to convert a range of tasks into a task producing a range.
@@ -294,7 +294,7 @@ Deducing this keeps wrappers generic without losing type information.
 :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
 
 *** Foldable API: one primitive, many derived operations
-- Minimal implementation hook: ~fold_map~.
+- In this repository, the minimal implementation hook is ~fold_map~.
 - User-facing operations like ~length~, ~fold_left~, ~fold_right~, ~fold~, and ~to_vector~ are derived.
 
 #+transclude: [[file:src/smd/typeclass/foldable.hpp::e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2]]
@@ -320,7 +320,7 @@ Deducing this keeps wrappers generic without losing type information.
 :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
 
 *** Applicative API: minimal core, user-facing invoke
-- Minimal implementation hook: ~pure~ and ~apply~.
+- In this repository, the minimal implementation hooks are ~pure~ and ~apply~.
 - Future-facing user spelling is ~invoke~ over effectful arguments.
 - ~apply_pure~ is retained as a pedagogical alias.
 
@@ -339,7 +339,7 @@ Deducing this keeps wrappers generic without losing type information.
 - Use this to model validation, partial relabeling, and structured transformations.
 
 *** Traversable API: one primitive, many derived operations
-- Minimal implementation hook: ~traverse~.
+- In this repository, the minimal implementation hook is ~traverse~.
 - ~for_each~, ~sequence~, and ~sequence_with~ are derived helper operations.
 
 #+transclude: [[file:src/smd/typeclass/traversable.hpp::8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11]]
