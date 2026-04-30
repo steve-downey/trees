@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <algorithm>
 #include <optional>
 #include <type_traits>
 #include <utility>
@@ -107,15 +108,21 @@ class FingerTreePriorityQueue {
       return std::nullopt;
     }
 
-    auto new_min_tree = remove_one(d_min_tree, *m);
-    // Use synchronized split instead of flatten + rebuild
-    // Find and remove same element from max_tree without materializing
-    auto max_split = d_max_tree.split([&m](const MaxTag<T>& prefix) {
-      return prefix.d_value.has_value() && prefix.d_value.value() == *m;
-    });
-    auto new_max_tree = max_split.has_value() 
-      ? MaxTree::concat(max_split->d_left, max_split->d_right)
-      : d_max_tree;
+    // Rebuild from flattened values for deterministic correctness while
+    // tree internals are being refactored.
+    auto min_values = d_min_tree.flatten();
+    auto min_it = std::find(min_values.begin(), min_values.end(), *m);
+    if (min_it != min_values.end()) {
+      min_values.erase(min_it);
+    }
+    auto new_min_tree = MinTree::from_sequence(std::move(min_values));
+
+    auto max_values = d_max_tree.flatten();
+    auto max_it = std::find(max_values.begin(), max_values.end(), *m);
+    if (max_it != max_values.end()) {
+      max_values.erase(max_it);
+    }
+    auto new_max_tree = MaxTree::from_sequence(std::move(max_values));
 
     return std::pair<T, FingerTreePriorityQueue>{
       *m,
@@ -130,23 +137,19 @@ class FingerTreePriorityQueue {
       return std::nullopt;
     }
 
-    auto split = d_max_tree.split([&m](const MaxTag<T>& prefix) {
-      return prefix.d_value.has_value() && prefix.d_value.value() == *m;
-    });
-
-    if (!split.has_value()) {
-      return std::nullopt;
+    auto max_values = d_max_tree.flatten();
+    auto max_it = std::find(max_values.begin(), max_values.end(), *m);
+    if (max_it != max_values.end()) {
+      max_values.erase(max_it);
     }
+    auto rebuilt_max = MaxTree::from_sequence(std::move(max_values));
 
-    auto rebuilt_max = MaxTree::concat(split->d_left, split->d_right);
-    // Use synchronized split instead of flatten + rebuild
-    // Find and remove same element from min_tree without materializing
-    auto min_split = d_min_tree.split([&m](const MinTag<T>& prefix) {
-      return prefix.d_value.has_value() && prefix.d_value.value() == *m;
-    });
-    auto rebuilt_min = min_split.has_value()
-      ? MinTree::concat(min_split->d_left, min_split->d_right)
-      : d_min_tree;
+    auto min_values = d_min_tree.flatten();
+    auto min_it = std::find(min_values.begin(), min_values.end(), *m);
+    if (min_it != min_values.end()) {
+      min_values.erase(min_it);
+    }
+    auto rebuilt_min = MinTree::from_sequence(std::move(min_values));
 
     return std::pair<T, FingerTreePriorityQueue>{
       *m,
