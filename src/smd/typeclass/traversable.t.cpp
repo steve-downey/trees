@@ -184,3 +184,34 @@ TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
 
     CHECK(lhs == unwrap_identity(rhs));
 }
+
+TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional")
+{
+    using Identity = smd::typeclass::test::Identity<int>;
+    const auto& traversable = smd::traversable_typeclass<Identity>;
+
+    auto value = Identity{8};
+
+    auto effectful = [](int x) -> std::optional<int> {
+        return x >= 0 ? std::optional<int>{x + 5} : std::optional<int>{};
+    };
+    auto natural = [](int x) { return x * 3; };
+
+    auto lhs = traversable.traverse(effectful, value);
+    auto lhs_mapped = std::optional<Identity>{};
+    if (lhs.has_value()) {
+        lhs_mapped = Identity{natural(lhs->value)};
+    }
+
+    auto rhs = traversable.traverse(
+        [&](int x) -> std::optional<int> {
+            auto result = effectful(x);
+            if (!result.has_value()) {
+                return std::optional<int>{};
+            }
+            return std::optional<int>{natural(*result)};
+        },
+        value);
+
+    CHECK(lhs_mapped == rhs);
+}
