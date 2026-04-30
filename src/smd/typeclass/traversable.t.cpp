@@ -136,3 +136,51 @@ TEST_CASE("TraversableTypeclassTest - TraverseMapCoherence")
 
     CHECK(mapped == via_mapped_traverse);
 }
+
+TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
+{
+    using Identity = smd::typeclass::test::Identity<int>;
+    const auto& traversable = smd::traversable_typeclass<Identity>;
+
+    auto value = Identity{9};
+
+    auto f = [](int x) -> std::optional<int> {
+        return x >= 0 ? std::optional<int>{x + 2} : std::optional<int>{};
+    };
+    auto g = [](int x) -> std::optional<int> {
+        return x % 2 == 0 ? std::optional<int>{x / 2} : std::optional<int>{};
+    };
+
+    auto lhs = traversable.traverse(
+        [&](int x) -> std::optional<std::optional<int> > {
+            auto fx = f(x);
+            if (!fx.has_value()) {
+                return std::optional<std::optional<int> >{std::optional<int>{}};
+            }
+            return std::optional<std::optional<int> >{g(*fx)};
+        },
+        value);
+
+    auto rhs = [&]() -> std::optional<std::optional<Identity> > {
+        auto traversed_once = traversable.traverse(f, value);
+        if (!traversed_once.has_value()) {
+            return std::optional<std::optional<Identity> >{std::optional<Identity>{}};
+        }
+
+        auto traversed_twice = traversable.traverse(g, *traversed_once);
+        return std::optional<std::optional<Identity> >{traversed_twice};
+    }();
+
+    auto unwrap_identity = [](const std::optional<std::optional<Identity> >& nested)
+        -> std::optional<std::optional<int> > {
+        if (!nested.has_value()) {
+            return std::optional<std::optional<int> >{};
+        }
+        if (!nested->has_value()) {
+            return std::optional<std::optional<int> >{std::optional<int>{}};
+        }
+        return std::optional<std::optional<int> >{std::optional<int>{nested->value().value}};
+    };
+
+    CHECK(lhs == unwrap_identity(rhs));
+}

@@ -35,7 +35,7 @@ Example:
 
 ## ZipList semantics
 
-- `smd::zip_list<T>` is the standard data-parallel Applicative list.
+- `smd::zip_list<T>` follows the standard ZipList Applicative semantics (`Control.Applicative`).
 - `pure(x)` is represented as an infinite repetition of `x`.
 - `apply` and `invoke` zip positionally, truncating to the shortest finite input.
 
