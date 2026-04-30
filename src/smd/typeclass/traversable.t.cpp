@@ -96,3 +96,43 @@ TEST_CASE("TraversableTypeclassTest - SequenceMatchesTraverseIdentity")
 
     CHECK(via_sequence == via_traverse_identity);
 }
+
+TEST_CASE("TraversableTypeclassTest - IdentityLawWithIdentityApplicative")
+{
+    using Identity = smd::typeclass::test::Identity<int>;
+    const auto& traversable = smd::traversable_typeclass<Identity>;
+    const auto& applicative = smd::applicative_typeclass<Identity>;
+
+    auto value = Identity{42};
+
+    auto lhs = traversable.traverse(
+        [&applicative](int x) { return applicative.pure(x); },
+        value);
+    auto rhs = applicative.pure(value);
+
+    CHECK(lhs == rhs);
+}
+
+TEST_CASE("TraversableTypeclassTest - TraverseMapCoherence")
+{
+    using Identity = smd::typeclass::test::Identity<int>;
+    const auto& traversable = smd::traversable_typeclass<Identity>;
+
+    auto value = Identity{7};
+
+    auto via_traverse = traversable.traverse(
+        [](int x) -> std::optional<int> { return std::optional<int>{x + 1}; },
+        value);
+
+    auto via_mapped_traverse = traversable.traverse(
+        [](int x) -> std::optional<int> {
+            return std::optional<int>{(x + 1) * 3};
+        },
+        value);
+
+    REQUIRE(via_traverse.has_value());
+    auto mapped = std::optional<smd::typeclass::test::Identity<int> >{
+        smd::typeclass::test::Identity<int>{via_traverse->value * 3}};
+
+    CHECK(mapped == via_mapped_traverse);
+}
