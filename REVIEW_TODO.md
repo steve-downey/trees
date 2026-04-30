@@ -16,15 +16,21 @@ Source: deep research audit follow-up list.
 - [x] Instantiate Applicative law suite
 	- Acceptance: harness instantiated for optional, beman optional, BareIdentity, and ZipList.
 	- References: f18345ee
-- [ ] Constrain FingerTree Traversable instance
+- [x] Constrain FingerTree Traversable instance
   - Acceptance: core traversable semantics documented; materialization via flatten(), reconstruction via from_sequence().
-  - References: [commit TBD]
-- [ ] Separate raw core vs wrappers
+  - References: aa41fb89
+- [x] Separate raw core vs wrappers
   - Acceptance: wrapper-specific Foldable/Traversable impls extracted to dedicated files (*_foldable.hpp, *_traversable.hpp); clear separation between core and wrapper layers.
-  - References: [commit TBD]
-- [ ] Optimize priority queue pop paths
-- [ ] Use measured pruning in interval queries
-- [ ] Reduce flatten-based random access costs
+  - References: aa41fb89
+- [x] Optimize priority queue pop paths
+  - Acceptance: dual-tree pop operations use synchronized splits instead of flatten-rebuild; O(n log n) → O(log n).
+  - References: 5d717777
+- [x] Use measured pruning in interval queries
+  - Acceptance: query_point() and query_overlap() use measure-based split_at() predicates to skip non-candidate intervals; O(n) → O(log n + k).
+  - References: 4e478d56
+- [x] Reduce flatten-based random access costs
+  - Acceptance: at() method uses indexed splits; traversable structured for lazy evaluation potential.
+  - References: e8774af9, d7e51892
 - [ ] Replace fold std::function programs
 - [ ] Repair bibliography and citations
 - [ ] Fix markdown/html slide exports
