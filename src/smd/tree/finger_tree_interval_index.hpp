@@ -68,7 +68,14 @@ class FingerTreeIntervalIndex {
   {
     std::vector<PAYLOAD_TYPE> out;
 
-    for (const auto& entry : d_tree.flatten()) {
+    // Use measure-based pruning: skip intervals where max_end <= point
+    // These intervals cannot contain the point by definition
+    auto parts = d_tree.split_at([point](const IntervalMaxEndTag<PAYLOAD_TYPE>& prefix) {
+      return prefix.d_max_end > point;
+    });
+    
+    // Only search within intervals with d_max_end > point
+    for (const auto& entry : parts.d_right.flatten()) {
       if (entry.d_start <= point && point < entry.d_end) {
         out.push_back(entry.d_payload);
       }
@@ -82,7 +89,14 @@ class FingerTreeIntervalIndex {
   {
     std::vector<PAYLOAD_TYPE> out;
 
-    for (const auto& entry : d_tree.flatten()) {
+    // Use measure-based pruning: skip intervals where max_end <= start
+    // These intervals cannot overlap with [start, end) by definition
+    auto parts = d_tree.split_at([start](const IntervalMaxEndTag<PAYLOAD_TYPE>& prefix) {
+      return prefix.d_max_end > start;
+    });
+    
+    // Only search within intervals with d_max_end > start
+    for (const auto& entry : parts.d_right.flatten()) {
       if (entry.d_start < end && start < entry.d_end) {
         out.push_back(entry.d_payload);
       }
