@@ -348,6 +348,22 @@ class FingerTree {
         }));
   }
 
+  static auto make_delayed_concat_pair(SegmentPtr left, SegmentPtr right) -> SegmentPtr
+  {
+    if (!left) {
+      return right;
+    }
+    if (!right) {
+      return left;
+    }
+
+    return make_suspended_segment(
+      concat_metadata(segment_metadata(left), segment_metadata(right)),
+      detail::thunk([left = std::move(left), right = std::move(right)]() mutable -> SegmentPtr {
+        return make_concat(std::move(left), std::move(right));
+      }));
+  }
+
   struct ConcatSegment final : Segment {
     SegmentPtr d_left;
     MiddleEdge d_right;
@@ -511,6 +527,10 @@ class FingerTree {
     auto right_depth = seg_depth(right);
 
     if (left_depth > right_depth + 1) {
+      if (dynamic_cast<const SuspendedSegment*>(left.get()) != nullptr) {
+        return make_delayed_concat_pair(std::move(left), std::move(right));
+      }
+
       auto forced_left = force_segment(left);
       if (const auto* l = dynamic_cast<const ConcatSegment*>(forced_left.get())) {
         return balance(l->d_left, make_delayed_concat_segment(l->d_right, std::move(right)));
@@ -518,6 +538,10 @@ class FingerTree {
     }
 
     if (right_depth > left_depth + 1) {
+      if (dynamic_cast<const SuspendedSegment*>(right.get()) != nullptr) {
+        return make_delayed_concat_pair(std::move(left), std::move(right));
+      }
+
       auto forced_right = force_segment(right);
       if (const auto* r = dynamic_cast<const ConcatSegment*>(forced_right.get())) {
         return balance(make_concat(std::move(left), r->d_left), make_segment_from_middle(r->d_right));
