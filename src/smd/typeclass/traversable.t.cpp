@@ -182,7 +182,15 @@ TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
         return std::optional<std::optional<int> >{std::optional<int>{nested->value().value}};
     };
 
-    CHECK(lhs == unwrap_identity(rhs));
+    auto unwrap_traversed = [](const std::optional<smd::typeclass::test::Identity<std::optional<int> > >& traversed)
+        -> std::optional<std::optional<int> > {
+        if (!traversed.has_value()) {
+            return std::optional<std::optional<int> >{};
+        }
+        return std::optional<std::optional<int> >{traversed->value};
+    };
+
+    CHECK(unwrap_traversed(lhs) == unwrap_identity(rhs));
 }
 
 TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional")

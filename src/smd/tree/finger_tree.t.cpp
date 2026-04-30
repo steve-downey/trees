@@ -1,9 +1,11 @@
 #include <smd/tree/finger_tree.hpp>
 #include <smd/tree/finger_tree_foldable.hpp>
+#include <smd/tree/memoized_thunk.hpp>
 #include <smd/tree/finger_tree_traversable.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <atomic>
 #include <cstddef>
 #include <optional>
 #include <vector>
@@ -81,6 +83,35 @@ TEST_CASE("FingerTreeTest - EmptyLeafAndPredicates")
     CHECK(single.measure() == 1U);
     CHECK(single.value() == 42);
     CHECK(single.flatten() == (std::vector<int>{42}));
+}
+
+TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkForcesOnce")
+{
+    std::atomic<int> evaluations{0};
+    auto delayed = smd::tree::detail::thunk([
+        &evaluations]() {
+        evaluations.fetch_add(1, std::memory_order_relaxed);
+        return 42;
+    });
+
+    CHECK(delayed() == 42);
+    CHECK(delayed() == 42);
+    CHECK(evaluations.load(std::memory_order_relaxed) == 1);
+}
+
+TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkSharesAcrossCopies")
+{
+    std::atomic<int> evaluations{0};
+    auto delayed = smd::tree::detail::thunk([
+        &evaluations]() {
+        evaluations.fetch_add(1, std::memory_order_relaxed);
+        return 7;
+    });
+    auto alias = delayed;
+
+    CHECK(delayed() == 7);
+    CHECK(alias() == 7);
+    CHECK(evaluations.load(std::memory_order_relaxed) == 1);
 }
 
 TEST_CASE("FingerTreeTest - FromSequenceConsSnocAndMemberAppend")

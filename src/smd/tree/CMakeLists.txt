@@ -22,6 +22,7 @@ target_sources(
     finger_tree_priority_queue.hpp
     finger_tree_interval_index.hpp
     finger_tree_rope.hpp
+    memoized_thunk.hpp
     finger_tree_wrappers.hpp
         fix_tree.hpp
         fix_tree_foldable.hpp
