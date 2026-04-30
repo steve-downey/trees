@@ -4,6 +4,7 @@ compile_commands.json
 .update-submodules
 .use-docker
 /.build/
+/build/
 /.cache/
 uv.lock
 /.install/
@@ -13,6 +14,8 @@ uv.lock
 /.emacs.d/elpa/
 *.deps
 *.html
+# Keep canonical talk deliverables in git because exports are not byte-stable
+# across toolchain versions and these files are consumed by different audiences.
 !foldable-applicable-traversable.html
 !foldable-applicable-traversable-slides.html
 /docs/html/
