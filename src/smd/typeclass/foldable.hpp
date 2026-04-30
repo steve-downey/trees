@@ -13,6 +13,26 @@
 
 namespace smd::detail {
 
+// Identity function for fold composition - no type erasure needed
+template <class STATE>
+struct IdentityFoldFunc {
+  constexpr auto operator()(STATE s) const -> STATE { return s; }
+};
+
+// Compose two fold functions without type erasure
+template <class F1, class F2>
+struct ComposedFoldFunc {
+  F1 d_f1;
+  F2 d_f2;
+
+  template <class STATE>
+  auto operator()(STATE s) const -> STATE
+  {
+    return d_f2(d_f1(std::move(s)));
+  }
+};
+
+// Left fold composition (same order as f1 then f2)
 template <class STATE>
 struct LeftFoldProgram {
   std::function<STATE(STATE)> d_run;
@@ -23,10 +43,34 @@ struct LeftFoldProgram {
   }
 };
 
+// Template-based version that avoids type erasure - used internally
+template <class F>
+struct LeftFoldProgramT {
+  F d_run;
+
+  template <class STATE>
+  auto operator()(STATE state) const -> STATE
+  {
+    return d_run(std::move(state));
+  }
+};
+
 template <class STATE>
 struct RightFoldProgram {
   std::function<STATE(STATE)> d_run;
 
+  auto operator()(STATE state) const -> STATE
+  {
+    return d_run(std::move(state));
+  }
+};
+
+// Template-based version that avoids type erasure - used internally
+template <class F>
+struct RightFoldProgramT {
+  F d_run;
+
+  template <class STATE>
   auto operator()(STATE state) const -> STATE
   {
     return d_run(std::move(state));
@@ -67,6 +111,25 @@ struct Monoid<smd::detail::LeftFoldProgram<STATE> > {
   }
 };
 
+// Template specialization for LeftFoldProgramT - avoids type erasure
+template <class F>
+struct Monoid<smd::detail::LeftFoldProgramT<F> > {
+  auto identity() const -> smd::detail::LeftFoldProgramT<smd::detail::IdentityFoldFunc<int> >
+  {
+    return smd::detail::LeftFoldProgramT<smd::detail::IdentityFoldFunc<int> >{
+      smd::detail::IdentityFoldFunc<int>{}};
+  }
+
+  template <class G>
+  auto combine(const smd::detail::LeftFoldProgramT<F>& lhs,
+         const smd::detail::LeftFoldProgramT<G>& rhs) const
+    -> smd::detail::LeftFoldProgramT<smd::detail::ComposedFoldFunc<F, G> >
+  {
+    return smd::detail::LeftFoldProgramT<smd::detail::ComposedFoldFunc<F, G> >{
+      smd::detail::ComposedFoldFunc<F, G>{lhs.d_run, rhs.d_run}};
+  }
+};
+
 template <class STATE>
 struct Monoid<smd::detail::RightFoldProgram<STATE> > {
   auto identity() const -> smd::detail::RightFoldProgram<STATE>
@@ -81,6 +144,25 @@ struct Monoid<smd::detail::RightFoldProgram<STATE> > {
   {
     return smd::detail::RightFoldProgram<STATE>{
       [lhs, rhs](STATE s) { return lhs(rhs(std::move(s))); }};
+  }
+};
+
+// Template specialization for RightFoldProgramT - avoids type erasure
+template <class F>
+struct Monoid<smd::detail::RightFoldProgramT<F> > {
+  auto identity() const -> smd::detail::RightFoldProgramT<smd::detail::IdentityFoldFunc<int> >
+  {
+    return smd::detail::RightFoldProgramT<smd::detail::IdentityFoldFunc<int> >{
+      smd::detail::IdentityFoldFunc<int>{}};
+  }
+
+  template <class G>
+  auto combine(const smd::detail::RightFoldProgramT<F>& lhs,
+         const smd::detail::RightFoldProgramT<G>& rhs) const
+    -> smd::detail::RightFoldProgramT<smd::detail::ComposedFoldFunc<F, G> >
+  {
+    return smd::detail::RightFoldProgramT<smd::detail::ComposedFoldFunc<F, G> >{
+      smd::detail::ComposedFoldFunc<F, G>{lhs.d_run, rhs.d_run}};
   }
 };
 
