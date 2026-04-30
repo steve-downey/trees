@@ -39,13 +39,13 @@ Source: deep research audit follow-up list.
   - References: 18103a0c
 - [x] Fix markdown/html slide exports
   - Acceptance: slide, flat html, and markdown exports regenerate from org source with tracked canonical artifacts and corrected dependency wiring.
-  - References: [commit TBD]
+  - References: 078452c4
 - [x] Align slide claims with tested laws
   - Acceptance: laws slide distinguishes target law set from currently automated checks; wording matches concrete test coverage in repo.
-  - References: [commit TBD]
+  - References: 078452c4
 - [x] Add CI gates for laws and coverage
   - Acceptance: CI workflow includes explicit law-focused test gate and coverage report presence gate.
-  - References: [commit TBD]
+  - References: 078452c4
 
 ## Notes
 
