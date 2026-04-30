@@ -127,6 +127,8 @@ class FingerTree {
     Tag d_tag;
   };
 
+  static auto make_suspended_segment(SegmentMetadata metadata, SegmentThunk thunk) -> SegmentPtr;
+
   struct Segment {
     virtual ~Segment() = default;
 
@@ -250,6 +252,14 @@ class FingerTree {
     return SegmentMetadata{count, balanced_depth(count), tag_range(values, begin, end)};
   }
 
+  static auto concat_metadata(const SegmentMetadata& left,
+                              const SegmentMetadata& right) -> SegmentMetadata
+  {
+    return SegmentMetadata{left.d_size + right.d_size,
+                           std::max(left.d_depth, right.d_depth) + std::size_t{1},
+                           tag_combine(left.d_tag, right.d_tag)};
+  }
+
   struct MiddleEdge {
     SegmentMetadata d_metadata;
     mutable SegmentThunk d_force;
@@ -271,6 +281,72 @@ class FingerTree {
   {
     return MiddleEdge{range_metadata(values, begin, end),
                       make_segment_thunk(nullptr, values, begin, end)};
+  }
+
+  struct SuspendedSegment final : Segment {
+    SegmentMetadata d_metadata;
+    mutable SegmentThunk d_force;
+
+    SuspendedSegment(SegmentMetadata metadata, SegmentThunk thunk)
+      : d_metadata(std::move(metadata))
+      , d_force(std::move(thunk))
+    {
+    }
+
+    [[nodiscard]] auto size() const -> std::size_t override { return d_metadata.d_size; }
+    [[nodiscard]] auto tag() const -> const Tag& override { return d_metadata.d_tag; }
+    [[nodiscard]] auto depth() const -> std::size_t override { return d_metadata.d_depth; }
+
+    [[nodiscard]] auto force() const -> const SegmentPtr& { return d_force(); }
+
+    void flatten_into(std::vector<T>& out) const override
+    {
+      force()->flatten_into(out);
+    }
+
+    [[nodiscard]] auto pop_left() const -> std::optional<std::pair<T, SegmentPtr>> override
+    {
+      return force()->pop_left();
+    }
+
+    [[nodiscard]] auto pop_right() const -> std::optional<std::pair<T, SegmentPtr>> override
+    {
+      return force()->pop_right();
+    }
+  };
+
+  static auto force_segment(const SegmentPtr& seg) -> SegmentPtr
+  {
+    if (const auto* suspended = dynamic_cast<const SuspendedSegment*>(seg.get())) {
+      return suspended->force();
+    }
+    return seg;
+  }
+
+  static auto make_segment_from_middle(const MiddleEdge& edge) -> SegmentPtr
+  {
+    if (edge.size() == 0U) {
+      return nullptr;
+    }
+    return make_suspended_segment(edge.d_metadata, edge.d_force);
+  }
+
+  static auto make_delayed_concat_segment(const MiddleEdge& left,
+                                          SegmentPtr right) -> SegmentPtr
+  {
+    if (left.size() == 0U) {
+      return right;
+    }
+    if (!right) {
+      return make_segment_from_middle(left);
+    }
+
+    return make_suspended_segment(
+      concat_metadata(left.d_metadata, segment_metadata(right)),
+      detail::thunk(
+        [left, right = std::move(right)]() mutable -> SegmentPtr {
+          return make_concat(left.force(), right);
+        }));
   }
 
   struct ConcatSegment final : Segment {
@@ -347,6 +423,14 @@ class FingerTree {
     return std::make_shared<const ConcatSegment>(std::move(left), std::move(right));
   }
 
+  static auto make_suspended_segment(SegmentMetadata metadata, SegmentThunk thunk) -> SegmentPtr
+  {
+    if (metadata.d_size == 0U) {
+      return nullptr;
+    }
+    return std::make_shared<const SuspendedSegment>(std::move(metadata), std::move(thunk));
+  }
+
   static auto make_concat(SegmentPtr left, SegmentPtr right) -> SegmentPtr
   {
     auto make_node = [](SegmentPtr lhs, SegmentPtr rhs) -> SegmentPtr {
@@ -373,6 +457,7 @@ class FingerTree {
         }
 
         if (lhs_depth > rhs_depth + 1) {
+          lhs = force_segment(lhs);
           const auto* l = as_concat(lhs);
           if (!l) {
             return make_node(std::move(lhs), std::move(rhs));
@@ -382,32 +467,34 @@ class FingerTree {
             const auto* lr = as_concat(l->d_right.force());
             if (lr) {
               lhs = make_node(l->d_left, lr->d_left);
-              rhs = make_concat(lr->d_right.force(), std::move(rhs));
+              rhs = make_delayed_concat_segment(lr->d_right, std::move(rhs));
               continue;
             }
           }
 
-          rhs = make_concat(l->d_right.force(), std::move(rhs));
+          rhs = make_delayed_concat_segment(l->d_right, std::move(rhs));
           lhs = l->d_left;
           continue;
         }
 
+        rhs = force_segment(rhs);
         const auto* r = as_concat(rhs);
         if (!r) {
           return make_node(std::move(lhs), std::move(rhs));
         }
 
         if (r->d_right.depth() < seg_depth(r->d_left)) {
-          const auto* rl = as_concat(r->d_left);
+          auto forced_left = force_segment(r->d_left);
+          const auto* rl = as_concat(forced_left);
           if (rl) {
             lhs = make_node(std::move(lhs), rl->d_left);
-            rhs = make_concat(rl->d_right.force(), r->d_right.force());
+            rhs = make_delayed_concat_segment(rl->d_right, make_segment_from_middle(r->d_right));
             continue;
           }
         }
 
         lhs = make_node(std::move(lhs), r->d_left);
-        rhs = r->d_right.force();
+        rhs = make_segment_from_middle(r->d_right);
       }
     };
 
@@ -422,14 +509,16 @@ class FingerTree {
     auto right_depth = seg_depth(right);
 
     if (left_depth > right_depth + 1) {
-      if (const auto* l = as_concat(left)) {
-        return balance(l->d_left, make_concat(l->d_right.force(), std::move(right)));
+      auto forced_left = force_segment(left);
+      if (const auto* l = dynamic_cast<const ConcatSegment*>(forced_left.get())) {
+        return balance(l->d_left, make_delayed_concat_segment(l->d_right, std::move(right)));
       }
     }
 
     if (right_depth > left_depth + 1) {
-      if (const auto* r = as_concat(right)) {
-        return balance(make_concat(std::move(left), r->d_left), r->d_right.force());
+      auto forced_right = force_segment(right);
+      if (const auto* r = dynamic_cast<const ConcatSegment*>(forced_right.get())) {
+        return balance(make_concat(std::move(left), r->d_left), make_segment_from_middle(r->d_right));
       }
     }
 
@@ -471,11 +560,12 @@ class FingerTree {
                              const PREDICATE& predicate,
                              Tag prefix) -> std::optional<T>
   {
-    if (!seg) {
+    auto current = force_segment(seg);
+    if (!current) {
       return std::nullopt;
     }
 
-    if (const auto* flat = dynamic_cast<const FlatSegment*>(seg.get())) {
+    if (const auto* flat = dynamic_cast<const FlatSegment*>(current.get())) {
       for (std::size_t i = flat->d_begin; i < flat->d_end; ++i) {
         prefix = tag_combine(prefix, tag_value((*flat->d_values)[i]));
         if (predicate(prefix)) {
@@ -485,7 +575,7 @@ class FingerTree {
       return std::nullopt;
     }
 
-    const auto* concat = dynamic_cast<const ConcatSegment*>(seg.get());
+    const auto* concat = dynamic_cast<const ConcatSegment*>(current.get());
     assert(concat != nullptr);
 
     auto left_prefix = tag_combine(prefix, seg_tag(concat->d_left));
@@ -507,11 +597,12 @@ class FingerTree {
                             const PREDICATE& predicate,
                             Tag prefix) -> std::optional<SegmentSplit>
   {
-    if (!seg) {
+    auto current = force_segment(seg);
+    if (!current) {
       return std::nullopt;
     }
 
-    if (const auto* flat = dynamic_cast<const FlatSegment*>(seg.get())) {
+    if (const auto* flat = dynamic_cast<const FlatSegment*>(current.get())) {
       auto running = prefix;
       for (std::size_t i = flat->d_begin; i < flat->d_end; ++i) {
         running = tag_combine(running, tag_value((*flat->d_values)[i]));
@@ -525,7 +616,7 @@ class FingerTree {
       return std::nullopt;
     }
 
-    const auto* concat = dynamic_cast<const ConcatSegment*>(seg.get());
+    const auto* concat = dynamic_cast<const ConcatSegment*>(current.get());
     assert(concat != nullptr);
 
     auto left_prefix = tag_combine(prefix, seg_tag(concat->d_left));
@@ -553,11 +644,12 @@ class FingerTree {
   static auto split_at_count(const SegmentPtr& seg,
                              std::size_t index) -> std::pair<SegmentPtr, SegmentPtr>
   {
-    if (!seg) {
+    auto current = force_segment(seg);
+    if (!current) {
       return {nullptr, nullptr};
     }
 
-    if (const auto* flat = dynamic_cast<const FlatSegment*>(seg.get())) {
+    if (const auto* flat = dynamic_cast<const FlatSegment*>(current.get())) {
       auto size = flat->d_end - flat->d_begin;
       auto pivot = index > size ? size : index;
       return {
@@ -565,7 +657,7 @@ class FingerTree {
         make_flat_range(flat->d_values, flat->d_begin + pivot, flat->d_end)};
     }
 
-    const auto* concat = dynamic_cast<const ConcatSegment*>(seg.get());
+    const auto* concat = dynamic_cast<const ConcatSegment*>(current.get());
     assert(concat != nullptr);
 
     auto left_size = seg_size(concat->d_left);
