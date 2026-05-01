@@ -98,6 +98,9 @@ TEST_CASE("FingerTreePriorityQueueTest - RepeatedPushPopMatchesMultiset")
             q = std::move(popped->second);
         }
 
+        CHECK(q.size() == expected.size());
+        CHECK(q.size() == q.to_vector().size());
+
         if (!expected.empty()) {
             REQUIRE(q.min().has_value());
             REQUIRE(q.max().has_value());

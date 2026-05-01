@@ -4,16 +4,11 @@
 #define INCLUDED_SMD_TREE_FINGER_TREE_PRIORITY_QUEUE
 
 #include <smd/tree/finger_tree.hpp>
-#include <smd/typeclass/applicative.hpp>
-#include <smd/typeclass/foldable.hpp>
 #include <smd/typeclass/monoid.hpp>
-#include <smd/typeclass/traversable.hpp>
 
 #include <algorithm>
 #include <cstddef>
-#include <functional>
 #include <optional>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -103,6 +98,9 @@ class FingerTreePriorityQueue {
     };
   }
 
+  // Removes the minimum element. Both trees are rebuilt from the flattened
+  // sequence (O(n)); this is a correctness-first implementation pending O(log n)
+  // split-based optimization that does not change the call-site API.
   auto pop_min() const -> std::optional<std::pair<T, FingerTreePriorityQueue>>
   {
     auto m = min();
@@ -119,6 +117,7 @@ class FingerTreePriorityQueue {
     };
   }
 
+  // Same semantics as pop_min but returns the maximum element.
   auto pop_max() const -> std::optional<std::pair<T, FingerTreePriorityQueue>>
   {
     auto m = max();
