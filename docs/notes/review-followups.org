@@ -4,32 +4,33 @@
 #+startup: overview
 #+startup: logdone
 
-* TODO Remove lazy/debug queue paths from public API
+* DONE Remove lazy/debug queue paths from public API
 :PROPERTIES:
 :ID:       ftpq-remove-debug-api
 :AREA:     tree/priority-queue
 :PRIORITY: A
 :END:
-- [ ] Remove public methods intended only for diagnostics from [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp):
-  - [ ] pop_min_lazy
-  - [ ] pop_max_lazy
-  - [ ] debug_pop_min_split_min_only
-  - [ ] debug_pop_min_rebuild_max_only
-  - [ ] debug_pop_min_lazy_components_only
-  - [ ] debug_construct_lazy_min_result
-- [ ] Keep stable behavior via rebuild-based pop_min/pop_max only.
-- [ ] Ensure no downstream call sites rely on removed methods.
-- [ ] Run tests: make TOOLCHAIN=clang test
+- [x] Remove public methods intended only for diagnostics from [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp):
+  - [x] pop_min_lazy
+  - [x] pop_max_lazy
+  - [x] debug_pop_min_split_min_only
+  - [x] debug_pop_min_rebuild_max_only
+  - [x] debug_pop_min_lazy_components_only
+  - [x] debug_construct_lazy_min_result
+- [x] Keep stable behavior via rebuild-based pop_min/pop_max only.
+- [x] Ensure no downstream call sites rely on removed methods.
+Commit: 0fe7d0c — 172/172 pass.
 
-* TODO Make lazy-removal regressions part of default test coverage
+* DONE Make lazy-removal regressions part of default test coverage
 :PROPERTIES:
 :ID:       ftpq-promote-regression-tests
 :AREA:     tree/tests
 :PRIORITY: A
 :END:
-- [ ] Move at least one representative duplicate/min/max regression from hidden tags to default test set.
-- [ ] Keep narrowly diagnostic reproducer tests hidden if needed, but ensure correctness path is always exercised in CI.
-- [ ] Verify by running default ctest pipeline through make TOOLCHAIN=clang test.
+- [x] Move at least one representative duplicate/min/max regression from hidden tags to default test set.
+- [x] Keep narrowly diagnostic reproducer tests hidden if needed, but ensure correctness path is always exercised in CI.
+- [x] Verify by running default ctest pipeline through make TOOLCHAIN=clang test.
+Commit: 0fe7d0c — PopMinWithDuplicates and PopMaxWithDuplicates added to default coverage.
 
 * TODO Clean up unused variable warnings introduced in Traversable updates
 :PROPERTIES:
@@ -51,14 +52,105 @@
 - [ ] Ensure Map classes preserve using Impl::traverse to support alternate-core pattern.
 - [ ] Add/adjust one law-style test if needed to guard custom applicative override path.
 
-* TODO Optional: tighten queue header API hygiene
+* DONE Optional: tighten queue header API hygiene
 :PROPERTIES:
 :ID:       ftpq-header-hygiene
 :AREA:     tree/priority-queue
 :PRIORITY: C
 :END:
-- [ ] Re-check include list order and minimality after lazy/debug path removal.
-- [ ] Verify comments describe supported behavior only (no stale experimental notes).
+- [x] Re-check include list order and minimality after lazy/debug path removal.
+- [x] Verify comments describe supported behavior only (no stale experimental notes).
+Commit: 5dd9d72 — removed 5 unused includes; added O(n) rebuild comment to pop_min/pop_max.
+
+* TODO FingerTreeRandomAccess — O(log n) at() and update()
+:PROPERTIES:
+:ID:       random-access-at-o-log-n
+:AREA:     tree/random-access
+:PRIORITY: B
+:END:
+
+Current state (finger_tree_random_access.hpp):
+- =at(index)= calls =split_at_index(index+1)= correctly (O(log n) split), then
+  calls =flatten()= on the left subtree and takes =.back()= — O(n) total.
+- =update(index, value)= chains =erase()+insert()=, each of which does a split+concat
+  but =at()= inside them currently flattens. O(n) total.
+
+Target:
+- =at(index)= should read the element at the split boundary without materialising the
+  left subtree. The split result already has =d_pivot= or the tree exposes the
+  boundary element; use that directly. Target O(log n).
+- =update(index, value)= should do a single split+modify+concat rather than
+  erase+insert. Target O(log n).
+
+Acceptance checks:
+- [ ] =at()= and =update()= no longer call =flatten()= internally.
+- [ ] Existing tests pass (172/172).
+- [ ] A simple benchmark or timing comment added to show the call no longer scales
+  with n for large trees (informal — no harness required for this PR).
+- [ ] =to_vector()= and =size()= untouched.
+
+* TODO FingerTreePriorityQueue — O(log n) pop_min / pop_max
+:PROPERTIES:
+:ID:       priority-queue-pop-o-log-n
+:AREA:     tree/priority-queue
+:PRIORITY: B
+:END:
+
+Current state (finger_tree_priority_queue.hpp):
+- =pop_min()= and =pop_max()= both call =remove_one_rebuild()= twice (once per tree).
+  =remove_one_rebuild= does: =flatten()= O(n) + =std::find= O(n) + =erase= O(n) +
+  =from_sequence= O(n log n). Total per pop: O(n log n).
+- A comment already flags this as a correctness-first placeholder.
+
+Target:
+- Use =split()= with the MinTag/MaxTag monoid predicate to navigate to the
+  extremal element in O(log n), extract it, and reconstruct via concatenation.
+- Must handle duplicates correctly: if multiple elements equal the extremum,
+  remove exactly one (the split approach needs to find the first occurrence in
+  the appropriate tree before splitting).
+- Both =d_min_tree= and =d_max_tree= must stay consistent (same multiset of elements).
+
+Acceptance checks:
+- [ ] =pop_min()= and =pop_max()= no longer call =flatten()= internally.
+- [ ] =PopMinWithDuplicates= and =PopMaxWithDuplicates= pass.
+- [ ] =RepeatedPushPopMatchesMultiset= (250-iteration stress test with consistency
+  assertions) passes — this is the primary correctness guard.
+- [ ] 172/172 suite green.
+
+Caution: the removed =pop_min_lazy= / =pop_max_lazy= were an earlier attempt at
+this optimization that had correctness issues. Study those commits (0fe7d0c parent)
+before reimplementing to avoid repeating the same mistakes.
+
+* TODO FingerTreeIntervalIndex — avoid intermediate vector in queries
+:PROPERTIES:
+:ID:       interval-index-query-fold
+:AREA:     tree/interval-index
+:PRIORITY: C
+:END:
+
+Current state (finger_tree_interval_index.hpp):
+- =query_point(point)= and =query_overlap(start, end)= both:
+  1. Split the tree at the monoid boundary (O(log n)) — correct and efficient.
+  2. Call =flatten()= on the pruned right subtree — O(r) allocation where r is the
+     candidate count after pruning.
+  3. Apply =ranges::filter= over the vector — O(r).
+- Complexity is already O(log n + r); the issue is the intermediate vector heap
+  allocation when r is large.
+
+Target:
+- Replace =flatten()= + =ranges::filter= with a fold/traversal over the right
+  subtree directly, accumulating only matching entries.
+- This keeps O(log n + r) complexity but avoids materialising the full candidate
+  set before filtering.
+- Return type can remain =std::vector<Entry>= for call-site compatibility.
+
+Acceptance checks:
+- [ ] =query_point()= and =query_overlap()= no longer call =flatten()= internally.
+- [ ] Existing interval index tests pass.
+- [ ] 172/172 suite green.
+
+Note: this is a lower-priority allocation improvement; the asymptotic class does
+not change. Schedule after the RandomAccess and PriorityQueue items.
 
 * TODO Delivery checklist
 :PROPERTIES:

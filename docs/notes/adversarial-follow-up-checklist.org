@@ -94,23 +94,29 @@ Evidence:
 - No slide edits were required — wording was already correct and consistent with
   the implementation after the debug/lazy path removal (commit 0fe7d0c).
 
-* TODO Wrapper Performance Follow-up Plan (Non-blocking)
+* DONE Wrapper Performance Follow-up Plan (Non-blocking)
 :PROPERTIES:
 :ID:       wrapper-performance-followup
 :AREA:     tree/wrappers
 :PRIORITY: C
 :END:
-- [ ] Create scoped implementation tasks for:
-  - [ ] [trees/src/smd/tree/finger_tree_random_access.hpp](trees/src/smd/tree/finger_tree_random_access.hpp)
-  - [ ] [trees/src/smd/tree/finger_tree_interval_index.hpp](trees/src/smd/tree/finger_tree_interval_index.hpp)
-  - [ ] [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp)
-- [ ] Define success criteria per wrapper (correctness + expected complexity direction).
+- [x] Create scoped implementation tasks for:
+  - [x] [trees/src/smd/tree/finger_tree_random_access.hpp](trees/src/smd/tree/finger_tree_random_access.hpp)
+  - [x] [trees/src/smd/tree/finger_tree_interval_index.hpp](trees/src/smd/tree/finger_tree_interval_index.hpp)
+  - [x] [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp)
+- [x] Define success criteria per wrapper (correctness + expected complexity direction).
 
 Verification:
-- [ ] Follow-on tasks are split into independently reviewable PR-sized units.
-- [ ] Each unit lists measurable acceptance checks.
+- [x] Follow-on tasks are split into independently reviewable PR-sized units.
+- [x] Each unit lists measurable acceptance checks.
 
-Note: Non-blocking. Tasks will be tracked in review-followups.org when scoped.
+Evidence:
+- Three tasks added to review-followups.org in this commit:
+  - =random-access-at-o-log-n= (Priority B): fix =at()=/=update()= from O(n) to O(log n)
+  - =priority-queue-pop-o-log-n= (Priority B): fix =pop_min=/=pop_max= from O(n log n) to O(log n)
+  - =interval-index-query-fold= (Priority C): replace flatten+filter with direct fold in queries
+- Each task includes: current state with line references, target behaviour, and
+  measurable acceptance checks tied to the existing test suite.
 
 * DONE Review Discipline Meta-Task
 :PROPERTIES:
@@ -127,4 +133,4 @@ Note: Non-blocking. Tasks will be tracked in review-followups.org when scoped.
 Evidence:
 - All DONE tasks carry commit 5dd9d72 and test result 172/172.
 - Slides item required no code change; evidence is the grep output above.
-- Wrapper performance (Priority C) remains TODO as a future planning task.
+- Wrapper performance: three scoped tasks added to review-followups.org (this commit).
