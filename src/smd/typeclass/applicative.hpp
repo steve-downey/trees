@@ -97,6 +97,11 @@ auto make_terminating_partial(FUNCTION&& function)
 
 template <class Impl>
 struct Applicative : protected Impl {
+  static_assert(
+    !std::is_same_v<Impl, std::false_type>,
+    "No applicative_typeclass<T> specialization found. "
+    "Specialize smd::applicative_typeclass<T> for your type T "
+    "and provide pure(...) and apply(...) operations.");
   using Impl::apply;
   using Impl::pure;
 

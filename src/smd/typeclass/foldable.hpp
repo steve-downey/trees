@@ -219,6 +219,11 @@ namespace smd {
 
 template <class Impl>
 struct Foldable : protected Impl {
+  static_assert(
+    !std::is_same_v<Impl, std::false_type>,
+    "No foldable_typeclass<T> specialization found. "
+    "Specialize smd::foldable_typeclass<T> for your type T "
+    "and provide a fold_map(F, T) operation.");
   using Impl::fold_map;
 
   // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2

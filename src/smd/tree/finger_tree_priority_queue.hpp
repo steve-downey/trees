@@ -33,120 +33,107 @@ struct MaxTag {
   friend bool operator==(const MaxTag&, const MaxTag&) = default;
 };
 
+// Combined measure tracking both min and max in a single tree pass.
 template <typename T>
-struct MinMeasure {
-  auto operator()(const T& value) const -> MinTag<T> { return MinTag<T>{value}; }
+struct PriorityTag {
+  MinTag<T> d_min;
+  MaxTag<T> d_max;
+
+  friend bool operator==(const PriorityTag&, const PriorityTag&) = default;
 };
 
 template <typename T>
-struct MaxMeasure {
-  auto operator()(const T& value) const -> MaxTag<T> { return MaxTag<T>{value}; }
+struct PriorityMeasure {
+  auto operator()(const T& value) const -> PriorityTag<T>
+  {
+    return PriorityTag<T>{MinTag<T>{value}, MaxTag<T>{value}};
+  }
 };
 
 template <typename T>
 class FingerTreePriorityQueue {
-  using MinTree = FingerTree<T, MinTag<T>, MinMeasure<T>>;
-  using MaxTree = FingerTree<T, MaxTag<T>, MaxMeasure<T>>;
+  using Tree = FingerTree<T, PriorityTag<T>, PriorityMeasure<T>>;
 
-  MinTree d_min_tree;
-  MaxTree d_max_tree;
+  Tree d_tree;
 
-  template <typename TREE>
-  static auto remove_one_rebuild(const TREE& tree, const T& needle) -> TREE
+  explicit FingerTreePriorityQueue(Tree tree)
+    : d_tree(std::move(tree))
   {
-    auto values = tree.flatten();
-    auto it = std::find(values.begin(), values.end(), needle);
-    if (it == values.end()) {
-      return tree;
-    }
-
-    values.erase(it);
-    return TREE::from_sequence(std::move(values));
   }
 
  public:
   FingerTreePriorityQueue()
-    : d_min_tree(MinTree::empty())
-    , d_max_tree(MaxTree::empty())
+    : d_tree(Tree::empty())
   {
   }
 
   static auto from_values(std::vector<T> values) -> FingerTreePriorityQueue
   {
-    return FingerTreePriorityQueue{
-      MinTree::from_sequence(values),
-      MaxTree::from_sequence(std::move(values))
-    };
+    return FingerTreePriorityQueue{Tree::from_sequence(std::move(values))};
   }
 
-  auto empty() const -> bool { return d_min_tree.is_empty(); }
+  auto empty() const -> bool { return d_tree.is_empty(); }
 
-  auto size() const -> std::size_t { return d_min_tree.breadth(); }
+  auto size() const -> std::size_t { return d_tree.breadth(); }
 
   auto min() const -> std::optional<T>
   {
-    auto m = d_min_tree.measure().d_value;
+    auto m = d_tree.measure().d_min.d_value;
     return m.has_value() ? std::optional<T>{*m} : std::nullopt;
   }
 
   auto max() const -> std::optional<T>
   {
-    auto m = d_max_tree.measure().d_value;
+    auto m = d_tree.measure().d_max.d_value;
     return m.has_value() ? std::optional<T>{*m} : std::nullopt;
   }
 
   auto push(T value) const -> FingerTreePriorityQueue
   {
-    return FingerTreePriorityQueue{
-      d_min_tree.snoc(value),
-      d_max_tree.snoc(std::move(value))
-    };
+    return FingerTreePriorityQueue{d_tree.snoc(std::move(value))};
   }
 
-  // Removes the minimum element. Both trees are rebuilt from the flattened
-  // sequence (O(n)); this is a correctness-first implementation pending O(log n)
-  // split-based optimization that does not change the call-site API.
+  // O(log n): prefix min is non-increasing; predicate flips true at the first
+  // element whose value equals the global min and stays true thereafter.
   auto pop_min() const -> std::optional<std::pair<T, FingerTreePriorityQueue>>
   {
-    auto m = min();
-    if (!m.has_value()) {
+    auto tag = d_tree.measure();
+    if (!tag.d_min.d_value.has_value()) {
       return std::nullopt;
     }
-
-    auto new_min_tree = remove_one_rebuild(d_min_tree, *m);
-    auto new_max_tree = remove_one_rebuild(d_max_tree, *m);
-
+    T global_min = *tag.d_min.d_value;
+    auto sp = d_tree.split([global_min](const PriorityTag<T>& p) {
+      return p.d_min.d_value.has_value() && *p.d_min.d_value <= global_min;
+    });
+    if (!sp.has_value()) {
+      return std::nullopt;
+    }
     return std::pair<T, FingerTreePriorityQueue>{
-      *m,
-      FingerTreePriorityQueue{std::move(new_min_tree), std::move(new_max_tree)}
-    };
+      sp->d_pivot,
+      FingerTreePriorityQueue{Tree::concat(sp->d_left, sp->d_right)}};
   }
 
-  // Same semantics as pop_min but returns the maximum element.
+  // O(log n): prefix max is non-decreasing; predicate flips true at the first
+  // element whose value equals the global max and stays true thereafter.
   auto pop_max() const -> std::optional<std::pair<T, FingerTreePriorityQueue>>
   {
-    auto m = max();
-    if (!m.has_value()) {
+    auto tag = d_tree.measure();
+    if (!tag.d_max.d_value.has_value()) {
       return std::nullopt;
     }
-
-    auto rebuilt_max = remove_one_rebuild(d_max_tree, *m);
-    auto rebuilt_min = remove_one_rebuild(d_min_tree, *m);
-
+    T global_max = *tag.d_max.d_value;
+    auto sp = d_tree.split([global_max](const PriorityTag<T>& p) {
+      return p.d_max.d_value.has_value() && *p.d_max.d_value >= global_max;
+    });
+    if (!sp.has_value()) {
+      return std::nullopt;
+    }
     return std::pair<T, FingerTreePriorityQueue>{
-      *m,
-      FingerTreePriorityQueue{std::move(rebuilt_min), std::move(rebuilt_max)}
-    };
+      sp->d_pivot,
+      FingerTreePriorityQueue{Tree::concat(sp->d_left, sp->d_right)}};
   }
 
-  auto to_vector() const -> std::vector<T> { return d_min_tree.flatten(); }
-
- private:
-  FingerTreePriorityQueue(MinTree min_tree, MaxTree max_tree)
-    : d_min_tree(std::move(min_tree))
-    , d_max_tree(std::move(max_tree))
-  {
-  }
+  auto to_vector() const -> std::vector<T> { return d_tree.flatten(); }
 };
 
 }  // namespace smd::tree
@@ -186,6 +173,23 @@ struct Monoid<smd::tree::MaxTag<T>> {
     }
 
     return lhs.d_value.value() >= rhs.d_value.value() ? lhs : rhs;
+  }
+};
+
+template <typename T>
+struct Monoid<smd::tree::PriorityTag<T>> {
+  auto identity() const -> smd::tree::PriorityTag<T>
+  {
+    return {Monoid<smd::tree::MinTag<T>>{}.identity(),
+            Monoid<smd::tree::MaxTag<T>>{}.identity()};
+  }
+
+  auto combine(const smd::tree::PriorityTag<T>& lhs,
+               const smd::tree::PriorityTag<T>& rhs) const
+    -> smd::tree::PriorityTag<T>
+  {
+    return {Monoid<smd::tree::MinTag<T>>{}.combine(lhs.d_min, rhs.d_min),
+            Monoid<smd::tree::MaxTag<T>>{}.combine(lhs.d_max, rhs.d_max)};
   }
 };
 
