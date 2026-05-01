@@ -325,6 +325,7 @@ clean: clean-org-html
 presentation: test
 presentation: foldable-applicable-traversable.html
 presentation: foldable-applicable-traversable-slides.html
+presentation: foldable-applicable-traversable.md
 
 .PHONY: elpa
 elpa:

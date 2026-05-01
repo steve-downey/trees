@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_BINARY_TREE_TRAVERSABLE_HPP
-#define INCLUDE_SMD_TREE_BINARY_TREE_TRAVERSABLE_HPP
+// src/smd/tree/binary_tree_traversable.hpp                           -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_BINARY_TREE_TRAVERSABLE
+#define INCLUDED_SMD_TREE_BINARY_TREE_TRAVERSABLE
 
 #include <smd/tree/binary_tree_applicative.hpp>
 #include <smd/tree/binary_tree.hpp>

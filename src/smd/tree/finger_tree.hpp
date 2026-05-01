@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FINGER_TREE_HPP
-#define INCLUDE_SMD_TREE_FINGER_TREE_HPP
+// src/smd/tree/finger_tree.hpp                                       -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FINGER_TREE
+#define INCLUDED_SMD_TREE_FINGER_TREE
 
 #include <smd/tree/memoized_thunk.hpp>
 #include <smd/typeclass/monoid.hpp>

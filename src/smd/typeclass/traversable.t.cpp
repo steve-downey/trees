@@ -3,6 +3,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <beman/optional/optional.hpp>
+
 #include <optional>
 
 TEST_CASE("TraversableTypeclassTest - TraverseOptionalSuccess")
@@ -53,6 +55,7 @@ TEST_CASE("TraversableTypeclassTest - ForEachOptionalSuccess")
 TEST_CASE("TraversableTypeclassTest - SequenceAndSequenceWith")
 {
     // f1de12e0-2287-4568-98c7-75be4f6f7446
+    // e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28
     using IdentityOpt = smd::typeclass::test::Identity<std::optional<int> >;
     auto identity = IdentityOpt{std::optional<int>{1}};
     const auto& traversable = smd::traversable_typeclass<IdentityOpt>;
@@ -60,6 +63,7 @@ TEST_CASE("TraversableTypeclassTest - SequenceAndSequenceWith")
     auto sequenced = traversable.sequence(identity);
     REQUIRE(sequenced.has_value());
     CHECK(sequenced->value == 1);
+    // e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28 end
 
     auto sequenced_with = traversable.sequence_with(traversable, identity);
     REQUIRE(sequenced_with.has_value());
@@ -222,4 +226,41 @@ TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional")
         value);
 
     CHECK(lhs_mapped == rhs);
+}
+
+TEST_CASE("TraversableLaws - NaturalityLaw")
+{
+    // η: optional<B> → beman::optional<B> is an applicative morphism:
+    //   η(pure(x)) == pure(x) and η(ap(u,v)) == ap(η(u), η(v))
+    // Naturality law: η(traverse f t) == traverse (η∘f) t
+    using Identity = smd::typeclass::test::Identity<int>;
+    const auto& traversable = smd::traversable_typeclass<Identity>;
+
+    auto f = [](int x) -> std::optional<int> {
+        return x > 0 ? std::optional<int>{x * 2} : std::optional<int>{};
+    };
+    auto eta_f = [](int x) -> beman::optional::optional<int> {
+        return x > 0 ? beman::optional::optional<int>{x * 2}
+                     : beman::optional::optional<int>{};
+    };
+    auto eta = [](std::optional<Identity> o) -> beman::optional::optional<Identity> {
+        return o.has_value() ? beman::optional::optional<Identity>{*o}
+                             : beman::optional::optional<Identity>{};
+    };
+
+    // Present case: f(3) == {6}, eta({Identity{6}}) == {Identity{6}}
+    // a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43
+    {
+        auto value = Identity{3};
+        CHECK(eta(traversable.traverse(f, value)) ==
+              traversable.traverse(eta_f, value));
+    }
+    // a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43 end
+
+    // Absent case: f(-1) == {}, eta({}) == {}
+    {
+        auto value = Identity{-1};
+        CHECK(eta(traversable.traverse(f, value)) ==
+              traversable.traverse(eta_f, value));
+    }
 }

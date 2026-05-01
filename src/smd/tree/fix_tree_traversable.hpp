@@ -1,6 +1,8 @@
+// src/smd/tree/fix_tree_traversable.hpp                              -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#ifndef INCLUDE_SMD_TREE_FIX_TREE_TRAVERSABLE_HPP
-#define INCLUDE_SMD_TREE_FIX_TREE_TRAVERSABLE_HPP
+#ifndef INCLUDED_SMD_TREE_FIX_TREE_TRAVERSABLE
+#define INCLUDED_SMD_TREE_FIX_TREE_TRAVERSABLE
 
 #include <smd/tree/fix_tree.hpp>
 #include <smd/tree/fix_tree_applicative.hpp>

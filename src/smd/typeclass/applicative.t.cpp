@@ -110,6 +110,7 @@ TEST_CASE("ApplicativeTypeclassTest - ApplyOptional")
 
 TEST_CASE("ApplicativeTypeclassTest - InvokeOptional")
 {
+    // f6c2b5e1-9a3d-4f8c-b2e6-1d9c5b3f7a02
     std::optional<int> ax{10};
     std::optional<int> ay{5};
     const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
@@ -117,6 +118,7 @@ TEST_CASE("ApplicativeTypeclassTest - InvokeOptional")
     auto result = applicative.invoke([](int a, int b) { return a - b; }, ax, ay);
     REQUIRE(result.has_value());
     CHECK(*result == 5);
+    // f6c2b5e1-9a3d-4f8c-b2e6-1d9c5b3f7a02 end
 }
 
 TEST_CASE("ApplicativeTypeclassTest - InvokeOptionalTernaryUsesPartialApplication")
@@ -304,12 +306,14 @@ TEST_CASE("ApplicativeTypeclassTest - ApplyPureWithExplicitMap")
 
 TEST_CASE("ApplicativeTypeclassTest - TerminatingPartialExtendsAndInvokes")
 {
+    // c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48
     auto partial = smd::detail::make_terminating_partial(
         [](int a, int b, int c) { return a * 100 + b * 10 + c; });
 
     auto partial2 = partial(1);
     auto partial3 = partial2(2);
     CHECK(partial3(3) == 123);
+    // c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48 end
 
     const auto const_partial = smd::detail::make_terminating_partial(
         [](int a, int b) { return a - b; });
@@ -568,6 +572,113 @@ TEST_CASE("ApplicativeBehaviorTest - OptionalShortCircuit")
         std::optional<int>{});
     CHECK_FALSE(invoke_result.has_value());
     CHECK(calls == 0);
+}
+
+TEST_CASE("ApplicativeLaws - InterchangeLaw")
+{
+    // Interchange: ap(u, pure(y)) == ap(pure(λf. f(y)), u)
+    // Ensures that applying a contextual function to a pure value is symmetric.
+    using Fn = std::function<int(int)>;
+    const int y = 7;
+
+    {
+        // b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15
+        const auto& ap = smd::applicative_typeclass<std::optional<int> >;
+        std::optional<Fn> u{[](int x) { return x * 3; }};
+
+        auto lhs = ap.ap(u, ap.pure(y));
+        auto rhs = ap.ap(ap.pure([y](const Fn& fn) { return fn(y); }), u);
+
+        REQUIRE(lhs.has_value());
+        CHECK(*lhs == 21);
+        CHECK(lhs == rhs);
+        // b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15 end
+    }
+    {
+        // empty function: both sides propagate the absence
+        const auto& ap = smd::applicative_typeclass<std::optional<int> >;
+        std::optional<Fn> empty{};
+        auto lhs = ap.ap(empty, ap.pure(y));
+        auto rhs = ap.ap(ap.pure([y](const Fn& fn) { return fn(y); }), empty);
+        CHECK_FALSE(lhs.has_value());
+        CHECK(lhs == rhs);
+    }
+    {
+        using BemanFn = beman::optional::optional<Fn>;
+        const auto& ap = smd::applicative_typeclass<beman::optional::optional<int> >;
+        BemanFn u{[](int x) { return x + 8; }};
+
+        auto lhs = ap.ap(u, ap.pure(y));
+        auto rhs = ap.ap(ap.pure([y](const Fn& fn) { return fn(y); }), u);
+
+        REQUIRE(lhs.has_value());
+        CHECK(*lhs == 15);
+        CHECK(lhs == rhs);
+    }
+    {
+        using BI = smd::typeclass::test::BareIdentity<int>;
+        using BIFn = smd::typeclass::test::BareIdentity<Fn>;
+        const auto& ap = smd::applicative_typeclass<BI>;
+        BIFn u{[](int x) { return x - 2; }};
+
+        auto lhs = ap.ap(u, ap.pure(y));
+        auto rhs = ap.ap(ap.pure([y](const Fn& fn) { return fn(y); }), u);
+
+        CHECK(lhs.value == 5);
+        CHECK(lhs == rhs);
+    }
+}
+
+TEST_CASE("ApplicativeLaws - CompositionLaw")
+{
+    // Composition: ap(invoke(∘, u, v), w) == ap(u, ap(v, w))
+    // Composing effectful functions then applying equals sequencing the applications.
+    using Fn = std::function<int(int)>;
+    auto compose = [](const Fn& f, const Fn& g) {
+        return Fn{[f, g](int x) { return f(g(x)); }};
+    };
+
+    {
+        // e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02
+        const auto& ap = smd::applicative_typeclass<std::optional<int> >;
+        std::optional<Fn> u{[](int x) { return x + 10; }};
+        std::optional<Fn> v{[](int x) { return x * 2; }};
+        std::optional<int> w{3};
+
+        auto lhs = ap.ap(ap.invoke(compose, u, v), w);
+        auto rhs = ap.ap(u, ap.ap(v, w));
+
+        REQUIRE(lhs.has_value());
+        CHECK(*lhs == 16);  // (3 * 2) + 10
+        CHECK(lhs == rhs);
+        // e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02 end
+    }
+    {
+        // empty u propagates to both sides
+        const auto& ap = smd::applicative_typeclass<std::optional<int> >;
+        std::optional<Fn> empty_u{};
+        std::optional<Fn> v{[](int x) { return x * 2; }};
+        std::optional<int> w{3};
+
+        auto lhs = ap.ap(ap.invoke(compose, empty_u, v), w);
+        auto rhs = ap.ap(empty_u, ap.ap(v, w));
+        CHECK_FALSE(lhs.has_value());
+        CHECK(lhs == rhs);
+    }
+    {
+        using BI = smd::typeclass::test::BareIdentity<int>;
+        using BIFn = smd::typeclass::test::BareIdentity<Fn>;
+        const auto& ap = smd::applicative_typeclass<BI>;
+        BIFn u{[](int x) { return x + 10; }};
+        BIFn v{[](int x) { return x * 2; }};
+        BI w{3};
+
+        auto lhs = ap.ap(ap.invoke(compose, u, v), w);
+        auto rhs = ap.ap(u, ap.ap(v, w));
+
+        CHECK(lhs.value == 16);
+        CHECK(lhs == rhs);
+    }
 }
 
 TEST_CASE("ApplicativeBehaviorTest - BemanShortCircuit")

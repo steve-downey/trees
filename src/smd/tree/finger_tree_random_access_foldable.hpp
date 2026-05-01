@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FINGER_TREE_RANDOM_ACCESS_FOLDABLE_HPP
-#define INCLUDE_SMD_TREE_FINGER_TREE_RANDOM_ACCESS_FOLDABLE_HPP
+// src/smd/tree/finger_tree_random_access_foldable.hpp                -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FINGER_TREE_RANDOM_ACCESS_FOLDABLE
+#define INCLUDED_SMD_TREE_FINGER_TREE_RANDOM_ACCESS_FOLDABLE
 
 #include <smd/tree/finger_tree_random_access.hpp>
 #include <smd/typeclass/foldable.hpp>

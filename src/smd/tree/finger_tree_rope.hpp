@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FINGER_TREE_ROPE_HPP
-#define INCLUDE_SMD_TREE_FINGER_TREE_ROPE_HPP
+// src/smd/tree/finger_tree_rope.hpp                                  -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FINGER_TREE_ROPE
+#define INCLUDED_SMD_TREE_FINGER_TREE_ROPE
 
 #include <smd/tree/finger_tree.hpp>
 #include <smd/typeclass/applicative.hpp>

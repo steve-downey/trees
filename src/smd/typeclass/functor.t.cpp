@@ -101,3 +101,60 @@ TEST_CASE("FunctorTypeclassTest - ReplaceOptionalAndBemanOptional")
     auto beman_replaced_empty = beman_functor.replace(beman::optional::optional<int>{}, 99);
     CHECK_FALSE(beman_replaced_empty.has_value());
 }
+
+TEST_CASE("FunctorLaws - IdentityLaw")
+{
+    // fmap(id, x) == x for all instances and shapes
+    auto id = [](int x) { return x; };
+
+    // d8b6e1f2-7a3c-4d5e-b2a8-3f4c1d9e5b65
+    {
+        const auto& functor = smd::functor_typeclass<std::optional<int> >;
+        CHECK(functor.fmap(id, std::optional<int>{42}) == std::optional<int>{42});
+        CHECK(functor.fmap(id, std::optional<int>{}) == std::optional<int>{});
+    }
+    // d8b6e1f2-7a3c-4d5e-b2a8-3f4c1d9e5b65 end
+    {
+        const auto& functor = smd::functor_typeclass<beman::optional::optional<int> >;
+        const beman::optional::optional<int> present{7};
+        const beman::optional::optional<int> empty{};
+        CHECK(functor.fmap(id, present) == present);
+        CHECK(functor.fmap(id, empty) == empty);
+    }
+    {
+        const auto& functor = smd::functor_typeclass<std::vector<int> >;
+        const std::vector<int> v{1, 2, 3};
+        CHECK(functor.fmap(id, v) == v);
+        CHECK(functor.fmap(id, std::vector<int>{}) == std::vector<int>{});
+    }
+}
+
+TEST_CASE("FunctorLaws - CompositionLaw")
+{
+    // fmap(f ∘ g, x) == fmap(f, fmap(g, x))
+    auto g = [](int x) { return x + 1; };
+    auto f = [](int x) { return x * 2; };
+    auto fog = [](int x) { return (x + 1) * 2; };
+
+    {
+        const auto& functor = smd::functor_typeclass<std::optional<int> >;
+        const std::optional<int> present{5};
+        const std::optional<int> empty{};
+        CHECK(functor.fmap(fog, present) == functor.fmap(f, functor.fmap(g, present)));
+        CHECK(functor.fmap(fog, empty) == functor.fmap(f, functor.fmap(g, empty)));
+    }
+    {
+        const auto& functor = smd::functor_typeclass<beman::optional::optional<int> >;
+        const beman::optional::optional<int> present{5};
+        const beman::optional::optional<int> empty{};
+        CHECK(functor.fmap(fog, present) == functor.fmap(f, functor.fmap(g, present)));
+        CHECK(functor.fmap(fog, empty) == functor.fmap(f, functor.fmap(g, empty)));
+    }
+    {
+        const auto& functor = smd::functor_typeclass<std::vector<int> >;
+        const std::vector<int> v{1, 2, 3};
+        CHECK(functor.fmap(fog, v) == functor.fmap(f, functor.fmap(g, v)));
+        CHECK(functor.fmap(fog, std::vector<int>{}) ==
+              functor.fmap(f, functor.fmap(g, std::vector<int>{})));
+    }
+}

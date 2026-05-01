@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TYPECLASS_EXAMPLES_EXAMPLES_HPP
-#define INCLUDE_SMD_TYPECLASS_EXAMPLES_EXAMPLES_HPP
+// src/smd/typeclass/examples/examples.hpp                            -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_EXAMPLES_EXAMPLES
+#define INCLUDED_SMD_TYPECLASS_EXAMPLES_EXAMPLES
 
 #include <beman/optional/optional.hpp>
 
@@ -21,4 +23,4 @@ auto nttp_object_lookup_example() -> std::optional<int>;
 
 }  // close namespace smd::typeclass::examples
 
-#endif  // INCLUDE_SMD_TYPECLASS_EXAMPLES_EXAMPLES_HPP
+#endif  // INCLUDED_SMD_TYPECLASS_EXAMPLES_EXAMPLES

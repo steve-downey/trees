@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TYPECLASS_TEST_TEST_SUPPORT_HPP
-#define INCLUDE_SMD_TYPECLASS_TEST_TEST_SUPPORT_HPP
+// src/smd/typeclass/test/test_support.hpp                            -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_TEST_TEST_SUPPORT
+#define INCLUDED_SMD_TYPECLASS_TEST_TEST_SUPPORT
 
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/foldable.hpp>
@@ -236,4 +238,4 @@ inline constexpr auto traversable_typeclass<smd::typeclass::test::Identity<VALUE
 
 }  // close namespace smd
 
-#endif  // INCLUDE_SMD_TYPECLASS_TEST_TEST_SUPPORT_HPP
+#endif  // INCLUDED_SMD_TYPECLASS_TEST_TEST_SUPPORT

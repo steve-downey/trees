@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TYPECLASS_APPLICATIVE_HPP
-#define INCLUDE_SMD_TYPECLASS_APPLICATIVE_HPP
+// src/smd/typeclass/applicative.hpp                                  -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_APPLICATIVE
+#define INCLUDED_SMD_TYPECLASS_APPLICATIVE
 
 #include <smd/typeclass/typeclass_base.hpp>
 

@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TYPECLASS_TYPECLASS_BASE_HPP
-#define INCLUDE_SMD_TYPECLASS_TYPECLASS_BASE_HPP
+// src/smd/typeclass/typeclass_base.hpp                               -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_TYPECLASS_BASE
+#define INCLUDED_SMD_TYPECLASS_TYPECLASS_BASE
 
 #include <beman/optional/optional.hpp>
 
@@ -41,4 +43,4 @@ using applicative_value_t = typename applicative_value<remove_cvref_t<T> >::type
 
 }  // close namespace smd
 
-#endif  // INCLUDE_SMD_TYPECLASS_TYPECLASS_BASE_HPP
+#endif  // INCLUDED_SMD_TYPECLASS_TYPECLASS_BASE

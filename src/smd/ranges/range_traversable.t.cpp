@@ -133,11 +133,13 @@ TEST_CASE("RangeTraversableTest - SequenceConvertsRangeOfZiplistsToZiplistOfRang
         Zip{{100, 200, 300, 400}}});
 
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
+    // d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48
     auto sequenced = traversable.sequence(values);
 
     REQUIRE(sequenced.data.size() == 2U);
     CHECK(collect(sequenced.data[0]) == (std::vector<int>{1, 10, 100}));
     CHECK(collect(sequenced.data[1]) == (std::vector<int>{2, 20, 200}));
+    // d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48 end
     // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end
 }
 

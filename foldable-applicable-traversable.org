@@ -105,7 +105,7 @@ In particular, I am interested in better support for algorithms over trees and o
 The eventual goal is to bring ~fingertree~ to the standard library, along with support for application-domain trees in use today, such as expression evaluators and syntax trees.
 
 ** Foldable
-- Foldables :: are types that can be treated as a sequence or range and support the basic ~fold~ operation, which provides much of the power of ~std::ranges~. Providing opt-in hooks for making a type Foldable rather than a Range decouples the algorithm from the representation.
+- Foldables :: are types that can be treated as a sequence or range and support a ~fold_map~ minimal hook, which provides much of the power of ~std::ranges~. Providing opt-in hooks for making a type Foldable rather than a Range decouples the algorithm from the representation.
 
 ** Applicative
 - Applicatives :: model the pattern of applying a pure function to effectful arguments. The implementation details—partial application inside a container—are a distraction; what matters is the lawful interface. Applicatives are widely relevant for data-parallel operations and independent effects, and they require less sequencing machinery than monadic formulations.
@@ -212,6 +212,87 @@ When recursion is abstracted, law tests become executable documentation.
 Source: [cite:@downey2026treesresearch].
 #+end_notes
 
+* The Typeclass Object Pattern
+*** Typeclass Lookup: One Object Per Concept
+- Each concept has a variable template: ~foldable_typeclass<T>~, ~applicative_typeclass<T>~, ~traversable_typeclass<T>~.
+- The looked-up object provides all operations for that concept on ~T~.
+- New types opt in by specializing the variable template — no inheritance required.
+- Instances are open-world: add one close to the type, not in a central registry.
+
+#+begin_notes
+This replaces concept maps from C++0x with a simpler, working mechanism.
+Source: [cite:@downey2026treesresearch].
+#+end_notes
+
+*** Three Lookup Modes
+- Implicit: ~const auto& f = smd::foldable_typeclass<Tree>; f.method(...)~
+- Explicit object argument: pass a custom instance directly — local policy override.
+- NTTP pinning: bind the looked-up object as a template parameter at compile time.
+- All three produce the same dispatch; the choice is about stability and explicitness.
+
+#+begin_notes
+NTTP pinning is demonstrated in conceptmap functor tests (testP, testP2).
+It proves that a generic helper's lookup is stable even when callers pass different instances.
+#+end_notes
+
+*** NTTP Pinning Example
+
+#+transclude: [[file:src/smd/typeclass/foldable.t.cpp::a7c3e1f5-8d4b-4a2c-9e7f-3b5d1c8a4e06]] :lines 2- :src cpp :end "a7c3e1f5-8d4b-4a2c-9e7f-3b5d1c8a4e06 end"
+
+#+begin_notes
+The FOLDABLE parameter defaults to the variable template lookup.
+Callers can supply a custom instance to change behavior for a specific call site.
+#+end_notes
+
+*** Implementors: One Hook, Many Derived Operations
+- Implement one minimal hook per concept; all derived operations come for free.
+- Foldable: implement ~fold_map~ → get ~length~, ~fold_left~, ~fold_right~, ~to_vector~, ~any_of~, ~all_of~, ~empty~, ~find_first~.
+- Applicative: implement ~pure~ + ~apply~ → get ~invoke~, ~map~, ~zip_with~, ~discard_first~, ~discard_second~.
+- Traversable: implement ~traverse~ → get ~for_each~, ~sequence~, ~traverse_with~, ~sequence_with~.
+
+#+begin_notes
+The implementor surface is small; the user-facing surface is rich.
+Source: [cite:@downey2026treesresearch].
+#+end_notes
+
+*** CRTP and Deducing This
+- Each concept wrapper is a CRTP base (~Foldable<Impl>~, ~Applicative<Impl>~, ~Traversable<Impl>~).
+- ~this auto&& self~ preserves value category and constness through all wrapper calls.
+- Derived operations call back into the Impl via ~self~; overrides are detected by ~requires~.
+- Dispatch stays fully static — no virtual calls, no type erasure.
+
+#+begin_notes
+CRTP supplies structure; deducing this keeps wrappers generic without losing type information.
+#+end_notes
+
+* Functor: The Foundation
+*** Functor Interface
+- Minimal hook: ~fmap(F, container)~ — apply a pure function inside a context.
+- Derived: ~replace(container, value)~ — overwrite all elements with a constant.
+- Instances provided: ~std::optional~, ~beman::optional~, ~std::vector~.
+- Lookup: ~smd::functor_typeclass<std::optional<int>>~.
+
+#+begin_notes
+Functor is the base on which Applicative and Traversable are built.
+#+end_notes
+
+*** Functor: Derived replace
+
+#+transclude: [[file:src/smd/typeclass/functor.hpp::e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02]] :lines 2- :src cpp :end "e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02 end"
+
+#+begin_notes
+replace is derived from fmap with a constant function — no extra instance work required.
+#+end_notes
+
+*** Functor Identity Law in Tests
+- fmap(id, x) == x for every instance and every shape.
+
+#+transclude: [[file:src/smd/typeclass/functor.t.cpp::d8b6e1f2-7a3c-4d5e-b2a8-3f4c1d9e5b65]] :lines 2- :src cpp :end "d8b6e1f2-7a3c-4d5e-b2a8-3f4c1d9e5b65 end"
+
+#+begin_notes
+Tests that encode laws document intent more durably than comments.
+#+end_notes
+
 * Preserving Shape: Traversable and Friends
 *** Foldable vs. Traversable: Sequence vs. Shape
 - Foldable consumes structure into a summary.
@@ -232,43 +313,8 @@ Source: [cite:@downey2026treesresearch].
 
 
 #+begin_notes
-Use this as the one-slide intuition.
 Foldable can collapse two different shapes to the same flat view.
 Traversable keeps the tree skeleton and only transforms payloads.
-#+end_notes
-
-*** Typeclass Object Lookup in Three Calls
-- User code calls the looked-up object, not a node method.
-- Lookup is a variable-template selection such as ~foldable_typeclass<Tree>~.
-- The same pattern applies to ~applicative_typeclass<Context>~ and ~traversable_typeclass<Tree>~.
-- You can use implicit lookup, explicit object arguments, or NTTP pinning for tests and policy control.
-
-#+begin_notes
-This replaces a long historical detour with one operational model.
-Call site intent stays stable while the representation changes.
-#+end_notes
-
-*** Typeclass Object for Implementors
-- Implement one minimal hook per concept and receive all derived operations.
-- Foldable implements ~fold_map~ and gets ~length~, ~fold_left~, ~fold_right~, and ~to_vector~.
-- Applicative implements ~pure~ and ~apply~ and gets user-facing ~invoke~.
-- Traversable implements ~traverse~ and gets ~for_each~ and ~sequence~ helpers.
-- Keep traversal order and shape-preservation choices explicit in instance tests.
-
-#+begin_notes
-This is the key split.
-Implementor surface is small, and user surface is rich.
-#+end_notes
-
-*** How the Implementation Works: CRTP and Deducing This
-- Each concept wrapper is a CRTP base that exposes derived API in terms of minimal hooks.
-- ~this auto&& self~ preserves value category and constness through wrapper calls.
-- The wrapper can call either default derived behavior or an instance override when provided.
-- This keeps dispatch static and local while avoiding repetitive forwarding boilerplate.
-
-#+begin_notes
-CRTP supplies structure.
-Deducing this keeps wrappers generic without losing type information.
 #+end_notes
 
 *** Same Algorithm, Two Tree Representations
@@ -292,72 +338,164 @@ Deducing this keeps wrappers generic without losing type information.
 
 #+transclude:  [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]] :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
 
-*** Foldable API: One Primitive, Many Derived Operations
-- In this repository, the minimal implementation hook is ~fold_map~.
-- User-facing operations like ~length~, ~fold_left~, ~fold_right~, ~fold~, and ~to_vector~ are derived.
+* Foldable
+*** Foldable API: One Hook, Derived from fold_map
+- Minimal hook: ~fold_map(F, container)~ — apply F to each element, combine results.
+- Derived: ~length~, ~fold_left~, ~fold_right~, ~to_vector~, ~any_of~, ~all_of~, ~empty~, ~find_first~.
+- No traversal order is mandated; the instance chooses and must be consistent.
 
-#+transclude:  [[file:src/smd/typeclass/foldable.hpp::e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2]] :lines 2- :src cpp :end "e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end"
+**** fold_map → length
 
+#+transclude: [[file:src/smd/typeclass/foldable.hpp::c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08]] :lines 2- :src cpp :end "c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08 end"
 
-*** Foldable Proof: Derived Operations Hold in Tests
-- Derived operations agree operationally with the ~fold_map~ contract.
+**** fold_map → to_vector
 
-#+transclude:  [[file:src/smd/typeclass/foldable.t.cpp::4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4]] :lines 2- :src cpp :end "4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end"
+#+transclude: [[file:src/smd/typeclass/foldable.hpp::a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09]] :lines 2- :src cpp :end "a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09 end"
 
+#+begin_notes
+Every derived operation is implemented by specializing what fold_map collects.
+fold_left and fold_right use a function-composition monoid internally.
+#+end_notes
 
+*** Foldable Proof: Tests as Examples
+- Derived operations are verified directly against concrete inputs.
+
+#+transclude: [[file:src/smd/typeclass/foldable.t.cpp::a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46]] :lines 2- :src cpp :end "a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46 end"
+
+#+begin_notes
+The test encodes a semantic claim: to_vector of {1,2,3} is exactly {1,2,3}.
+That claim would catch a traversal-order regression.
+Source: [cite:@downey2026treesresearch].
+#+end_notes
+
+* Applicative
 *** Applicative Model: Pure Function over Effectful Arguments
-- Applicative captures independent effectful arguments without full monadic sequencing.
-- It is enough for lawful traversal in many practical cases.
-- In this talk, the canonical applicative instances are optional, ranges, and ZipList.
-- Tree applicative semantics are possible, but not the main motivation here.
-- Public API should read as ordinary invocation over effectful values.
-- Prefer ~invoke~ for C++ audiences; it aligns with the ~std::invoke~ mental model.
-- This follows McBride's "apply pure functions in effectful contexts" reading, with normalization to ~pure~ + ~apply~ under the covers.
-- ~apply_pure(f, a, b, c)~ is retained only as a teaching alias for audiences coming from FP notation like ~[| f a b c |]~.
+- Applicative captures applying a pure function to independent effectful arguments.
+- Minimal hooks: ~pure~ (lift a value) and ~apply~ (apply a contextual function).
+- User API: ~invoke~ — matches the mental model of ~std::invoke~ over effectful values.
+- ~apply_pure~ is a teaching alias for FP audiences; ~invoke~ is the C++ spelling.
+- Less sequencing machinery than monadic formulations for independent effects.
+
+#+begin_notes
+McBride's "applicative style" paper is the primary reference.
+apply_pure retains FP bracket notation [| f a b c |] for audiences coming from Haskell.
+Source: [cite:@downey2026treesresearch].
+#+end_notes
+
+*** Applicative in Use
 
 #+transclude:  [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]] :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
 
+#+begin_notes
+Three independent optional arguments. If any is absent the whole computation short-circuits.
+#+end_notes
 
-*** Applicative API: Minimal Core, User-Facing Invoke
-- In this repository, the minimal implementation hooks are ~pure~ and ~apply~.
-- Future-facing user spelling is ~invoke~ over effectful arguments.
-- ~apply_pure~ is retained as a pedagogical alias.
+*** Applicative: invoke in Tests
 
-#+transclude:  [[file:src/smd/typeclass/applicative.hpp::a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11]] :lines 2- :src cpp :end "a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end"
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::f6c2b5e1-9a3d-4f8c-b2e6-1d9c5b3f7a02]] :lines 2- :src cpp :end "f6c2b5e1-9a3d-4f8c-b2e6-1d9c5b3f7a02 end"
 
+#+begin_notes
+invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
+Source: [cite:@downey2026treesresearch].
+#+end_notes
 
-*** Applicative Proof: N-Ary Use in Tests
-- The same API handles arity > 2 without per-call-site plumbing.
+*** Applicative: invoke via Terminating Partial Application
+- ~invoke~ is derived: ~pure(partial(f))~ lifts f; each ~apply~ peels off one contextual argument.
+- Implementations provide only ~pure~ + ~apply~; ~invoke~ can be overridden for custom semantics.
+- Also derived: ~map~, ~lift~, ~ap~, ~zip_with~, ~discard_first~, ~discard_second~, ~invoke_with~.
 
-#+transclude:  [[file:src/smd/typeclass/applicative.t.cpp::6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b]] :lines 2- :src cpp :end "6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end"
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48]] :lines 2- :src cpp :end "c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48 end"
 
+#+begin_notes
+make_terminating_partial wraps f; each call either invokes f if all args are present or returns a new partial.
+This avoids std::bind complexity while handling arbitrary arity uniformly.
+#+end_notes
 
+*** Applicative Law: Interchange
+
+- Interchange: ~ap(u, pure(y)) == ap(pure(λf. f(y)), u)~
+- Applying a contextual function to a pure value is symmetric.
+
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15]] :lines 2- :src cpp :end "b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15 end"
+
+#+begin_notes
+The interchange law is the trickiest to build intuition for.
+It constrains how pure values interact with contextual functions.
+#+end_notes
+
+*** Applicative Law: Composition
+
+- Composition: ~ap(invoke(∘, u, v), w) == ap(u, ap(v, w))~
+- Composing effectful functions then applying equals sequencing the applications.
+
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02]] :lines 2- :src cpp :end "e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02 end"
+
+#+begin_notes
+The composition law ensures that effectful function composition is associative.
+w = 3, v doubles to 6, u adds 10: result is 16.
+#+end_notes
+
+* Traversable
 *** Traversable Model: Commute Shape and Effect
 - Traversal commutes shape and effect: from a structure of effects to an effect of a structure.
 - This gives a generic path from many small checks to one checked result.
+- Traversable strictly generalizes Foldable: it can rebuild the container, not just collapse it.
 - Use this to model validation, partial relabeling, and structured transformations.
 
-*** Traversable API: One Primitive, Many Derived Operations
-- In this repository, the minimal implementation hook is ~traverse~.
-- ~for_each~, ~sequence~, and ~sequence_with~ are derived helper operations.
+*** Traversable API: for_each
 
-#+transclude:  [[file:src/smd/typeclass/traversable.hpp::8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11]] :lines 2- :src cpp :end "8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end"
+#+transclude: [[file:src/smd/typeclass/traversable.hpp::d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46]] :lines 2- :src cpp :end "d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46 end"
 
+#+begin_notes
+for_each simply swaps the argument order of traverse.
+#+end_notes
 
-*** Traversable Proof: Derived Operations Hold in Tests
-- Sequencing works both via implicit lookup and explicit object selection.
+*** Traversable API: sequence
 
-#+transclude:  [[file:src/smd/typeclass/traversable.t.cpp::f1de12e0-2287-4568-98c7-75be4f6f7446]] :lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
+#+transclude: [[file:src/smd/typeclass/traversable.hpp::c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79]] :lines 2- :src cpp :end "c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79 end"
 
+#+begin_notes
+sequence commutes a container of effects into an effect of a container.
+The identity function here means "the effect IS the structure": traverse(id, t).
+#+end_notes
+
+*** Traversable Proof: sequence in Tests
+
+#+transclude: [[file:src/smd/typeclass/traversable.t.cpp::e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28]] :lines 2- :src cpp :end "e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28 end"
+
+#+begin_notes
+sequence converts Identity<optional<int>> into optional<Identity<int>>.
+The shape is preserved; the effect wraps the whole result.
+#+end_notes
+
+*** Traversable Law: Naturality
+- Naturality: for applicative morphism η (a map that commutes with ~pure~ and ~ap~),
+  ~η(traverse f t) == traverse (η∘f) t~.
+- Concrete: η converts ~optional<B>~ → ~beman::optional<B>~.
+- Applying η after traversal equals composing η with f before traversal.
+
+*** Traversable Naturality Law in Tests
+
+#+transclude: [[file:src/smd/typeclass/traversable.t.cpp::a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43]] :lines 2- :src cpp :end "a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43 end"
+
+#+begin_notes
+eta converts optional<Identity<int>> to beman::optional<Identity<int>>.
+eta_f is eta composed with f on the value side.
+Both sides produce beman::optional<Identity<int>>{Identity{6}}.
+Source: [cite:@downey2026treesresearch].
+#+end_notes
 
 *** Traversable Commute: Range and ZipList
 - Traversable commutes a range of ZipLists into a ZipList of ranges.
 - The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.
 
-#+transclude:  [[file:src/smd/ranges/range_traversable.t.cpp::0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a]] :lines 2- :src cpp :end "0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end"
+**** Range of ZipLists → ZipList of Ranges
 
+#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48]] :lines 2- :src cpp :end "d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48 end"
 
-#+transclude:  [[file:src/smd/ranges/range_traversable.t.cpp::4be89584-35cc-4933-b3de-6d524d54371d]] :lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
+**** ZipList of Vectors → Vector of ZipLists (matrix transpose)
+
+#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::4be89584-35cc-4933-b3de-6d524d54371d]] :lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
 
 
 #+begin_notes
@@ -366,14 +504,10 @@ Source: [cite:@downey2026treesresearch].
 #+end_notes
 
 *** Laws That Keep This Honest
-- Target law set:
-	- Applicative: identity, composition, homomorphism, interchange.
-	- Traversable: identity, naturality, composition.
-	- Foldable: derived operations agree with ~fold_map~.
-- Current automated checks in this repository:
-	- Applicative: identity, homomorphism, invoke/ap equivalence, plus ZipList interchange and composition.
-	- Traversable: identity, naturality, composition, traverse/for_each/sequence coherence, and ZipList-Range commute examples.
-	- Foldable: derived operations (~length~, ~fold_left~, ~fold_right~, ~to_vector~, predicates) are exercised against ~fold_map~-based behavior.
+- Applicative: identity, homomorphism, interchange, composition — all automated.
+- Traversable: identity, naturality, composition — all automated.
+- Foldable: derived operations (~length~, ~fold_left~, ~fold_right~, ~to_vector~, predicates) exercised against ~fold_map~.
+- If these fail, abstractions become accidental APIs rather than reliable interfaces.
 
 #+begin_notes
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
@@ -382,15 +516,56 @@ Source: [cite:@downey2026treesresearch].
 
 *** Tree Applicative as Optional Appendix
 - Treat tree applicative as a policy choice, not the core applicative story.
-- If presented, keep it brief and explicitly label semantics.
-- Mainline examples should stay with optional, ranges, and ZipList.
+- Mainline examples stay with optional, ranges, and ZipList.
+- Keep it brief and explicitly label semantics if presented.
 
 #+begin_notes
-This avoids spending scarce slide time on semantics debates.
-The core teaching value of Applicative is already visible in optional/range/ZipList examples.
+The core teaching value of Applicative is visible in optional/range/ZipList examples.
 #+end_notes
 
 * Monoids and Measured Trees
+*** Monoid Interface
+- A Monoid has two operations: ~identity()~ and ~combine(lhs, rhs)~.
+- Associativity: ~combine(combine(a,b),c) == combine(a,combine(b,c))~.
+- Left and right identity: ~combine(identity(), x) == x == combine(x, identity())~.
+- Lookup via ~monoid_v<T>~; extend by specializing ~Monoid<T>~.
+
+*** Monoid: Count Specialization
+
+#+transclude: [[file:src/smd/typeclass/monoid.hpp::c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06]] :lines 2- :src cpp :end "c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06 end"
+
+#+begin_notes
+Count is the canonical monoid for counting elements.
+identity is 0; combine is addition — the simplest possible monoid.
+#+end_notes
+
+*** Monoid: Generic Helpers
+
+#+transclude: [[file:src/smd/typeclass/monoid.hpp::b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02]] :lines 2- :src cpp :end "b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02 end"
+
+#+begin_notes
+monoid_v<T> is the canonical lookup object; monoid_combine and monoid_identity are free-function helpers.
+These are the call shapes used by fold_map and all derived Foldable operations.
+#+end_notes
+
+*** Monoid in Tests
+
+#+transclude: [[file:src/smd/typeclass/monoid.t.cpp::a1d6e3f7-3c2b-4a8e-b4f1-7c5d3a9e6b84]] :lines 2- :src cpp :end "a1d6e3f7-3c2b-4a8e-b4f1-7c5d3a9e6b84 end"
+
+#+begin_notes
+monoid_combine dispatches through monoid_v<Count>. The test is mechanical, but it pins the specialization.
+Source: [cite:@downey2026treesresearch].
+#+end_notes
+
+*** Monoid Identity Law in Tests
+
+#+transclude: [[file:src/smd/typeclass/monoid.t.cpp::f3b4e6a2-1c7d-4e5b-8a3f-2d9c5b8e3f36]] :lines 2- :src cpp :end "f3b4e6a2-1c7d-4e5b-8a3f-2d9c5b8e3f36 end"
+
+#+begin_notes
+The identity law is what makes identity() useful for initializing fold accumulators.
+If this fails the Monoid is not a monoid.
+#+end_notes
+
 *** Associativity as Algorithmic Leverage
 - Associativity lets us regroup work without changing results.
 - Measured trees exploit this to maintain summaries incrementally.
@@ -460,7 +635,7 @@ Pragmatic conclusion: values first, identity where required, and laws where poss
 Source: [cite:@downey2026treesresearch].
 #+end_notes
 
-* Designing APIs That Won’t Age Poorly
+* Designing APIs That Won't Age Poorly
 *** Library Abstractions Anticipating Language Features
 - Favor explicit, composable operations over magical overload sets.
 - Keep extension points separate from core type definitions.

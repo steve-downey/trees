@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FINGER_TREE_WRAPPERS_HPP
-#define INCLUDE_SMD_TREE_FINGER_TREE_WRAPPERS_HPP
+// src/smd/tree/finger_tree_wrappers.hpp                              -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FINGER_TREE_WRAPPERS
+#define INCLUDED_SMD_TREE_FINGER_TREE_WRAPPERS
 
 // Core wrapper classes
 #include <smd/tree/finger_tree_interval_index.hpp>

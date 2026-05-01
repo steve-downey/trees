@@ -7,12 +7,14 @@
 
 namespace {
 
+// a7c3e1f5-8d4b-4a2c-9e7f-3b5d1c8a4e06
 template <class STRUCTURE,
           const auto& FOLDABLE = smd::foldable_typeclass<STRUCTURE> >
 auto sum_with_nttp_lookup(const STRUCTURE& structure)
 {
     return FOLDABLE.fold_map([](int x) { return x; }, structure);
 }
+// a7c3e1f5-8d4b-4a2c-9e7f-3b5d1c8a4e06 end
 
 template <class STRUCTURE,
           const auto& FOLDABLE = smd::foldable_typeclass<STRUCTURE> >
@@ -132,12 +134,14 @@ TEST_CASE("FoldableTypeclassTest - PredicatesAndFind")
 TEST_CASE("FoldableTypeclassTest - ToVectorAndCombineAll")
 {
     // 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4
+    // a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46
     using IntSequence = smd::typeclass::test::Sequence<int>;
     auto sequence = IntSequence{{1, 2, 3}};
     const auto& int_foldable = smd::foldable_typeclass<IntSequence>;
 
     const auto as_vector = int_foldable.to_vector(sequence);
     CHECK(as_vector == (std::vector<int>{1, 2, 3}));
+    // a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46 end
 
     using VectorSequence = smd::typeclass::test::Sequence<std::vector<int> >;
     auto vectors = VectorSequence{{{1, 2}, {3}}};

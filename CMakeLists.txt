@@ -53,6 +53,7 @@ target_sources(
     concept_map
     PUBLIC FILE_SET concept_map_headers TYPE HEADERS BASE_DIRS src
 )
+target_compile_features(concept_map INTERFACE cxx_std_23)
 
 # add_subdirectory(extern)
 add_subdirectory(src)

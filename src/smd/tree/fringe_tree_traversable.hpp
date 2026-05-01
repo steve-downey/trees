@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FRINGE_TREE_TRAVERSABLE_HPP
-#define INCLUDE_SMD_TREE_FRINGE_TREE_TRAVERSABLE_HPP
+// src/smd/tree/fringe_tree_traversable.hpp                           -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FRINGE_TREE_TRAVERSABLE
+#define INCLUDED_SMD_TREE_FRINGE_TREE_TRAVERSABLE
 
 #include <smd/tree/fringe_tree.hpp>
 #include <smd/tree/fringe_tree_applicative.hpp>

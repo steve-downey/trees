@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TYPECLASS_FOLDABLE_HPP
-#define INCLUDE_SMD_TYPECLASS_FOLDABLE_HPP
+// src/smd/typeclass/foldable.hpp                                     -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_FOLDABLE
+#define INCLUDED_SMD_TYPECLASS_FOLDABLE
 
 #include <smd/typeclass/monoid.hpp>
 #include <smd/typeclass/typeclass_base.hpp>
@@ -221,6 +223,7 @@ struct Foldable : protected Impl {
 
   // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2
 
+  // c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08
   template <class T>
   auto length(this auto&& self, T&& value) -> std::size_t
   {
@@ -229,6 +232,7 @@ struct Foldable : protected Impl {
       std::forward<T>(value));
     return count.d_value;
   }
+  // c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08 end
 
   template <class T, class STATE, class F>
   auto fold_left(this auto&& self, T&& value, STATE initial_state, F&& function)
@@ -313,6 +317,7 @@ struct Foldable : protected Impl {
     });
   }
 
+  // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09
   template <class T>
   auto to_vector(this auto&& self, T&& value)
   {
@@ -323,6 +328,7 @@ struct Foldable : protected Impl {
       },
       std::forward<T>(value));
   }
+  // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09 end
   // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end
 
   template <class T, class PREDICATE>

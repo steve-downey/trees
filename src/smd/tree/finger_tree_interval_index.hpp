@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FINGER_TREE_INTERVAL_INDEX_HPP
-#define INCLUDE_SMD_TREE_FINGER_TREE_INTERVAL_INDEX_HPP
+// src/smd/tree/finger_tree_interval_index.hpp                        -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FINGER_TREE_INTERVAL_INDEX
+#define INCLUDED_SMD_TREE_FINGER_TREE_INTERVAL_INDEX
 
 #include <smd/tree/finger_tree.hpp>
 #include <smd/typeclass/applicative.hpp>

@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_RANGES_RANGE_FUNCTOR_HPP
-#define INCLUDE_SMD_RANGES_RANGE_FUNCTOR_HPP
+// src/smd/ranges/range_functor.hpp                                   -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_RANGES_RANGE_FUNCTOR
+#define INCLUDED_SMD_RANGES_RANGE_FUNCTOR
 
 #include <smd/ranges/range_list.hpp>
 #include <smd/typeclass/functor.hpp>

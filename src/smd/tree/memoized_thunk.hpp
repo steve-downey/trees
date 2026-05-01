@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_MEMOIZED_THUNK_HPP
-#define INCLUDE_SMD_TREE_MEMOIZED_THUNK_HPP
+// src/smd/tree/memoized_thunk.hpp                                    -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_MEMOIZED_THUNK
+#define INCLUDED_SMD_TREE_MEMOIZED_THUNK
 
 #include <cassert>
 #include <functional>

@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_RANGES_RANGE_TRAVERSABLE_HPP
-#define INCLUDE_SMD_RANGES_RANGE_TRAVERSABLE_HPP
+// src/smd/ranges/range_traversable.hpp                               -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_RANGES_RANGE_TRAVERSABLE
+#define INCLUDED_SMD_RANGES_RANGE_TRAVERSABLE
 
 #include <smd/ranges/range_applicative.hpp>
 #include <smd/ranges/range_list.hpp>

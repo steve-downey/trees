@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TYPECLASS_MONOID_HPP
-#define INCLUDE_SMD_TYPECLASS_MONOID_HPP
+// src/smd/typeclass/monoid.hpp                                       -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_MONOID
+#define INCLUDED_SMD_TYPECLASS_MONOID
 
 #include <smd/typeclass/typeclass_base.hpp>
 
@@ -28,6 +30,7 @@ struct Count {
     friend constexpr bool operator==(const Count& lhs, const Count& rhs) = default;
 };
 
+// c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06
 template <>
 struct Monoid<Count> {
     constexpr auto identity() const -> Count { return Count{0}; }
@@ -37,6 +40,7 @@ struct Monoid<Count> {
         return Count{lhs.d_value + rhs.d_value};
     }
 };
+// c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06 end
 
 template <>
 struct Monoid<int> {
@@ -93,6 +97,7 @@ struct Monoid<std::vector<VALUE_TYPE> > {
 
 namespace smd {
 
+// b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02
 template <class VALUE_TYPE>
 auto monoid_identity() -> VALUE_TYPE
 {
@@ -104,7 +109,8 @@ auto monoid_combine(const VALUE_TYPE& lhs, const VALUE_TYPE& rhs) -> VALUE_TYPE
 {
     return typeclass::monoid_v<VALUE_TYPE>.combine(lhs, rhs);
 }
+// b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02 end
 
 }  // close namespace smd
 
-#endif  // INCLUDE_SMD_TYPECLASS_MONOID_HPP
+#endif  // INCLUDED_SMD_TYPECLASS_MONOID

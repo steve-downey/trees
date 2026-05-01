@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FINGER_TREE_RANDOM_ACCESS_HPP
-#define INCLUDE_SMD_TREE_FINGER_TREE_RANDOM_ACCESS_HPP
+// src/smd/tree/finger_tree_random_access.hpp                         -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FINGER_TREE_RANDOM_ACCESS
+#define INCLUDED_SMD_TREE_FINGER_TREE_RANDOM_ACCESS
 
 #include <smd/tree/finger_tree.hpp>
 #include <smd/typeclass/applicative.hpp>

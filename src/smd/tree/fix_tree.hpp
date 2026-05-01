@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FIX_TREE_HPP
-#define INCLUDE_SMD_TREE_FIX_TREE_HPP
+// src/smd/tree/fix_tree.hpp                                          -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FIX_TREE
+#define INCLUDED_SMD_TREE_FIX_TREE
 #include <memory>
 #include <variant>
 namespace smd::tree {

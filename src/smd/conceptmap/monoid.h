@@ -1,3 +1,5 @@
+// src/smd/conceptmap/monoid.h                                        -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // monoid.h                                                           -*-C++-*-
 #ifndef INCLUDED_MONOID
 #define INCLUDED_MONOID

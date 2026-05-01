@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_RANGES_RANGE_APPLICATIVE_HPP
-#define INCLUDE_SMD_RANGES_RANGE_APPLICATIVE_HPP
+// src/smd/ranges/range_applicative.hpp                               -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_RANGES_RANGE_APPLICATIVE
+#define INCLUDED_SMD_RANGES_RANGE_APPLICATIVE
 
 #include <smd/ranges/range_list.hpp>
 #include <smd/typeclass/applicative.hpp>

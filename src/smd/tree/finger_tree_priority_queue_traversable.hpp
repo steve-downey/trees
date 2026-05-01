@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FINGER_TREE_PRIORITY_QUEUE_TRAVERSABLE_HPP
-#define INCLUDE_SMD_TREE_FINGER_TREE_PRIORITY_QUEUE_TRAVERSABLE_HPP
+// src/smd/tree/finger_tree_priority_queue_traversable.hpp            -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FINGER_TREE_PRIORITY_QUEUE_TRAVERSABLE
+#define INCLUDED_SMD_TREE_FINGER_TREE_PRIORITY_QUEUE_TRAVERSABLE
 
 #include <smd/tree/finger_tree_priority_queue.hpp>
 #include <smd/typeclass/applicative.hpp>

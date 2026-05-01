@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_RANGES_RANGE_FOLDABLE_HPP
-#define INCLUDE_SMD_RANGES_RANGE_FOLDABLE_HPP
+// src/smd/ranges/range_foldable.hpp                                  -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_RANGES_RANGE_FOLDABLE
+#define INCLUDED_SMD_RANGES_RANGE_FOLDABLE
 
 #include <smd/ranges/range_list.hpp>
 #include <smd/typeclass/foldable.hpp>

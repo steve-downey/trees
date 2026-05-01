@@ -18,7 +18,7 @@ target_sources(
         functor.hpp
         foldable.hpp
         applicative.hpp
-    traversable.hpp
+        traversable.hpp
 )
 
 # Link with optional dependency

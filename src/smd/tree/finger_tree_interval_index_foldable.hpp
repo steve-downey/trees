@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FINGER_TREE_INTERVAL_INDEX_FOLDABLE_HPP
-#define INCLUDE_SMD_TREE_FINGER_TREE_INTERVAL_INDEX_FOLDABLE_HPP
+// src/smd/tree/finger_tree_interval_index_foldable.hpp               -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FINGER_TREE_INTERVAL_INDEX_FOLDABLE
+#define INCLUDED_SMD_TREE_FINGER_TREE_INTERVAL_INDEX_FOLDABLE
 
 #include <smd/tree/finger_tree_interval_index.hpp>
 #include <smd/typeclass/foldable.hpp>

@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_ZIPLIST_ZIP_LIST_HPP
-#define INCLUDE_SMD_ZIPLIST_ZIP_LIST_HPP
+// src/smd/ziplist/zip_list.hpp                                       -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_ZIPLIST_ZIP_LIST
+#define INCLUDED_SMD_ZIPLIST_ZIP_LIST
 
 #include <cstddef>
 #include <optional>
