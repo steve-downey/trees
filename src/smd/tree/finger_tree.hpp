@@ -608,6 +608,29 @@ class FingerTree {
     SegmentPtr d_right;
   };
 
+  static auto is_consistent_split(const SegmentPtr& source,
+                                  const SegmentSplit& split) -> bool
+  {
+    auto source_size = seg_size(source);
+    auto split_size = seg_size(split.d_left) + std::size_t{1} + seg_size(split.d_right);
+    if (split_size != source_size) {
+      return false;
+    }
+
+    if constexpr (requires(const Tag& lhs, const Tag& rhs) {
+                   { lhs == rhs } -> std::convertible_to<bool>;
+                 }) {
+      auto split_tag = tag_combine(
+        tag_combine(seg_tag(split.d_left), tag_value(split.d_pivot)),
+        seg_tag(split.d_right));
+      if (!(split_tag == seg_tag(source))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   template <typename PREDICATE>
   static auto split_segment(const SegmentPtr& seg,
                             const PREDICATE& predicate,
@@ -623,10 +646,14 @@ class FingerTree {
       for (std::size_t i = flat->d_begin; i < flat->d_end; ++i) {
         running = tag_combine(running, tag_value((*flat->d_values)[i]));
         if (predicate(running)) {
-          return SegmentSplit{
+          auto split = SegmentSplit{
             make_flat_range(flat->d_values, flat->d_begin, i),
             (*flat->d_values)[i],
             make_flat_range(flat->d_values, i + 1, flat->d_end)};
+          if (!is_consistent_split(current, split)) {
+            return std::nullopt;
+          }
+          return split;
         }
       }
       return std::nullopt;
@@ -642,9 +669,13 @@ class FingerTree {
         return std::nullopt;
       }
 
-      return SegmentSplit{left_split->d_left,
-                          left_split->d_pivot,
-                          make_concat(left_split->d_right, concat->d_right)};
+      auto split = SegmentSplit{left_split->d_left,
+                                left_split->d_pivot,
+                                make_concat(left_split->d_right, concat->d_right)};
+      if (!is_consistent_split(current, split)) {
+        return std::nullopt;
+      }
+      return split;
     }
 
     auto right_split = split_segment(make_segment_from_middle(concat->d_right), predicate, left_prefix);
@@ -652,9 +683,13 @@ class FingerTree {
       return std::nullopt;
     }
 
-    return SegmentSplit{make_concat(concat->d_left, right_split->d_left),
-                        right_split->d_pivot,
-                        right_split->d_right};
+    auto split = SegmentSplit{make_concat(concat->d_left, right_split->d_left),
+                              right_split->d_pivot,
+                              right_split->d_right};
+    if (!is_consistent_split(current, split)) {
+      return std::nullopt;
+    }
+    return split;
   }
 
   static auto split_at_count(const SegmentPtr& seg,
