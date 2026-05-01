@@ -27,10 +27,13 @@ target_sources(
         fix_tree_foldable.hpp
         fix_tree_applicative.hpp
         fix_tree_traversable.hpp
+        fixpoint_tree.hpp
+        fixpoint_tree_foldable.hpp
+        fixpoint_tree_traversable.hpp
 )
 
 # Link with typeclass dependency
-target_link_libraries(smd_tree INTERFACE smd_typeclass)
+target_link_libraries(smd_tree INTERFACE smd_typeclass smd_fixpoint)
 
 # Installation configuration
 install(
@@ -62,6 +65,9 @@ if(TREE_ENABLE_TESTING)
         fringe_tree_applicative.t.cpp
         fringe_tree_foldable.t.cpp
         fringe_tree_traversable.t.cpp
+        fixpoint_tree.t.cpp
+        fixpoint_tree_foldable.t.cpp
+        fixpoint_tree_traversable.t.cpp
     )
 
     target_include_directories(smd_tree_tests
