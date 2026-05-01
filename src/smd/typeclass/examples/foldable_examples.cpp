@@ -1,7 +1,7 @@
 #include <smd/typeclass/examples/examples.hpp>
 
-#include <smd/tree/fix_tree.hpp>
-#include <smd/tree/fix_tree_foldable.hpp>
+#include <smd/tree/fixpoint_tree.hpp>
+#include <smd/tree/fixpoint_tree_foldable.hpp>
 #include <smd/tree/fringe_tree.hpp>
 #include <smd/tree/fringe_tree_foldable.hpp>
 #include <smd/tree/binary_tree.hpp>
@@ -10,18 +10,16 @@
 
 namespace smd::typeclass::examples {
 
-using IntTree = smd::tree::FixTree<int>;
-
-auto make_sample_tree() -> IntTree
-{
-    return IntTree::branch(IntTree::leaf(1),
-                           IntTree::branch(IntTree::leaf(2), IntTree::leaf(3)));
-}
+using smd::tree::add_expr;
+using smd::tree::const_expr;
+using smd::tree::Expr;
+using smd::tree::mul_expr;
 
 auto generic_length_example() -> std::size_t
 {
-    auto tree = make_sample_tree();
-    const auto& foldable = smd::foldable_typeclass<IntTree>;
+    auto tree = add_expr(const_expr(1.0),
+                         add_expr(const_expr(2.0), const_expr(3.0)));
+    const auto& foldable = smd::foldable_typeclass<Expr>;
 
     // 9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa
     auto n = foldable.length(tree);
@@ -52,38 +50,36 @@ auto generic_length_binary_tree_example() -> std::size_t
 
 auto generic_length_fringe_tree_example() -> std::size_t
 {
-        using Fringe = smd::tree::FringeTree<int>;
-        auto tree = Fringe::branch(
-            Fringe::branch(Fringe::leaf(1), Fringe::leaf(2)),
-            Fringe::leaf(3));
+    using Fringe = smd::tree::FringeTree<int>;
+    auto tree = Fringe::branch(
+        Fringe::branch(Fringe::leaf(1), Fringe::leaf(2)),
+        Fringe::leaf(3));
 
-        const auto& foldable = smd::foldable_typeclass<Fringe>;
+    const auto& foldable = smd::foldable_typeclass<Fringe>;
 
-        // 7c2f11d9-ef09-45e2-80da-9229f3c8d82c
-        auto n = foldable.length(tree);
-        // 7c2f11d9-ef09-45e2-80da-9229f3c8d82c end
+    // 7c2f11d9-ef09-45e2-80da-9229f3c8d82c
+    auto n = foldable.length(tree);
+    // 7c2f11d9-ef09-45e2-80da-9229f3c8d82c end
 
-        return n;
+    return n;
 }
 
 auto foldable_flattens_shape_example() -> bool
 {
-        using Tree = smd::tree::FixTree<int>;
-        auto left_heavy = Tree::branch(
-            Tree::leaf(1),
-            Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-        auto right_heavy = Tree::branch(
-            Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-            Tree::leaf(3));
+    // Two differently-structured expressions with the same leaf constants.
+    auto right_deep = add_expr(const_expr(1.0),
+                               add_expr(const_expr(2.0), const_expr(3.0)));
+    auto left_deep  = add_expr(add_expr(const_expr(1.0), const_expr(2.0)),
+                               const_expr(3.0));
 
-        const auto& foldable = smd::foldable_typeclass<Tree>;
+    const auto& foldable = smd::foldable_typeclass<Expr>;
 
-        // b1fd4b92-b060-4c47-8c08-97328ec02329
-        auto left_flat = foldable.to_vector(left_heavy);
-        auto right_flat = foldable.to_vector(right_heavy);
-        // b1fd4b92-b060-4c47-8c08-97328ec02329 end
+    // b1fd4b92-b060-4c47-8c08-97328ec02329
+    auto right_flat = foldable.to_vector(right_deep);
+    auto left_flat  = foldable.to_vector(left_deep);
+    // b1fd4b92-b060-4c47-8c08-97328ec02329 end
 
-        return left_flat == right_flat;
+    return right_flat == left_flat;
 }
 
 }  // close namespace smd::typeclass::examples

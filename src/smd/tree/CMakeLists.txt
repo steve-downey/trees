@@ -1,6 +1,5 @@
 include(GNUInstallDirs)
 
-# Create tree interface library target for FixTree
 add_library(smd_tree INTERFACE)
 
 # Add public headers as a file set
@@ -23,13 +22,9 @@ target_sources(
     finger_tree_interval_index.hpp
     finger_tree_rope.hpp
     finger_tree_wrappers.hpp
-        fix_tree.hpp
-        fix_tree_foldable.hpp
-        fix_tree_applicative.hpp
-        fix_tree_traversable.hpp
-        fixpoint_tree.hpp
-        fixpoint_tree_foldable.hpp
-        fixpoint_tree_traversable.hpp
+    fixpoint_tree.hpp
+    fixpoint_tree_foldable.hpp
+    fixpoint_tree_traversable.hpp
 )
 
 # Link with typeclass dependency
@@ -57,10 +52,6 @@ if(TREE_ENABLE_TESTING)
         finger_tree_priority_queue.t.cpp
         finger_tree_interval_index.t.cpp
         finger_tree_rope.t.cpp
-        fix_tree.t.cpp
-        fix_tree_applicative.t.cpp
-        fix_tree_foldable.t.cpp
-        fix_tree_traversable.t.cpp
         fringe_tree.t.cpp
         fringe_tree_applicative.t.cpp
         fringe_tree_foldable.t.cpp

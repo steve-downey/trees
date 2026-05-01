@@ -14,6 +14,7 @@ namespace smd {
 
 struct FixpointTreeFoldableImpl {
 
+    // b2c8e4f1-3a6d-4f1b-9e7c-5d2b8a4f3c91
     template <class F>
     auto fold_map(this auto&& self,
                   F&& f,
@@ -46,16 +47,19 @@ struct FixpointTreeFoldableImpl {
         const auto& m = std::get<ExprMul<Expr>>(layer);
         return fold_children(m.left, m.right);
     }
+    // b2c8e4f1-3a6d-4f1b-9e7c-5d2b8a4f3c91 end
 };
 
 struct FixpointTreeFoldableMap : Foldable<FixpointTreeFoldableImpl> {
     using FixpointTreeFoldableImpl::fold_map;
 };
 
+// c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83
 template <>
 inline constexpr auto
     foldable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =
         FixpointTreeFoldableMap{};
+// c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83 end
 
 }  // close namespace smd
 
