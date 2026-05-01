@@ -3,6 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <optional>
+#include <set>
 #include <vector>
 
 TEST_CASE("FingerTreePriorityQueueTest - WrapperOperations")
@@ -65,4 +66,49 @@ TEST_CASE("FingerTreePriorityQueueTest - TraversableTypeclass")
       },
       q);
     CHECK_FALSE(failure.has_value());
+}
+
+TEST_CASE("FingerTreePriorityQueueTest - RepeatedPushPopMatchesMultiset")
+{
+    using Queue = smd::tree::FingerTreePriorityQueue<int>;
+
+    auto q = Queue::from_values({5, 2, 8, 2, 7, 1, 9, 1});
+    std::multiset<int> expected{5, 2, 8, 2, 7, 1, 9, 1};
+
+    for (int i = 0; i < 250; ++i) {
+        auto value = (i * 7) % 11;
+        q = q.push(value);
+        expected.insert(value);
+
+        if ((i % 2) == 0) {
+            auto popped = q.pop_min();
+            REQUIRE(popped.has_value());
+            REQUIRE_FALSE(expected.empty());
+            CHECK(popped->first == *expected.begin());
+            expected.erase(expected.begin());
+            q = std::move(popped->second);
+        } else {
+            auto popped = q.pop_max();
+            REQUIRE(popped.has_value());
+            REQUIRE_FALSE(expected.empty());
+            auto it = std::prev(expected.end());
+            CHECK(popped->first == *it);
+            expected.erase(it);
+            q = std::move(popped->second);
+        }
+
+        if (!expected.empty()) {
+            REQUIRE(q.min().has_value());
+            REQUIRE(q.max().has_value());
+            CHECK(*q.min() == *expected.begin());
+            CHECK(*q.max() == *std::prev(expected.end()));
+        } else {
+            CHECK_FALSE(q.min().has_value());
+            CHECK_FALSE(q.max().has_value());
+        }
+    }
+
+    auto values = q.to_vector();
+    std::multiset<int> actual(values.begin(), values.end());
+    CHECK(actual == expected);
 }

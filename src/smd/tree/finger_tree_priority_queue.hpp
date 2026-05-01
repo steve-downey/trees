@@ -7,9 +7,9 @@
 #include <smd/typeclass/monoid.hpp>
 #include <smd/typeclass/traversable.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <functional>
-#include <algorithm>
 #include <optional>
 #include <type_traits>
 #include <utility>
@@ -49,17 +49,17 @@ class FingerTreePriorityQueue {
   MinTree d_min_tree;
   MaxTree d_max_tree;
 
-  static auto remove_one(const MinTree& tree, const T& needle) -> MinTree
+  template <typename TREE>
+  static auto remove_one_rebuild(const TREE& tree, const T& needle) -> TREE
   {
-    auto split = tree.split([&needle](const MinTag<T>& prefix) {
-      return prefix.d_value.has_value() && prefix.d_value.value() == needle;
-    });
-
-    if (!split.has_value()) {
+    auto values = tree.flatten();
+    auto it = std::find(values.begin(), values.end(), needle);
+    if (it == values.end()) {
       return tree;
     }
 
-    return MinTree::concat(split->d_left, split->d_right);
+    values.erase(it);
+    return TREE::from_sequence(std::move(values));
   }
 
  public:
@@ -108,21 +108,8 @@ class FingerTreePriorityQueue {
       return std::nullopt;
     }
 
-    // Rebuild from flattened values for deterministic correctness while
-    // tree internals are being refactored.
-    auto min_values = d_min_tree.flatten();
-    auto min_it = std::find(min_values.begin(), min_values.end(), *m);
-    if (min_it != min_values.end()) {
-      min_values.erase(min_it);
-    }
-    auto new_min_tree = MinTree::from_sequence(std::move(min_values));
-
-    auto max_values = d_max_tree.flatten();
-    auto max_it = std::find(max_values.begin(), max_values.end(), *m);
-    if (max_it != max_values.end()) {
-      max_values.erase(max_it);
-    }
-    auto new_max_tree = MaxTree::from_sequence(std::move(max_values));
+    auto new_min_tree = remove_one_rebuild(d_min_tree, *m);
+    auto new_max_tree = remove_one_rebuild(d_max_tree, *m);
 
     return std::pair<T, FingerTreePriorityQueue>{
       *m,
@@ -137,19 +124,8 @@ class FingerTreePriorityQueue {
       return std::nullopt;
     }
 
-    auto max_values = d_max_tree.flatten();
-    auto max_it = std::find(max_values.begin(), max_values.end(), *m);
-    if (max_it != max_values.end()) {
-      max_values.erase(max_it);
-    }
-    auto rebuilt_max = MaxTree::from_sequence(std::move(max_values));
-
-    auto min_values = d_min_tree.flatten();
-    auto min_it = std::find(min_values.begin(), min_values.end(), *m);
-    if (min_it != min_values.end()) {
-      min_values.erase(min_it);
-    }
-    auto rebuilt_min = MinTree::from_sequence(std::move(min_values));
+    auto rebuilt_max = remove_one_rebuild(d_max_tree, *m);
+    auto rebuilt_min = remove_one_rebuild(d_min_tree, *m);
 
     return std::pair<T, FingerTreePriorityQueue>{
       *m,
