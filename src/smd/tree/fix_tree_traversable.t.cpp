@@ -44,7 +44,6 @@ TEST_CASE("FixTreeTraversableTest - TraverseOptionalSuccess")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(2));
-    const auto& traversable = smd::traversable_typeclass<Tree>;
 
     auto traversed = smd::traverse(NonNegativePlusOne{}, tree);
 
@@ -57,7 +56,6 @@ TEST_CASE("FixTreeTraversableTest - TraverseOptionalFailure")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(-2));
-    const auto& traversable = smd::traversable_typeclass<Tree>;
 
     auto traversed = smd::traverse(NonNegativePlusOne{}, tree);
 
@@ -81,7 +79,6 @@ TEST_CASE("FixTreeTraversableTest - TraverseLeaf")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::leaf(9);
-    const auto& traversable = smd::traversable_typeclass<Tree>;
 
     auto traversed = smd::traverse(MinusTwo{}, tree);
 
@@ -94,7 +91,6 @@ TEST_CASE("FixTreeTraversableTest - TraverseBemanOptional")
 {
     using Tree = smd::tree::FixTree<int>;
     auto tree = Tree::branch(Tree::leaf(2), Tree::leaf(3));
-    const auto& traversable = smd::traversable_typeclass<Tree>;
 
     auto traversed = smd::traverse(TimesFiveBeman{}, tree);
 

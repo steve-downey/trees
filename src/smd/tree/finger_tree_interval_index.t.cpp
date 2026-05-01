@@ -51,7 +51,6 @@ TEST_CASE("FingerTreeIntervalIndexTest - TraversableTypeclass")
       Entry{3U, 10U, "B"},
       Entry{8U, 12U, "C"}
     });
-    const auto& traversable = smd::traversable_typeclass<Index>;
 
     auto success = smd::traverse(
       [](const std::string& payload) -> std::optional<std::string> {
