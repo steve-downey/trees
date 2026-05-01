@@ -195,10 +195,12 @@ TEST_CASE("ApplicativeTypeclassTest - OptionalEmptyPaths")
     auto no_argument_result = applicative.apply(function, no_argument);
     CHECK_FALSE(no_argument_result.has_value());
 
+    // b4a8c2f7-6d3e-4c1b-9f5a-7e2d4b8a6c09
     std::optional<int> ax{1};
     std::optional<int> ay{};
     auto invoke_result = applicative.invoke([](int a, int b) { return a + b; }, ax, ay);
     CHECK_FALSE(invoke_result.has_value());
+    // b4a8c2f7-6d3e-4c1b-9f5a-7e2d4b8a6c09 end
 }
 
 TEST_CASE("ApplicativeTypeclassTest - DerivedOperations")
@@ -587,7 +589,7 @@ TEST_CASE("ApplicativeLaws - InterchangeLaw")
         std::optional<Fn> u{[](int x) { return x * 3; }};
 
         auto lhs = ap.ap(u, ap.pure(y));
-        auto rhs = ap.ap(ap.pure([y](const Fn& fn) { return fn(y); }), u);
+        auto rhs = ap.ap(ap.pure([](const Fn& fn) { return fn(y); }), u);
 
         REQUIRE(lhs.has_value());
         CHECK(*lhs == 21);
@@ -599,7 +601,7 @@ TEST_CASE("ApplicativeLaws - InterchangeLaw")
         const auto& ap = smd::applicative_typeclass<std::optional<int> >;
         std::optional<Fn> empty{};
         auto lhs = ap.ap(empty, ap.pure(y));
-        auto rhs = ap.ap(ap.pure([y](const Fn& fn) { return fn(y); }), empty);
+        auto rhs = ap.ap(ap.pure([](const Fn& fn) { return fn(y); }), empty);
         CHECK_FALSE(lhs.has_value());
         CHECK(lhs == rhs);
     }
@@ -609,7 +611,7 @@ TEST_CASE("ApplicativeLaws - InterchangeLaw")
         BemanFn u{[](int x) { return x + 8; }};
 
         auto lhs = ap.ap(u, ap.pure(y));
-        auto rhs = ap.ap(ap.pure([y](const Fn& fn) { return fn(y); }), u);
+        auto rhs = ap.ap(ap.pure([](const Fn& fn) { return fn(y); }), u);
 
         REQUIRE(lhs.has_value());
         CHECK(*lhs == 15);
@@ -622,7 +624,7 @@ TEST_CASE("ApplicativeLaws - InterchangeLaw")
         BIFn u{[](int x) { return x - 2; }};
 
         auto lhs = ap.ap(u, ap.pure(y));
-        auto rhs = ap.ap(ap.pure([y](const Fn& fn) { return fn(y); }), u);
+        auto rhs = ap.ap(ap.pure([](const Fn& fn) { return fn(y); }), u);
 
         CHECK(lhs.value == 5);
         CHECK(lhs == rhs);

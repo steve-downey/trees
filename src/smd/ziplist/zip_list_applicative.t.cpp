@@ -112,7 +112,7 @@ TEST_CASE("ZipListApplicativeTest - InterchangeLaw")
 
     auto lhs = applicative.ap(functions, applicative.pure(value));
     auto rhs = applicative.ap(
-        applicative.pure([value](const std::function<int(int)>& function) {
+        applicative.pure([](const std::function<int(int)>& function) {
             return function(value);
         }),
         functions);

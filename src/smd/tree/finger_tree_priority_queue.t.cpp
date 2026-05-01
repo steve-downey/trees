@@ -10,11 +10,13 @@ TEST_CASE("FingerTreePriorityQueueTest - WrapperOperations")
 {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
+    // a4d7f1c6-3b9e-4a2d-f8c4-6e5b1d9c3a07
     auto q = Queue::from_values({5, 2, 8, 2, 7});
     REQUIRE(q.min().has_value());
     REQUIRE(q.max().has_value());
     CHECK(*q.min() == 2);
     CHECK(*q.max() == 8);
+    // a4d7f1c6-3b9e-4a2d-f8c4-6e5b1d9c3a07 end
 
     auto min_pop = q.pop_min();
     REQUIRE(min_pop.has_value());

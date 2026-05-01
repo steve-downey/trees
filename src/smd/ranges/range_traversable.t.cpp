@@ -69,6 +69,7 @@ auto to_vector_of_ziplists(const smd::zip_list<std::vector<int> >& zip_of_vector
 
 TEST_CASE("RangeTraversableTest - TraverseOptionalSuccess")
 {
+    // c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02
     auto values = smd::ranges::from_vector(std::vector<int>{1, 2, 3});
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
 
@@ -80,10 +81,12 @@ TEST_CASE("RangeTraversableTest - TraverseOptionalSuccess")
 
     REQUIRE(traversed.has_value());
     CHECK(collect(*traversed) == (std::vector<int>{2, 3, 4}));
+    // c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02 end
 }
 
 TEST_CASE("RangeTraversableTest - TraverseOptionalFailure")
 {
+    // e9b1d4f2-7c3a-4e8b-f6c2-5d1a9e3b7f04
     auto values = smd::ranges::from_vector(std::vector<int>{1, -2, 3});
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
 
@@ -95,6 +98,7 @@ TEST_CASE("RangeTraversableTest - TraverseOptionalFailure")
         values);
 
     CHECK_FALSE(traversed.has_value());
+    // e9b1d4f2-7c3a-4e8b-f6c2-5d1a9e3b7f04 end
 }
 
 TEST_CASE("RangeTraversableTest - TraverseWithRangeApplicativeEnumeratesChoices")

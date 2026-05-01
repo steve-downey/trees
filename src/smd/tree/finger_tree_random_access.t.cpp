@@ -7,6 +7,7 @@
 
 TEST_CASE("FingerTreeRandomAccessTest - WrapperOperations")
 {
+    // f2a6c9b3-8d1e-4f7a-c5b9-4e2d7a3c6f01
     using Seq = smd::tree::FingerTreeRandomAccess<int>;
 
     auto seq = Seq::from_sequence({1, 2, 3});
@@ -16,6 +17,7 @@ TEST_CASE("FingerTreeRandomAccessTest - WrapperOperations")
 
     auto edited = seq.push_back(4).push_front(0).insert(2, 9).update(3, 7).erase(1);
     CHECK(edited.to_vector() == (std::vector<int>{0, 9, 7, 3, 4}));
+    // f2a6c9b3-8d1e-4f7a-c5b9-4e2d7a3c6f01 end
 }
 
 TEST_CASE("FingerTreeRandomAccessTest - FoldableTypeclass")

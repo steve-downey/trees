@@ -30,7 +30,7 @@ struct FingerTreeRandomAccessTraversableImpl {
     // This improves cache locality and avoids intermediate allocations
     traverse_tree_elements(
       sequence,
-      [&function, &applicative, &accumulated](const T& value) {
+      [&function, &accumulated](const T& value) {
         auto lifted = std::invoke(function, value);
         accumulated = applicative.invoke(
           [](std::vector<U> values, U element) {

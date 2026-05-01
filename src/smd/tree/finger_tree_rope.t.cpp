@@ -9,6 +9,7 @@ TEST_CASE("FingerTreeRopeTest - WrapperOperations")
 {
     using Rope = smd::tree::FingerTreeRope;
 
+    // c8e3b5f9-2a7d-4c1e-b9f3-5a4d2b8c7e06
     auto rope = Rope::from_text("abCDxy", 2)
                     .insert(2, "--")
                     .erase(5, 2)
@@ -16,6 +17,7 @@ TEST_CASE("FingerTreeRopeTest - WrapperOperations")
 
     CHECK(rope.to_string() == "AB--Cy");
     CHECK(rope.size_bytes() == 6U);
+    // c8e3b5f9-2a7d-4c1e-b9f3-5a4d2b8c7e06 end
 }
 
 TEST_CASE("FingerTreeRopeTest - FoldableTypeclass")

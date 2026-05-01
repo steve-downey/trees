@@ -110,7 +110,7 @@ TEST_CASE("TraversableTypeclassTest - IdentityLawWithIdentityApplicative")
     auto value = Identity{42};
 
     auto lhs = traversable.traverse(
-        [&applicative](int x) { return applicative.pure(x); },
+        [](int x) { return applicative.pure(x); },
         value);
     auto rhs = applicative.pure(value);
 
@@ -230,37 +230,37 @@ TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional")
 
 TEST_CASE("TraversableLaws - NaturalityLaw")
 {
-    // η: optional<B> → beman::optional<B> is an applicative morphism:
-    //   η(pure(x)) == pure(x) and η(ap(u,v)) == ap(η(u), η(v))
-    // Naturality law: η(traverse f t) == traverse (η∘f) t
+    // Naturality law: an applicative morphism commutes with traverse.
+    // to_beman: std::optional<B> → beman::optional<B> is one such morphism.
+    // Law: to_beman(traverse f t) == traverse (f_returning_beman) t
     using Identity = smd::typeclass::test::Identity<int>;
     const auto& traversable = smd::traversable_typeclass<Identity>;
 
     auto f = [](int x) -> std::optional<int> {
         return x > 0 ? std::optional<int>{x * 2} : std::optional<int>{};
     };
-    auto eta_f = [](int x) -> beman::optional::optional<int> {
+    auto f_returning_beman = [](int x) -> beman::optional::optional<int> {
         return x > 0 ? beman::optional::optional<int>{x * 2}
                      : beman::optional::optional<int>{};
     };
-    auto eta = [](std::optional<Identity> o) -> beman::optional::optional<Identity> {
+    auto to_beman = [](std::optional<Identity> o) -> beman::optional::optional<Identity> {
         return o.has_value() ? beman::optional::optional<Identity>{*o}
                              : beman::optional::optional<Identity>{};
     };
 
-    // Present case: f(3) == {6}, eta({Identity{6}}) == {Identity{6}}
+    // Present case: f(3) == {6}, to_beman({Identity{6}}) == {Identity{6}}
     // a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43
     {
         auto value = Identity{3};
-        CHECK(eta(traversable.traverse(f, value)) ==
-              traversable.traverse(eta_f, value));
+        CHECK(to_beman(traversable.traverse(f, value)) ==
+              traversable.traverse(f_returning_beman, value));
     }
     // a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43 end
 
-    // Absent case: f(-1) == {}, eta({}) == {}
+    // Absent case: f(-1) == {}, to_beman({}) == {}
     {
         auto value = Identity{-1};
-        CHECK(eta(traversable.traverse(f, value)) ==
-              traversable.traverse(eta_f, value));
+        CHECK(to_beman(traversable.traverse(f, value)) ==
+              traversable.traverse(f_returning_beman, value));
     }
 }

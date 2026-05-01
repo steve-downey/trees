@@ -92,7 +92,6 @@ TEST_CASE("FixTreeTraversableTest - TraverseLeaf")
 TEST_CASE("FixTreeTraversableTest - TraverseBemanOptional")
 {
     using Tree = smd::tree::FixTree<int>;
-    using BemanOptional = beman::optional::optional<int>;
     auto tree = Tree::branch(Tree::leaf(2), Tree::leaf(3));
     const auto& traversable = smd::traversable_typeclass<Tree>;
 
