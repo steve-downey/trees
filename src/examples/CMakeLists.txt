@@ -10,13 +10,13 @@ add_executable(map_example "")
 
 target_sources(map_example PRIVATE map_example.cpp)
 
-target_link_libraries(map_example)
+target_link_libraries(map_example PRIVATE concept_map)
 
 add_executable(cpo_example "")
 
 target_sources(cpo_example PRIVATE cpo_example.cpp)
 
-target_link_libraries(cpo_example)
+target_link_libraries(cpo_example PRIVATE concept_map)
 
 install(
     TARGETS main map_example cpo_example

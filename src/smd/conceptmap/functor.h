@@ -1,3 +1,5 @@
+// src/smd/conceptmap/functor.h                                       -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // smd/conceptmap/functor.h                                           -*-C++-*-
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #ifndef INCLUDED_SMD_CONCEPTMAP_FUNCTOR

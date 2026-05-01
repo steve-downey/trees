@@ -33,6 +33,12 @@ Example:
 - `traversable_examples.cpp`: tree traversal through an optional-like Applicative.
 - `applicative_bad.cpp`: slide example of a compiling but semantically wrong primary tree Applicative.
 
+## ZipList semantics
+
+- `smd::zip_list<T>` follows the standard ZipList Applicative semantics (`Control.Applicative`).
+- `pure(x)` is represented as an infinite repetition of `x`.
+- `apply` and `invoke` zip positionally, truncating to the shortest finite input.
+
 ## Beman optional note
 
 This package includes a tiny compatibility header at `src/beman/optional/optional.hpp` so the examples compile in isolation. In the real repo, prefer the real `beman::optional` dependency.

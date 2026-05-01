@@ -3,29 +3,34 @@
 ## Foldable length example
 
 ```cpp
-auto n = smd::length(tree);
+const auto& foldable = smd::foldable_typeclass<IntTree>;
+auto n = foldable.length(tree);
 ```
 
 ## Applicative invoke example
 
 ```cpp
 using beman::optional::optional;
+const auto& applicative = smd::applicative_typeclass<optional<int> >;
 
 optional<int> ax = 1;
 optional<int> ay = 2;
+optional<int> az = 3;
 
-auto sum = smd::invoke(
-    [](int a, int b) { return a + b; },
+auto sum = applicative.invoke(
+    [](int a, int b, int c) { return a + b + c; },
     ax,
-    ay);
+    ay,
+    az);
 ```
 
 ## Traversable relabel example
 
 ```cpp
 using beman::optional::optional;
+const auto& traversable = smd::traversable_typeclass<IntTree>;
 
-auto relabelled = smd::traverse(
+auto relabelled = traversable.traverse(
     [](int x) -> optional<int> {
         return x >= 0 ? optional<int>{x + 1} : optional<int>{};
     },

@@ -1,12 +1,16 @@
-#ifndef INCLUDE_SMD_TYPECLASS_FUNCTOR_HPP
-#define INCLUDE_SMD_TYPECLASS_FUNCTOR_HPP
+// src/smd/typeclass/functor.hpp                                      -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_FUNCTOR
+#define INCLUDED_SMD_TYPECLASS_FUNCTOR
 
 #include <smd/typeclass/typeclass_base.hpp>
 
 #include <beman/optional/optional.hpp>
 
+#include <algorithm>
 #include <concepts>
 #include <functional>
+#include <iterator>
 #include <optional>
 #include <type_traits>
 #include <utility>
@@ -24,15 +28,17 @@ template <class Impl>
 struct Functor : protected Impl {
     using Impl::fmap;
 
+    // e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02
     template <class T, class U>
     auto replace(this auto&& self, T&& value, U&& replacement)
     {
         return self.fmap(
-            [replacement = std::forward<U>(replacement)](const auto&) mutable {
+            [replacement = std::forward<U>(replacement)](const auto&) {
                 return replacement;
             },
             std::forward<T>(value));
     }
+    // e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02 end
 };
 
 template <class T>
@@ -82,9 +88,8 @@ struct VectorFunctorImpl {
         std::vector<remove_cvref_t<Result> > output;
         output.reserve(values.size());
 
-        for (const auto& value : values) {
-            output.push_back(std::invoke(std::forward<F>(function), value));
-        }
+        std::ranges::transform(values, std::back_inserter(output),
+            [&function](const VALUE_TYPE& v) { return std::invoke(function, v); });
 
         return output;
     }
@@ -121,4 +126,4 @@ inline constexpr auto functor_typeclass<std::vector<VALUE_TYPE> > =
 
 }  // close namespace smd
 
-#endif  // INCLUDE_SMD_TYPECLASS_FUNCTOR_HPP
+#endif  // INCLUDED_SMD_TYPECLASS_FUNCTOR

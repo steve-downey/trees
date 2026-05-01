@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FIX_TREE_APPLICATIVE_HPP
-#define INCLUDE_SMD_TREE_FIX_TREE_APPLICATIVE_HPP
+// src/smd/tree/fix_tree_applicative.hpp                              -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FIX_TREE_APPLICATIVE
+#define INCLUDED_SMD_TREE_FIX_TREE_APPLICATIVE
 
 #include <smd/tree/fix_tree.hpp>
 #include <smd/typeclass/applicative.hpp>
@@ -36,32 +38,11 @@ struct FixTreeApplicativeImpl {
     return smd::tree::FixTree<R>::node(self.apply(fs.left(), xs),
                                        self.apply(fs.right(), xs));
   }
-
-  template <class FUNCTION, class... ARGS>
-  auto invoke(this auto&& self,
-              FUNCTION&& function,
-              const smd::tree::FixTree<ARGS>&... xs)
-  {
-    static_assert(sizeof...(ARGS) > 0,
-            "FixTree applicative invoke needs at least one argument");
-
-    using R = std::invoke_result_t<FUNCTION, const ARGS&...>;
-
-    if ((xs.is_leaf() && ...)) {
-      return smd::tree::FixTree<R>::leaf(
-        std::invoke(std::forward<FUNCTION>(function), xs.value()...));
-    }
-
-    return smd::tree::FixTree<R>::node(
-      self.invoke(std::forward<FUNCTION>(function), xs.left()...),
-      self.invoke(std::forward<FUNCTION>(function), xs.right()...));
-  }
 };
 
 template <class T>
 struct FixTreeApplicativeMap : Applicative<FixTreeApplicativeImpl<T> > {
   using FixTreeApplicativeImpl<T>::apply;
-  using FixTreeApplicativeImpl<T>::invoke;
   using FixTreeApplicativeImpl<T>::pure;
 };
 
