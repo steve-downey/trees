@@ -191,7 +191,7 @@ I only need the intuition here, not full categorical development.
 Source: [cite:@downey2026treesresearch].
 #+end_notes
 
-*** Catamorphisms as principled fold
+*** TODO Catamorphisms as principled fold
 - Catamorphism: apply the algebra recursively until the structure is collapsed.
 - In C++, this corresponds to a disciplined fold over a recursive representation.
 - You get reuse without hardcoding each algorithm into the node type.
@@ -223,13 +223,12 @@ Source: [cite:@downey2026treesresearch].
 
 **** Foldable flattens and loses shape identity
 
-#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::b1fd4b92-b060-4c47-8c08-97328ec02329]]
-:lines 2- :src cpp :end "b1fd4b92-b060-4c47-8c08-97328ec02329 end"
+#+transclude:  [[[[file:src/smd/typeclass/examples/foldable_examples.cpp::b1fd4b92-b060-4c47-8c08-97328ec02329]]]] :lines 2- :src cpp :end "b1fd4b92-b060-4c47-8c08-97328ec02329 end"
 
 **** Traversable maps while preserving shape
 
-#+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::d804ec63-77d1-4fa0-99a6-9effce6f741b]]
-:lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
+#+transclude:  [[file:src/smd/typeclass/examples/traversable_examples.cpp::d804ec63-77d1-4fa0-99a6-9effce6f741b]] :lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
+
 
 #+begin_notes
 Use this as the one-slide intuition.
@@ -277,34 +276,33 @@ Deducing this keeps wrappers generic without losing type information.
 
 **** Fixpoint tree
 
-#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]]
-:lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
+#+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]] :lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
+
 
 **** shared_ptr binary tree
 
-#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4]]
-:lines 2- :src cpp :end "53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end"
+#+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4]] :lines 2- :src cpp :end "53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end"
+
 
 **** fringetree (simplified fingertree)
 
-#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::7c2f11d9-ef09-45e2-80da-9229f3c8d82c]]
-:lines 2- :src cpp :end "7c2f11d9-ef09-45e2-80da-9229f3c8d82c end"
+#+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::7c2f11d9-ef09-45e2-80da-9229f3c8d82c]] :lines 2- :src cpp :end "7c2f11d9-ef09-45e2-80da-9229f3c8d82c end"
 
-#+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]]
-:lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
+
+#+transclude:  [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]] :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
 
 *** Foldable API: one primitive, many derived operations
 - In this repository, the minimal implementation hook is ~fold_map~.
 - User-facing operations like ~length~, ~fold_left~, ~fold_right~, ~fold~, and ~to_vector~ are derived.
 
-#+transclude: [[file:src/smd/typeclass/foldable.hpp::e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2]]
-:lines 2- :src cpp :end "e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end"
+#+transclude:  [[file:src/smd/typeclass/foldable.hpp::e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2]] :lines 2- :src cpp :end "e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end"
+
 
 *** Foldable proof: derived operations hold in tests
 - Derived operations agree operationally with the ~fold_map~ contract.
 
-#+transclude: [[file:src/smd/typeclass/foldable.t.cpp::4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4]]
-:lines 2- :src cpp :end "4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end"
+#+transclude:  [[file:src/smd/typeclass/foldable.t.cpp::4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4]] :lines 2- :src cpp :end "4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end"
+
 
 *** Applicative model: pure function over effectful arguments
 - Applicative captures independent effectful arguments without full monadic sequencing.
@@ -316,22 +314,22 @@ Deducing this keeps wrappers generic without losing type information.
 - This follows McBride's "apply pure functions in effectful contexts" reading, with normalization to ~pure~ + ~apply~ under the covers.
 - ~apply_pure(f, a, b, c)~ is retained only as a teaching alias for audiences coming from FP notation like ~[| f a b c |]~.
 
-#+transclude: [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]]
-:lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
+#+transclude:  [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]] :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
+
 
 *** Applicative API: minimal core, user-facing invoke
 - In this repository, the minimal implementation hooks are ~pure~ and ~apply~.
 - Future-facing user spelling is ~invoke~ over effectful arguments.
 - ~apply_pure~ is retained as a pedagogical alias.
 
-#+transclude: [[file:src/smd/typeclass/applicative.hpp::a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11]]
-:lines 2- :src cpp :end "a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end"
+#+transclude:  [[file:src/smd/typeclass/applicative.hpp::a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11]] :lines 2- :src cpp :end "a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end"
+
 
 *** Applicative proof: n-ary use in tests
 - The same API handles arity > 2 without per-call-site plumbing.
 
-#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b]]
-:lines 2- :src cpp :end "6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end"
+#+transclude:  [[file:src/smd/typeclass/applicative.t.cpp::6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b]] :lines 2- :src cpp :end "6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end"
+
 
 *** Traversable model: commute shape and effect
 - Traversal commutes shape and effect: from shape of effects to effect of shape.
@@ -342,24 +340,24 @@ Deducing this keeps wrappers generic without losing type information.
 - In this repository, the minimal implementation hook is ~traverse~.
 - ~for_each~, ~sequence~, and ~sequence_with~ are derived helper operations.
 
-#+transclude: [[file:src/smd/typeclass/traversable.hpp::8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11]]
-:lines 2- :src cpp :end "8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end"
+#+transclude:  [[file:src/smd/typeclass/traversable.hpp::8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11]] :lines 2- :src cpp :end "8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end"
+
 
 *** Traversable proof: derived operations hold in tests
 - Sequencing works both via implicit lookup and explicit object selection.
 
-#+transclude: [[file:src/smd/typeclass/traversable.t.cpp::f1de12e0-2287-4568-98c7-75be4f6f7446]]
-:lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
+#+transclude:  [[file:src/smd/typeclass/traversable.t.cpp::f1de12e0-2287-4568-98c7-75be4f6f7446]] :lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
+
 
 *** Traversable commute: Range and ZipList
 - Traversable commutes a range of ZipLists into a ZipList of ranges.
 - The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.
 
-#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a]]
-:lines 2- :src cpp :end "0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end"
+#+transclude:  [[file:src/smd/ranges/range_traversable.t.cpp::0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a]] :lines 2- :src cpp :end "0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end"
 
-#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::4be89584-35cc-4933-b3de-6d524d54371d]]
-:lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
+
+#+transclude:  [[file:src/smd/ranges/range_traversable.t.cpp::4be89584-35cc-4933-b3de-6d524d54371d]] :lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
+
 
 #+begin_notes
 Key law intuition: preserve shape and evaluation order discipline.

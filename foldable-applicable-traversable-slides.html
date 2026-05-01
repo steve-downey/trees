@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Generated on 2026-04-30 Thu 14:22 -->
+<!-- Generated on 2026-04-30 Thu 20:00 -->
 <meta charset="utf-8"/>
 <title>Algorithms for Trees: Foldable, Applicative, Traversable</title>
 <meta name="author" content="Steve Downey"/>
@@ -6319,7 +6319,7 @@ img.footerlogo
 <li>
 <ul>
 <li><a href="#/slide-4-0-1">4.0.1. F-algebras: how to collapse one layer</a></li>
-<li><a href="#/slide-4-0-2">4.0.2. Catamorphisms as principled fold</a></li>
+<li><a href="#/slide-4-0-2">4.0.2. <span class="todo TODO">TODO</span> Catamorphisms as principled fold</a></li>
 <li><a href="#/slide-4-0-3">4.0.3. Separating recursion from business logic</a></li>
 </ul>
 </li>
@@ -6581,7 +6581,7 @@ Source: (Steve Downey, 2026).
 </aside>
 </section>
 <section id="slide-4-0-2">
-<h4 id="4-0-2"><span class="section-number-4">4.0.2.</span> Catamorphisms as principled fold</h4>
+<h4 id="4-0-2"><span class="section-number-4">4.0.2.</span> <span class="todo TODO">TODO</span> Catamorphisms as principled fold</h4>
 <ul>
 <li>Catamorphism: apply the algebra recursively until the structure is collapsed.</li>
 <li>In C++, this corresponds to a disciplined fold over a recursive representation.</li>
@@ -6639,53 +6639,22 @@ Source: (Steve Downey, 2026).
 </ul>
 <ol class="org-ol">
 <li><a id="5-0-2-1"></a>Foldable flattens and loses shape identity<br />
-<p>
-<i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
-auto left_flat = foldable.to_vector(left_heavy);
-auto right_flat = foldable.to_vector(right_heavy);
-/</i> b1fd4b92-b060-4c47-8c08-97328ec02329 end
-</p>
+<div class="org-src-container">
 
-<p>
-	return left_flat == right_flat;
-}
-</p>
-
-<p>
-}  // close namespace smd::typeclass::examples
-:lines 2- :src cpp :end "b1fd4b92-b060-4c47-8c08-97328ec02329 end"
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">left_flat</span> = foldable.to_vector(left_heavy);
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">right_flat</span> = foldable.to_vector(right_heavy);
+</pre>
+</div>
 </li>
 <li><a id="5-0-2-2"></a>Traversable maps while preserving shape<br />
-<p>
-<i>/ d804ec63-77d1-4fa0-99a6-9effce6f741b
-auto mapped = traversable.traverse(
-    [](int x) -&gt; optional&lt;int&gt; { return optional&lt;int&gt;{x + 10}; },
+<div class="org-src-container">
+
+<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">mapped</span> = traversable.traverse(
+    [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{x + 10}; },
     tree);
-/</i> d804ec63-77d1-4fa0-99a6-9effce6f741b end
-</p>
+</pre>
+</div>
 
-<p>
-if (!mapped || mapped-&gt;is_leaf()) {
-	return false;
-}
-</p>
-
-<p>
-	return mapped-&gt;left().is_leaf() &amp;&amp;
-		     mapped-&gt;left().value() <code>= 11 &amp;&amp;
-		     !mapped-&gt;right().is_leaf() &amp;&amp;
-		     mapped-&gt;right().left().is_leaf() &amp;&amp;
-		     mapped-&gt;right().left().value() =</code> 12 &amp;&amp;
-		     mapped-&gt;right().right().is_leaf() &amp;&amp;
-		     mapped-&gt;right().right().value() == 13;
-}
-</p>
-
-<p>
-}  // close namespace smd::typeclass::examples
-:lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
-</p>
 
 <aside class="notes">
 <p>
@@ -6762,285 +6731,38 @@ Deducing this keeps wrappers generic without losing type information.
 </ul>
 <ol class="org-ol">
 <li><a id="5-0-6-1"></a>Fixpoint tree<br />
-<p>
-<i>/ 9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa
-auto n = foldable.length(tree);
-/</i> 9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end
-</p>
+<div class="org-src-container">
 
-<p>
-    return n;
-}
-</p>
-
-<p>
-auto generic_length_binary_tree_example() -&gt; std::size_t
-{
-    using IntBinaryTree = smd::tree::BinaryTree&lt;int&gt;;
-    auto tree = IntBinaryTree::from_children_ptrs(
-      2,
-      IntBinaryTree::make_ptr(IntBinaryTree::leaf(1)),
-      IntBinaryTree::make_ptr(IntBinaryTree::from_children_ptrs(
-	3,
-	{},
-	IntBinaryTree::make_ptr(IntBinaryTree::leaf(4)))));
-</p>
-
-<p>
-const auto&amp; foldable = smd::foldable_typeclass&lt;IntBinaryTree&gt;;
-</p>
-
-<p>
-<i>/ 53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4
-auto n = foldable.length(tree);
-/</i> 53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end
-</p>
-
-<p>
-    return n;
-}
-</p>
-
-<p>
-auto generic_length_fringe_tree_example() -&gt; std::size_t
-{
-	using Fringe = smd::tree::FringeTree&lt;int&gt;;
-	auto tree = Fringe::branch(
-	    Fringe::branch(Fringe::leaf(1), Fringe::leaf(2)),
-	    Fringe::leaf(3));
-</p>
-
-<p>
-const auto&amp; foldable = smd::foldable_typeclass&lt;Fringe&gt;;
-</p>
-
-<p>
-<i>/ 7c2f11d9-ef09-45e2-80da-9229f3c8d82c
-auto n = foldable.length(tree);
-/</i> 7c2f11d9-ef09-45e2-80da-9229f3c8d82c end
-</p>
-
-<p>
-	return n;
-}
-</p>
-
-<p>
-auto foldable_flattens_shape_example() -&gt; bool
-{
-	using Tree = smd::tree::FixTree&lt;int&gt;;
-	auto left_heavy = Tree::branch(
-	    Tree::leaf(1),
-	    Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-	auto right_heavy = Tree::branch(
-	    Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-	    Tree::leaf(3));
-</p>
-
-<p>
-const auto&amp; foldable = smd::foldable_typeclass&lt;Tree&gt;;
-</p>
-
-<p>
-<i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
-auto left_flat = foldable.to_vector(left_heavy);
-auto right_flat = foldable.to_vector(right_heavy);
-/</i> b1fd4b92-b060-4c47-8c08-97328ec02329 end
-</p>
-
-<p>
-	return left_flat == right_flat;
-}
-</p>
-
-<p>
-}  // close namespace smd::typeclass::examples
-:lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
+</pre>
+</div>
 </li>
 <li><a id="5-0-6-2"></a>shared_ptr binary tree<br />
-<p>
-<i>/ 53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4
-auto n = foldable.length(tree);
-/</i> 53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end
-</p>
+<div class="org-src-container">
 
-<p>
-    return n;
-}
-</p>
-
-<p>
-auto generic_length_fringe_tree_example() -&gt; std::size_t
-{
-	using Fringe = smd::tree::FringeTree&lt;int&gt;;
-	auto tree = Fringe::branch(
-	    Fringe::branch(Fringe::leaf(1), Fringe::leaf(2)),
-	    Fringe::leaf(3));
-</p>
-
-<p>
-const auto&amp; foldable = smd::foldable_typeclass&lt;Fringe&gt;;
-</p>
-
-<p>
-<i>/ 7c2f11d9-ef09-45e2-80da-9229f3c8d82c
-auto n = foldable.length(tree);
-/</i> 7c2f11d9-ef09-45e2-80da-9229f3c8d82c end
-</p>
-
-<p>
-	return n;
-}
-</p>
-
-<p>
-auto foldable_flattens_shape_example() -&gt; bool
-{
-	using Tree = smd::tree::FixTree&lt;int&gt;;
-	auto left_heavy = Tree::branch(
-	    Tree::leaf(1),
-	    Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-	auto right_heavy = Tree::branch(
-	    Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-	    Tree::leaf(3));
-</p>
-
-<p>
-const auto&amp; foldable = smd::foldable_typeclass&lt;Tree&gt;;
-</p>
-
-<p>
-<i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
-auto left_flat = foldable.to_vector(left_heavy);
-auto right_flat = foldable.to_vector(right_heavy);
-/</i> b1fd4b92-b060-4c47-8c08-97328ec02329 end
-</p>
-
-<p>
-	return left_flat == right_flat;
-}
-</p>
-
-<p>
-}  // close namespace smd::typeclass::examples
-:lines 2- :src cpp :end "53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end"
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
+</pre>
+</div>
 </li>
 <li><a id="5-0-6-3"></a>fringetree (simplified fingertree)<br />
-<p>
-<i>/ 7c2f11d9-ef09-45e2-80da-9229f3c8d82c
-auto n = foldable.length(tree);
-/</i> 7c2f11d9-ef09-45e2-80da-9229f3c8d82c end
-</p>
+<div class="org-src-container">
 
-<p>
-	return n;
-}
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
+</pre>
+</div>
 
-<p>
-auto foldable_flattens_shape_example() -&gt; bool
-{
-	using Tree = smd::tree::FixTree&lt;int&gt;;
-	auto left_heavy = Tree::branch(
-	    Tree::leaf(1),
-	    Tree::branch(Tree::leaf(2), Tree::leaf(3)));
-	auto right_heavy = Tree::branch(
-	    Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-	    Tree::leaf(3));
-</p>
 
-<p>
-const auto&amp; foldable = smd::foldable_typeclass&lt;Tree&gt;;
-</p>
+<div class="org-src-container">
 
-<p>
-<i>/ b1fd4b92-b060-4c47-8c08-97328ec02329
-auto left_flat = foldable.to_vector(left_heavy);
-auto right_flat = foldable.to_vector(right_heavy);
-/</i> b1fd4b92-b060-4c47-8c08-97328ec02329 end
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">beman</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>::optional;
 
-<p>
-	return left_flat == right_flat;
-}
-</p>
-
-<p>
-}  // close namespace smd::typeclass::examples
-:lines 2- :src cpp :end "7c2f11d9-ef09-45e2-80da-9229f3c8d82c end"
-</p>
-
-<p>
-// 5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2
-using beman::optional::optional;
-</p>
-
-<p>
-auto relabelled = traversable.traverse(
-    [](int x) -&gt; optional&lt;int&gt; {
-	return x &gt;= 0 ? optional&lt;int&gt;{x + 1} : optional&lt;int&gt;{};
-    },
-    tree);
-// 5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end
-</p>
-
-<p>
-if (!relabelled) {
-    return {};
-}
-</p>
-
-<p>
-    const auto&amp; foldable = smd::foldable_typeclass&lt;IntTree&gt;;
-    return foldable.length(*relabelled);
-}
-</p>
-
-<p>
-auto traversable_preserves_shape_example() -&gt; bool
-{
-	using IntTree = smd::tree::FixTree&lt;int&gt;;
-	using beman::optional::optional;
-</p>
-
-<p>
-auto tree = IntTree::branch(
-    IntTree::leaf(1),
-    IntTree::branch(IntTree::leaf(2), IntTree::leaf(3)));
-const auto&amp; traversable = smd::traversable_typeclass&lt;IntTree&gt;;
-</p>
-
-<p>
-<i>/ d804ec63-77d1-4fa0-99a6-9effce6f741b
-auto mapped = traversable.traverse(
-    [](int x) -&gt; optional&lt;int&gt; { return optional&lt;int&gt;{x + 10}; },
-    tree);
-/</i> d804ec63-77d1-4fa0-99a6-9effce6f741b end
-</p>
-
-<p>
-if (!mapped || mapped-&gt;is_leaf()) {
-	return false;
-}
-</p>
-
-<p>
-	return mapped-&gt;left().is_leaf() &amp;&amp;
-		     mapped-&gt;left().value() <code>= 11 &amp;&amp;
-		     !mapped-&gt;right().is_leaf() &amp;&amp;
-		     mapped-&gt;right().left().is_leaf() &amp;&amp;
-		     mapped-&gt;right().left().value() =</code> 12 &amp;&amp;
-		     mapped-&gt;right().right().is_leaf() &amp;&amp;
-		     mapped-&gt;right().right().value() == 13;
-}
-</p>
-
-<p>
-}  // close namespace smd::typeclass::examples
-:lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
-</p>
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">relabelled</span> = traversable.traverse(
+        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
+            <span style="font-weight: bold;">return</span> x &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{x + 1} : <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
+        },
+        tree);
+</pre>
+</div>
 </li>
 </ol>
 </section>
@@ -7048,249 +6770,144 @@ if (!mapped || mapped-&gt;is_leaf()) {
 <h4 id="5-0-7"><span class="section-number-4">5.0.7.</span> Foldable API: one primitive, many derived operations</h4>
 <ul>
 <li>In this repository, the minimal implementation hook is <code>fold_map</code>.</li>
-<li><p>
-User-facing operations like <code>length</code>, <code>fold_left</code>, <code>fold_right</code>, <code>fold</code>, and <code>to_vector</code> are derived.
-</p>
-
-<p>
-// e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2
-</p>
-
-<p>
-template &lt;class T&gt;
-auto length(this auto&amp;&amp; self, T&amp;&amp; value) -&gt; std::size_t
-{
-  const auto count = self.fold_map(
-    [](const auto&amp;) { return typeclass::Count{1}; },
-    std::forward&lt;T&gt;(value));
-  return count.d_value;
-}
-</p>
-
-<p>
-template &lt;class T, class STATE, class F&gt;
-auto fold_left(this auto&amp;&amp; self, T&amp;&amp; value, STATE initial_state, F&amp;&amp; function)
-{
-  using StateType = remove_cvref_t&lt;STATE&gt;;
-  auto step = std::forward&lt;F&gt;(function);
-</p>
-
-<p>
-const auto program = self.fold_map(
-  [&amp;step](const auto&amp; x) {
-    using ValueType = remove_cvref_t&lt;decltype(x)&gt;;
-    return detail::LeftFoldProgram&lt;StateType&gt;{
-      [x_copy = ValueType(x), &amp;step](StateType s) {
-	return std::invoke(step, std::move(s), x_copy);
-      }};
-  },
-  std::forward&lt;T&gt;(value));
-</p>
-
-<p>
-  return program(StateType(std::move(initial_state)));
-}
-</p>
-
-<p>
-template &lt;class T, class STATE, class F&gt;
-auto fold_right(this auto&amp;&amp; self, T&amp;&amp; value, STATE initial_state, F&amp;&amp; function)
-{
-  using StateType = remove_cvref_t&lt;STATE&gt;;
-  auto step = std::forward&lt;F&gt;(function);
-</p>
-
-<p>
-const auto program = self.fold_map(
-  [&amp;step](const auto&amp; x) {
-    using ValueType = remove_cvref_t&lt;decltype(x)&gt;;
-    return detail::RightFoldProgram&lt;StateType&gt;{
-      [x_copy = ValueType(x), &amp;step](StateType s) {
-	return std::invoke(step, x_copy, std::move(s));
-      }};
-  },
-  std::forward&lt;T&gt;(value));
-</p>
-
-<p>
-  return program(StateType(std::move(initial_state)));
-}
-</p>
-
-<p>
-template &lt;class T&gt;
-auto combine_all(this auto&amp;&amp; self, T&amp;&amp; value)
-{
-  return self.fold_map([](const auto&amp; x) { return x; },
-	     std::forward&lt;T&gt;(value));
-}
-</p>
-
-<p>
-template &lt;class T&gt;
-auto fold(this auto&amp;&amp; self, T&amp;&amp; value)
-{
-  return self.combine_all(std::forward&lt;T&gt;(value));
-}
-</p>
-
-<p>
-template &lt;class T, class PREDICATE&gt;
-auto any_of(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate) -&gt; bool
-{
-  const auto result = self.fold_map(
-    [&amp;predicate](const auto&amp; x) {
-      return detail::Any{std::invoke(predicate, x)};
-    },
-    std::forward&lt;T&gt;(value));
-</p>
-
-<p>
-  return result.d_value;
-}
-</p>
-
-<p>
-template &lt;class T, class PREDICATE&gt;
-auto all_of(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate) -&gt; bool
-{
-  const auto result = self.fold_map(
-    [&amp;predicate](const auto&amp; x) {
-      return detail::All{std::invoke(predicate, x)};
-    },
-    std::forward&lt;T&gt;(value));
-</p>
-
-<p>
-  return result.d_value;
-}
-</p>
-
-<p>
-template &lt;class T&gt;
-auto empty(this auto&amp;&amp; self, T&amp;&amp; value) -&gt; bool
-{
-  return !self.any_of(std::forward&lt;T&gt;(value), [](const auto&amp;) {
-    return true;
-  });
-}
-</p>
-
-<p>
-template &lt;class T&gt;
-auto to_vector(this auto&amp;&amp; self, T&amp;&amp; value)
-{
-  return self.fold_map(
-    [](const auto&amp; x) {
-      using ValueType = remove_cvref_t&lt;decltype(x)&gt;;
-      return std::vector&lt;ValueType&gt;{x};
-    },
-    std::forward&lt;T&gt;(value));
-}
-// e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end
-</p>
-
-<p>
-template &lt;class T, class PREDICATE&gt;
-auto find_first(this auto&amp;&amp; self, T&amp;&amp; value, PREDICATE&amp;&amp; predicate)
-{
-  const auto result = self.fold_map(
-    [&amp;predicate](const auto&amp; x) {
-      using X = remove_cvref_t&lt;decltype(x)&gt;;
-      if (std::invoke(predicate, x)) {
-	return detail::First&lt;X&gt;{{x}};
-      }
-      return detail::First&lt;X&gt;{{}};
-    },
-    std::forward&lt;T&gt;(value));
-</p>
-
-<p>
-  return result.d_value;
-}
-</p></li>
+<li>User-facing operations like <code>length</code>, <code>fold_left</code>, <code>fold_right</code>, <code>fold</code>, and <code>to_vector</code> are derived.</li>
 
 </ul>
-<p>
-};
-</p>
 
-<p>
-template &lt;class T&gt;
-inline constexpr auto foldable_typeclass = std::false_type{};
-</p>
+<div class="org-src-container">
 
-<p>
-}  // close namespace smd
-</p>
+<pre class="src src-cpp">
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">length</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">size_t</span>
+{
+  <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">count</span> = self.fold_map(
+    [](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp;) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">typeclass</span>::Count{1}; },
+    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+  <span style="font-weight: bold;">return</span> count.d_value;
+}
 
-<p>
-#endif
-:lines 2- :src cpp :end "e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end"
-</p>
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">STATE</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">F</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">fold_left</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>, <span style="font-weight: bold; text-decoration: underline;">STATE</span> <span style="font-weight: bold; font-style: italic;">initial_state</span>, <span style="font-weight: bold; text-decoration: underline;">F</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">function</span>)
+{
+  <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">StateType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold; text-decoration: underline;">STATE</span>&gt;;
+  <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">step</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">F</span>&gt;(function);
+
+  <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">program</span> = self.fold_map(
+    [&amp;<span style="font-weight: bold; font-style: italic;">step</span>](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) {
+        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">ValueType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;;
+        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">detail</span>::<span style="font-weight: bold; text-decoration: underline;">LeftFoldProgram</span>&lt;StateType&gt;{
+          [<span style="font-weight: bold; font-style: italic;">x_copy</span> = ValueType(x), &amp;<span style="font-weight: bold; font-style: italic;">step</span>](<span style="font-weight: bold; text-decoration: underline;">StateType</span> <span style="font-weight: bold; font-style: italic;">s</span>) {
+            <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::invoke(step, <span style="font-weight: bold; text-decoration: underline;">std</span>::move(s), x_copy);
+          }};
+    },
+    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+
+  <span style="font-weight: bold;">return</span> program(StateType(<span style="font-weight: bold; text-decoration: underline;">std</span>::move(initial_state)));
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">STATE</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">F</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">fold_right</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>, <span style="font-weight: bold; text-decoration: underline;">STATE</span> <span style="font-weight: bold; font-style: italic;">initial_state</span>, <span style="font-weight: bold; text-decoration: underline;">F</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">function</span>)
+{
+  <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">StateType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold; text-decoration: underline;">STATE</span>&gt;;
+  <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">step</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">F</span>&gt;(function);
+
+  <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">program</span> = self.fold_map(
+    [&amp;<span style="font-weight: bold; font-style: italic;">step</span>](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) {
+        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">ValueType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;;
+        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">detail</span>::<span style="font-weight: bold; text-decoration: underline;">RightFoldProgram</span>&lt;<span style="font-weight: bold; text-decoration: underline;">StateType</span>&gt;{
+          [<span style="font-weight: bold; font-style: italic;">x_copy</span> = ValueType(x), &amp;<span style="font-weight: bold; font-style: italic;">step</span>](<span style="font-weight: bold; text-decoration: underline;">StateType</span> <span style="font-weight: bold; font-style: italic;">s</span>) {
+            <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::invoke(step, x_copy, <span style="font-weight: bold; text-decoration: underline;">std</span>::move(s));
+          }};
+    },
+    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+
+  <span style="font-weight: bold;">return</span> program(StateType(<span style="font-weight: bold; text-decoration: underline;">std</span>::move(initial_state)));
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">combine_all</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
+{
+  <span style="font-weight: bold;">return</span> self.fold_map([](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x; },
+               <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">fold</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
+{
+  <span style="font-weight: bold;">return</span> self.combine_all(<span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">PREDICATE</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">any_of</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>, <span style="font-weight: bold; text-decoration: underline;">PREDICATE</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">predicate</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">bool</span>
+{
+  <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">result</span> = self.fold_map(
+    [&amp;<span style="font-weight: bold; font-style: italic;">predicate</span>](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) {
+        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">detail</span>::Any{<span style="font-weight: bold; text-decoration: underline;">std</span>::invoke(predicate, x)};
+    },
+    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+
+  <span style="font-weight: bold;">return</span> result.d_value;
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">PREDICATE</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">all_of</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>, <span style="font-weight: bold; text-decoration: underline;">PREDICATE</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">predicate</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">bool</span>
+{
+  <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">result</span> = self.fold_map(
+    [&amp;<span style="font-weight: bold; font-style: italic;">predicate</span>](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) {
+        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">detail</span>::All{<span style="font-weight: bold; text-decoration: underline;">std</span>::invoke(predicate, x)};
+    },
+    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+
+  <span style="font-weight: bold;">return</span> result.d_value;
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">empty</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">bool</span>
+{
+  <span style="font-weight: bold;">return</span> !self.any_of(<span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value), [](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp;) {
+    <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">true</span>;
+  });
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">to_vector</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
+{
+  <span style="font-weight: bold;">return</span> self.fold_map(
+    [](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) {
+        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">ValueType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;;
+        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;ValueType&gt;{x};
+    },
+    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+}
+</pre>
+</div>
 </section>
 <section id="slide-5-0-8">
 <h4 id="5-0-8"><span class="section-number-4">5.0.8.</span> Foldable proof: derived operations hold in tests</h4>
 <ul>
-<li><p>
-Derived operations agree operationally with the <code>fold_map</code> contract.
-</p>
-
-<p>
-// 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4
-using IntSequence = smd::typeclass::test::Sequence&lt;int&gt;;
-auto sequence = IntSequence{{1, 2, 3}};
-const auto&amp; int_foldable = smd::foldable_typeclass&lt;IntSequence&gt;;
-</p>
-
-<p>
-const auto as_vector = int_foldable.to_vector(sequence);
-CHECK(as_vector == (std::vector&lt;int&gt;{1, 2, 3}));
-</p>
-
-<p>
-using VectorSequence = smd::typeclass::test::Sequence&lt;std::vector&lt;int&gt; &gt;;
-auto vectors = VectorSequence{{{1, 2}, {3}}};
-const auto&amp; vector_foldable = smd::foldable_typeclass&lt;VectorSequence&gt;;
-const auto combined = vector_foldable.combine_all(vectors);
-CHECK(combined == (std::vector&lt;int&gt;{1, 2, 3}));
-</p>
-
-<p>
-const auto folded = vector_foldable.fold(vectors);
-CHECK(folded == (std::vector&lt;int&gt;{1, 2, 3}));
-// 4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end
-</p></li>
+<li>Derived operations agree operationally with the <code>fold_map</code> contract.</li>
 
 </ul>
-<p>
-}
-</p>
 
-<p>
-TEST_CASE("FoldableTypeclassTest - AllOfAndFindFirstEdgeCases")
-{
-    using Sequence = smd::typeclass::test::Sequence&lt;int&gt;;
-    const auto&amp; foldable = smd::foldable_typeclass&lt;Sequence&gt;;
-</p>
+<div class="org-src-container">
 
-<p>
-auto mixed = Sequence{{2, -1, 4}};
-CHECK_FALSE(foldable.all_of(mixed, [](int x) { return x &gt; 0; }));
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">IntSequence</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">test</span>::<span style="font-weight: bold; text-decoration: underline;">Sequence</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequence</span> = IntSequence{{1, 2, 3}};
+<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">int_foldable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">foldable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">IntSequence</span>&gt;;
 
-<p>
-auto found_even = foldable.find_first(mixed, [](int x) { return x % 2 <code>= 0; });
-    REQUIRE(found_even.has_value());
-    CHECK(*found_even =</code> 2);
-</p>
+<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">as_vector</span> = int_foldable.to_vector(sequence);
+CHECK(as_vector == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2, 3}));
 
-<p>
-    auto found_large = foldable.find_first(mixed, [](int x) { return x &gt; 100; });
-    CHECK_FALSE(found_large.has_value());
-}
-:lines 2- :src cpp :end "4c8a5f77-8a62-4f1b-a9cf-95452c4b8ea4 end"
-</p>
+<span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">VectorSequence</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">test</span>::<span style="font-weight: bold; text-decoration: underline;">Sequence</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">vectors</span> = VectorSequence{{{1, 2}, {3}}};
+<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">vector_foldable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">foldable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">VectorSequence</span>&gt;;
+<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">combined</span> = vector_foldable.combine_all(vectors);
+CHECK(combined == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2, 3}));
+
+<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">folded</span> = vector_foldable.fold(vectors);
+CHECK(folded == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2, 3}));
+</pre>
+</div>
 </section>
 <section id="slide-5-0-9">
 <h4 id="5-0-9"><span class="section-number-4">5.0.9.</span> Applicative model: pure function over effectful arguments</h4>
@@ -7302,1104 +6919,97 @@ auto found_even = foldable.find_first(mixed, [](int x) { return x % 2 <code>= 0;
 <li>Public API should read as ordinary invocation over effectful values.</li>
 <li>Prefer <code>invoke</code> for C++ audiences; it aligns with the <code>std::invoke</code> mental model.</li>
 <li>This follows McBride's "apply pure functions in effectful contexts" reading, with normalization to <code>pure</code> + <code>apply</code> under the covers.</li>
-<li><p>
-<code>apply_pure(f, a, b, c)</code> is retained only as a teaching alias for audiences coming from FP notation like <code>[| f a b c |]</code>.
-</p>
-
-<p>
-<i>/ 3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11
-auto sum = applicative.invoke(
-    [](int a, int b, int c) { return a + b + c; },
-    ax,
-    ay,
-    az);
-/</i> 3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end
-</p>
-
-<p>
-return sum;
-</p></li>
+<li><code>apply_pure(f, a, b, c)</code> is retained only as a teaching alias for audiences coming from FP notation like <code>[| f a b c |]</code>.</li>
 
 </ul>
-<p>
-}
-</p>
 
-<p>
-}  // close namespace smd::typeclass::examples
-:lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
-</p>
+<div class="org-src-container">
+
+<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sum</span> = applicative.invoke(
+        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a + b + c; },
+        ax,
+        ay,
+        az);
+</pre>
+</div>
 </section>
 <section id="slide-5-0-10">
 <h4 id="5-0-10"><span class="section-number-4">5.0.10.</span> Applicative API: minimal core, user-facing invoke</h4>
 <ul>
 <li>In this repository, the minimal implementation hooks are <code>pure</code> and <code>apply</code>.</li>
 <li>Future-facing user spelling is <code>invoke</code> over effectful arguments.</li>
-<li><p>
-<code>apply_pure</code> is retained as a pedagogical alias.
-</p>
-
-<p>
-<i>/ a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11
-/</i> Teaching-friendly alias for "apply pure function to effectful arguments".
-// Prefer invoke as the primary C++ spelling (std::invoke model).
-template &lt;class FUNCTION, class FIRST_ARGUMENT, class&hellip; REST_ARGUMENTS&gt;
-auto apply_pure(this auto&amp;&amp; self,
-		FUNCTION&amp;&amp; function,
-		FIRST_ARGUMENT&amp;&amp; first_argument,
-		REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
-{
-  return self.invoke(std::forward&lt;FUNCTION&gt;(function),
-		     std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-		     std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-}
-</p>
-
-<p>
-template &lt;class FUNCTION, class FIRST_ARGUMENT, class&hellip; REST_ARGUMENTS&gt;
-auto invoke(this auto&amp;&amp; self,
-	    FUNCTION&amp;&amp; function,
-	    FIRST_ARGUMENT&amp;&amp; first_argument,
-	    REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
-{
-  using SELF = std::remove_reference_t&lt;decltype(self)&gt;;
-  using IMPL_BASE =
-    std::conditional_t&lt;std::is_const_v&lt;SELF&gt;, const Impl, Impl&gt;;
-</p>
-
-<p>
-  if constexpr (requires(IMPL_BASE&amp; impl) {
-		  impl.invoke(std::forward&lt;FUNCTION&gt;(function),
-			      std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-			      std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-		}) {
-    return static_cast&lt;IMPL_BASE&amp;&gt;(self).invoke(
-      std::forward&lt;FUNCTION&gt;(function),
-      std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-      std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-  } else {
-    auto lifted_function =
-      self.pure(detail::make_terminating_partial(std::forward&lt;FUNCTION&gt;(function)));
-    return self.apply_chain(
-      self.ap(std::move(lifted_function), std::forward&lt;FIRST_ARGUMENT&gt;(first_argument)),
-      std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-  }
-}
-// a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end
-</p>
-
-<p>
-private:
- template &lt;class ACCUMULATED&gt;
- auto apply_chain(this auto&amp;&amp;, ACCUMULATED&amp;&amp; accumulated)
- {
-   return std::forward&lt;ACCUMULATED&gt;(accumulated);
- }
-</p>
-
-<p>
-template &lt;class ACCUMULATED, class NEXT_ARGUMENT, class&hellip; REST_ARGUMENTS&gt;
-auto apply_chain(this auto&amp;&amp; self,
-		 ACCUMULATED&amp;&amp; accumulated,
-		 NEXT_ARGUMENT&amp;&amp; next_argument,
-		 REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
-{
-  auto next = self.ap(std::forward&lt;ACCUMULATED&gt;(accumulated),
-		      std::forward&lt;NEXT_ARGUMENT&gt;(next_argument));
-  if constexpr (sizeof&hellip;(REST_ARGUMENTS) == 0) {
-    return next;
-  } else {
-    return self.apply_chain(std::move(next),
-			    std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-  }
-}
-</p>
-
-<p>
-public:
- template &lt;class FUNCTION, class ARGUMENT&gt;
- auto map(this auto&amp;&amp; self, FUNCTION&amp;&amp; function, ARGUMENT&amp;&amp; argument)
- {
-   return self.invoke(std::forward&lt;FUNCTION&gt;(function),
-		      std::forward&lt;ARGUMENT&gt;(argument));
- }
-</p>
-
-<p>
-template &lt;class VALUE&gt;
-auto lift(this auto&amp;&amp; self, VALUE&amp;&amp; value)
-{
-  return self.pure(std::forward&lt;VALUE&gt;(value));
-}
-</p>
-
-<p>
-template &lt;class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT&gt;
-auto ap(this auto&amp;&amp; self,
-	FUNCTION_IN_CONTEXT&amp;&amp; function,
-	ARGUMENT_IN_CONTEXT&amp;&amp; argument)
-{
-  return self.apply(std::forward&lt;FUNCTION_IN_CONTEXT&gt;(function),
-		    std::forward&lt;ARGUMENT_IN_CONTEXT&gt;(argument));
-}
-</p>
-
-<p>
-template &lt;class FUNCTION, class FIRST_ARGUMENT, class SECOND_ARGUMENT&gt;
-auto zip_with(this auto&amp;&amp; self,
-	      FUNCTION&amp;&amp; function,
-	      FIRST_ARGUMENT&amp;&amp; first_argument,
-	      SECOND_ARGUMENT&amp;&amp; second_argument)
-{
-  return self.invoke(std::forward&lt;FUNCTION&gt;(function),
-		     std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-		     std::forward&lt;SECOND_ARGUMENT&gt;(second_argument));
-}
-</p>
-
-<p>
-template &lt;class FIRST_ARGUMENT, class SECOND_ARGUMENT&gt;
-auto discard_first(this auto&amp;&amp; self,
-		   FIRST_ARGUMENT&amp;&amp; first_argument,
-		   SECOND_ARGUMENT&amp;&amp; second_argument)
-{
-  return self.invoke(
-    [](const auto&amp;, auto&amp;&amp; rhs) {
-      return std::forward&lt;decltype(rhs)&gt;(rhs);
-    },
-    std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-    std::forward&lt;SECOND_ARGUMENT&gt;(second_argument));
-}
-</p>
-
-<p>
-template &lt;class FIRST_ARGUMENT, class SECOND_ARGUMENT&gt;
-auto discard_second(this auto&amp;&amp; self,
-		    FIRST_ARGUMENT&amp;&amp; first_argument,
-		    SECOND_ARGUMENT&amp;&amp; second_argument)
-{
-  return self.invoke(
-    [](auto&amp;&amp; lhs, const auto&amp;) {
-      return std::forward&lt;decltype(lhs)&gt;(lhs);
-    },
-    std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-    std::forward&lt;SECOND_ARGUMENT&gt;(second_argument));
-}
-</p>
-
-<p>
-template &lt;class APPLICATIVE_MAP,
-	  class FUNCTION,
-	  class FIRST_ARGUMENT,
-	  class&hellip; REST_ARGUMENTS&gt;
-auto invoke_with(this auto&amp;&amp;,
-		 const APPLICATIVE_MAP&amp; applicative_map,
-		 FUNCTION&amp;&amp; function,
-		 FIRST_ARGUMENT&amp;&amp; first_argument,
-		 REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
-{
-  return applicative_map.invoke(std::forward&lt;FUNCTION&gt;(function),
-				std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-				std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-}
-</p>
-
-<p>
-template &lt;class APPLICATIVE_MAP,
-	  class FUNCTION,
-	  class FIRST_ARGUMENT,
-	  class&hellip; REST_ARGUMENTS&gt;
-auto apply_pure_with(this auto&amp;&amp;,
-		     const APPLICATIVE_MAP&amp; applicative_map,
-		     FUNCTION&amp;&amp; function,
-		     FIRST_ARGUMENT&amp;&amp; first_argument,
-		     REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
-{
-  return applicative_map.invoke(std::forward&lt;FUNCTION&gt;(function),
-				std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-				std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-}
-</p>
-
-<p>
-template &lt;const auto&amp; APPLICATIVE_MAP,
-	  class FUNCTION,
-	  class FIRST_ARGUMENT,
-	  class&hellip; REST_ARGUMENTS&gt;
-auto invoke_with(this auto&amp;&amp;,
-		 FUNCTION&amp;&amp; function,
-		 FIRST_ARGUMENT&amp;&amp; first_argument,
-		 REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
-{
-  return APPLICATIVE_MAP.invoke(std::forward&lt;FUNCTION&gt;(function),
-				std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-				std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-}
-</p>
-
-<p>
-template &lt;const auto&amp; APPLICATIVE_MAP,
-	  class FUNCTION,
-	  class FIRST_ARGUMENT,
-	  class&hellip; REST_ARGUMENTS&gt;
-auto apply_pure_with(this auto&amp;&amp;,
-		     FUNCTION&amp;&amp; function,
-		     FIRST_ARGUMENT&amp;&amp; first_argument,
-		     REST_ARGUMENTS&amp;&amp;&hellip; rest_arguments)
-{
-  return APPLICATIVE_MAP.invoke(std::forward&lt;FUNCTION&gt;(function),
-				std::forward&lt;FIRST_ARGUMENT&gt;(first_argument),
-				std::forward&lt;REST_ARGUMENTS&gt;(rest_arguments)&hellip;);
-}
-</p></li>
+<li><code>apply_pure</code> is retained as a pedagogical alias.</li>
 
 </ul>
-<p>
-};
-</p>
 
-<p>
-template &lt;class T&gt;
-inline constexpr auto applicative_typeclass = std::false_type{};
-</p>
+<div class="org-src-container">
 
-<p>
-template &lt;class VALUE_TYPE&gt;
-struct OptionalApplicativeImpl {
-  template &lt;class VALUE&gt;
-  auto pure(this auto&amp;&amp;, VALUE&amp;&amp; value) -&gt; std::optional&lt;remove_cvref_t&lt;VALUE&gt; &gt;
-  {
-    return std::optional&lt;remove_cvref_t&lt;VALUE&gt; &gt;{std::forward&lt;VALUE&gt;(value)};
-  }
-</p>
-
-<p>
-template &lt;class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT&gt;
-auto apply(this auto&amp;&amp;,
-	   FUNCTION_IN_CONTEXT&amp;&amp; function,
-	   ARGUMENT_IN_CONTEXT&amp;&amp; argument)
+<pre class="src src-cpp"><span style="font-weight: bold; font-style: italic;">// </span><span style="font-weight: bold; font-style: italic;">Teaching-friendly alias for "apply pure function to effectful arguments".
+</span><span style="font-weight: bold; font-style: italic;">// </span><span style="font-weight: bold; font-style: italic;">Prefer invoke as the primary C++ spelling (std::invoke model).
+</span><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">FUNCTION</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">FIRST_ARGUMENT</span>, <span style="font-weight: bold;">class</span>... <span style="font-weight: bold; text-decoration: underline;">REST_ARGUMENTS</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">apply_pure</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self,
+                  <span style="font-weight: bold; text-decoration: underline;">FUNCTION</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">function</span>,
+                  <span style="font-weight: bold; text-decoration: underline;">FIRST_ARGUMENT</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">first_argument</span>,
+                  <span style="font-weight: bold; text-decoration: underline;">REST_ARGUMENTS</span>&amp;&amp;... <span style="font-weight: bold; font-style: italic;">rest_arguments</span>)
 {
-  using Result =
-    std::invoke_result_t&lt;decltype(*function), decltype(*argument)&gt;;
-</p>
-
-<p>
-if (!function || !argument) {
-  return std::optional&lt;remove_cvref_t&lt;Result&gt; &gt;{};
+  <span style="font-weight: bold;">return</span> self.invoke(<span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">FUNCTION</span>&gt;(function),
+                       <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">FIRST_ARGUMENT</span>&gt;(first_argument),
+                       <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">REST_ARGUMENTS</span>&gt;(rest_arguments)...);
 }
-</p>
 
-<p>
-    return std::optional&lt;remove_cvref_t&lt;Result&gt; &gt;{
-      std::invoke(*std::forward&lt;FUNCTION_IN_CONTEXT&gt;(function),
-	    *std::forward&lt;ARGUMENT_IN_CONTEXT&gt;(argument))};
-  }
-};
-</p>
-
-<p>
-template &lt;class VALUE_TYPE&gt;
-struct OptionalApplicativeMap : Applicative&lt;OptionalApplicativeImpl&lt;VALUE_TYPE&gt; &gt; {
-  using OptionalApplicativeImpl&lt;VALUE_TYPE&gt;::apply;
-  using OptionalApplicativeImpl&lt;VALUE_TYPE&gt;::pure;
-};
-</p>
-
-<p>
-template &lt;class VALUE_TYPE&gt;
-  requires(!std::same_as&lt;beman::optional::optional&lt;VALUE_TYPE&gt;,
-			 std::optional&lt;VALUE_TYPE&gt; &gt;)
-struct BemanOptionalApplicativeImpl {
-  template &lt;class VALUE&gt;
-  auto pure(this auto&amp;&amp;, VALUE&amp;&amp; value)
-    -&gt; beman::optional::optional&lt;remove_cvref_t&lt;VALUE&gt; &gt;
-  {
-    return beman::optional::optional&lt;remove_cvref_t&lt;VALUE&gt; &gt;{
-      std::forward&lt;VALUE&gt;(value)};
-  }
-</p>
-
-<p>
-template &lt;class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT&gt;
-auto apply(this auto&amp;&amp;,
-	   FUNCTION_IN_CONTEXT&amp;&amp; function,
-	   ARGUMENT_IN_CONTEXT&amp;&amp; argument)
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">FUNCTION</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">FIRST_ARGUMENT</span>, <span style="font-weight: bold;">class</span>... <span style="font-weight: bold; text-decoration: underline;">REST_ARGUMENTS</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">invoke</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self,
+              <span style="font-weight: bold; text-decoration: underline;">FUNCTION</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">function</span>,
+              <span style="font-weight: bold; text-decoration: underline;">FIRST_ARGUMENT</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">first_argument</span>,
+              <span style="font-weight: bold; text-decoration: underline;">REST_ARGUMENTS</span>&amp;&amp;... <span style="font-weight: bold; font-style: italic;">rest_arguments</span>)
 {
-  using Result =
-    std::invoke_result_t&lt;decltype(*function), decltype(*argument)&gt;;
-</p>
+  <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">SELF</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">remove_reference_t</span>&lt;<span style="font-weight: bold;">decltype</span>(self)&gt;;
+  <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">IMPL_BASE</span> =
+    <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">conditional_t</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">is_const_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">SELF</span>&gt;, <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">Impl</span>, <span style="font-weight: bold; text-decoration: underline;">Impl</span>&gt;;
 
-<p>
-if (!function || !argument) {
-  return beman::optional::optional&lt;remove_cvref_t&lt;Result&gt; &gt;{};
-}
-</p>
-
-<p>
-    return beman::optional::optional&lt;remove_cvref_t&lt;Result&gt; &gt;{
-      std::invoke(*std::forward&lt;FUNCTION_IN_CONTEXT&gt;(function),
-	    *std::forward&lt;ARGUMENT_IN_CONTEXT&gt;(argument))};
+  <span style="font-weight: bold;">if</span> <span style="font-weight: bold;">constexpr</span> (<span style="font-weight: bold;">requires</span>(<span style="font-weight: bold; text-decoration: underline;">IMPL_BASE</span>&amp; <span style="font-weight: bold; font-style: italic;">impl</span>) {
+                    impl.invoke(<span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">FUNCTION</span>&gt;(function),
+                                <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">FIRST_ARGUMENT</span>&gt;(first_argument),
+                                <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">REST_ARGUMENTS</span>&gt;(rest_arguments)...);
+                  }) {
+    <span style="font-weight: bold;">return</span> <span style="font-weight: bold;">static_cast</span>&lt;<span style="font-weight: bold; text-decoration: underline;">IMPL_BASE</span>&amp;&gt;(self).invoke(
+        <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">FUNCTION</span>&gt;(function),
+        <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">FIRST_ARGUMENT</span>&gt;(first_argument),
+        <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">REST_ARGUMENTS</span>&gt;(rest_arguments)...);
+  } <span style="font-weight: bold;">else</span> {
+    <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lifted_function</span> =
+        self.pure(<span style="font-weight: bold; text-decoration: underline;">detail</span>::make_terminating_partial(<span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">FUNCTION</span>&gt;(function)));
+    <span style="font-weight: bold;">return</span> self.apply_chain(
+        self.ap(<span style="font-weight: bold; text-decoration: underline;">std</span>::move(lifted_function), <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">FIRST_ARGUMENT</span>&gt;(first_argument)),
+        <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">REST_ARGUMENTS</span>&gt;(rest_arguments)...);
   }
-};
-</p>
-
-<p>
-template &lt;class VALUE_TYPE&gt;
-  requires(!std::same_as&lt;beman::optional::optional&lt;VALUE_TYPE&gt;,
-			 std::optional&lt;VALUE_TYPE&gt; &gt;)
-struct BemanOptionalApplicativeMap
-</p>
-<pre class="example">
-Applicative&lt;BemanOptionalApplicativeImpl&lt;VALUE_TYPE&gt; &gt; {
+}
 </pre>
-<p>
-  using BemanOptionalApplicativeImpl&lt;VALUE_TYPE&gt;::apply;
-  using BemanOptionalApplicativeImpl&lt;VALUE_TYPE&gt;::pure;
-};
-</p>
-
-<p>
-template &lt;class VALUE_TYPE&gt;
-inline constexpr auto applicative_typeclass&lt;std::optional&lt;VALUE_TYPE&gt; &gt; =
-    OptionalApplicativeMap&lt;VALUE_TYPE&gt;{};
-</p>
-
-<p>
-template &lt;class VALUE_TYPE&gt;
-  requires(!std::same_as&lt;beman::optional::optional&lt;VALUE_TYPE&gt;,
-			 std::optional&lt;VALUE_TYPE&gt; &gt;)
-inline constexpr auto applicative_typeclass&lt;beman::optional::optional&lt;VALUE_TYPE&gt; &gt; =
-    BemanOptionalApplicativeMap&lt;VALUE_TYPE&gt;{};
-</p>
-
-<p>
-}  // close namespace smd
-</p>
-
-<p>
-#endif
-:lines 2- :src cpp :end "a11f7d8b-8f89-4f3e-9c92-f9f08ab7ef11 end"
-</p>
+</div>
 </section>
 <section id="slide-5-0-11">
 <h4 id="5-0-11"><span class="section-number-4">5.0.11.</span> Applicative proof: n-ary use in tests</h4>
 <ul>
-<li><p>
-The same API handles arity &gt; 2 without per-call-site plumbing.
-</p>
-
-<p>
-// 6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b
-std::optional&lt;int&gt; ax{2};
-std::optional&lt;int&gt; ay{3};
-std::optional&lt;int&gt; az{4};
-const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
-
-<p>
-auto result = applicative.apply_pure(
-    [](int a, int b, int c) { return a * b + c; },
-    ax,
-    ay,
-    az);
-REQUIRE(result.has_value());
-CHECK(*result == 10);
-// 6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end
-</p></li>
+<li>The same API handles arity &gt; 2 without per-call-site plumbing.</li>
 
 </ul>
-<p>
-}
-</p>
 
-<p>
-TEST_CASE("ApplicativeTypeclassTest - MapOptional")
-{
-    std::optional&lt;int&gt; value{21};
-    const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
+<div class="org-src-container">
 
-<p>
-    auto result = applicative.map([](int x) { return x * 2; }, value);
-    REQUIRE(result.has_value());
-    CHECK(*result == 42);
-}
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ax</span>{2};
+<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ay</span>{3};
+<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">az</span>{4};
+<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">applicative</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">applicative_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
 
-<p>
-TEST_CASE("ApplicativeTypeclassTest - InvokeWithExplicitMap")
-{
-    std::optional&lt;int&gt; ax{10};
-    std::optional&lt;int&gt; ay{5};
-    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-    const auto&amp; optional_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
-
-<p>
-    auto result = default_applicative.invoke_with(
-	optional_applicative,
-	[](int a, int b) { return a + b; },
-	ax,
-	ay);
-    REQUIRE(result.has_value());
-    CHECK(*result == 15);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - OptionalEmptyPaths")
-{
-    const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
-
-<p>
-std::optional&lt;int (*)(int)&gt; no_function{};
-std::optional&lt;int&gt; argument{4};
-auto no_function_result = applicative.apply(no_function, argument);
-CHECK_FALSE(no_function_result.has_value());
-</p>
-
-<p>
-std::optional&lt;int (*)(int)&gt; function{+[](int x) { return x + 3; }};
-std::optional&lt;int&gt; no_argument{};
-auto no_argument_result = applicative.apply(function, no_argument);
-CHECK_FALSE(no_argument_result.has_value());
-</p>
-
-<p>
-    std::optional&lt;int&gt; ax{1};
-    std::optional&lt;int&gt; ay{};
-    auto invoke_result = applicative.invoke([](int a, int b) { return a + b; }, ax, ay);
-    CHECK_FALSE(invoke_result.has_value());
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - DerivedOperations")
-{
-    const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
-
-<p>
-auto lifted = applicative.lift(9);
-REQUIRE(lifted.has_value());
-CHECK(*lifted == 9);
-</p>
-
-<p>
-std::optional&lt;int (*)(int)&gt; function{+[](int x) { return x * 3; }};
-auto applied = applicative.ap(function, std::optional&lt;int&gt;{7});
-REQUIRE(applied.has_value());
-CHECK(*applied == 21);
-</p>
-
-<p>
-auto zipped = applicative.zip_with(
-    [](int a, int b) { return a * b; },
-    std::optional&lt;int&gt;{6},
-    std::optional&lt;int&gt;{5});
-REQUIRE(zipped.has_value());
-CHECK(*zipped == 30);
-</p>
-
-<p>
-auto keep_right = applicative.discard_first(std::optional&lt;int&gt;{1}, std::optional&lt;int&gt;{2});
-REQUIRE(keep_right.has_value());
-CHECK(*keep_right == 2);
-</p>
-
-<p>
-    auto keep_left = applicative.discard_second(std::optional&lt;int&gt;{1}, std::optional&lt;int&gt;{2});
-    REQUIRE(keep_left.has_value());
-    CHECK(*keep_left == 1);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - InvokeWithNttpMap")
-{
-    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
-
-<p>
-auto result = default_applicative.invoke_with&lt;
-    smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;&gt;(
-    [](int a, int b, int c) { return a + b + c; },
-    std::optional&lt;int&gt;{1},
-    std::optional&lt;int&gt;{2},
-    std::optional&lt;int&gt;{3});
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">result</span> = applicative.apply_pure(
+        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a * b + c; },
+        ax,
+        ay,
+        az);
 REQUIRE(result.has_value());
-CHECK(*result == 6);
-</p>
-
-<p>
-    auto apply_pure_result = default_applicative.apply_pure_with&lt;
-	smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;&gt;(
-	[](int a, int b) { return a - b; },
-	std::optional&lt;int&gt;{8},
-	std::optional&lt;int&gt;{5});
-    REQUIRE(apply_pure_result.has_value());
-    CHECK(*apply_pure_result == 3);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - BemanOptional")
-{
-    using BemanOptional = beman::optional::optional&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative_typeclass&lt;BemanOptional&gt;;
-</p>
-
-<p>
-auto lifted = applicative.pure(11);
-REQUIRE(lifted.has_value());
-CHECK(*lifted == 11);
-</p>
-
-<p>
-beman::optional::optional&lt;int (*)(int)&gt; function{+[](int x) { return x + 5; }};
-BemanOptional argument{7};
-auto applied = applicative.apply(function, argument);
-REQUIRE(applied.has_value());
-CHECK(*applied == 12);
-</p>
-
-<p>
-beman::optional::optional&lt;int (*)(int)&gt; no_function{};
-auto no_function_applied = applicative.apply(no_function, argument);
-CHECK_FALSE(no_function_applied.has_value());
-</p>
-
-<p>
-BemanOptional no_argument{};
-auto no_argument_applied = applicative.apply(function, no_argument);
-CHECK_FALSE(no_argument_applied.has_value());
-</p>
-
-<p>
-auto invoked = applicative.invoke(
-    [](int a, int b) { return a * b; },
-    BemanOptional{3},
-    BemanOptional{4});
-REQUIRE(invoked.has_value());
-CHECK(*invoked == 12);
-</p>
-
-<p>
-    auto empty_invoked = applicative.invoke(
-	[](int a, int b) { return a * b; },
-	BemanOptional{},
-	BemanOptional{4});
-    CHECK_FALSE(empty_invoked.has_value());
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - ApplyPureWithExplicitMap")
-{
-    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-    const auto&amp; optional_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
-
-<p>
-    auto result = default_applicative.apply_pure_with(
-	optional_applicative,
-	[](int a, int b, int c) { return a + b + c; },
-	std::optional&lt;int&gt;{4},
-	std::optional&lt;int&gt;{5},
-	std::optional&lt;int&gt;{6});
-    REQUIRE(result.has_value());
-    CHECK(*result == 15);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - TerminatingPartialExtendsAndInvokes")
-{
-    auto partial = smd::detail::make_terminating_partial(
-	[](int a, int b, int c) { return a * 100 + b * 10 + c; });
-</p>
-
-<p>
-auto partial2 = partial(1);
-auto partial3 = partial2(2);
-CHECK(partial3(3) == 123);
-</p>
-
-<p>
-    const auto const_partial = smd::detail::make_terminating_partial(
-	[](int a, int b) { return a - b; });
-    auto const_partial2 = const_partial(9);
-    const auto const_partial3 = const_partial2;
-    CHECK(const_partial3(4) == 5);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - IdentityMapUsesDerivedInvokePath")
-{
-    using Identity = smd::typeclass::test::Identity&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative_typeclass&lt;Identity&gt;;
-</p>
-
-<p>
-auto binary = applicative.invoke(
-    [](int a, int b) { return a + b; },
-    Identity{2},
-    Identity{3});
-CHECK(binary.value == 5);
-</p>
-
-<p>
-    auto ternary = applicative.apply_pure(
-	[](int a, int b, int c) { return a * 100 + b * 10 + c; },
-	Identity{1},
-	Identity{2},
-	Identity{3});
-    CHECK(ternary.value == 123);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - CustomInvokeDispatchPath")
-{
-    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
-
-<p>
-auto result = default_applicative.invoke_with(
-    direct_invoke_map,
-    [](int a, int b, int c) { return a + b + c; },
-    smd::typeclass::test::Identity&lt;int&gt;{4},
-    smd::typeclass::test::Identity&lt;int&gt;{5},
-    smd::typeclass::test::Identity&lt;int&gt;{6});
-CHECK(result.value == 15);
-</p>
-
-<p>
-    auto nttp_result = default_applicative.invoke_with&lt;direct_invoke_map&gt;(
-	[](int a, int b) { return a * b; },
-	smd::typeclass::test::Identity&lt;int&gt;{7},
-	smd::typeclass::test::Identity&lt;int&gt;{8});
-    CHECK(nttp_result.value == 56);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - OptionalAndBemanVectorInstantiationPaths")
-{
-    const auto&amp; optional_applicative =
-	smd::applicative_typeclass&lt;std::optional&lt;std::vector&lt;int&gt; &gt; &gt;;
-</p>
-
-<p>
-auto lifted_vector = optional_applicative.pure(std::vector&lt;int&gt;{1, 2, 3});
-REQUIRE(lifted_vector.has_value());
-CHECK(lifted_vector-&gt;size() == 3);
-</p>
-
-<p>
-std::optional&lt;std::vector&lt;int&gt; (*)(std::vector&lt;int&gt;)&gt; append_value{
-    +[](std::vector&lt;int&gt; v) {
-	v.push_back(4);
-	return v;
-    }};
-auto applied_vector = optional_applicative.apply(append_value, lifted_vector);
-REQUIRE(applied_vector.has_value());
-CHECK(applied_vector-&gt;size() == 4);
-</p>
-
-<p>
-using BemanVectorOptional = beman::optional::optional&lt;std::vector&lt;int&gt; &gt;;
-const auto&amp; beman_applicative = smd::applicative_typeclass&lt;BemanVectorOptional&gt;;
-</p>
-
-<p>
-auto beman_lifted = beman_applicative.pure(std::vector&lt;int&gt;{8, 9});
-REQUIRE(beman_lifted.has_value());
-CHECK(beman_lifted-&gt;size() == 2);
-</p>
-
-<p>
-    beman::optional::optional&lt;std::vector&lt;int&gt; (*)(std::vector&lt;int&gt;)&gt; beman_append{
-	+[](std::vector&lt;int&gt; v) {
-	    v.push_back(10);
-	    return v;
-	}};
-    auto beman_applied = beman_applicative.apply(beman_append, beman_lifted);
-    REQUIRE(beman_applied.has_value());
-    CHECK(beman_applied-&gt;size() == 3);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - IdentityWrapperMethods")
-{
-    using Identity = smd::typeclass::test::Identity&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative_typeclass&lt;Identity&gt;;
-</p>
-
-<p>
-auto mapped = applicative.map([](int x) { return x + 1; }, Identity{9});
-CHECK(mapped.value == 10);
-</p>
-
-<p>
-auto zipped = applicative.zip_with(
-    [](int a, int b) { return a - b; },
-    Identity{20},
-    Identity{3});
-CHECK(zipped.value == 17);
-</p>
-
-<p>
-    auto ap_result = applicative.ap(
-	smd::typeclass::test::Identity&lt;int (*)(int)&gt;{+[](int x) { return x * 5; }},
-	Identity{6});
-    CHECK(ap_result.value == 30);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - BareIdentityInvokeAndApplyChain")
-{
-    using BareIdentity = smd::typeclass::test::BareIdentity&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative_typeclass&lt;BareIdentity&gt;;
-</p>
-
-<p>
-auto unary = applicative.invoke([](int x) { return x + 1; }, BareIdentity{4});
-CHECK(unary.value == 5);
-</p>
-
-<p>
-auto ternary = applicative.invoke(
-    [](int a, int b, int c) { return a * b + c; },
-    BareIdentity{2},
-    BareIdentity{3},
-    BareIdentity{4});
-CHECK(ternary.value == 10);
-</p>
-
-<p>
-    auto quaternary = applicative.apply_pure(
-	[](int a, int b, int c, int d) { return a + b + c + d; },
-	BareIdentity{1},
-	BareIdentity{2},
-	BareIdentity{3},
-	BareIdentity{4});
-    CHECK(quaternary.value == 10);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - BareIdentityWrapperCoverage")
-{
-    using BareIdentity = smd::typeclass::test::BareIdentity&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative_typeclass&lt;BareIdentity&gt;;
-</p>
-
-<p>
-auto lifted = applicative.lift(33);
-CHECK(lifted.value == 33);
-</p>
-
-<p>
-auto mapped = applicative.map([](int x) { return x * 2; }, BareIdentity{11});
-CHECK(mapped.value == 22);
-</p>
-
-<p>
-auto applied = applicative.ap(
-    smd::typeclass::test::BareIdentity&lt;int (*)(int)&gt;{+[](int x) { return x - 2; }},
-    BareIdentity{9});
-CHECK(applied.value == 7);
-</p>
-
-<p>
-auto zipped = applicative.zip_with(
-    [](int a, int b) { return a - b; },
-    BareIdentity{40},
-    BareIdentity{8});
-CHECK(zipped.value == 32);
-</p>
-
-<p>
-auto keep_right = applicative.discard_first(BareIdentity{5}, BareIdentity{6});
-CHECK(keep_right.value == 6);
-</p>
-
-<p>
-    auto keep_left = applicative.discard_second(BareIdentity{5}, BareIdentity{6});
-    CHECK(keep_left.value == 5);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - BareIdentityInvokeWithMapCoverage")
-{
-    using BareIdentity = smd::typeclass::test::BareIdentity&lt;int&gt;;
-    const auto&amp; default_applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-    const auto&amp; bare_identity_applicative = smd::applicative_typeclass&lt;BareIdentity&gt;;
-</p>
-
-<p>
-auto explicit_map_result = default_applicative.invoke_with(
-    bare_identity_applicative,
-    [](int a, int b, int c) { return a + b + c; },
-    BareIdentity{3},
-    BareIdentity{4},
-    BareIdentity{5});
-CHECK(explicit_map_result.value == 12);
-</p>
-
-<p>
-auto explicit_apply_pure_result = default_applicative.apply_pure_with(
-    bare_identity_applicative,
-    [](int a, int b) { return a * b; },
-    BareIdentity{7},
-    BareIdentity{6});
-CHECK(explicit_apply_pure_result.value == 42);
-</p>
-
-<p>
-auto nttp_map_result = default_applicative.invoke_with&lt;bare_identity_applicative&gt;(
-    [](int a, int b) { return a - b; },
-    BareIdentity{20},
-    BareIdentity{9});
-CHECK(nttp_map_result.value == 11);
-</p>
-
-<p>
-    auto nttp_apply_pure_result = default_applicative.apply_pure_with&lt;bare_identity_applicative&gt;(
-	[](int a, int b, int c) { return a + b * c; },
-	BareIdentity{2},
-	BareIdentity{3},
-	BareIdentity{4});
-    CHECK(nttp_apply_pure_result.value == 14);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeTypeclassTest - BareIdentityTypeMatrixCoverage")
-{
-    run_bare_identity_matrix_case&lt;int, short, unsigned&gt;(3, 4, 5U);
-    run_bare_identity_matrix_case&lt;long, int, long long&gt;(10L, 20, 30LL);
-    run_bare_identity_matrix_case&lt;float, double, int&gt;(1.5F, 2.25, 3);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeBehaviorTest - OptionalIdentityHomomorphismAndInvoke")
-{
-    CHECK(smd::typeclass::test::check_applicative_identity_law(std::optional&lt;int&gt;{8}));
-    CHECK(smd::typeclass::test::check_applicative_homomorphism_law&lt;std::optional&lt;int&gt; &gt;(
-	+[](int x) { return x + 3; },
-	5));
-    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
-	[](int a, int b) { return a * 10 + b; },
-	std::optional&lt;int&gt;{2},
-	std::optional&lt;int&gt;{7}));
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeBehaviorTest - BareIdentityIdentityHomomorphismAndInvoke")
-{
-    using BareIdentity = smd::typeclass::test::BareIdentity&lt;int&gt;;
-    CHECK(smd::typeclass::test::check_applicative_identity_law(BareIdentity{11}));
-    CHECK(smd::typeclass::test::check_applicative_homomorphism_law&lt;BareIdentity&gt;(
-	+[](int x) { return x * 4; },
-	3));
-    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
-	[](int a, int b) { return a - b; },
-	BareIdentity{20},
-	BareIdentity{6}));
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeBehaviorTest - BemanIdentityHomomorphismAndInvoke")
-{
-    using BemanOptional = beman::optional::optional&lt;int&gt;;
-</p>
-
-<p>
-    CHECK(smd::typeclass::test::check_applicative_identity_law(BemanOptional{11}));
-    CHECK(smd::typeclass::test::check_applicative_homomorphism_law&lt;BemanOptional&gt;(
-	+[](int x) { return x * 4; },
-	3));
-    CHECK(smd::typeclass::test::check_applicative_invoke_binary_law(
-	[](int a, int b) { return a - b; },
-	BemanOptional{20},
-	BemanOptional{6}));
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeBehaviorTest - OptionalShortCircuit")
-{
-    const auto&amp; applicative = smd::applicative_typeclass&lt;std::optional&lt;int&gt; &gt;;
-</p>
-
-<p>
-std::optional&lt;std::function&lt;int(int)&gt; &gt; no_function{};
-auto no_function_result = applicative.ap(no_function, std::optional&lt;int&gt;{4});
-CHECK_FALSE(no_function_result.has_value());
-</p>
-
-<p>
-std::optional&lt;std::function&lt;int(int)&gt; &gt; function{
-    [](int x) { return x + 1; }};
-auto no_argument_result = applicative.ap(function, std::optional&lt;int&gt;{});
-CHECK_FALSE(no_argument_result.has_value());
-</p>
-
-<p>
-    int calls = 0;
-    auto invoke_result = applicative.invoke(
-	[&amp;calls](int lhs, int rhs) {
-	    ++calls;
-	    return lhs + rhs;
-	},
-	std::optional&lt;int&gt;{3},
-	std::optional&lt;int&gt;{});
-    CHECK_FALSE(invoke_result.has_value());
-    CHECK(calls == 0);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeBehaviorTest - BemanShortCircuit")
-{
-    using BemanOptional = beman::optional::optional&lt;int&gt;;
-    const auto&amp; applicative = smd::applicative_typeclass&lt;BemanOptional&gt;;
-</p>
-
-<p>
-beman::optional::optional&lt;std::function&lt;int(int)&gt; &gt; no_function{};
-auto no_function_result = applicative.ap(no_function, BemanOptional{5});
-CHECK_FALSE(no_function_result.has_value());
-</p>
-
-<p>
-beman::optional::optional&lt;std::function&lt;int(int)&gt; &gt; function{
-    [](int x) { return x * 2; }};
-auto no_argument_result = applicative.ap(function, BemanOptional{});
-CHECK_FALSE(no_argument_result.has_value());
-</p>
-
-<p>
-    int calls = 0;
-    auto invoke_result = applicative.invoke(
-	[&amp;calls](int lhs, int rhs) {
-	    ++calls;
-	    return lhs - rhs;
-	},
-	BemanOptional{9},
-	BemanOptional{});
-    CHECK_FALSE(invoke_result.has_value());
-    CHECK(calls == 0);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeBehaviorTest - InvokeDispatchThroughBaseAndDerivedPaths")
-{
-    DirectInvokeIdentityApplicativeMap&lt;int&gt; custom_map{};
-    auto&amp; custom_base =
-	static_cast&lt;smd::Applicative&lt;DirectInvokeIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(
-	    custom_map);
-</p>
-
-<p>
-auto custom_dispatched = custom_base.invoke(
-    [](int a, int b, int c) { return a + b + c; },
-    smd::typeclass::test::Identity&lt;int&gt;{1},
-    smd::typeclass::test::Identity&lt;int&gt;{2},
-    smd::typeclass::test::Identity&lt;int&gt;{3});
-CHECK(custom_dispatched.value == 6);
-</p>
-
-<p>
-smd::BareIdentityApplicativeMap&lt;int&gt; bare_map{};
-auto&amp; bare_base =
-    static_cast&lt;smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(bare_map);
-</p>
-
-<p>
-    auto derived_dispatched = bare_base.invoke(
-	[](int a, int b, int c) { return a * 100 + b * 10 + c; },
-	smd::typeclass::test::BareIdentity&lt;int&gt;{4},
-	smd::typeclass::test::BareIdentity&lt;int&gt;{5},
-	smd::typeclass::test::BareIdentity&lt;int&gt;{6});
-    CHECK(derived_dispatched.value == 456);
-}
-</p>
-
-<p>
-TEST_CASE("ApplicativeBehaviorTest - BareIdentityConstAndNonConstInvokeApMap")
-{
-    smd::BareIdentityApplicativeMap&lt;int&gt; mutable_map{};
-    auto&amp; mutable_base =
-	static_cast&lt;smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(mutable_map);
-</p>
-
-<p>
-auto non_const_invoke = mutable_base.invoke(
-    [](int a, int b) { return a + b; },
-    smd::typeclass::test::BareIdentity&lt;int&gt;{10},
-    smd::typeclass::test::BareIdentity&lt;int&gt;{4});
-CHECK(non_const_invoke.value == 14);
-</p>
-
-<p>
-auto non_const_map = mutable_base.map(
-    [](int x) { return x * 3; },
-    smd::typeclass::test::BareIdentity&lt;int&gt;{7});
-CHECK(non_const_map.value == 21);
-</p>
-
-<p>
-auto non_const_ap = mutable_base.ap(
-    smd::typeclass::test::BareIdentity&lt;std::function&lt;int(int)&gt; &gt;{
-	[](int x) { return x - 5; }},
-    smd::typeclass::test::BareIdentity&lt;int&gt;{12});
-CHECK(non_const_ap.value == 7);
-</p>
-
-<p>
-const smd::BareIdentityApplicativeMap&lt;int&gt; const_map{};
-const auto&amp; const_base =
-    static_cast&lt;const smd::Applicative&lt;smd::BareIdentityApplicativeImpl&lt;int&gt; &gt;&amp;&gt;(
-	const_map);
-</p>
-
-<p>
-auto const_invoke = const_base.invoke(
-    [](int a, int b, int c) { return a * b + c; },
-    smd::typeclass::test::BareIdentity&lt;int&gt;{3},
-    smd::typeclass::test::BareIdentity&lt;int&gt;{5},
-    smd::typeclass::test::BareIdentity&lt;int&gt;{2});
-CHECK(const_invoke.value == 17);
-</p>
-
-<p>
-auto const_map_result = const_base.map(
-    [](int x) { return x + 8; },
-    smd::typeclass::test::BareIdentity&lt;int&gt;{1});
-CHECK(const_map_result.value == 9);
-</p>
-
-<p>
-    auto const_ap_result = const_base.ap(
-	smd::typeclass::test::BareIdentity&lt;std::function&lt;int(int)&gt; &gt;{
-	    [](int x) { return x * x; }},
-	smd::typeclass::test::BareIdentity&lt;int&gt;{6});
-    CHECK(const_ap_result.value == 36);
-}
-:lines 2- :src cpp :end "6e8bde7b-a9f1-4c98-8f1a-807d9ee0a93b end"
-</p>
+CHECK(*result == 10);
+</pre>
+</div>
 </section>
 <section id="slide-5-0-12">
 <h4 id="5-0-12"><span class="section-number-4">5.0.12.</span> Traversable model: commute shape and effect</h4>
@@ -8414,295 +7024,114 @@ CHECK(const_map_result.value == 9);
 <h4 id="5-0-13"><span class="section-number-4">5.0.13.</span> Traversable API: one primitive, many derived operations</h4>
 <ul>
 <li>In this repository, the minimal implementation hook is <code>traverse</code>.</li>
-<li><p>
-<code>for_each</code>, <code>sequence</code>, and <code>sequence_with</code> are derived helper operations.
-</p>
-
-<p>
-// 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11
-</p>
-
-<p>
-template &lt;class T, class F&gt;
-auto for_each(this auto&amp;&amp; self, T&amp;&amp; value, F&amp;&amp; function)
-{
-    return self.traverse(std::forward&lt;F&gt;(function),
-			 std::forward&lt;T&gt;(value));
-}
-</p>
-
-<p>
-template &lt;class T&gt;
-auto sequence(this auto&amp;&amp; self, T&amp;&amp; value)
-{
-    return self.traverse(
-	[](auto&amp;&amp; x) { return std::forward&lt;decltype(x)&gt;(x); },
-	std::forward&lt;T&gt;(value));
-}
-</p>
-
-<p>
-template &lt;class TRAVERSABLE_MAP, class T, class F&gt;
-auto traverse_with(this auto&amp;&amp;,
-		   const TRAVERSABLE_MAP&amp; traversable_map,
-		   F&amp;&amp; function,
-		   T&amp;&amp; value)
-{
-    return traversable_map.traverse(std::forward&lt;F&gt;(function),
-				    std::forward&lt;T&gt;(value));
-}
-</p>
-
-<p>
-template &lt;class TRAVERSABLE_MAP, class T&gt;
-auto sequence_with(this auto&amp;&amp; self,
-		   const TRAVERSABLE_MAP&amp; traversable_map,
-		   T&amp;&amp; value)
-{
-    return self.traverse_with(
-	traversable_map,
-	[](auto&amp;&amp; x) { return std::forward&lt;decltype(x)&gt;(x); },
-	std::forward&lt;T&gt;(value));
-}
-// 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end
-</p></li>
+<li><code>for_each</code>, <code>sequence</code>, and <code>sequence_with</code> are derived helper operations.</li>
 
 </ul>
-<p>
-};
-</p>
 
-<p>
-template &lt;class T&gt;
-inline constexpr auto traversable_typeclass = std::false_type{};
-</p>
+<div class="org-src-container">
 
-<p>
-}  // close namespace smd
-</p>
+<pre class="src src-cpp">
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">F</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">for_each</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>, <span style="font-weight: bold; text-decoration: underline;">F</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">function</span>)
+{
+        <span style="font-weight: bold;">return</span> self.traverse(<span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">F</span>&gt;(function),
+                             <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+}
 
-<p>
-#endif
-:lines 2- :src cpp :end "8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end"
-</p>
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequence</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
+{
+        <span style="font-weight: bold;">return</span> self.traverse(
+            [](<span style="font-weight: bold;">auto</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;(x); },
+            <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">TRAVERSABLE_MAP</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">F</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">traverse_with</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp;,
+                       <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">TRAVERSABLE_MAP</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable_map</span>,
+                       <span style="font-weight: bold; text-decoration: underline;">F</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">function</span>,
+                       <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
+{
+        <span style="font-weight: bold;">return</span> traversable_map.traverse(<span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">F</span>&gt;(function),
+                                        <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+}
+
+<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">TRAVERSABLE_MAP</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequence_with</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self,
+                       <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">TRAVERSABLE_MAP</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable_map</span>,
+                       <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
+{
+        <span style="font-weight: bold;">return</span> self.traverse_with(
+            traversable_map,
+            [](<span style="font-weight: bold;">auto</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;(x); },
+            <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+}
+</pre>
+</div>
 </section>
 <section id="slide-5-0-14">
 <h4 id="5-0-14"><span class="section-number-4">5.0.14.</span> Traversable proof: derived operations hold in tests</h4>
 <ul>
-<li><p>
-Sequencing works both via implicit lookup and explicit object selection.
-</p>
-
-<p>
-// f1de12e0-2287-4568-98c7-75be4f6f7446
-using IdentityOpt = smd::typeclass::test::Identity&lt;std::optional&lt;int&gt; &gt;;
-auto identity = IdentityOpt{std::optional&lt;int&gt;{1}};
-const auto&amp; traversable = smd::traversable_typeclass&lt;IdentityOpt&gt;;
-</p>
-
-<p>
-auto sequenced = traversable.sequence(identity);
-REQUIRE(sequenced.has_value());
-CHECK(sequenced-&gt;value == 1);
-</p>
-
-<p>
-auto sequenced_with = traversable.sequence_with(traversable, identity);
-REQUIRE(sequenced_with.has_value());
-CHECK(sequenced_with-&gt;value == 1);
-// f1de12e0-2287-4568-98c7-75be4f6f7446 end
-</p></li>
+<li>Sequencing works both via implicit lookup and explicit object selection.</li>
 
 </ul>
-<p>
-}
-</p>
 
-<p>
-TEST_CASE("TraversableTypeclassTest - ForEachMatchesTraverse")
-{
-    using Identity = smd::typeclass::test::Identity&lt;int&gt;;
-    auto identity = Identity{4};
-    const auto&amp; traversable = smd::traversable_typeclass&lt;Identity&gt;;
-</p>
+<div class="org-src-container">
 
-<p>
-auto via_traverse = traversable.traverse(
-    [](int x) -&gt; std::optional&lt;int&gt; { return std::optional&lt;int&gt;{x + 7}; },
-    identity);
-auto via_for_each = traversable.for_each(
-    identity,
-    [](int x) -&gt; std::optional&lt;int&gt; { return std::optional&lt;int&gt;{x + 7}; });
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">IdentityOpt</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">test</span>::<span style="font-weight: bold; text-decoration: underline;">Identity</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">identity</span> = IdentityOpt{<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1}};
+<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">IdentityOpt</span>&gt;;
 
-<p>
-    CHECK(via_traverse == via_for_each);
-}
-</p>
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequenced</span> = traversable.sequence(identity);
+REQUIRE(sequenced.has_value());
+CHECK(sequenced-&gt;value == 1);
 
-<p>
-TEST_CASE("TraversableTypeclassTest - SequenceMatchesTraverseIdentity")
-{
-    using IdentityOpt = smd::typeclass::test::Identity&lt;std::optional&lt;int&gt; &gt;;
-    auto identity = IdentityOpt{std::optional&lt;int&gt;{5}};
-    const auto&amp; traversable = smd::traversable_typeclass&lt;IdentityOpt&gt;;
-</p>
-
-<p>
-auto via_sequence = traversable.sequence(identity);
-auto via_traverse_identity = traversable.traverse(
-    [](auto&amp;&amp; x) { return std::forward&lt;decltype(x)&gt;(x); },
-    identity);
-</p>
-
-<p>
-    CHECK(via_sequence == via_traverse_identity);
-}
-:lines 2- :src cpp :end "f1de12e0-2287-4568-98c7-75be4f6f7446 end"
-</p>
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequenced_with</span> = traversable.sequence_with(traversable, identity);
+REQUIRE(sequenced_with.has_value());
+CHECK(sequenced_with-&gt;value == 1);
+</pre>
+</div>
 </section>
 <section id="slide-5-0-15">
 <h4 id="5-0-15"><span class="section-number-4">5.0.15.</span> Traversable commute: Range and ZipList</h4>
 <ul>
 <li>Traversable commutes a range of ZipLists into a ZipList of ranges.</li>
-<li><p>
-The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.
-</p>
-
-<p>
-// 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a
-using Zip = smd::zip_list&lt;int&gt;;
-auto values = smd::ranges::from_vector(std::vector&lt;Zip&gt;{
-    Zip{{1, 2, 3}},
-    Zip{{10, 20}},
-    Zip{{100, 200, 300, 400}}});
-</p>
-
-<p>
-const auto&amp; traversable = smd::traversable_typeclass&lt;decltype(values)&gt;;
-auto sequenced = traversable.sequence(values);
-</p>
-
-<p>
-REQUIRE(sequenced.data.size() <code>= 2U);
-    CHECK(collect(sequenced.data[0]) =</code> (std::vector&lt;int&gt;{1, 10, 100}));
-CHECK(collect(sequenced.data[1]) == (std::vector&lt;int&gt;{2, 20, 200}));
-// 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end
-</p></li>
+<li>The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.</li>
 
 </ul>
-<p>
-}
-</p>
 
-<p>
-TEST_CASE("RangeTraversableTest - SequenceConvertsRangeOfZiplistsToZiplistOfRangesLengthFive")
-{
-    using Zip = smd::zip_list&lt;int&gt;;
-    auto values = smd::ranges::from_vector(std::vector&lt;Zip&gt;{
-	Zip{{1, 2, 3, 4, 5}},
-	Zip{{10, 20, 30, 40, 50}},
-	Zip{{100, 200, 300, 400, 500}}});
-</p>
+<div class="org-src-container">
 
-<p>
-const auto&amp; traversable = smd::traversable_typeclass&lt;decltype(values)&gt;;
-auto sequenced = traversable.sequence(values);
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">Zip</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">zip_list</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">values</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">ranges</span>::from_vector(<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Zip</span>&gt;{
+        Zip{{1, 2, 3}},
+        Zip{{10, 20}},
+        Zip{{100, 200, 300, 400}}});
 
-<p>
-    REQUIRE(sequenced.data.size() <code>= 5U);
-    CHECK(collect(sequenced.data[0]) =</code> (std::vector&lt;int&gt;{1, 10, 100}));
-    CHECK(collect(sequenced.data[1]) <code>= (std::vector&lt;int&gt;{2, 20, 200}));
-    CHECK(collect(sequenced.data[2]) =</code> (std::vector&lt;int&gt;{3, 30, 300}));
-    CHECK(collect(sequenced.data[3]) <code>= (std::vector&lt;int&gt;{4, 40, 400}));
-    CHECK(collect(sequenced.data[4]) =</code> (std::vector&lt;int&gt;{5, 50, 500}));
-}
-</p>
+<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold;">decltype</span>(values)&gt;;
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequenced</span> = traversable.sequence(values);
 
-<p>
-TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplists")
-{
-    // 4be89584-35cc-4933-b3de-6d524d54371d
-    smd::zip_list&lt;std::vector&lt;int&gt; &gt; zip_of_vectors{
-	{{1, 10, 100}, {2, 20, 200}}};
-</p>
+REQUIRE(sequenced.data.size() == 2U);
+CHECK(collect(sequenced.data[0]) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 10, 100}));
+CHECK(collect(sequenced.data[1]) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{2, 20, 200}));
+</pre>
+</div>
 
-<p>
-auto as_rows = to_vector_of_ziplists(zip_of_vectors);
-</p>
 
-<p>
-    REQUIRE(as_rows.size() <code>= 3U);
-    CHECK(as_rows[0].data =</code> (std::vector&lt;int&gt;{1, 2}));
-    CHECK(as_rows[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
-    CHECK(as_rows[2].data =</code> (std::vector&lt;int&gt;{100, 200}));
-    // 4be89584-35cc-4933-b3de-6d524d54371d end
-}
-</p>
+<div class="org-src-container">
 
-<p>
-TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive")
-{
-    smd::zip_list&lt;std::vector&lt;int&gt; &gt; zip_of_vectors{
-	{{1, 10, 100, 1000, 10000}, {2, 20, 200, 2000, 20000}}};
-</p>
+<pre class="src src-cpp"><span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">zip_list</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt; <span style="font-weight: bold; font-style: italic;">zip_of_vectors</span>{
+        {{1, 10, 100}, {2, 20, 200}}};
 
-<p>
-auto as_rows = to_vector_of_ziplists(zip_of_vectors);
-</p>
+<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">as_rows</span> = to_vector_of_ziplists(zip_of_vectors);
 
-<p>
-    REQUIRE(as_rows.size() <code>= 5U);
-    CHECK(as_rows[0].data =</code> (std::vector&lt;int&gt;{1, 2}));
-    CHECK(as_rows[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
-    CHECK(as_rows[2].data =</code> (std::vector&lt;int&gt;{100, 200}));
-    CHECK(as_rows[3].data <code>= (std::vector&lt;int&gt;{1000, 2000}));
-    CHECK(as_rows[4].data =</code> (std::vector&lt;int&gt;{10000, 20000}));
-}
-:lines 2- :src cpp :end "0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end"
-</p>
+REQUIRE(as_rows.size() == 3U);
+CHECK(as_rows[0].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2}));
+CHECK(as_rows[1].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{10, 20}));
+CHECK(as_rows[2].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{100, 200}));
+</pre>
+</div>
 
-<p>
-// 4be89584-35cc-4933-b3de-6d524d54371d
-smd::zip_list&lt;std::vector&lt;int&gt; &gt; zip_of_vectors{
-    {{1, 10, 100}, {2, 20, 200}}};
-</p>
-
-<p>
-auto as_rows = to_vector_of_ziplists(zip_of_vectors);
-</p>
-
-<p>
-    REQUIRE(as_rows.size() <code>= 3U);
-    CHECK(as_rows[0].data =</code> (std::vector&lt;int&gt;{1, 2}));
-    CHECK(as_rows[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
-    CHECK(as_rows[2].data =</code> (std::vector&lt;int&gt;{100, 200}));
-    // 4be89584-35cc-4933-b3de-6d524d54371d end
-}
-</p>
-
-<p>
-TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplistsLengthFive")
-{
-    smd::zip_list&lt;std::vector&lt;int&gt; &gt; zip_of_vectors{
-	{{1, 10, 100, 1000, 10000}, {2, 20, 200, 2000, 20000}}};
-</p>
-
-<p>
-auto as_rows = to_vector_of_ziplists(zip_of_vectors);
-</p>
-
-<p>
-    REQUIRE(as_rows.size() <code>= 5U);
-    CHECK(as_rows[0].data =</code> (std::vector&lt;int&gt;{1, 2}));
-    CHECK(as_rows[1].data <code>= (std::vector&lt;int&gt;{10, 20}));
-    CHECK(as_rows[2].data =</code> (std::vector&lt;int&gt;{100, 200}));
-    CHECK(as_rows[3].data <code>= (std::vector&lt;int&gt;{1000, 2000}));
-    CHECK(as_rows[4].data =</code> (std::vector&lt;int&gt;{10000, 20000}));
-}
-:lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
-</p>
 
 <aside class="notes">
 <p>
@@ -8725,7 +7154,7 @@ Source: (Steve Downey, 2026).
 <li>Current automated checks in this repository:
 <ul>
 <li>Applicative: identity, homomorphism, invoke/ap equivalence, plus ZipList interchange and composition.</li>
-<li>Traversable: traverse/for_each/sequence coherence and ZipList-Range commute examples.</li>
+<li>Traversable: identity, naturality, composition, traverse/for_each/sequence coherence, and ZipList-Range commute examples.</li>
 <li>Foldable: derived operations (<code>length</code>, <code>fold_left</code>, <code>fold_right</code>, <code>to_vector</code>, predicates) are exercised against <code>fold_map</code>-based behavior.</li>
 
 </ul></li>
