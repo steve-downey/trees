@@ -1,0 +1,80 @@
+#+title: Code Review Skill Log
+#+author: GitHub Copilot
+#+date: 2026-05-01
+#+startup: overview
+#+startup: logdone
+
+* Purpose
+This file tracks review heuristics, mistakes to avoid, and validated patterns discovered while reviewing work in this repository.
+
+* Review Workflow (Living)
+** TODO Keep findings severity-first in reports
+- Report correctness and regression risk first.
+- Put style and maintainability findings after correctness.
+- Always include concrete file/line references.
+
+** TODO Validate claims with execution when feasible
+- Prefer running the existing project test entrypoint.
+- Note when tests pass but coverage gaps remain.
+
+** TODO Check whether tests are actually in default execution path
+- Hidden/opt-in test tags can mask regressions.
+- Review test tags and test registration, not just test content.
+
+* Heuristics
+** Correctness Heuristics
+- If code introduces fallback paths, verify which path is production-default.
+- If a change adds debug/test-only APIs in public headers, treat as API risk.
+- For protocol refactors, verify both call-site API and recursive propagation invariants.
+
+** Style Heuristics
+- Warning increases are review findings when they reduce signal quality.
+- Public headers should not retain stale experimental comments after rollback/rework.
+
+* Learned Signals (Dated)
+** 2026-05-01
+*** Finding Pattern: Hidden regression tests
+When risk-focused tests are tagged hidden, default CI can pass while fragile paths regress.
+Action for future reviews:
+- Check tag usage for new regression tests.
+- Ensure at least one representative risk test runs in default test invocation.
+
+*** Finding Pattern: Public debug API creep
+Debug-only methods in production headers increase accidental surface area.
+Action for future reviews:
+- Challenge TEST-ONLY public methods.
+- Prefer test helpers scoped to test files or guarded compile-time-only paths.
+
+*** Finding Pattern: Green tests with warning debt
+A fully green suite can still hide warning regressions that degrade maintainability.
+Action for future reviews:
+- Capture warning deltas from build logs.
+- Flag repeated unused-variable warnings in touched files.
+
+*** Finding Pattern: Snapshot review drift
+Older review documents can contain both still-valid and obsolete findings.
+Action for future reviews:
+- Re-validate each inherited finding against current main before creating follow-up work.
+- Preserve evidence links for both carried-forward and retired items.
+- Mark retired concerns explicitly so they do not keep reappearing in planning cycles.
+
+* Per-Review Entries
+** 2026-05-01 (New main commits: priority queue cleanup)
+- Date: 2026-05-01
+- Scope: [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp), [trees/src/smd/tree/finger_tree_priority_queue.t.cpp](trees/src/smd/tree/finger_tree_priority_queue.t.cpp)
+- Top 3 findings:
+	- No correctness findings in this commit range.
+	- Previously flagged API risk (public debug/lazy queue methods) was removed.
+	- Previously flagged coverage gap (hidden lazy-path regressions) was addressed by non-hidden duplicate-element tests.
+- What changed in review strategy:
+	- Verified closure of prior findings by checking both API surface diff and test registration behavior.
+	- Ran full trees suite to confirm integration impact, not just targeted tests.
+- Follow-up tasks created:
+	- None for this commit range.
+
+** TODO Next review entry
+- Date:
+- Scope:
+- Top 3 findings:
+- What changed in review strategy:
+- Follow-up tasks created:

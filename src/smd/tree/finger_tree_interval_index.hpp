@@ -143,7 +143,84 @@ struct Monoid<smd::tree::IntervalMaxEndTag<PAYLOAD_TYPE>> {
 
 }  // namespace smd::typeclass
 
-#endif
+namespace smd {
 
-#include <smd/tree/finger_tree_interval_index_foldable.hpp>
-#include <smd/tree/finger_tree_interval_index_traversable.hpp>
+template <class PAYLOAD_TYPE>
+struct FingerTreeIntervalIndexFoldableImpl {
+  template <class F>
+  auto fold_map(this auto&&,
+                F&& function,
+                const smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE>& index)
+    -> remove_cvref_t<std::invoke_result_t<F, const PAYLOAD_TYPE&>>
+  {
+    using Result = remove_cvref_t<std::invoke_result_t<F, const PAYLOAD_TYPE&>>;
+    return std::ranges::fold_left(
+        index.entries(),
+        smd::typeclass::monoid_v<Result>.identity(),
+        [&](Result acc, const auto& entry) {
+          return smd::typeclass::monoid_v<Result>.combine(
+              std::move(acc), std::invoke(function, entry.d_payload));
+        });
+  }
+};
+
+template <class PAYLOAD_TYPE>
+struct FingerTreeIntervalIndexFoldableMap
+  : Foldable<FingerTreeIntervalIndexFoldableImpl<PAYLOAD_TYPE>> {
+  using FingerTreeIntervalIndexFoldableImpl<PAYLOAD_TYPE>::fold_map;
+};
+
+template <class PAYLOAD_TYPE>
+inline constexpr auto foldable_typeclass<smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE>> =
+  FingerTreeIntervalIndexFoldableMap<PAYLOAD_TYPE>{};
+
+template <class PAYLOAD_TYPE>
+struct FingerTreeIntervalIndexTraversableImpl {
+  using element_type = PAYLOAD_TYPE;
+
+  template <class APPLICATIVE, class F>
+  auto traverse(this auto&&,
+                const APPLICATIVE& applicative,
+                F&& function,
+                const smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE>& index)
+  {
+    using Context = remove_cvref_t<std::invoke_result_t<F, const PAYLOAD_TYPE&>>;
+    using U = smd::applicative_value_t<Context>;
+
+    auto accumulated = applicative.pure(std::vector<smd::tree::Interval<U>>{});
+
+    for (const auto& entry : index.entries()) {
+      auto lifted = std::invoke(function, entry.d_payload);
+      accumulated = applicative.invoke(
+        [start = entry.d_start, end = entry.d_end](
+          std::vector<smd::tree::Interval<U>> values, U payload) {
+          values.push_back(
+            smd::tree::Interval<U>{start, end, std::move(payload)});
+          return values;
+        },
+        std::move(accumulated),
+        std::move(lifted));
+    }
+
+    return applicative.invoke(
+      [](std::vector<smd::tree::Interval<U>> values) {
+        return smd::tree::FingerTreeIntervalIndex<U>::from_intervals(
+          std::move(values));
+      },
+      std::move(accumulated));
+  }
+};
+
+template <class PAYLOAD_TYPE>
+struct FingerTreeIntervalIndexTraversableMap
+  : Traversable<FingerTreeIntervalIndexTraversableImpl<PAYLOAD_TYPE>> {
+  using FingerTreeIntervalIndexTraversableImpl<PAYLOAD_TYPE>::traverse;
+};
+
+template <class PAYLOAD_TYPE>
+inline constexpr auto traversable_typeclass<smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE>> =
+  FingerTreeIntervalIndexTraversableMap<PAYLOAD_TYPE>{};
+
+}  // namespace smd
+
+#endif

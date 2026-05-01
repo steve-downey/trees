@@ -291,6 +291,56 @@ src/acme/net/
 ├── socket.cpp
 └── socket.test.cpp
 ```
+Test file double-include and TDD bootstrap pattern. Every test file (`.test.cpp` or `.t.cpp`) must enforce header re-inclusion safety and establish a baseline test immediately:
+
+**Double-include verification:**
+The target header is included twice—once at the top of the file and once again immediately after—to verify that include guards or `#pragma once` are correctly placed and that the header is idempotent (safe to include multiple times without errors). This catches subtle issues with macro pollution, circular dependencies, or missing guards.
+
+**TDD bootstrap test:**
+Before adding substantive tests, add a single tautological test (one that always passes) to ensure build coherency. This test serves as a compile-time signal that the test file itself is correct and can link properly.
+
+**Template:**
+
+```cpp
+// src/acme/net/socket.test.cpp                                 -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+#include <acme/net/socket.hpp>
+#include <acme/net/socket.hpp>  // Re-inclusion verification
+
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("SocketTest - HeaderIsIdempotent")
+{
+    // Placeholder: verifies header re-inclusion safety and build coherency.
+    // This test always passes if the file compiles.
+    REQUIRE(true);
+}
+
+TEST_CASE("SocketTest - ConstructionBreathing")
+{
+    acme::net::socket s("localhost:8080");
+    CHECK(s.is_connected() == false);
+}
+
+TEST_CASE("SocketTest - SemanticBehavior")
+{
+    // Verify main algorithm or invariant.
+    acme::net::socket s1("localhost:8080");
+    acme::net::socket s2("localhost:8080");
+    CHECK(s1.endpoint() == s2.endpoint());
+}
+```
+
+**Rationale:**
+
+1. **Re-inclusion safety:** Catches missing `#ifndef` guards or incorrect guard boundaries
+2. **Macro isolation:** Verifies first-pass macro definitions do not corrupt second-pass parsing
+3. **Build coherency:** A passing re-inclusion test proves the header and implementation can coexist in multiple translation units
+4. **TDD discipline:** Tautological test enforces immediate correctness; substantive tests are added in order
+
+**Imperative for new components:**
+When adding a new component header, create its test file immediately with this structure before writing substantive tests. Do not defer test creation—the framework structure is stable, and tests can be enriched incrementally.
 CMake House Rules
 Target-based modern CMake. Use targets as the organizing unit. Define a real target first, then attach sources and headers to it. Directory-wide source piles and global include state are the wrong abstraction. [CMake-FileSets]. citeturn12search10
 ```cmake
