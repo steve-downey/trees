@@ -98,20 +98,25 @@
 
 ** Abstract
 
-The functor and monad patterns have been broadly successful in ranges, sender-receiver, optional, and expected. Other typeclasses from functional programming have proven their value over the last decade and are ready for C++ adoption.
-
-In particular, I am interested in better support for algorithms over trees and other data structures where flattening into a sequence loses too much information. This talk focuses on Foldable, Applicative, and Traversable, as well as Monoid, which underpins a number of efficient tree algorithms.
-
-The eventual goal is to bring ~fingertree~ to the standard library, along with support for application-domain trees in use today, such as expression evaluators and syntax trees.
+- Functor and monad patterns are proven; Foldable, Applicative, and Traversable are the next step.
+- Trees and structured data lose too much information when flattened to a sequence.
+- Monoid underpins efficient tree algorithms; the three typeclasses compose on top of it.
+- Long-term goal: ~fingertree~ in the standard library.
 
 ** Foldable
-- Foldables :: are types that can be treated as a sequence or range and support a ~fold_map~ minimal hook, which provides much of the power of ~std::ranges~. Providing opt-in hooks for making a type Foldable rather than a Range decouples the algorithm from the representation.
+- Opt-in hook: ~fold_map~ — provides the algorithmic power of ~std::ranges~.
+- Decouples algorithm from representation.
+- No flattening required.
 
 ** Applicative
-- Applicatives :: model the pattern of applying a pure function to effectful arguments. The implementation details—partial application inside a container—are a distraction; what matters is the lawful interface. Applicatives are widely relevant for data-parallel operations and independent effects, and they require less sequencing machinery than monadic formulations.
+- Apply a pure function to independent effectful arguments.
+- Two hooks: ~pure~ (lift) and ~apply~ (sequence). ~invoke~ is the C++ user API.
+- Less sequencing machinery than monad for independent effects.
 
 ** Traversable
-- Traversables :: generalize Foldables by preserving the shape of a container rather than collapsing it to a sequence. A binary tree can be traversed while maintaining parent-child relationships, where a fold can produce at most a flat range. Traversable also provides the ability to commute containers generically—converting a range of tasks into a task that produces a range.
+- Generalizes Foldable: maps with effects while rebuilding the container shape.
+- A tree stays a tree; a fold can only produce a flat result.
+- Commutes containers: a range of effects becomes an effect of a range.
 
 ** Not Monadic
 - This talk stops short of Monad deliberately.
@@ -246,9 +251,9 @@ Callers can supply a custom instance to change behavior for a specific call site
 
 *** Implementors: One Hook, Many Derived Operations
 - Implement one minimal hook per concept; all derived operations come for free.
-- Foldable: implement ~fold_map~ → get ~length~, ~fold_left~, ~fold_right~, ~to_vector~, ~any_of~, ~all_of~, ~empty~, ~find_first~.
-- Applicative: implement ~pure~ + ~apply~ → get ~invoke~, ~map~, ~zip_with~, ~discard_first~, ~discard_second~.
-- Traversable: implement ~traverse~ → get ~for_each~, ~sequence~, ~traverse_with~, ~sequence_with~.
+- Foldable: implement ~fold_map~ → counting, folding, predicates, collection.
+- Applicative: implement ~pure~ + ~apply~ → ~invoke~ and five more operations.
+- Traversable: implement ~traverse~ → ~for_each~, ~sequence~, and override variants.
 
 #+begin_notes
 The implementor surface is small; the user-facing surface is rich.
@@ -335,13 +340,14 @@ Traversable keeps the tree skeleton and only transforms payloads.
 
 #+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::7c2f11d9-ef09-45e2-80da-9229f3c8d82c]] :lines 2- :src cpp :end "7c2f11d9-ef09-45e2-80da-9229f3c8d82c end"
 
+**** FringeTree: Traversable Also Preserves Shape
 
 #+transclude:  [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]] :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
 
 * Foldable
 *** Foldable API: One Hook, Derived from fold_map
 - Minimal hook: ~fold_map(F, container)~ — apply F to each element, combine results.
-- Derived: ~length~, ~fold_left~, ~fold_right~, ~to_vector~, ~any_of~, ~all_of~, ~empty~, ~find_first~.
+- Derived: counting, folding left/right, collecting, predicates — all from one hook.
 - No traversal order is mandated; the instance chooses and must be consistent.
 
 **** fold_map → length
@@ -373,12 +379,11 @@ Source: [cite:@downey2026treesresearch].
 - Applicative captures applying a pure function to independent effectful arguments.
 - Minimal hooks: ~pure~ (lift a value) and ~apply~ (apply a contextual function).
 - User API: ~invoke~ — matches the mental model of ~std::invoke~ over effectful values.
-- ~apply_pure~ is a teaching alias for FP audiences; ~invoke~ is the C++ spelling.
 - Less sequencing machinery than monadic formulations for independent effects.
 
 #+begin_notes
 McBride's "applicative style" paper is the primary reference.
-apply_pure retains FP bracket notation [| f a b c |] for audiences coming from Haskell.
+apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] for Haskell audiences; invoke is the preferred C++ spelling.
 Source: [cite:@downey2026treesresearch].
 #+end_notes
 
@@ -506,7 +511,7 @@ Source: [cite:@downey2026treesresearch].
 *** Laws That Keep This Honest
 - Applicative: identity, homomorphism, interchange, composition — all automated.
 - Traversable: identity, naturality, composition — all automated.
-- Foldable: derived operations (~length~, ~fold_left~, ~fold_right~, ~to_vector~, predicates) exercised against ~fold_map~.
+- Foldable: all derived operations exercised directly against ~fold_map~.
 - If these fail, abstractions become accidental APIs rather than reliable interfaces.
 
 #+begin_notes
