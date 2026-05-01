@@ -1,0 +1,72 @@
+#+title: Main Review Follow-up Tasks
+#+author: GitHub Copilot
+#+date: 2026-05-01
+#+startup: overview
+#+startup: logdone
+
+* TODO Remove lazy/debug queue paths from public API
+:PROPERTIES:
+:ID:       ftpq-remove-debug-api
+:AREA:     tree/priority-queue
+:PRIORITY: A
+:END:
+- [ ] Remove public methods intended only for diagnostics from [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp):
+  - [ ] pop_min_lazy
+  - [ ] pop_max_lazy
+  - [ ] debug_pop_min_split_min_only
+  - [ ] debug_pop_min_rebuild_max_only
+  - [ ] debug_pop_min_lazy_components_only
+  - [ ] debug_construct_lazy_min_result
+- [ ] Keep stable behavior via rebuild-based pop_min/pop_max only.
+- [ ] Ensure no downstream call sites rely on removed methods.
+- [ ] Run tests: make TOOLCHAIN=clang test
+
+* TODO Make lazy-removal regressions part of default test coverage
+:PROPERTIES:
+:ID:       ftpq-promote-regression-tests
+:AREA:     tree/tests
+:PRIORITY: A
+:END:
+- [ ] Move at least one representative duplicate/min/max regression from hidden tags to default test set.
+- [ ] Keep narrowly diagnostic reproducer tests hidden if needed, but ensure correctness path is always exercised in CI.
+- [ ] Verify by running default ctest pipeline through make TOOLCHAIN=clang test.
+
+* TODO Clean up unused variable warnings introduced in Traversable updates
+:PROPERTIES:
+:ID:       traversable-warning-cleanup
+:AREA:     typeclass/traversable
+:PRIORITY: B
+:END:
+- [ ] Remove unused local bindings of traversable map objects in tests/examples where not used.
+- [ ] Rebuild and confirm warnings reduced or eliminated in touched files.
+- [ ] Keep test intent/readability clear after edits.
+
+* TODO Confirm Traversable explicit-applicative protocol invariants remain enforced
+:PROPERTIES:
+:ID:       traversable-protocol-guardrails
+:AREA:     typeclass/traversable
+:PRIORITY: B
+:END:
+- [ ] Audit traversable impls for recursive propagation of explicit applicative parameter.
+- [ ] Ensure Map classes preserve using Impl::traverse to support alternate-core pattern.
+- [ ] Add/adjust one law-style test if needed to guard custom applicative override path.
+
+* TODO Optional: tighten queue header API hygiene
+:PROPERTIES:
+:ID:       ftpq-header-hygiene
+:AREA:     tree/priority-queue
+:PRIORITY: C
+:END:
+- [ ] Re-check include list order and minimality after lazy/debug path removal.
+- [ ] Verify comments describe supported behavior only (no stale experimental notes).
+
+* TODO Delivery checklist
+:PROPERTIES:
+:ID:       delivery-checklist
+:AREA:     workflow
+:PRIORITY: B
+:END:
+- [ ] Implement changes in feature worktree/branch.
+- [ ] Run full test suite in trees with clang.
+- [ ] Prepare concise change summary with file references.
+- [ ] Only commit after green tests.
