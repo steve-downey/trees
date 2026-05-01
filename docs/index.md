@@ -1,32 +1,68 @@
----
-title: Live Source Snapshot (main, strict built-target graph)
-summary: Point-in-time fenced dump of trees/src C++ files explicitly listed in CMake target_sources() on main.
-source_of_truth: git HEAD on branch main
-strictness: only explicit target_sources entries; excludes transitively included headers
-scope:
-  include:
-    - files directly named in trees/src/**/CMakeLists.txt target_sources()
-  exclude:
-    - trees/src/deadcode/**
-    - trees/src/smd/conceptmap/**
-update_policy:
-  when_to_update:
-    - Any time target_sources lists in trees/src/**/CMakeLists.txt change.
-    - Any time a listed file changes on main and this snapshot is used as a baseline.
-  how_to_update:
-    - Rebuild the explicit built-file manifest from CMakeLists and regenerate from git HEAD.
-notes:
-  - Section headers are canonical paths without the leading src/ prefix.
-  - File contents are copied from git (HEAD), not the working tree.
----
+- [Overview](#orgb614887)
+- [Active Source Files](#orgd7cfc91)
+  - [examples/cpo<sub>example.cpp</sub>](#orgfca1763)
+  - [examples/main.cpp](#org141faf3)
+  - [examples/map<sub>example.cpp</sub>](#org62d326b)
+  - [smd/ranges/range<sub>applicative.hpp</sub>](#orgad0d5e1)
+  - [smd/ranges/range<sub>foldable.hpp</sub>](#org03925a3)
+  - [smd/ranges/range<sub>functor.hpp</sub>](#orgafda85e)
+  - [smd/ranges/range<sub>list.hpp</sub>](#org41fda00)
+  - [smd/ranges/range<sub>traversable.hpp</sub>](#org9fbc0f6)
+  - [smd/thunk/delay.hpp](#orga5e3dcf)
+  - [smd/thunk/memoize.hpp](#org0a3c9a6)
+  - [smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>](#orge4257c0)
+  - [smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>](#org0e755ae)
+  - [smd/tree/binary<sub>tree.hpp</sub>](#orge8034d2)
+  - [smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>](#org2edaacd)
+  - [smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>](#org45924aa)
+  - [smd/tree/finger<sub>tree.hpp</sub>](#orgc8adb1f)
+  - [smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>](#org2ffd65e)
+  - [smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>](#org0db261f)
+  - [smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>](#org4981d68)
+  - [smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>](#org413b5a9)
+  - [smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>](#orgb3e7bbb)
+  - [smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>](#orgf67c401)
+  - [smd/tree/fix<sub>tree</sub><sub>applicative.hpp</sub>](#org5b2110f)
+  - [smd/tree/fix<sub>tree</sub><sub>foldable.hpp</sub>](#org45c3846)
+  - [smd/tree/fix<sub>tree.hpp</sub>](#org232c2a2)
+  - [smd/tree/fix<sub>tree</sub><sub>traversable.hpp</sub>](#orgcd6a700)
+  - [smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>](#org54ebcb5)
+  - [smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>](#org4862bec)
+  - [smd/tree/fringe<sub>tree.hpp</sub>](#org9fd9e3f)
+  - [smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>](#orgf236ef2)
+  - [smd/tree/memoized<sub>thunk.hpp</sub>](#org8b85e4c)
+  - [smd/typeclass/applicative.hpp](#orgaff5802)
+  - [smd/typeclass/examples/applicative<sub>bad.cpp</sub>](#org7772d2c)
+  - [smd/typeclass/examples/applicative<sub>examples.cpp</sub>](#orgb401833)
+  - [smd/typeclass/examples/foldable<sub>examples.cpp</sub>](#org7f4af1e)
+  - [smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>](#org5f424cd)
+  - [smd/typeclass/examples/traversable<sub>examples.cpp</sub>](#org98d8729)
+  - [smd/typeclass/foldable.hpp](#org5159ca4)
+  - [smd/typeclass/functor.hpp](#orge937553)
+  - [smd/typeclass/monoid.hpp](#orga2c4273)
+  - [smd/typeclass/traversable.hpp](#org6540d8d)
+  - [smd/typeclass/typeclass<sub>base.hpp</sub>](#org11fad53)
+  - [smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>](#org667c4de)
+  - [smd/ziplist/zip<sub>list.hpp</sub>](#orgd23e2b5)
+- [Regeneration](#org5c00dee)
 
-# Live Source Snapshot (main, strict built-target graph)
 
-Generated from main at commit 22690de.
 
-This file includes only source files explicitly listed in CMake target_sources() entries under trees/src.
+<a id="orgb614887"></a>
 
-## examples/cpo_example.cpp
+# Overview
+
+This index transcludes active files under `trees/src` that are explicitly listed in CMake `target_sources()` entries. It excludes `deadcode` and `smd/conceptmap`.
+
+
+<a id="orgd7cfc91"></a>
+
+# Active Source Files
+
+
+<a id="orgfca1763"></a>
+
+## examples/cpo<sub>example.cpp</sub>
 
 ```cpp
 #include <concepts>
@@ -88,8 +124,10 @@ int main() {
     test t1, t2;
     return N::ne(t1, t2);
 }
-
 ```
+
+
+<a id="org141faf3"></a>
 
 ## examples/main.cpp
 
@@ -150,10 +188,12 @@ void test() {
 }
 
 int main() { test(); }
-
 ```
 
-## examples/map_example.cpp
+
+<a id="org62d326b"></a>
+
+## examples/map<sub>example.cpp</sub>
 
 ```cpp
 #include <concepts>
@@ -202,10 +242,12 @@ int main() {
 }
 
 // https://compiler-explorer.com/z/48E7osfxE
-
 ```
 
-## smd/ranges/range_applicative.hpp
+
+<a id="orgad0d5e1"></a>
+
+## smd/ranges/range<sub>applicative.hpp</sub>
 
 ```cpp
 // src/smd/ranges/range_applicative.hpp                               -*-C++-*-
@@ -271,10 +313,12 @@ inline constexpr auto applicative_typeclass<smd::ranges::list_range<VIEW> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/ranges/range_foldable.hpp
+
+<a id="org03925a3"></a>
+
+## smd/ranges/range<sub>foldable.hpp</sub>
 
 ```cpp
 // src/smd/ranges/range_foldable.hpp                                  -*-C++-*-
@@ -403,10 +447,12 @@ inline constexpr auto foldable_typeclass<smd::ranges::list_range<VIEW> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/ranges/range_functor.hpp
+
+<a id="orgafda85e"></a>
+
+## smd/ranges/range<sub>functor.hpp</sub>
 
 ```cpp
 // src/smd/ranges/range_functor.hpp                                   -*-C++-*-
@@ -446,10 +492,12 @@ inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/ranges/range_list.hpp
+
+<a id="org41fda00"></a>
+
+## smd/ranges/range<sub>list.hpp</sub>
 
 ```cpp
 // src/smd/ranges/range_list.hpp                                      -*-C++-*-
@@ -561,10 +609,12 @@ auto from_vector(std::vector<VALUE> values)
 }  // close namespace smd::ranges
 
 #endif
-
 ```
 
-## smd/ranges/range_traversable.hpp
+
+<a id="org9fbc0f6"></a>
+
+## smd/ranges/range<sub>traversable.hpp</sub>
 
 ```cpp
 // src/smd/ranges/range_traversable.hpp                               -*-C++-*-
@@ -652,8 +702,10 @@ inline constexpr auto traversable_typeclass<smd::ranges::list_range<VIEW> > =
 }  // close namespace smd
 
 #endif
-
 ```
+
+
+<a id="orga5e3dcf"></a>
 
 ## smd/thunk/delay.hpp
 
@@ -691,8 +743,10 @@ auto delay(Callable&& c, Args&&... args)
 }  // namespace smd::thunk
 
 #endif
-
 ```
+
+
+<a id="org0a3c9a6"></a>
 
 ## smd/thunk/memoize.hpp
 
@@ -810,10 +864,12 @@ auto measured_memoize(Measure measure, Callable&& c, Args&&... args)
 }  // namespace smd::thunk
 
 #endif
-
 ```
 
-## smd/tree/binary_tree_applicative.hpp
+
+<a id="orge4257c0"></a>
+
+## smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>
 
 ```cpp
 // src/smd/tree/binary_tree_applicative.hpp                           -*-C++-*-
@@ -906,10 +962,12 @@ inline constexpr auto applicative_typeclass<smd::tree::BinaryTree<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/binary_tree_foldable.hpp
+
+<a id="org0e755ae"></a>
+
+## smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>
 
 ```cpp
 // src/smd/tree/binary_tree_foldable.hpp                              -*-C++-*-
@@ -965,10 +1023,12 @@ inline constexpr auto foldable_typeclass<smd::tree::BinaryTree<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/binary_tree.hpp
+
+<a id="orge8034d2"></a>
+
+## smd/tree/binary<sub>tree.hpp</sub>
 
 ```cpp
 // src/smd/tree/binary_tree.hpp                                       -*-C++-*-
@@ -1055,10 +1115,12 @@ class BinaryTree {
 }  // close namespace smd::tree
 
 #endif
-
 ```
 
-## smd/tree/binary_tree_traversable.hpp
+
+<a id="org2edaacd"></a>
+
+## smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>
 
 ```cpp
 // src/smd/tree/binary_tree_traversable.hpp                           -*-C++-*-
@@ -1177,10 +1239,12 @@ inline constexpr auto traversable_typeclass<smd::tree::BinaryTree<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/finger_tree_foldable.hpp
+
+<a id="org45924aa"></a>
+
+## smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>
 
 ```cpp
 // src/smd/tree/finger_tree_foldable.hpp                              -*-C++-*-
@@ -1232,10 +1296,12 @@ inline constexpr auto foldable_typeclass<
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/finger_tree.hpp
+
+<a id="orgc8adb1f"></a>
+
+## smd/tree/finger<sub>tree.hpp</sub>
 
 ```cpp
 // src/smd/tree/finger_tree.hpp                                       -*-C++-*-
@@ -2348,10 +2414,12 @@ class FingerTree {
 }  // namespace smd::tree
 
 #endif
-
 ```
 
-## smd/tree/finger_tree_interval_index.hpp
+
+<a id="org2ffd65e"></a>
+
+## smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>
 
 ```cpp
 // src/smd/tree/finger_tree_interval_index.hpp                        -*-C++-*-
@@ -2580,10 +2648,12 @@ inline constexpr auto traversable_typeclass<smd::tree::FingerTreeIntervalIndex<P
 }  // namespace smd
 
 #endif
-
 ```
 
-## smd/tree/finger_tree_priority_queue.hpp
+
+<a id="org0db261f"></a>
+
+## smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>
 
 ```cpp
 // src/smd/tree/finger_tree_priority_queue.hpp                        -*-C++-*-
@@ -2858,10 +2928,12 @@ inline constexpr auto traversable_typeclass<smd::tree::FingerTreePriorityQueue<T
 }  // namespace smd
 
 #endif
-
 ```
 
-## smd/tree/finger_tree_random_access.hpp
+
+<a id="org4981d68"></a>
+
+## smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>
 
 ```cpp
 // src/smd/tree/finger_tree_random_access.hpp                         -*-C++-*-
@@ -3038,10 +3110,12 @@ inline constexpr auto traversable_typeclass<smd::tree::FingerTreeRandomAccess<T>
 }  // namespace smd
 
 #endif
-
 ```
 
-## smd/tree/finger_tree_rope.hpp
+
+<a id="org413b5a9"></a>
+
+## smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>
 
 ```cpp
 // src/smd/tree/finger_tree_rope.hpp                                  -*-C++-*-
@@ -3257,10 +3331,12 @@ inline constexpr auto traversable_typeclass<smd::tree::FingerTreeRope> =
 }  // namespace smd
 
 #endif
-
 ```
 
-## smd/tree/finger_tree_traversable.hpp
+
+<a id="orgb3e7bbb"></a>
+
+## smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>
 
 ```cpp
 // src/smd/tree/finger_tree_traversable.hpp                           -*-C++-*-
@@ -3337,10 +3413,12 @@ inline constexpr auto traversable_typeclass<
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/finger_tree_wrappers.hpp
+
+<a id="orgf67c401"></a>
+
+## smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>
 
 ```cpp
 // src/smd/tree/finger_tree_wrappers.hpp                              -*-C++-*-
@@ -3354,10 +3432,12 @@ inline constexpr auto traversable_typeclass<
 #include <smd/tree/finger_tree_rope.hpp>
 
 #endif
-
 ```
 
-## smd/tree/fix_tree_applicative.hpp
+
+<a id="org5b2110f"></a>
+
+## smd/tree/fix<sub>tree</sub><sub>applicative.hpp</sub>
 
 ```cpp
 // src/smd/tree/fix_tree_applicative.hpp                              -*-C++-*-
@@ -3415,10 +3495,12 @@ inline constexpr auto applicative_typeclass<smd::tree::FixTree<T> > =
 }
 
 #endif
-
 ```
 
-## smd/tree/fix_tree_foldable.hpp
+
+<a id="org45c3846"></a>
+
+## smd/tree/fix<sub>tree</sub><sub>foldable.hpp</sub>
 
 ```cpp
 // src/smd/tree/fix_tree_foldable.hpp                                 -*-C++-*-
@@ -3468,10 +3550,12 @@ inline constexpr auto foldable_typeclass<smd::tree::FixTree<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/fix_tree.hpp
+
+<a id="org232c2a2"></a>
+
+## smd/tree/fix<sub>tree.hpp</sub>
 
 ```cpp
 // src/smd/tree/fix_tree.hpp                                          -*-C++-*-
@@ -3507,10 +3591,12 @@ private:
 };
 }
 #endif
-
 ```
 
-## smd/tree/fix_tree_traversable.hpp
+
+<a id="orgcd6a700"></a>
+
+## smd/tree/fix<sub>tree</sub><sub>traversable.hpp</sub>
 
 ```cpp
 // src/smd/tree/fix_tree_traversable.hpp                              -*-C++-*-
@@ -3575,10 +3661,12 @@ inline constexpr auto traversable_typeclass<smd::tree::FixTree<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/fringe_tree_applicative.hpp
+
+<a id="org54ebcb5"></a>
+
+## smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>
 
 ```cpp
 // src/smd/tree/fringe_tree_applicative.hpp                           -*-C++-*-
@@ -3650,10 +3738,12 @@ inline constexpr auto applicative_typeclass<smd::tree::FringeTree<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/fringe_tree_foldable.hpp
+
+<a id="org4862bec"></a>
+
+## smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>
 
 ```cpp
 // src/smd/tree/fringe_tree_foldable.hpp                              -*-C++-*-
@@ -3707,10 +3797,12 @@ inline constexpr auto foldable_typeclass<smd::tree::FringeTree<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/fringe_tree.hpp
+
+<a id="org9fd9e3f"></a>
+
+## smd/tree/fringe<sub>tree.hpp</sub>
 
 ```cpp
 // src/smd/tree/fringe_tree.hpp                                       -*-C++-*-
@@ -3929,10 +4021,12 @@ class FringeTree {
 }  // close namespace smd::tree
 
 #endif
-
 ```
 
-## smd/tree/fringe_tree_traversable.hpp
+
+<a id="orgf236ef2"></a>
+
+## smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>
 
 ```cpp
 // src/smd/tree/fringe_tree_traversable.hpp                           -*-C++-*-
@@ -4002,10 +4096,12 @@ inline constexpr auto traversable_typeclass<smd::tree::FringeTree<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/tree/memoized_thunk.hpp
+
+<a id="org8b85e4c"></a>
+
+## smd/tree/memoized<sub>thunk.hpp</sub>
 
 ```cpp
 // src/smd/tree/memoized_thunk.hpp                                    -*-C++-*-
@@ -4049,8 +4145,10 @@ auto measured_thunk(Measure measure, Callable&& c, Args&&... args)
 }  // namespace smd::tree::detail
 
 #endif
-
 ```
+
+
+<a id="orgaff5802"></a>
 
 ## smd/typeclass/applicative.hpp
 
@@ -4429,10 +4527,12 @@ inline constexpr auto applicative_typeclass<beman::optional::optional<VALUE_TYPE
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/typeclass/examples/applicative_bad.cpp
+
+<a id="org7772d2c"></a>
+
+## smd/typeclass/examples/applicative<sub>bad.cpp</sub>
 
 ```cpp
 #include <smd/typeclass/examples/examples.hpp>
@@ -4468,10 +4568,12 @@ auto bad_applicative_example() -> std::size_t
 }
 
 }  // close namespace smd::typeclass::examples
-
 ```
 
-## smd/typeclass/examples/applicative_examples.cpp
+
+<a id="orgb401833"></a>
+
+## smd/typeclass/examples/applicative<sub>examples.cpp</sub>
 
 ```cpp
 #include <smd/typeclass/examples/examples.hpp>
@@ -4503,10 +4605,12 @@ auto applicative_invoke_example() -> beman::optional::optional<int>
 }
 
 }  // close namespace smd::typeclass::examples
-
 ```
 
-## smd/typeclass/examples/foldable_examples.cpp
+
+<a id="org7f4af1e"></a>
+
+## smd/typeclass/examples/foldable<sub>examples.cpp</sub>
 
 ```cpp
 #include <smd/typeclass/examples/examples.hpp>
@@ -4598,10 +4702,12 @@ auto foldable_flattens_shape_example() -> bool
 }
 
 }  // close namespace smd::typeclass::examples
-
 ```
 
-## smd/typeclass/examples/lookup_modes_examples.cpp
+
+<a id="org5f424cd"></a>
+
+## smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>
 
 ```cpp
 #include <smd/typeclass/examples/examples.hpp>
@@ -4651,10 +4757,12 @@ auto nttp_object_lookup_example() -> std::optional<int>
 }
 
 }  // close namespace smd::typeclass::examples
-
 ```
 
-## smd/typeclass/examples/traversable_examples.cpp
+
+<a id="org98d8729"></a>
+
+## smd/typeclass/examples/traversable<sub>examples.cpp</sub>
 
 ```cpp
 #include <smd/typeclass/examples/examples.hpp>
@@ -4723,8 +4831,10 @@ auto traversable_preserves_shape_example() -> bool
 }
 
 }  // close namespace smd::typeclass::examples
-
 ```
+
+
+<a id="org5159ca4"></a>
 
 ## smd/typeclass/foldable.hpp
 
@@ -5085,8 +5195,10 @@ inline constexpr auto foldable_typeclass = std::false_type{};
 }  // close namespace smd
 
 #endif
-
 ```
+
+
+<a id="orge937553"></a>
 
 ## smd/typeclass/functor.hpp
 
@@ -5220,8 +5332,10 @@ inline constexpr auto functor_typeclass<std::vector<VALUE_TYPE> > =
 }  // close namespace smd
 
 #endif  // INCLUDED_SMD_TYPECLASS_FUNCTOR
-
 ```
+
+
+<a id="orga2c4273"></a>
 
 ## smd/typeclass/monoid.hpp
 
@@ -5342,8 +5456,10 @@ auto monoid_combine(const VALUE_TYPE& lhs, const VALUE_TYPE& rhs) -> VALUE_TYPE
 }  // close namespace smd
 
 #endif  // INCLUDED_SMD_TYPECLASS_MONOID
-
 ```
+
+
+<a id="org6540d8d"></a>
 
 ## smd/typeclass/traversable.hpp
 
@@ -5453,10 +5569,12 @@ auto traverse(F&& function, T&& value)
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/typeclass/typeclass_base.hpp
+
+<a id="org11fad53"></a>
+
+## smd/typeclass/typeclass<sub>base.hpp</sub>
 
 ```cpp
 // src/smd/typeclass/typeclass_base.hpp                               -*-C++-*-
@@ -5486,17 +5604,17 @@ struct applicative_value;
 
 template <class T>
 struct applicative_value<T, std::void_t<typename remove_cvref_t<T>::value_type> > {
-	using type = typename remove_cvref_t<T>::value_type;
+        using type = typename remove_cvref_t<T>::value_type;
 };
 
 template <class T>
 struct applicative_value<std::optional<T>, void> {
-	using type = T;
+        using type = T;
 };
 
 template <class T>
 struct applicative_value<beman::optional::optional<T>, void> {
-	using type = T;
+        using type = T;
 };
 
 template <class T>
@@ -5505,10 +5623,12 @@ using applicative_value_t = typename applicative_value<remove_cvref_t<T> >::type
 }  // close namespace smd
 
 #endif  // INCLUDED_SMD_TYPECLASS_TYPECLASS_BASE
-
 ```
 
-## smd/ziplist/zip_list_applicative.hpp
+
+<a id="org667c4de"></a>
+
+## smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>
 
 ```cpp
 // src/smd/ziplist/zip_list_applicative.hpp                           -*-C++-*-
@@ -5645,10 +5765,12 @@ inline constexpr auto applicative_typeclass<zip_list<T> > =
 }  // close namespace smd
 
 #endif
-
 ```
 
-## smd/ziplist/zip_list.hpp
+
+<a id="orgd23e2b5"></a>
+
+## smd/ziplist/zip<sub>list.hpp</sub>
 
 ```cpp
 // src/smd/ziplist/zip_list.hpp                                       -*-C++-*-
@@ -5693,6 +5815,17 @@ struct zip_list {
 }  // close namespace smd
 
 #endif
-
 ```
 
+
+<a id="org5c00dee"></a>
+
+# Regeneration
+
+Run from repository root to regenerate this file:
+
+```bash
+set -euo pipefail
+repo_root="$(git rev-parse --show-toplevel)"
+make -C "$repo_root/trees" docs-index
+```

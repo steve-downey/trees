@@ -215,6 +215,121 @@ view-coverage: ## View the coverage report
 docs: ## Build the docs with Doxygen
 	doxygen docs/Doxyfile
 
+.PHONY: docs-live-src
+docs-live-src: ## Regenerate docs/live-src-main.md from HEAD (excluding deadcode/conceptmap)
+	@set -eu; \
+	repo_root="$$(git rev-parse --show-toplevel)"; \
+	out="$$repo_root/trees/docs/live-src-main.md"; \
+	commit="$$(git rev-parse --short HEAD)"; \
+	{ \
+		printf -- '---\n'; \
+		printf 'title: Live Source Snapshot (main)\n'; \
+		printf 'summary: Point-in-time fenced dump of live trees/src C++ sources from main, excluding deadcode and smd/conceptmap.\n'; \
+		printf 'source_of_truth: git HEAD on branch main\n'; \
+		printf 'scope:\n'; \
+		printf '  include:\n'; \
+		printf '    - trees/src/**/*.hpp\n'; \
+		printf '    - trees/src/**/*.h\n'; \
+		printf '    - trees/src/**/*.cpp\n'; \
+		printf '  exclude:\n'; \
+		printf '    - trees/src/deadcode/**\n'; \
+		printf '    - trees/src/smd/conceptmap/**\n'; \
+		printf '    - trees/src/**/CMakeLists.txt\n'; \
+		printf 'update_policy:\n'; \
+		printf '  when_to_update:\n'; \
+		printf '    - Any time live files under trees/src are added, removed, renamed, or materially changed on main.\n'; \
+		printf '    - Before using this file as a review/reference baseline.\n'; \
+		printf '  how_to_update:\n'; \
+		printf '    - Regenerate from main using the command block in the "Regeneration" section below.\n'; \
+		printf '    - Replace this file atomically with regenerated output.\n'; \
+		printf 'notes:\n'; \
+		printf '  - Section headers are canonical paths without the leading src/ prefix.\n'; \
+		printf '  - File contents are copied from git (HEAD), not the working tree.\n'; \
+		printf -- '---\n\n'; \
+		printf '# Live Source Snapshot (main)\n\n'; \
+		printf 'Generated from main at commit %s.\n\n' "$$commit"; \
+		printf 'Includes files under trees/src that are live in current targets and examples, excluding deadcode and smd/conceptmap.\n'; \
+		printf 'Canonical names below omit the leading src/ prefix.\n\n'; \
+		git ls-tree -r --name-only HEAD trees/src \
+			| rg '^trees/src/' \
+			| rg -v '^trees/src/deadcode/' \
+			| rg -v '^trees/src/smd/conceptmap/' \
+			| rg -v '/CMakeLists\.txt$$' \
+			| rg '\.(hpp|h|cpp)$$' \
+			| sort -u \
+			| while IFS= read -r f; do \
+			canon="$${f#trees/src/}"; \
+			printf '## %s\n\n' "$$canon"; \
+			printf '```cpp\n'; \
+			git show "HEAD:$$f"; \
+			printf '\n```\n\n'; \
+		done; \
+	} > "$$out"; \
+	echo "Updated $$out"
+
+.PHONY: docs-live-src-strict
+docs-live-src-strict: ## Regenerate docs/live-src-main-built-targets.md from explicit CMake target_sources()
+	@set -eu; \
+	repo_root="$$(git rev-parse --show-toplevel)"; \
+	out="$$repo_root/trees/docs/live-src-main-built-targets.md"; \
+	commit="$$(git rev-parse --short HEAD)"; \
+	tmp_list="$$(mktemp)"; \
+	trap 'rm -f "$$tmp_list"' EXIT; \
+	find "$$repo_root/trees/src" -name CMakeLists.txt -type f | sort | while IFS= read -r cmake; do \
+		dir="$$(dirname "$$cmake")"; \
+		sed -n '/target_sources(/,/)/p' "$$cmake" \
+			| sed 's/#.*$$//' \
+			| rg -o '[A-Za-z0-9_./-]+\.(hpp|h|cpp|t\.cpp|test\.cpp)' \
+			| while IFS= read -r rel; do \
+				if [[ "$$rel" == */* ]]; then \
+					full="$$dir/$$rel"; \
+				else \
+					full="$$dir/$$rel"; \
+				fi; \
+				printf '%s\n' "$$full"; \
+			done; \
+	done \
+		| sed "s#^$$repo_root/trees/##" \
+		| rg '^src/' \
+		| rg -v '^src/deadcode/' \
+		| rg -v '^src/smd/conceptmap/' \
+		| rg '\.(hpp|h|cpp|t\.cpp|test\.cpp)$$' \
+		| sort -u > "$$tmp_list"; \
+	{ \
+		printf -- '---\n'; \
+		printf 'title: Live Source Snapshot (main, strict built-target graph)\n'; \
+		printf 'summary: Point-in-time fenced dump of trees/src C++ files explicitly listed in CMake target_sources() on main.\n'; \
+		printf 'source_of_truth: git HEAD on branch main\n'; \
+		printf 'strictness: only explicit target_sources entries; excludes transitively included headers\n'; \
+		printf 'scope:\n'; \
+		printf '  include:\n'; \
+		printf '    - files directly named in trees/src/**/CMakeLists.txt target_sources()\n'; \
+		printf '  exclude:\n'; \
+		printf '    - trees/src/deadcode/**\n'; \
+		printf '    - trees/src/smd/conceptmap/**\n'; \
+		printf 'update_policy:\n'; \
+		printf '  when_to_update:\n'; \
+		printf '    - Any time target_sources lists in trees/src/**/CMakeLists.txt change.\n'; \
+		printf '    - Any time a listed file changes on main and this snapshot is used as a baseline.\n'; \
+		printf '  how_to_update:\n'; \
+		printf '    - Rebuild the explicit built-file manifest from CMakeLists and regenerate from git HEAD.\n'; \
+		printf 'notes:\n'; \
+		printf '  - Section headers are canonical paths without the leading src/ prefix.\n'; \
+		printf '  - File contents are copied from git (HEAD), not the working tree.\n'; \
+		printf -- '---\n\n'; \
+		printf '# Live Source Snapshot (main, strict built-target graph)\n\n'; \
+		printf 'Generated from main at commit %s.\n\n' "$$commit"; \
+		printf 'This file includes only source files explicitly listed in CMake target_sources() entries under trees/src.\n\n'; \
+		while IFS= read -r f; do \
+			canon="$${f#src/}"; \
+			printf '## %s\n\n' "$$canon"; \
+			printf '```cpp\n'; \
+			git show "HEAD:trees/$$f"; \
+			printf '\n```\n\n'; \
+		done < "$$tmp_list"; \
+	} > "$$out"; \
+	echo "Updated $$out"
+
 .PHONY: docs-index
 docs-index: ## Regenerate docs/index.org from strict built-target snapshot
 	@set -euo pipefail; \
@@ -250,6 +365,23 @@ docs-index: ## Regenerate docs/index.org from strict built-target snapshot
 		printf '#+end_src\n'; \
 	} > "$$out"; \
 	echo "Updated $$out"
+
+.PHONY: docs-index-md
+docs-index-md: docs-index docs/index.md ## Regenerate docs/index.md from docs/index.org with transcluded source rendered
+	@echo "Updated docs/index.md"
+
+docs/index.md: docs/index.org
+	$(EMACS) --init-directory=.emacs.d/ \
+	--batch --load .emacs.d/init.el  \
+	-f package-initialize \
+	--eval "(setq enable-local-variables :all)" \
+	--visit $< \
+	--eval "(org-transclusion-mode t)" \
+	--eval "(org-export-to-file 'gfm \"$(CURDIR)/docs/index.md\")"
+
+.PHONY: docs-refresh
+docs-refresh: docs-live-src docs-live-src-strict docs-index docs-index-md ## Refresh source snapshots and both org/md indexes
+	@echo "Refreshed live source snapshots and index docs"
 
 .PHONY: mrdocs
 mrdocs: ## Build the docs with MrDocs
@@ -358,6 +490,7 @@ clean-org-html:
 clean: clean-org-html
 
 .PHONY: presentation
+presentation: docs-refresh
 presentation: test
 presentation: foldable-applicable-traversable.html
 presentation: foldable-applicable-traversable-slides.html
