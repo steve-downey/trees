@@ -6,7 +6,6 @@
 #include <smd/tree/finger_tree.hpp>
 #include <smd/typeclass/foldable.hpp>
 
-#include <algorithm>
 #include <functional>
 #include <type_traits>
 #include <utility>
@@ -23,13 +22,12 @@ struct FingerTreeFoldableImpl {
   {
     using Result = remove_cvref_t<std::invoke_result_t<F, const T&>>;
 
-    return std::ranges::fold_left(
-        tree.flatten(),
-        smd::typeclass::monoid_v<Result>.identity(),
-        [&](Result acc, const auto& value) {
-          return smd::typeclass::monoid_v<Result>.combine(
-              std::move(acc), std::invoke(function, value));
-        });
+    Result acc = smd::typeclass::monoid_v<Result>.identity();
+    tree.for_each([&](const T& value) {
+      acc = smd::typeclass::monoid_v<Result>.combine(
+          std::move(acc), std::invoke(function, value));
+    });
+    return acc;
   }
 };
 
