@@ -395,6 +395,7 @@ Use hidden friends only for tight customization points.
 Never write `using namespace` in a public header.
 Put non-public textual internals in `detail/`.
 In CMake, use targets, file sets, local file lists, `find_package`, and install targets rather than loose files.
+For non-trivial changes: create a git worktree (default) or feature branch, commit when tests pass, merge to main with `--no-ff`.
 Explicit assumptions
 Topic	Default status
 Project name	no specific constraint
@@ -406,6 +407,35 @@ Module adoption	no specific constraint
 Shared vs static library default	no specific constraint
 Export namespace	no specific constraint
 Where a repository already establishes any of those choices, keep the local choice and apply the rest of this house style around it.
+Agentic Instructions
+The following rules are imperative for automated agents (Claude Code, CI bots, or any tool acting on behalf of a developer). They supplement the house style above and are not optional.
+
+Before starting non-trivial work, create a git worktree:
+```bash
+git worktree add ../<branch-name> -b <branch-name>
+```
+Work exclusively inside that worktree. Do not modify files in the main working tree while a worktree is active. The worktree name should be a short, descriptive, kebab-case summary of the task (e.g. `fix-traversable-lookup`, `add-rope-foldable`).
+
+Commit when and only when all tests pass:
+```bash
+make TOOLCHAIN=clang test   # must show 170/170 (or current total) passed, 0 failed
+git commit -m "<imperative subject>" ...
+```
+Do not commit with failing tests. Do not commit partial work as a stepping stone unless explicitly instructed.
+
+Merge to main with a merge commit. Never fast-forward:
+```bash
+git -C <repo-root> checkout main
+git -C <repo-root> merge --no-ff <branch-name>
+```
+
+Add a Co-Authored-By trailer to every commit and merge message:
+```
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+```
+
+Do not push to the remote unless the user explicitly requests it.
+
 Bibliography
 The entries below are raw BibTeX-form citation data corresponding to the citation keys used above.
 ```bibtex
