@@ -1,0 +1,136 @@
+#+title: Adversarial Follow-up Checklist (Verifiable)
+#+author: GitHub Copilot
+#+date: 2026-05-01
+#+startup: overview
+#+startup: logdone
+
+* Purpose
+This checklist is intentionally audit-oriented: each task needs objective evidence before it can be marked done.
+
+* Rules For Ticking Items
+- Do not mark a task DONE unless its verification block passes.
+- Prefer attaching output snippets or commit hashes under each item.
+- If verification is partial, keep task as TODO and add blockers.
+
+* DONE Queue Header Hygiene Cleanup
+:PROPERTIES:
+:ID:       pq-header-hygiene-cleanup
+:AREA:     tree/priority-queue
+:PRIORITY: B
+:END:
+- [x] Remove unused includes in [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp).
+- [x] Keep include ordering/style consistent with local subtree conventions.
+
+Verification:
+- [x] Build passes after include cleanup.
+- [x] No new warnings in touched files.
+
+Evidence:
+- Commit: 5dd9d72
+- Removed: <smd/typeclass/applicative.hpp>, <smd/typeclass/foldable.hpp>,
+  <smd/typeclass/traversable.hpp>, <functional>, <type_traits>.
+  All five are included directly by the split typeclass headers.
+- Test run: =make TOOLCHAIN=clang test= → 172/172 passed.
+
+* DONE Add Queue Consistency Assertions To Tests
+:PROPERTIES:
+:ID:       pq-consistency-assertions
+:AREA:     tree/tests
+:PRIORITY: A
+:END:
+- [x] Extend tests in [trees/src/smd/tree/finger_tree_priority_queue.t.cpp](trees/src/smd/tree/finger_tree_priority_queue.t.cpp) to assert:
+  - [x] size() equals to_vector().size() after pop_min/pop_max sequences.
+  - [x] min()/max() agree with multiset extrema after each mutation in stress scenarios.
+
+Verification:
+- [x] Full suite remains green with assertions enabled.
+
+Evidence:
+- Commit: 5dd9d72
+- Added to RepeatedPushPopMatchesMultiset each iteration:
+  =CHECK(q.size() == expected.size())= and =CHECK(q.size() == q.to_vector().size())=.
+  min()/max() vs multiset extrema were already asserted per iteration.
+- Test run: =make TOOLCHAIN=clang test= → 172/172 passed.
+
+* DONE Clarify Current Pop Semantics In Queue Header
+:PROPERTIES:
+:ID:       pq-pop-semantics-comment
+:AREA:     tree/priority-queue
+:PRIORITY: B
+:END:
+- [x] Add/update concise comment in [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp) stating current deterministic rebuild behavior for pop_min/pop_max.
+- [x] Ensure comment does not over-claim asymptotic properties.
+
+Verification:
+- [x] Comment text matches implemented behavior.
+- [x] No conflicting wording remains in nearby comments.
+
+Evidence:
+- Commit: 5dd9d72
+- Added above pop_min: "Removes the minimum element. Both trees are rebuilt from
+  the flattened sequence (O(n)); this is a correctness-first implementation
+  pending O(log n) split-based optimization that does not change the call-site API."
+- Added above pop_max: "Same semantics as pop_min but returns the maximum element."
+
+* DONE Slide Wording Alignment For Split/Search
+:PROPERTIES:
+:ID:       slides-split-search-alignment
+:AREA:     slides/finger-tree
+:PRIORITY: A
+:END:
+- [x] Update mismatch in [trees/foldable-applicable-traversable.org](trees/foldable-applicable-traversable.org) where split/search status text can drift from current implementation.
+- [x] Keep narration explicit about current bounds vs target bounds.
+
+Verification:
+- [x] Source grep confirms old mismatched phrasing removed.
+- [x] Presentation build succeeds after edits.
+
+Evidence:
+- Grep: =rg -n "flattened sequence|linear-time bounds|split scans" foldable-applicable-traversable.org=
+  : line 643: - Current status: correct with linear-time bounds — split scans the flattened sequence.
+  : line 656: - Current split/search paths are correct with linear-time upper bounds.
+- Both lines accurately describe the current rebuild path (flatten + std::find, O(n)).
+  Speaker notes (lines 646-651) are also explicit: "does not yet meet those bounds."
+- No slide edits were required — wording was already correct and consistent with
+  the implementation after the debug/lazy path removal (commit 0fe7d0c).
+
+* DONE Wrapper Performance Follow-up Plan (Non-blocking)
+:PROPERTIES:
+:ID:       wrapper-performance-followup
+:AREA:     tree/wrappers
+:PRIORITY: C
+:END:
+- [x] Create scoped implementation tasks for:
+  - [x] [trees/src/smd/tree/finger_tree_random_access.hpp](trees/src/smd/tree/finger_tree_random_access.hpp)
+  - [x] [trees/src/smd/tree/finger_tree_interval_index.hpp](trees/src/smd/tree/finger_tree_interval_index.hpp)
+  - [x] [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp)
+- [x] Define success criteria per wrapper (correctness + expected complexity direction).
+
+Verification:
+- [x] Follow-on tasks are split into independently reviewable PR-sized units.
+- [x] Each unit lists measurable acceptance checks.
+
+Evidence:
+- Three tasks added to review-followups.org in this commit:
+  - =random-access-at-o-log-n= (Priority B): fix =at()=/=update()= from O(n) to O(log n)
+  - =priority-queue-pop-o-log-n= (Priority B): fix =pop_min=/=pop_max= from O(n log n) to O(log n)
+  - =interval-index-query-fold= (Priority C): replace flatten+filter with direct fold in queries
+- Each task includes: current state with line references, target behaviour, and
+  measurable acceptance checks tied to the existing test suite.
+
+* DONE Review Discipline Meta-Task
+:PROPERTIES:
+:ID:       review-discipline-meta
+:AREA:     process
+:PRIORITY: B
+:END:
+- [x] For each completed task above, append:
+  - [x] Commit hash
+  - [x] Test command run
+  - [x] Result summary
+- [x] Do not close this meta-task until all completed tasks include evidence.
+
+Evidence:
+- All DONE tasks carry commit 5dd9d72 and test result 172/172.
+- Slides item required no code change; evidence is the grep output above.
+- Wrapper performance: three scoped tasks added to review-followups.org (this commit).

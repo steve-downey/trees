@@ -1,0 +1,259 @@
+#+title: Main Review Follow-up Tasks
+#+author: GitHub Copilot
+#+date: 2026-05-01
+#+startup: overview
+#+startup: logdone
+
+* DONE Remove lazy/debug queue paths from public API
+:PROPERTIES:
+:ID:       ftpq-remove-debug-api
+:AREA:     tree/priority-queue
+:PRIORITY: A
+:END:
+- [x] Remove public methods intended only for diagnostics from [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp):
+  - [x] pop_min_lazy
+  - [x] pop_max_lazy
+  - [x] debug_pop_min_split_min_only
+  - [x] debug_pop_min_rebuild_max_only
+  - [x] debug_pop_min_lazy_components_only
+  - [x] debug_construct_lazy_min_result
+- [x] Keep stable behavior via rebuild-based pop_min/pop_max only.
+- [x] Ensure no downstream call sites rely on removed methods.
+Commit: 0fe7d0c — 172/172 pass.
+
+* DONE Make lazy-removal regressions part of default test coverage
+:PROPERTIES:
+:ID:       ftpq-promote-regression-tests
+:AREA:     tree/tests
+:PRIORITY: A
+:END:
+- [x] Move at least one representative duplicate/min/max regression from hidden tags to default test set.
+- [x] Keep narrowly diagnostic reproducer tests hidden if needed, but ensure correctness path is always exercised in CI.
+- [x] Verify by running default ctest pipeline through make TOOLCHAIN=clang test.
+Commit: 0fe7d0c — PopMinWithDuplicates and PopMaxWithDuplicates added to default coverage.
+
+* TODO Clean up unused variable warnings introduced in Traversable updates
+:PROPERTIES:
+:ID:       traversable-warning-cleanup
+:AREA:     typeclass/traversable
+:PRIORITY: B
+:END:
+- [ ] Remove unused local bindings of traversable map objects in tests/examples where not used.
+- [ ] Rebuild and confirm warnings reduced or eliminated in touched files.
+- [ ] Keep test intent/readability clear after edits.
+
+* TODO Confirm Traversable explicit-applicative protocol invariants remain enforced
+:PROPERTIES:
+:ID:       traversable-protocol-guardrails
+:AREA:     typeclass/traversable
+:PRIORITY: B
+:END:
+- [ ] Audit traversable impls for recursive propagation of explicit applicative parameter.
+- [ ] Ensure Map classes preserve using Impl::traverse to support alternate-core pattern.
+- [ ] Add/adjust one law-style test if needed to guard custom applicative override path.
+
+* DONE Optional: tighten queue header API hygiene
+:PROPERTIES:
+:ID:       ftpq-header-hygiene
+:AREA:     tree/priority-queue
+:PRIORITY: C
+:END:
+- [x] Re-check include list order and minimality after lazy/debug path removal.
+- [x] Verify comments describe supported behavior only (no stale experimental notes).
+Commit: 5dd9d72 — removed 5 unused includes; added O(n) rebuild comment to pop_min/pop_max.
+
+* TODO FingerTreeRandomAccess — O(log n) at() and update()
+:PROPERTIES:
+:ID:       random-access-at-o-log-n
+:AREA:     tree/random-access
+:PRIORITY: B
+:END:
+
+Current state (finger_tree_random_access.hpp):
+- =at(index)= calls =split_at_index(index+1)= correctly (O(log n) split), then
+  calls =flatten()= on the left subtree and takes =.back()= — O(n) total.
+- =update(index, value)= chains =erase()+insert()=, each of which does a split+concat
+  but =at()= inside them currently flattens. O(n) total.
+
+Target:
+- =at(index)= should read the element at the split boundary without materialising the
+  left subtree. The split result already has =d_pivot= or the tree exposes the
+  boundary element; use that directly. Target O(log n).
+- =update(index, value)= should do a single split+modify+concat rather than
+  erase+insert. Target O(log n).
+
+Acceptance checks:
+- [ ] =at()= and =update()= no longer call =flatten()= internally.
+- [ ] Existing tests pass (172/172).
+- [ ] A simple benchmark or timing comment added to show the call no longer scales
+  with n for large trees (informal — no harness required for this PR).
+- [ ] =to_vector()= and =size()= untouched.
+
+* TODO FingerTreePriorityQueue — O(log n) pop_min / pop_max
+:PROPERTIES:
+:ID:       priority-queue-pop-o-log-n
+:AREA:     tree/priority-queue
+:PRIORITY: B
+:END:
+
+Current state (finger_tree_priority_queue.hpp):
+- =pop_min()= and =pop_max()= both call =remove_one_rebuild()= twice (once per tree).
+  =remove_one_rebuild= does: =flatten()= O(n) + =std::find= O(n) + =erase= O(n) +
+  =from_sequence= O(n log n). Total per pop: O(n log n).
+- A comment already flags this as a correctness-first placeholder.
+
+Target:
+- Use =split()= with the MinTag/MaxTag monoid predicate to navigate to the
+  extremal element in O(log n), extract it, and reconstruct via concatenation.
+- Must handle duplicates correctly: if multiple elements equal the extremum,
+  remove exactly one (the split approach needs to find the first occurrence in
+  the appropriate tree before splitting).
+- Both =d_min_tree= and =d_max_tree= must stay consistent (same multiset of elements).
+
+Acceptance checks:
+- [ ] =pop_min()= and =pop_max()= no longer call =flatten()= internally.
+- [ ] =PopMinWithDuplicates= and =PopMaxWithDuplicates= pass.
+- [ ] =RepeatedPushPopMatchesMultiset= (250-iteration stress test with consistency
+  assertions) passes — this is the primary correctness guard.
+- [ ] 172/172 suite green.
+
+Caution: the removed =pop_min_lazy= / =pop_max_lazy= were an earlier attempt at
+this optimization that had correctness issues. Study those commits (0fe7d0c parent)
+before reimplementing to avoid repeating the same mistakes.
+
+* TODO FingerTreeIntervalIndex — avoid intermediate vector in queries
+:PROPERTIES:
+:ID:       interval-index-query-fold
+:AREA:     tree/interval-index
+:PRIORITY: C
+:END:
+
+Current state (finger_tree_interval_index.hpp):
+- =query_point(point)= and =query_overlap(start, end)= both:
+  1. Split the tree at the monoid boundary (O(log n)) — correct and efficient.
+  2. Call =flatten()= on the pruned right subtree — O(r) allocation where r is the
+     candidate count after pruning.
+  3. Apply =ranges::filter= over the vector — O(r).
+- Complexity is already O(log n + r); the issue is the intermediate vector heap
+  allocation when r is large.
+
+Target:
+- Replace =flatten()= + =ranges::filter= with a fold/traversal over the right
+  subtree directly, accumulating only matching entries.
+- This keeps O(log n + r) complexity but avoids materialising the full candidate
+  set before filtering.
+- Return type can remain =std::vector<Entry>= for call-site compatibility.
+
+Acceptance checks:
+- [ ] =query_point()= and =query_overlap()= no longer call =flatten()= internally.
+- [ ] Existing interval index tests pass.
+- [ ] 172/172 suite green.
+
+Note: this is a lower-priority allocation improvement; the asymptotic class does
+not change. Schedule after the RandomAccess and PriorityQueue items.
+
+* TODO Reviewer Three: Typeclass concept guards
+:PROPERTIES:
+:ID:       typeclass-concept-guards
+:AREA:     typeclass/applicative
+:PRIORITY: B
+:SOURCE:   reviewer-three.org § Architecture & Typeclass Emulation
+:END:
+
+Reviewer suggests adding =requires= clauses or =static_assert= checks inside
+the typeclass base templates (=Applicative<Impl>=, =Foldable<Impl>=,
+=Traversable<Impl>=) to enforce that the instantiated =Impl= actually provides
+the required operations (=pure= / =apply= / =fold_map= / =traverse=) with
+matching signatures, rather than producing deep template error cascades.
+
+Current state:
+- =smd/typeclass/applicative.hpp=: =struct Applicative : protected Impl= —
+  no guard on what =Impl= must provide.
+- Similarly for =Foldable<Impl>= in =foldable.hpp= and =Traversable<Impl>= in
+  =traversable.hpp=.
+
+Target:
+- Add a =requires= clause or =static_assert= at the point of instantiation that
+  checks the minimal required interface (e.g., =Impl= has =pure= and =apply= for
+  =Applicative=; =Impl= has =fold_map= for =Foldable=; =Impl= has =traverse= and
+  =element_type= for =Traversable=).
+- Error message should name the missing operation and point to the Impl type.
+
+Acceptance checks:
+- [ ] An incorrect Impl (missing =apply=) produces a readable error citing the
+  missing member rather than a deep substitution failure.
+- [ ] All existing 172/172 tests still pass.
+- [ ] No change to the external API.
+
+* TODO Reviewer Three: Remove stale memoized_thunk include from finger_tree.hpp
+:PROPERTIES:
+:ID:       stale-memoized-thunk-include
+:AREA:     tree/finger-tree
+:PRIORITY: C
+:SOURCE:   reviewer-three.org § 2-3 Finger Tree (stale review note)
+:END:
+
+The reviewer's finger-tree section describes the old vtable/=SuspendedSegment=
+implementation (now removed in commit 0468f16). However, =finger_tree.hpp=
+still carries =#include <smd/tree/memoized_thunk.hpp>= from the old design —
+nothing in the current implementation calls =thunk()=, =erased_thunk=, or
+=measured_thunk= from that path. (=finger_tree.t.cpp= includes the header
+directly for its own thunk tests.)
+
+Target:
+- Remove =#include <smd/tree/memoized_thunk.hpp>= from =finger_tree.hpp=.
+- Confirm the test file still compiles (it has its own direct include).
+
+Acceptance checks:
+- [ ] =finger_tree.hpp= no longer includes =memoized_thunk.hpp=.
+- [ ] 172/172 tests still pass.
+
+Note: If a future optimization reintroduces lazy spine evaluation, the include
+should come back at that point. The thread-safety concern the reviewer raised
+about =thunk()= (non-atomic variant mutation via shared_ptr) would also need
+addressing before any lazy path is re-exposed.
+
+* TODO Reviewer Three: FixTree is not a true fixed-point combinator
+:PROPERTIES:
+:ID:       fix-tree-true-fixed-point
+:AREA:     tree/fix-tree
+:PRIORITY: C
+:SOURCE:   reviewer-three.org § Recursion Schemes & Fix Trees
+:END:
+
+The reviewer correctly notes that =FixTree= in =smd/tree/fix_tree.hpp=
+hardcodes a binary topology via =std::variant<Leaf, Node>= rather than being
+a genuine fixed point over a higher-kinded functor. This means =cata= and =ana=
+cannot be written generically over it; the fold in =FixTreeFoldableImpl= is
+manual structural recursion.
+
+For a talk whose thesis includes recursion schemes, this is worth addressing or
+explicitly naming. Options:
+
+1. Add a true =Fix<F>= template alongside the existing concrete tree, implement
+   a generic =cata=, and use the concrete tree as an example instance.
+2. Rename =FixTree= to something less misleading (e.g., =BinTree2=) and note
+   explicitly in slides that it is a concrete tree, not the Fix combinator.
+3. Keep as-is and call it out in the presentation as an intentional simplification.
+
+The reviewer's suggested =Fix<F>= sketch (=template <template <class> class F>
+struct Fix : F<Fix<F>>;=) is the right shape but inheriting from =F<Fix<F>>=
+requires =F= to be a class template whose first parameter is its recursive
+position — this is fine for trees but needs care for presentation clarity.
+
+Acceptance checks:
+- [ ] Decision made (extend / rename / note-in-slides) and recorded.
+- [ ] If extended: generic =cata<F, A>(Algebra<F,A>, Fix<F>)= compiles and is
+  tested.
+- [ ] Slides updated to reflect chosen framing.
+
+* TODO Delivery checklist
+:PROPERTIES:
+:ID:       delivery-checklist
+:AREA:     workflow
+:PRIORITY: B
+:END:
+- [ ] Implement changes in feature worktree/branch.
+- [ ] Run full test suite in trees with clang.
+- [ ] Prepare concise change summary with file references.
+- [ ] Only commit after green tests.
