@@ -20,20 +20,11 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/ranges/range_applicative.hpp
 #+transclude: [[file:../src/smd/ranges/range_applicative.hpp]] :src cpp
 
-** smd/ranges/range_applicative.t.cpp
-#+transclude: [[file:../src/smd/ranges/range_applicative.t.cpp]] :src cpp
-
 ** smd/ranges/range_foldable.hpp
 #+transclude: [[file:../src/smd/ranges/range_foldable.hpp]] :src cpp
 
-** smd/ranges/range_foldable.t.cpp
-#+transclude: [[file:../src/smd/ranges/range_foldable.t.cpp]] :src cpp
-
 ** smd/ranges/range_functor.hpp
 #+transclude: [[file:../src/smd/ranges/range_functor.hpp]] :src cpp
-
-** smd/ranges/range_functor.t.cpp
-#+transclude: [[file:../src/smd/ranges/range_functor.t.cpp]] :src cpp
 
 ** smd/ranges/range_list.hpp
 #+transclude: [[file:../src/smd/ranges/range_list.hpp]] :src cpp
@@ -41,29 +32,23 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/ranges/range_traversable.hpp
 #+transclude: [[file:../src/smd/ranges/range_traversable.hpp]] :src cpp
 
-** smd/ranges/range_traversable.t.cpp
-#+transclude: [[file:../src/smd/ranges/range_traversable.t.cpp]] :src cpp
+** smd/thunk/delay.hpp
+#+transclude: [[file:../src/smd/thunk/delay.hpp]] :src cpp
+
+** smd/thunk/memoize.hpp
+#+transclude: [[file:../src/smd/thunk/memoize.hpp]] :src cpp
 
 ** smd/tree/binary_tree_applicative.hpp
 #+transclude: [[file:../src/smd/tree/binary_tree_applicative.hpp]] :src cpp
 
-** smd/tree/binary_tree_applicative.t.cpp
-#+transclude: [[file:../src/smd/tree/binary_tree_applicative.t.cpp]] :src cpp
-
 ** smd/tree/binary_tree_foldable.hpp
 #+transclude: [[file:../src/smd/tree/binary_tree_foldable.hpp]] :src cpp
-
-** smd/tree/binary_tree_foldable.t.cpp
-#+transclude: [[file:../src/smd/tree/binary_tree_foldable.t.cpp]] :src cpp
 
 ** smd/tree/binary_tree.hpp
 #+transclude: [[file:../src/smd/tree/binary_tree.hpp]] :src cpp
 
 ** smd/tree/binary_tree_traversable.hpp
 #+transclude: [[file:../src/smd/tree/binary_tree_traversable.hpp]] :src cpp
-
-** smd/tree/binary_tree_traversable.t.cpp
-#+transclude: [[file:../src/smd/tree/binary_tree_traversable.t.cpp]] :src cpp
 
 ** smd/tree/finger_tree_foldable.hpp
 #+transclude: [[file:../src/smd/tree/finger_tree_foldable.hpp]] :src cpp
@@ -74,29 +59,14 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/tree/finger_tree_interval_index.hpp
 #+transclude: [[file:../src/smd/tree/finger_tree_interval_index.hpp]] :src cpp
 
-** smd/tree/finger_tree_interval_index.t.cpp
-#+transclude: [[file:../src/smd/tree/finger_tree_interval_index.t.cpp]] :src cpp
-
 ** smd/tree/finger_tree_priority_queue.hpp
 #+transclude: [[file:../src/smd/tree/finger_tree_priority_queue.hpp]] :src cpp
-
-** smd/tree/finger_tree_priority_queue.t.cpp
-#+transclude: [[file:../src/smd/tree/finger_tree_priority_queue.t.cpp]] :src cpp
 
 ** smd/tree/finger_tree_random_access.hpp
 #+transclude: [[file:../src/smd/tree/finger_tree_random_access.hpp]] :src cpp
 
-** smd/tree/finger_tree_random_access.t.cpp
-#+transclude: [[file:../src/smd/tree/finger_tree_random_access.t.cpp]] :src cpp
-
 ** smd/tree/finger_tree_rope.hpp
 #+transclude: [[file:../src/smd/tree/finger_tree_rope.hpp]] :src cpp
-
-** smd/tree/finger_tree_rope.t.cpp
-#+transclude: [[file:../src/smd/tree/finger_tree_rope.t.cpp]] :src cpp
-
-** smd/tree/finger_tree.t.cpp
-#+transclude: [[file:../src/smd/tree/finger_tree.t.cpp]] :src cpp
 
 ** smd/tree/finger_tree_traversable.hpp
 #+transclude: [[file:../src/smd/tree/finger_tree_traversable.hpp]] :src cpp
@@ -107,14 +77,8 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/tree/fix_tree_applicative.hpp
 #+transclude: [[file:../src/smd/tree/fix_tree_applicative.hpp]] :src cpp
 
-** smd/tree/fix_tree_applicative.t.cpp
-#+transclude: [[file:../src/smd/tree/fix_tree_applicative.t.cpp]] :src cpp
-
 ** smd/tree/fix_tree_foldable.hpp
 #+transclude: [[file:../src/smd/tree/fix_tree_foldable.hpp]] :src cpp
-
-** smd/tree/fix_tree_foldable.t.cpp
-#+transclude: [[file:../src/smd/tree/fix_tree_foldable.t.cpp]] :src cpp
 
 ** smd/tree/fix_tree.hpp
 #+transclude: [[file:../src/smd/tree/fix_tree.hpp]] :src cpp
@@ -122,14 +86,8 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/tree/fix_tree_traversable.hpp
 #+transclude: [[file:../src/smd/tree/fix_tree_traversable.hpp]] :src cpp
 
-** smd/tree/fix_tree_traversable.t.cpp
-#+transclude: [[file:../src/smd/tree/fix_tree_traversable.t.cpp]] :src cpp
-
 ** smd/tree/fringe_tree_applicative.hpp
 #+transclude: [[file:../src/smd/tree/fringe_tree_applicative.hpp]] :src cpp
-
-** smd/tree/fringe_tree_applicative.t.cpp
-#+transclude: [[file:../src/smd/tree/fringe_tree_applicative.t.cpp]] :src cpp
 
 ** smd/tree/fringe_tree_foldable.hpp
 #+transclude: [[file:../src/smd/tree/fringe_tree_foldable.hpp]] :src cpp
@@ -137,14 +95,8 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/tree/fringe_tree.hpp
 #+transclude: [[file:../src/smd/tree/fringe_tree.hpp]] :src cpp
 
-** smd/tree/fringe_tree.t.cpp
-#+transclude: [[file:../src/smd/tree/fringe_tree.t.cpp]] :src cpp
-
 ** smd/tree/fringe_tree_traversable.hpp
 #+transclude: [[file:../src/smd/tree/fringe_tree_traversable.hpp]] :src cpp
-
-** smd/tree/fringe_tree_traversable.t.cpp
-#+transclude: [[file:../src/smd/tree/fringe_tree_traversable.t.cpp]] :src cpp
 
 ** smd/tree/memoized_thunk.hpp
 #+transclude: [[file:../src/smd/tree/memoized_thunk.hpp]] :src cpp
@@ -152,17 +104,11 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/typeclass/applicative.hpp
 #+transclude: [[file:../src/smd/typeclass/applicative.hpp]] :src cpp
 
-** smd/typeclass/applicative.t.cpp
-#+transclude: [[file:../src/smd/typeclass/applicative.t.cpp]] :src cpp
-
 ** smd/typeclass/examples/applicative_bad.cpp
 #+transclude: [[file:../src/smd/typeclass/examples/applicative_bad.cpp]] :src cpp
 
 ** smd/typeclass/examples/applicative_examples.cpp
 #+transclude: [[file:../src/smd/typeclass/examples/applicative_examples.cpp]] :src cpp
-
-** smd/typeclass/examples/examples.t.cpp
-#+transclude: [[file:../src/smd/typeclass/examples/examples.t.cpp]] :src cpp
 
 ** smd/typeclass/examples/foldable_examples.cpp
 #+transclude: [[file:../src/smd/typeclass/examples/foldable_examples.cpp]] :src cpp
@@ -176,38 +122,20 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/typeclass/foldable.hpp
 #+transclude: [[file:../src/smd/typeclass/foldable.hpp]] :src cpp
 
-** smd/typeclass/foldable.t.cpp
-#+transclude: [[file:../src/smd/typeclass/foldable.t.cpp]] :src cpp
-
 ** smd/typeclass/functor.hpp
 #+transclude: [[file:../src/smd/typeclass/functor.hpp]] :src cpp
-
-** smd/typeclass/functor.t.cpp
-#+transclude: [[file:../src/smd/typeclass/functor.t.cpp]] :src cpp
 
 ** smd/typeclass/monoid.hpp
 #+transclude: [[file:../src/smd/typeclass/monoid.hpp]] :src cpp
 
-** smd/typeclass/monoid.t.cpp
-#+transclude: [[file:../src/smd/typeclass/monoid.t.cpp]] :src cpp
-
 ** smd/typeclass/traversable.hpp
 #+transclude: [[file:../src/smd/typeclass/traversable.hpp]] :src cpp
-
-** smd/typeclass/traversable.t.cpp
-#+transclude: [[file:../src/smd/typeclass/traversable.t.cpp]] :src cpp
 
 ** smd/typeclass/typeclass_base.hpp
 #+transclude: [[file:../src/smd/typeclass/typeclass_base.hpp]] :src cpp
 
-** smd/typeclass/typeclass_base.t.cpp
-#+transclude: [[file:../src/smd/typeclass/typeclass_base.t.cpp]] :src cpp
-
 ** smd/ziplist/zip_list_applicative.hpp
 #+transclude: [[file:../src/smd/ziplist/zip_list_applicative.hpp]] :src cpp
-
-** smd/ziplist/zip_list_applicative.t.cpp
-#+transclude: [[file:../src/smd/ziplist/zip_list_applicative.t.cpp]] :src cpp
 
 ** smd/ziplist/zip_list.hpp
 #+transclude: [[file:../src/smd/ziplist/zip_list.hpp]] :src cpp
