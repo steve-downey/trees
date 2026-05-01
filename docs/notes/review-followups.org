@@ -185,7 +185,7 @@ Acceptance checks:
 - [ ] All existing 172/172 tests still pass.
 - [ ] No change to the external API.
 
-* TODO Reviewer Three: Remove stale memoized_thunk include from finger_tree.hpp
+* DONE Reviewer Three: Remove stale memoized_thunk include from finger_tree.hpp
 :PROPERTIES:
 :ID:       stale-memoized-thunk-include
 :AREA:     tree/finger-tree
@@ -194,24 +194,19 @@ Acceptance checks:
 :END:
 
 The reviewer's finger-tree section describes the old vtable/=SuspendedSegment=
-implementation (now removed in commit 0468f16). However, =finger_tree.hpp=
-still carries =#include <smd/tree/memoized_thunk.hpp>= from the old design —
-nothing in the current implementation calls =thunk()=, =erased_thunk=, or
-=measured_thunk= from that path. (=finger_tree.t.cpp= includes the header
-directly for its own thunk tests.)
+implementation (now removed in commit 0468f16). =finger_tree.hpp= carried a
+stale =#include <smd/tree/memoized_thunk.hpp>= — removed in this session.
 
-Target:
-- Remove =#include <smd/tree/memoized_thunk.hpp>= from =finger_tree.hpp=.
-- Confirm the test file still compiles (it has its own direct include).
+The memoized_thunk component has been resurrected as a proper library:
+- =smd/thunk/delay.hpp= — =smd::thunk::delay()= lazy closure combinator
+- =smd/thunk/memoize.hpp= — =smd::thunk::memoize()=, =erased_thunk=,
+  =measured_memoize()= with thread-safety caveat from reviewer
+- =smd/tree/memoized_thunk.hpp= — forwarding header; aliases old names in
+  =smd::tree::detail= for backward compat
 
-Acceptance checks:
-- [ ] =finger_tree.hpp= no longer includes =memoized_thunk.hpp=.
-- [ ] 172/172 tests still pass.
-
-Note: If a future optimization reintroduces lazy spine evaluation, the include
-should come back at that point. The thread-safety concern the reviewer raised
-about =thunk()= (non-atomic variant mutation via shared_ptr) would also need
-addressing before any lazy path is re-exposed.
+Thread-safety note from reviewer now documented in =memoize.hpp= header comment.
+The concern (non-atomic variant mutation shared via shared_ptr) applies to
+=smd::thunk::memoize()=. Tracked as TODO below if thread safety is needed.
 
 * TODO Reviewer Three: FixTree is not a true fixed-point combinator
 :PROPERTIES:
