@@ -3,6 +3,8 @@
 #ifndef INCLUDED_SMD_RANGES_RANGE_LIST
 #define INCLUDED_SMD_RANGES_RANGE_LIST
 
+#include <algorithm>
+#include <iterator>
 #include <ranges>
 #include <type_traits>
 #include <utility>
@@ -22,9 +24,7 @@ auto materialize(RANGE&& range)
         values.reserve(std::ranges::size(range));
     }
 
-    for (auto&& value : range) {
-        values.emplace_back(value);
-    }
+    std::ranges::copy(range, std::back_inserter(values));
 
     return values;
 }

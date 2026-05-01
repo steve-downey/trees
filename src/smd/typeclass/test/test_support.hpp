@@ -7,6 +7,7 @@
 #include <smd/typeclass/foldable.hpp>
 #include <smd/typeclass/traversable.hpp>
 
+#include <algorithm>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -176,15 +177,12 @@ struct TestSequenceFoldableImpl {
                 const smd::typeclass::test::Sequence<VALUE_TYPE>& sequence)
   {
     using Result = remove_cvref_t<std::invoke_result_t<FUNCTION, const VALUE_TYPE&> >;
-    auto result = smd::monoid_identity<Result>();
-
-    for (const auto& value : sequence.values) {
-      result = smd::monoid_combine(
-        std::move(result),
-        std::invoke(function, value));
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        sequence.values,
+        smd::monoid_identity<Result>(),
+        [&](Result acc, const VALUE_TYPE& value) {
+          return smd::monoid_combine(std::move(acc), std::invoke(function, value));
+        });
   }
 };
 

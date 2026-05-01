@@ -7,8 +7,10 @@
 
 #include <beman/optional/optional.hpp>
 
+#include <algorithm>
 #include <concepts>
 #include <functional>
+#include <iterator>
 #include <optional>
 #include <type_traits>
 #include <utility>
@@ -86,9 +88,8 @@ struct VectorFunctorImpl {
         std::vector<remove_cvref_t<Result> > output;
         output.reserve(values.size());
 
-        for (const auto& value : values) {
-            output.push_back(std::invoke(function, value));
-        }
+        std::ranges::transform(values, std::back_inserter(output),
+            [&function](const VALUE_TYPE& v) { return std::invoke(function, v); });
 
         return output;
     }

@@ -6,6 +6,10 @@
 #include <smd/tree/finger_tree_interval_index.hpp>
 #include <smd/typeclass/foldable.hpp>
 
+#include <algorithm>
+#include <functional>
+#include <utility>
+
 namespace smd {
 
 template <class PAYLOAD_TYPE>
@@ -18,14 +22,13 @@ struct FingerTreeIntervalIndexFoldableImpl {
   {
     using Result = remove_cvref_t<std::invoke_result_t<F, const PAYLOAD_TYPE&>>;
 
-    auto acc = smd::typeclass::monoid_v<Result>.identity();
-    for (const auto& entry : index.entries()) {
-      acc = smd::typeclass::monoid_v<Result>.combine(
-        std::move(acc),
-        std::invoke(function, entry.d_payload));
-    }
-
-    return acc;
+    return std::ranges::fold_left(
+        index.entries(),
+        smd::typeclass::monoid_v<Result>.identity(),
+        [&](Result acc, const auto& entry) {
+          return smd::typeclass::monoid_v<Result>.combine(
+              std::move(acc), std::invoke(function, entry.d_payload));
+        });
   }
 };
 

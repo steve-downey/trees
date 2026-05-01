@@ -6,6 +6,10 @@
 #include <smd/tree/finger_tree_priority_queue.hpp>
 #include <smd/typeclass/foldable.hpp>
 
+#include <algorithm>
+#include <functional>
+#include <utility>
+
 namespace smd {
 
 template <class T>
@@ -18,14 +22,13 @@ struct FingerTreePriorityQueueFoldableImpl {
   {
     using Result = remove_cvref_t<std::invoke_result_t<F, const T&>>;
 
-    auto acc = smd::typeclass::monoid_v<Result>.identity();
-    for (const auto& value : queue.to_vector()) {
-      acc = smd::typeclass::monoid_v<Result>.combine(
-        std::move(acc),
-        std::invoke(function, value));
-    }
-
-    return acc;
+    return std::ranges::fold_left(
+        queue.to_vector(),
+        smd::typeclass::monoid_v<Result>.identity(),
+        [&](Result acc, const auto& value) {
+          return smd::typeclass::monoid_v<Result>.combine(
+              std::move(acc), std::invoke(function, value));
+        });
   }
 };
 

@@ -7,6 +7,7 @@
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/traversable.hpp>
 
+#include <algorithm>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -58,9 +59,8 @@ struct FingerTreeRandomAccessTraversableImpl {
   {
     // For now, use flatten() but this structure allows future optimization
     // to traverse the actual tree structure without materialization
-    for (const auto& value : sequence.to_vector()) {
-      std::invoke(visitor, value);
-    }
+    std::ranges::for_each(sequence.to_vector(),
+                          [&visitor](const T& v) { std::invoke(visitor, v); });
   }
 };
 

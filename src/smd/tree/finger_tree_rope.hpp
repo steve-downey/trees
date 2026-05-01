@@ -100,9 +100,8 @@ class FingerTreeRope {
   {
     std::string out;
     out.reserve(size_bytes());
-    for (const auto& chunk : d_tree.flatten()) {
-      out += chunk;
-    }
+    std::ranges::for_each(d_tree.flatten(),
+                          [&out](const std::string& chunk) { out += chunk; });
     return out;
   }
 

@@ -6,6 +6,10 @@
 #include <smd/tree/finger_tree_rope.hpp>
 #include <smd/typeclass/foldable.hpp>
 
+#include <algorithm>
+#include <functional>
+#include <utility>
+
 namespace smd {
 
 struct FingerTreeRopeFoldableImpl {
@@ -18,14 +22,13 @@ struct FingerTreeRopeFoldableImpl {
     using Result =
       remove_cvref_t<std::invoke_result_t<F, const std::string&>>;
 
-    auto acc = smd::typeclass::monoid_v<Result>.identity();
-    for (const auto& chunk : rope.chunks()) {
-      acc = smd::typeclass::monoid_v<Result>.combine(
-        std::move(acc),
-        std::invoke(function, chunk));
-    }
-
-    return acc;
+    return std::ranges::fold_left(
+        rope.chunks(),
+        smd::typeclass::monoid_v<Result>.identity(),
+        [&](Result acc, const auto& chunk) {
+          return smd::typeclass::monoid_v<Result>.combine(
+              std::move(acc), std::invoke(function, chunk));
+        });
   }
 };
 

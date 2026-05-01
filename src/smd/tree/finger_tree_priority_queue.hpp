@@ -67,17 +67,7 @@ class FingerTreePriorityQueue {
   template <typename TREE>
   static auto has_multiple_instances(const TREE& tree, const T& needle) -> bool
   {
-    auto values = tree.flatten();
-    auto count = std::size_t{0};
-    for (const auto& value : values) {
-      if (value == needle) {
-        ++count;
-        if (count > 1U) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return std::ranges::count(tree.flatten(), needle) > 1;
   }
 
   // Lazy split/concat removal path (experimental - use with caution)

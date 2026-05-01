@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <iterator>
+#include <ranges>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -77,11 +79,13 @@ class FingerTreeIntervalIndex {
     });
 
     // Only search within intervals with d_max_end > point
-    for (const auto& entry : parts.d_right.flatten()) {
-      if (entry.d_start <= point && point < entry.d_end) {
-        out.push_back(entry.d_payload);
-      }
-    }
+    auto flat = parts.d_right.flatten();
+    std::ranges::copy(
+        flat | std::views::filter([point](const auto& e) {
+                   return e.d_start <= point && point < e.d_end;
+               })
+             | std::views::transform([](const auto& e) { return e.d_payload; }),
+        std::back_inserter(out));
 
     return out;
   }
@@ -98,11 +102,13 @@ class FingerTreeIntervalIndex {
     });
 
     // Only search within intervals with d_max_end > start
-    for (const auto& entry : parts.d_right.flatten()) {
-      if (entry.d_start < end && start < entry.d_end) {
-        out.push_back(entry.d_payload);
-      }
-    }
+    auto flat = parts.d_right.flatten();
+    std::ranges::copy(
+        flat | std::views::filter([start, end](const auto& e) {
+                   return e.d_start < end && start < e.d_end;
+               })
+             | std::views::transform([](const auto& e) { return e.d_payload; }),
+        std::back_inserter(out));
 
     return out;
   }
