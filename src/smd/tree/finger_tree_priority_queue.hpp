@@ -4,11 +4,16 @@
 #define INCLUDED_SMD_TREE_FINGER_TREE_PRIORITY_QUEUE
 
 #include <smd/tree/finger_tree.hpp>
+#include <smd/typeclass/applicative.hpp>
+#include <smd/typeclass/foldable.hpp>
 #include <smd/typeclass/monoid.hpp>
+#include <smd/typeclass/traversable.hpp>
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <optional>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -186,7 +191,82 @@ struct Monoid<smd::tree::MaxTag<T>> {
 
 }  // namespace smd::typeclass
 
-#endif
+namespace smd {
 
-#include <smd/tree/finger_tree_priority_queue_foldable.hpp>
-#include <smd/tree/finger_tree_priority_queue_traversable.hpp>
+template <class T>
+struct FingerTreePriorityQueueFoldableImpl {
+  template <class F>
+  auto fold_map(this auto&&,
+                F&& function,
+                const smd::tree::FingerTreePriorityQueue<T>& queue)
+    -> remove_cvref_t<std::invoke_result_t<F, const T&>>
+  {
+    using Result = remove_cvref_t<std::invoke_result_t<F, const T&>>;
+    return std::ranges::fold_left(
+        queue.to_vector(),
+        smd::typeclass::monoid_v<Result>.identity(),
+        [&](Result acc, const auto& value) {
+          return smd::typeclass::monoid_v<Result>.combine(
+              std::move(acc), std::invoke(function, value));
+        });
+  }
+};
+
+template <class T>
+struct FingerTreePriorityQueueFoldableMap
+  : Foldable<FingerTreePriorityQueueFoldableImpl<T>> {
+  using FingerTreePriorityQueueFoldableImpl<T>::fold_map;
+};
+
+template <class T>
+inline constexpr auto foldable_typeclass<smd::tree::FingerTreePriorityQueue<T>> =
+  FingerTreePriorityQueueFoldableMap<T>{};
+
+template <class T>
+struct FingerTreePriorityQueueTraversableImpl {
+  using element_type = T;
+
+  template <class APPLICATIVE, class F>
+  auto traverse(this auto&&,
+                const APPLICATIVE& applicative,
+                F&& function,
+                const smd::tree::FingerTreePriorityQueue<T>& queue)
+  {
+    using Context = remove_cvref_t<std::invoke_result_t<F, const T&>>;
+    using U = smd::applicative_value_t<Context>;
+
+    auto accumulated = applicative.pure(std::vector<U>{});
+
+    for (const auto& value : queue.to_vector()) {
+      auto lifted = std::invoke(function, value);
+      accumulated = applicative.invoke(
+        [](std::vector<U> values, U element) {
+          values.push_back(std::move(element));
+          return values;
+        },
+        std::move(accumulated),
+        std::move(lifted));
+    }
+
+    return applicative.invoke(
+      [](std::vector<U> values) {
+        return smd::tree::FingerTreePriorityQueue<U>::from_values(
+          std::move(values));
+      },
+      std::move(accumulated));
+  }
+};
+
+template <class T>
+struct FingerTreePriorityQueueTraversableMap
+  : Traversable<FingerTreePriorityQueueTraversableImpl<T>> {
+  using FingerTreePriorityQueueTraversableImpl<T>::traverse;
+};
+
+template <class T>
+inline constexpr auto traversable_typeclass<smd::tree::FingerTreePriorityQueue<T>> =
+  FingerTreePriorityQueueTraversableMap<T>{};
+
+}  // namespace smd
+
+#endif

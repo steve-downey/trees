@@ -19,17 +19,9 @@ target_sources(
     finger_tree_foldable.hpp
     finger_tree_traversable.hpp
     finger_tree_random_access.hpp
-    finger_tree_random_access_foldable.hpp
-    finger_tree_random_access_traversable.hpp
     finger_tree_priority_queue.hpp
-    finger_tree_priority_queue_foldable.hpp
-    finger_tree_priority_queue_traversable.hpp
     finger_tree_interval_index.hpp
-    finger_tree_interval_index_foldable.hpp
-    finger_tree_interval_index_traversable.hpp
     finger_tree_rope.hpp
-    finger_tree_rope_foldable.hpp
-    finger_tree_rope_traversable.hpp
     memoized_thunk.hpp
     finger_tree_wrappers.hpp
         fix_tree.hpp
