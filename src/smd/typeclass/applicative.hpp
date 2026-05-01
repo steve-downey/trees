@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TYPECLASS_APPLICATIVE_HPP
-#define INCLUDE_SMD_TYPECLASS_APPLICATIVE_HPP
+// src/smd/typeclass/applicative.hpp                                  -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_APPLICATIVE
+#define INCLUDED_SMD_TYPECLASS_APPLICATIVE
 
 #include <smd/typeclass/typeclass_base.hpp>
 
@@ -118,7 +120,7 @@ struct Applicative : protected Impl {
               FIRST_ARGUMENT&& first_argument,
               REST_ARGUMENTS&&... rest_arguments)
   {
-    using SELF = remove_cvref_t<decltype(self)>;
+    using SELF = std::remove_reference_t<decltype(self)>;
     using IMPL_BASE =
       std::conditional_t<std::is_const_v<SELF>, const Impl, Impl>;
 

@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TYPECLASS_FOLDABLE_HPP
-#define INCLUDE_SMD_TYPECLASS_FOLDABLE_HPP
+// src/smd/typeclass/foldable.hpp                                     -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_FOLDABLE
+#define INCLUDED_SMD_TYPECLASS_FOLDABLE
 
 #include <smd/typeclass/monoid.hpp>
 #include <smd/typeclass/typeclass_base.hpp>
@@ -13,6 +15,26 @@
 
 namespace smd::detail {
 
+// Identity function for fold composition - no type erasure needed
+template <class STATE>
+struct IdentityFoldFunc {
+  constexpr auto operator()(STATE s) const -> STATE { return s; }
+};
+
+// Compose two fold functions without type erasure
+template <class F1, class F2>
+struct ComposedFoldFunc {
+  F1 d_f1;
+  F2 d_f2;
+
+  template <class STATE>
+  auto operator()(STATE s) const -> STATE
+  {
+    return d_f2(d_f1(std::move(s)));
+  }
+};
+
+// Left fold composition (same order as f1 then f2)
 template <class STATE>
 struct LeftFoldProgram {
   std::function<STATE(STATE)> d_run;
@@ -23,10 +45,34 @@ struct LeftFoldProgram {
   }
 };
 
+// Template-based version that avoids type erasure - used internally
+template <class F>
+struct LeftFoldProgramT {
+  F d_run;
+
+  template <class STATE>
+  auto operator()(STATE state) const -> STATE
+  {
+    return d_run(std::move(state));
+  }
+};
+
 template <class STATE>
 struct RightFoldProgram {
   std::function<STATE(STATE)> d_run;
 
+  auto operator()(STATE state) const -> STATE
+  {
+    return d_run(std::move(state));
+  }
+};
+
+// Template-based version that avoids type erasure - used internally
+template <class F>
+struct RightFoldProgramT {
+  F d_run;
+
+  template <class STATE>
   auto operator()(STATE state) const -> STATE
   {
     return d_run(std::move(state));
@@ -67,6 +113,25 @@ struct Monoid<smd::detail::LeftFoldProgram<STATE> > {
   }
 };
 
+// Template specialization for LeftFoldProgramT - avoids type erasure
+template <class F>
+struct Monoid<smd::detail::LeftFoldProgramT<F> > {
+  auto identity() const -> smd::detail::LeftFoldProgramT<smd::detail::IdentityFoldFunc<int> >
+  {
+    return smd::detail::LeftFoldProgramT<smd::detail::IdentityFoldFunc<int> >{
+      smd::detail::IdentityFoldFunc<int>{}};
+  }
+
+  template <class G>
+  auto combine(const smd::detail::LeftFoldProgramT<F>& lhs,
+         const smd::detail::LeftFoldProgramT<G>& rhs) const
+    -> smd::detail::LeftFoldProgramT<smd::detail::ComposedFoldFunc<F, G> >
+  {
+    return smd::detail::LeftFoldProgramT<smd::detail::ComposedFoldFunc<F, G> >{
+      smd::detail::ComposedFoldFunc<F, G>{lhs.d_run, rhs.d_run}};
+  }
+};
+
 template <class STATE>
 struct Monoid<smd::detail::RightFoldProgram<STATE> > {
   auto identity() const -> smd::detail::RightFoldProgram<STATE>
@@ -81,6 +146,25 @@ struct Monoid<smd::detail::RightFoldProgram<STATE> > {
   {
     return smd::detail::RightFoldProgram<STATE>{
       [lhs, rhs](STATE s) { return lhs(rhs(std::move(s))); }};
+  }
+};
+
+// Template specialization for RightFoldProgramT - avoids type erasure
+template <class F>
+struct Monoid<smd::detail::RightFoldProgramT<F> > {
+  auto identity() const -> smd::detail::RightFoldProgramT<smd::detail::IdentityFoldFunc<int> >
+  {
+    return smd::detail::RightFoldProgramT<smd::detail::IdentityFoldFunc<int> >{
+      smd::detail::IdentityFoldFunc<int>{}};
+  }
+
+  template <class G>
+  auto combine(const smd::detail::RightFoldProgramT<F>& lhs,
+         const smd::detail::RightFoldProgramT<G>& rhs) const
+    -> smd::detail::RightFoldProgramT<smd::detail::ComposedFoldFunc<F, G> >
+  {
+    return smd::detail::RightFoldProgramT<smd::detail::ComposedFoldFunc<F, G> >{
+      smd::detail::ComposedFoldFunc<F, G>{lhs.d_run, rhs.d_run}};
   }
 };
 
@@ -139,6 +223,7 @@ struct Foldable : protected Impl {
 
   // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2
 
+  // c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08
   template <class T>
   auto length(this auto&& self, T&& value) -> std::size_t
   {
@@ -147,6 +232,7 @@ struct Foldable : protected Impl {
       std::forward<T>(value));
     return count.d_value;
   }
+  // c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08 end
 
   template <class T, class STATE, class F>
   auto fold_left(this auto&& self, T&& value, STATE initial_state, F&& function)
@@ -231,6 +317,7 @@ struct Foldable : protected Impl {
     });
   }
 
+  // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09
   template <class T>
   auto to_vector(this auto&& self, T&& value)
   {
@@ -241,6 +328,7 @@ struct Foldable : protected Impl {
       },
       std::forward<T>(value));
   }
+  // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09 end
   // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end
 
   template <class T, class PREDICATE>

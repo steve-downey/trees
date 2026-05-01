@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FRINGE_TREE_HPP
-#define INCLUDE_SMD_TREE_FRINGE_TREE_HPP
+// src/smd/tree/fringe_tree.hpp                                       -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FRINGE_TREE
+#define INCLUDED_SMD_TREE_FRINGE_TREE
 
 #include <cassert>
 #include <cstddef>
@@ -26,6 +28,8 @@ class FringeTree {
   std::variant<Empty, Leaf, Branch> d_data;
 
  public:
+    using value_type = T;
+
   struct View {
     T d_value;
     FringeTree d_rest;

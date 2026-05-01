@@ -29,8 +29,12 @@ option(
 
 set(CMAKE_VERIFY_INTERFACE_HEADER_SETS ON)
 
+# Add Catch2 from the vendor directory
+add_subdirectory(vendor/catch2 EXCLUDE_FROM_ALL)
+
 if(TREE_ENABLE_TESTING)
-    find_package(GTest CONFIG QUIET)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/vendor/catch2/extras")
+    include(Catch)
 endif()
 
 set(OPTIONAL_ENABLE_TESTING OFF)
@@ -49,6 +53,7 @@ target_sources(
     concept_map
     PUBLIC FILE_SET concept_map_headers TYPE HEADERS BASE_DIRS src
 )
+target_compile_features(concept_map INTERFACE cxx_std_23)
 
 # add_subdirectory(extern)
 add_subdirectory(src)

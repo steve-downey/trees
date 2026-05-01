@@ -2,10 +2,10 @@
 
 #include <functional>
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace smd::conceptmap;
 
-TEST(MonoidTest, TestGTest) { ASSERT_EQ(1, 1); }
+TEST_CASE("MonoidTest - TestGTest") { REQUIRE(1 == 1); }
 
-TEST(MonoidTest, Breathing) {}
+TEST_CASE("MonoidTest - Breathing") {}

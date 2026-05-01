@@ -158,6 +158,9 @@
   (setq org-re-reveal-root "file:////home/sdowney/bld/reveal.js"))
 
 
+(use-package ox-gfm
+  :after (org))
+
 (use-package org-transclusion
   :after org
   :bind (:map

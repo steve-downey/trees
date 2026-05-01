@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FRINGE_TREE_FOLDABLE_HPP
-#define INCLUDE_SMD_TREE_FRINGE_TREE_FOLDABLE_HPP
+// src/smd/tree/fringe_tree_foldable.hpp                              -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FRINGE_TREE_FOLDABLE
+#define INCLUDED_SMD_TREE_FRINGE_TREE_FOLDABLE
 
 #include <smd/tree/fringe_tree.hpp>
 #include <smd/typeclass/foldable.hpp>
