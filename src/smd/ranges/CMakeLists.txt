@@ -23,6 +23,7 @@ install(
 
 if(TREE_ENABLE_TESTING)
     add_executable(smd_ranges_tests
+        range_list.t.cpp
         range_functor.t.cpp
         range_applicative.t.cpp
         range_foldable.t.cpp

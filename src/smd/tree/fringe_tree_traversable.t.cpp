@@ -60,7 +60,6 @@ TEST_CASE("FringeTreeTraversableTest - TraverseOptional")
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(PositiveTimesTen{}, tree);
 
     REQUIRE(traversed.has_value());
@@ -72,7 +71,6 @@ TEST_CASE("FringeTreeTraversableTest - TraverseOptionalEmpty")
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::empty();
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(TimesTen{}, tree);
 
     REQUIRE(traversed.has_value());
@@ -84,7 +82,6 @@ TEST_CASE("FringeTreeTraversableTest - TraverseBemanOptionalEmpty")
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::empty();
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(TimesTenBeman{}, tree);
 
     REQUIRE(traversed.has_value());
@@ -96,7 +93,6 @@ TEST_CASE("FringeTreeTraversableTest - TraverseOptionalFailure")
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(-2));
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(NonNegativeIdentity{}, tree);
 
     CHECK_FALSE(traversed.has_value());
@@ -107,7 +103,6 @@ TEST_CASE("FringeTreeTraversableTest - TraverseLeaf")
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::leaf(7);
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(PlusOne{}, tree);
 
     REQUIRE(traversed.has_value());
@@ -120,7 +115,6 @@ TEST_CASE("FringeTreeTraversableTest - TraverseBemanOptional")
     using Tree = smd::tree::FringeTree<int>;
     auto tree = Tree::branch(Tree::leaf(2), Tree::leaf(5));
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(PlusSevenBeman{}, tree);
 
     REQUIRE(traversed.has_value());

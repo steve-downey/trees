@@ -19,7 +19,10 @@ install(
 )
 
 if(TREE_ENABLE_TESTING)
-    add_executable(smd_ziplist_tests zip_list_applicative.t.cpp)
+    add_executable(smd_ziplist_tests
+        zip_list.t.cpp
+        zip_list_applicative.t.cpp
+    )
 
     target_include_directories(smd_ziplist_tests
         PRIVATE
