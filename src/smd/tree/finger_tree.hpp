@@ -3,7 +3,6 @@
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE
 #define INCLUDED_SMD_TREE_FINGER_TREE
 
-#include <smd/tree/memoized_thunk.hpp>
 #include <smd/typeclass/monoid.hpp>
 
 #include <cassert>
