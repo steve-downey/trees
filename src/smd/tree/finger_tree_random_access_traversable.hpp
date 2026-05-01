@@ -7,7 +7,6 @@
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/traversable.hpp>
 
-#include <algorithm>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -29,20 +28,16 @@ struct FingerTreeRandomAccessTraversableImpl {
 
     auto accumulated = applicative.pure(std::vector<U>{});
 
-    // Lazy traversal: iterate tree structure without materializing
-    // This improves cache locality and avoids intermediate allocations
-    traverse_tree_elements(
-      sequence,
-      [&function, &accumulated, &applicative](const T& value) {
-        auto lifted = std::invoke(function, value);
-        accumulated = applicative.invoke(
-          [](std::vector<U> values, U element) {
-            values.push_back(std::move(element));
-            return values;
-          },
-          std::move(accumulated),
-          std::move(lifted));
-      });
+    for (const auto& value : sequence.to_vector()) {
+      auto lifted = std::invoke(function, value);
+      accumulated = applicative.invoke(
+        [](std::vector<U> values, U element) {
+          values.push_back(std::move(element));
+          return values;
+        },
+        std::move(accumulated),
+        std::move(lifted));
+    }
 
     return applicative.invoke(
       [](std::vector<U> values) {
@@ -50,19 +45,6 @@ struct FingerTreeRandomAccessTraversableImpl {
           std::move(values));
       },
       std::move(accumulated));
-  }
-
- private:
-  // Helper: traverse sequence by visiting elements without full materialization
-  template <class Fn>
-  static void traverse_tree_elements(
-    const smd::tree::FingerTreeRandomAccess<T>& sequence,
-    Fn&& visitor)
-  {
-    // For now, use flatten() but this structure allows future optimization
-    // to traverse the actual tree structure without materialization
-    std::ranges::for_each(sequence.to_vector(),
-                          [&visitor](const T& v) { std::invoke(visitor, v); });
   }
 };
 
