@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Generated on 2026-05-01 Fri 06:11 -->
+<!-- Generated on 2026-05-01 Fri 03:24 -->
 <meta charset="utf-8"/>
 <title>Algorithms for Trees: Foldable, Applicative, Traversable</title>
 <meta name="author" content="Steve Downey"/>
@@ -6444,7 +6444,6 @@ img.footerlogo
 </div>
 </div>
 </section>
-
 <section>
 <section id="slide-1">
 <h2 id="1"><span class="section-number-2">1.</span> Algorithms for Trees</h2>
@@ -6454,7 +6453,6 @@ img.footerlogo
 <li>Traversable.</li>
 
 </ul>
-
 </section>
 <section id="slide-1-1">
 <h3 id="1-1"><span class="section-number-3">1.1.</span> Abstract</h3>
@@ -6465,7 +6463,6 @@ img.footerlogo
 <li>This talk proposes what a standard library <code>fingertree</code> API should look like.</li>
 
 </ul>
-
 </section>
 <section id="slide-1-2">
 <h3 id="1-2"><span class="section-number-3">1.2.</span> Foldable</h3>
@@ -6475,7 +6472,6 @@ img.footerlogo
 <li>No flattening required.</li>
 
 </ul>
-
 </section>
 <section id="slide-1-3">
 <h3 id="1-3"><span class="section-number-3">1.3.</span> Applicative</h3>
@@ -6485,7 +6481,6 @@ img.footerlogo
 <li>Less sequencing machinery than monad for independent effects.</li>
 
 </ul>
-
 </section>
 <section id="slide-1-4">
 <h3 id="1-4"><span class="section-number-3">1.4.</span> Traversable</h3>
@@ -6495,7 +6490,6 @@ img.footerlogo
 <li>Commutes containers: a range of effects becomes an effect of a range.</li>
 
 </ul>
-
 </section>
 <section id="slide-1-5">
 <h3 id="1-5"><span class="section-number-3">1.5.</span> Not Monadic</h3>
@@ -6505,7 +6499,6 @@ img.footerlogo
 <li>Applicative covers the independent-effect cases where the whole structure is known up front.</li>
 
 </ul>
-
 </section>
 </section>
 <section>
@@ -6527,11 +6520,9 @@ img.footerlogo
 <p>
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-2-0-2">
 <h4 id="2-0-2"><span class="section-number-4">2.0.2.</span> Where Structure Carries Meaning</h4>
@@ -6545,11 +6536,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-2-0-3">
 <h4 id="2-0-3"><span class="section-number-4">2.0.3.</span> Trees That Are Not Sequences</h4>
@@ -6563,11 +6552,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 A range view is still useful, but it should be derived, not the primary model.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -6588,11 +6575,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-3-0-2">
 <h4 id="3-0-2"><span class="section-number-4">3.0.2.</span> Pattern Matching as the Intended Interface</h4>
@@ -6606,11 +6591,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 Design now so the API maps naturally to future language features.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-3-0-3">
 <h4 id="3-0-3"><span class="section-number-4">3.0.3.</span> Designing Today for Tomorrow's Syntax</h4>
@@ -6624,11 +6607,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 The point is migration-friendly design, not speculative syntax tricks.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -6649,11 +6630,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 I only need the intuition here, not full categorical development.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-4-0-2">
 <h4 id="4-0-2"><span class="section-number-4">4.0.2.</span> Catamorphisms as a Principled Fold</h4>
@@ -6667,11 +6646,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 Foldable is the operational entry point for this in everyday code.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 <ol class="org-ol">
 <li><a id="4-0-2-1"></a>FixTree fold_map: The Catamorphism<br />
 <div class="org-src-container">
@@ -6679,15 +6656,15 @@ Source: (Steve Downey, 2026).
 <pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">F</span>&gt;
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">fold_map</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">F</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">f</span>, <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">tree</span>::<span style="font-weight: bold; text-decoration: underline;">FixTree</span>&lt;T&gt;&amp; <span style="font-weight: bold; font-style: italic;">t</span>)
 {
-    <span style="font-weight: bold;">if</span> (t.is_leaf()) {
-        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::invoke(f, t.value());
-    }
+        <span style="font-weight: bold;">if</span> (t.is_leaf()) {
+            <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::invoke(f, t.value());
+        }
 
-    <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lhs</span> = self.fold_map(f, t.left());
-    <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rhs</span> = self.fold_map(f, t.right());
+        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lhs</span> = self.fold_map(f, t.left());
+        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rhs</span> = self.fold_map(f, t.right());
 
-    <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">Result</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(lhs)&gt;;
-    <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Result</span>&gt;.combine(lhs, rhs);
+        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">Result</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(lhs)&gt;;
+        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Result</span>&gt;.combine(lhs, rhs);
 }
 </pre>
 </div>
@@ -6702,7 +6679,6 @@ combine merges two sub-results; the tree is never flattened.
 </aside>
 </li>
 </ol>
-
 </section>
 <section id="slide-4-0-3">
 <h4 id="4-0-3"><span class="section-number-4">4.0.3.</span> Separating Recursion from Business Logic</h4>
@@ -6716,11 +6692,9 @@ combine merges two sub-results; the tree is never flattened.
 <aside class="notes">
 <p>
 When recursion is abstracted, law tests become executable documentation.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -6742,11 +6716,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 This replaces concept maps from C++0x with a simpler, working mechanism.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 <ol class="org-ol">
 <li><a id="5-0-1-1"></a>Specializing the Variable Template<br />
 <div class="org-src-container">
@@ -6766,7 +6738,6 @@ The specialization can live next to the type or in any adapter header.
 </aside>
 </li>
 </ol>
-
 </section>
 <section id="slide-5-0-2">
 <h4 id="5-0-2"><span class="section-number-4">5.0.2.</span> Three Lookup Modes</h4>
@@ -6785,7 +6756,6 @@ It proves that a generic helper's lookup is stable even when callers pass differ
 </p>
 
 </aside>
-
 </section>
 <section id="slide-5-0-3">
 <h4 id="5-0-3"><span class="section-number-4">5.0.3.</span> NTTP Pinning Example</h4>
@@ -6807,7 +6777,6 @@ Callers can supply a custom instance to change behavior for a specific call site
 </p>
 
 </aside>
-
 </section>
 <section id="slide-5-0-4">
 <h4 id="5-0-4"><span class="section-number-4">5.0.4.</span> Implementors: One Hook, Many Derived Operations</h4>
@@ -6822,11 +6791,9 @@ Callers can supply a custom instance to change behavior for a specific call site
 <aside class="notes">
 <p>
 The implementor surface is small; the user-facing surface is rich.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-5-0-5">
 <h4 id="5-0-5"><span class="section-number-4">5.0.5.</span> CRTP and Deducing This</h4>
@@ -6844,7 +6811,6 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -6869,7 +6835,6 @@ Functor is the base on which Applicative and Traversable are built.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-6-0-2">
 <h4 id="6-0-2"><span class="section-number-4">6.0.2.</span> Functor: Derived replace</h4>
@@ -6878,11 +6843,11 @@ Functor is the base on which Applicative and Traversable are built.
 <pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">U</span>&gt;
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">replace</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>, <span style="font-weight: bold; text-decoration: underline;">U</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">replacement</span>)
 {
-    <span style="font-weight: bold;">return</span> self.fmap(
-        [<span style="font-weight: bold; font-style: italic;">replacement</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">U</span>&gt;(replacement)](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp;) {
-            <span style="font-weight: bold;">return</span> replacement;
-        },
-        <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+        <span style="font-weight: bold;">return</span> self.fmap(
+            [<span style="font-weight: bold; font-style: italic;">replacement</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">U</span>&gt;(replacement)](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp;) {
+                <span style="font-weight: bold;">return</span> replacement;
+            },
+            <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
 }
 </pre>
 </div>
@@ -6893,7 +6858,6 @@ replace is derived from fmap with a constant function — no extra instance work
 </p>
 
 </aside>
-
 </section>
 <section id="slide-6-0-3">
 <h4 id="6-0-3"><span class="section-number-4">6.0.3.</span> Functor Identity Law in Tests</h4>
@@ -6905,9 +6869,9 @@ replace is derived from fmap with a constant function — no extra instance work
 <div class="org-src-container">
 
 <pre class="src src-cpp">{
-    <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">functor</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">functor_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-    CHECK(functor.fmap(id, <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{42}) == <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{42});
-    CHECK(functor.fmap(id, <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{}) == <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{});
+        <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">functor</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">functor_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
+        CHECK(functor.fmap(id, <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{42}) == <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{42});
+        CHECK(functor.fmap(id, <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{}) == <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{});
 }
 </pre>
 </div>
@@ -6918,7 +6882,6 @@ Tests that encode laws document intent more durably than comments.
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -6944,7 +6907,6 @@ Formal treatment of each typeclass follows in the next three sections.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-7-0-2">
 <h4 id="7-0-2"><span class="section-number-4">7.0.2.</span> Crisp Contrast: Flatten vs. Preserve Shape</h4>
@@ -6953,7 +6915,6 @@ Formal treatment of each typeclass follows in the next three sections.
 <li>Traversable can map values and keep the original branching shape.</li>
 
 </ul>
-
 <ol class="org-ol">
 <li><a id="7-0-2-1"></a>Foldable Flattens and Loses Shape Identity<br />
 <div class="org-src-container">
@@ -6963,7 +6924,6 @@ Formal treatment of each typeclass follows in the next three sections.
 </pre>
 </div>
 </li>
-
 <li><a id="7-0-2-2"></a>Traversable Maps While Preserving Shape<br />
 <div class="org-src-container">
 
@@ -6983,7 +6943,6 @@ Traversable keeps the tree skeleton and only transforms payloads.
 </aside>
 </li>
 </ol>
-
 </section>
 <section id="slide-7-0-3">
 <h4 id="7-0-3"><span class="section-number-4">7.0.3.</span> Same Algorithm, Two Tree Representations</h4>
@@ -7000,7 +6959,6 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 </p>
 
 </aside>
-
 <ol class="org-ol">
 <li><a id="7-0-3-1"></a>Fixpoint Tree<br />
 <div class="org-src-container">
@@ -7016,7 +6974,6 @@ FixTree&lt;int&gt;. fold_map and to_vector dispatch through foldable_typeclass&l
 
 </aside>
 </li>
-
 <li><a id="7-0-3-2"></a>shared_ptr Binary Tree<br />
 <div class="org-src-container">
 
@@ -7031,7 +6988,6 @@ BinaryTree&lt;int&gt;. Different type, different fold_map implementation — sam
 
 </aside>
 </li>
-
 <li><a id="7-0-3-3"></a>FringeTree (Simplified FingerTree)<br />
 <div class="org-src-container">
 
@@ -7046,17 +7002,16 @@ FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third repres
 
 </aside>
 </li>
-
 <li><a id="7-0-3-4"></a>FringeTree: Traversable Also Preserves Shape<br />
 <div class="org-src-container">
 
-<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">beman</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>;
+<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">beman</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>::optional;
 
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">relabelled</span> = traversable.traverse(
-    [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-        <span style="font-weight: bold;">return</span> x &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{x + 1} : <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
-    },
-    tree);
+        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
+            <span style="font-weight: bold;">return</span> x &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{x + 1} : <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
+        },
+        tree);
 </pre>
 </div>
 
@@ -7069,7 +7024,6 @@ The variant structure (Empty | Leaf | Branch) is intact; only the leaf values ch
 </aside>
 </li>
 </ol>
-
 </section>
 </section>
 <section>
@@ -7094,7 +7048,6 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 </p>
 
 </aside>
-
 </section>
 <section id="slide-8-0-2">
 <h4 id="8-0-2"><span class="section-number-4">8.0.2.</span> Foldable API: One Hook, Derived from fold_map</h4>
@@ -7104,7 +7057,6 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 <li>No traversal order is mandated; the instance chooses and must be consistent.</li>
 
 </ul>
-
 <ol class="org-ol">
 <li><a id="8-0-2-1"></a>fold_map → length<br />
 <div class="org-src-container">
@@ -7120,7 +7072,6 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 </pre>
 </div>
 </li>
-
 <li><a id="8-0-2-2"></a>fold_map → to_vector<br />
 <div class="org-src-container">
 
@@ -7129,8 +7080,8 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 {
   <span style="font-weight: bold;">return</span> self.fold_map(
     [](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) {
-      <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">ValueType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;;
-      <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">ValueType</span>&gt;{x};
+        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">ValueType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;;
+        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">ValueType</span>&gt;{x};
     },
     <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
 }
@@ -7146,7 +7097,6 @@ fold_left and fold_right use a function-composition monoid internally.
 </aside>
 </li>
 </ol>
-
 </section>
 <section id="slide-8-0-3">
 <h4 id="8-0-3"><span class="section-number-4">8.0.3.</span> Foldable Proof: Tests as Examples</h4>
@@ -7170,11 +7120,9 @@ CHECK(as_vector == (<span style="font-weight: bold; text-decoration: underline;"
 <p>
 The test encodes a semantic claim: to_vector of {1,2,3} is exactly {1,2,3}.
 That claim would catch a traversal-order regression.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -7195,23 +7143,21 @@ Source: (Steve Downey, 2026).
 
 <aside class="notes">
 <p>
-McBride's "applicative style" paper is the primary reference.
+McBride's "applicative style" paper is the primary reference (Conor McBride and Ross Paterson, 2008).
 apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] for Haskell audiences; invoke is the preferred C++ spelling.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-9-0-2">
 <h4 id="9-0-2"><span class="section-number-4">9.0.2.</span> Applicative in Use</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sum</span> = applicative.invoke(
-    [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a + b + c; },
-    ax,
-    ay,
-    az);
+        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a + b + c; },
+        ax,
+        ay,
+        az);
 </pre>
 </div>
 
@@ -7221,7 +7167,6 @@ Three independent optional arguments. If any is absent the whole computation sho
 </p>
 
 </aside>
-
 </section>
 <section id="slide-9-0-3">
 <h4 id="9-0-3"><span class="section-number-4">9.0.3.</span> Applicative: invoke in Tests</h4>
@@ -7240,11 +7185,9 @@ CHECK(*result == 5);
 <aside class="notes">
 <p>
 invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-9-0-4">
 <h4 id="9-0-4"><span class="section-number-4">9.0.4.</span> Applicative: Short-Circuit on Absent</h4>
@@ -7264,7 +7207,6 @@ This is the core contract of optional-as-applicative.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-9-0-5">
 <h4 id="9-0-5"><span class="section-number-4">9.0.5.</span> Applicative: invoke via Terminating Partial Application</h4>
@@ -7277,7 +7219,7 @@ This is the core contract of optional-as-applicative.
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">detail</span>::make_terminating_partial(
-    [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a * 100 + b * 10 + c; });
+        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a * 100 + b * 10 + c; });
 
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial2</span> = partial(1);
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial3</span> = partial2(2);
@@ -7293,7 +7235,6 @@ Also derived from pure + apply: map, lift, ap, zip_with, discard_first, discard_
 </p>
 
 </aside>
-
 </section>
 <section id="slide-9-0-6">
 <h4 id="9-0-6"><span class="section-number-4">9.0.6.</span> Applicative Law: Interchange</h4>
@@ -7324,7 +7265,6 @@ It constrains how pure values interact with contextual functions.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-9-0-7">
 <h4 id="9-0-7"><span class="section-number-4">9.0.7.</span> Applicative Law: Composition</h4>
@@ -7357,7 +7297,6 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -7375,7 +7314,6 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 <li>Use this to model validation, partial relabeling, and structured transformations.</li>
 
 </ul>
-
 </section>
 <section id="slide-10-0-2">
 <h4 id="10-0-2"><span class="section-number-4">10.0.2.</span> Traversable in Use: Success</h4>
@@ -7385,10 +7323,10 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold;">decltype</span>(values)&gt;;
 
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">traversed</span> = traversable.traverse(
-    [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{value + 1};
-    },
-    values);
+        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
+            <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{value + 1};
+        },
+        values);
 
 REQUIRE(traversed.has_value());
 CHECK(collect(*traversed) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{2, 3, 4}));
@@ -7401,7 +7339,6 @@ Every element transforms successfully. The optional wrapping is removed and a ne
 </p>
 
 </aside>
-
 </section>
 <section id="slide-10-0-3">
 <h4 id="10-0-3"><span class="section-number-4">10.0.3.</span> Traversable in Use: Failure Propagates</h4>
@@ -7411,11 +7348,11 @@ Every element transforms successfully. The optional wrapping is removed and a ne
 <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold;">decltype</span>(values)&gt;;
 
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">traversed</span> = traversable.traverse(
-    [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-        <span style="font-weight: bold;">return</span> value &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{value + 1}
-                          : <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
-    },
-    values);
+        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
+            <span style="font-weight: bold;">return</span> value &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{value + 1}
+                              : <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
+        },
+        values);
 
 CHECK_FALSE(traversed.has_value());
 </pre>
@@ -7428,7 +7365,6 @@ This is the short-circuit behavior that distinguishes traverse from map.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-10-0-4">
 <h4 id="10-0-4"><span class="section-number-4">10.0.4.</span> Traversable API: sequence</h4>
@@ -7437,9 +7373,9 @@ This is the short-circuit behavior that distinguishes traverse from map.
 <pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequence</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
 {
-    <span style="font-weight: bold;">return</span> self.traverse(
-        [](<span style="font-weight: bold;">auto</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;(x); },
-        <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
+        <span style="font-weight: bold;">return</span> self.traverse(
+            [](<span style="font-weight: bold;">auto</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;(x); },
+            <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
 }
 </pre>
 </div>
@@ -7452,7 +7388,6 @@ Also derived: for_each, which is traverse with its arguments flipped (container 
 </p>
 
 </aside>
-
 </section>
 <section id="slide-10-0-5">
 <h4 id="10-0-5"><span class="section-number-4">10.0.5.</span> Traversable Proof: sequence in Tests</h4>
@@ -7475,7 +7410,6 @@ The shape is preserved; the effect wraps the whole result.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-10-0-6">
 <h4 id="10-0-6"><span class="section-number-4">10.0.6.</span> Traversable Law: Naturality</h4>
@@ -7488,24 +7422,22 @@ The shape is preserved; the effect wraps the whole result.
 <div class="org-src-container">
 
 <pre class="src src-cpp">{
-    <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">value</span> = Identity{3};
-    CHECK(eta(traversable.traverse(f, value)) ==
-          traversable.traverse(eta_f, value));
+        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">value</span> = Identity{3};
+        CHECK(to_beman(traversable.traverse(f, value)) ==
+              traversable.traverse(f_returning_beman, value));
 }
 </pre>
 </div>
 
 <aside class="notes">
 <p>
-Formal law: for applicative morphism η (commutes with pure and ap), η(traverse f t) == traverse (η∘f) t.
-eta here converts optional&lt;Identity&lt;int&gt;&gt; to beman::optional&lt;Identity&lt;int&gt;&gt;.
-eta_f is eta composed with f on the value side.
+Formal law: for an applicative morphism φ (commutes with pure and ap), φ(traverse f t) == traverse (φ∘f) t.
+to_beman is the morphism: converts std::optional&lt;Identity&lt;int&gt;&gt; to beman::optional&lt;Identity&lt;int&gt;&gt;.
+f_returning_beman is f with its return type changed to beman::optional — equivalent to composing to_beman with f at the value level.
 Both sides produce beman::optional&lt;Identity&lt;int&gt;&gt;{Identity{6}}.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-10-0-7">
 <h4 id="10-0-7"><span class="section-number-4">10.0.7.</span> Traversable Commute: Range and ZipList</h4>
@@ -7514,7 +7446,6 @@ Source: (Steve Downey, 2026).
 <li>The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.</li>
 
 </ul>
-
 <ol class="org-ol">
 <li><a id="10-0-7-1"></a>Range of ZipLists → ZipList of Ranges<br />
 <div class="org-src-container">
@@ -7527,12 +7458,11 @@ CHECK(collect(sequenced.data[1]) == (<span style="font-weight: bold; text-decora
 </pre>
 </div>
 </li>
-
 <li><a id="10-0-7-2"></a>ZipList of Vectors → Vector of ZipLists (matrix transpose)<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">zip_list</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt; <span style="font-weight: bold; font-style: italic;">zip_of_vectors</span>{
-    {{1, 10, 100}, {2, 20, 200}}};
+        {{1, 10, 100}, {2, 20, 200}}};
 
 <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">as_rows</span> = to_vector_of_ziplists(zip_of_vectors);
 
@@ -7549,13 +7479,11 @@ CHECK(as_rows[2].data == (<span style="font-weight: bold; text-decoration: under
 This helper (<code>to_vector_of_ziplists</code>) is hand-coded to illustrate the inverse transpose concept.
 The Traversable version is the range-of-ZipLists → ZipList-of-ranges test on the previous slide.
 Key law intuition: preserve shape and evaluation order discipline.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
 </li>
 </ol>
-
 </section>
 <section id="slide-10-0-8">
 <h4 id="10-0-8"><span class="section-number-4">10.0.8.</span> Laws That Keep This Honest</h4>
@@ -7572,11 +7500,9 @@ Source: (Steve Downey, 2026).
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
 Note: tree applicative (applying a tree of functions to a tree of values) is a policy choice, not the core applicative story.
 The core teaching value of Applicative is visible in optional, range, and ZipList examples.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -7594,7 +7520,6 @@ Source: (Steve Downey, 2026).
 <li>Lookup via <code>monoid_v&lt;T&gt;</code>; extend by specializing <code>Monoid&lt;T&gt;</code>.</li>
 
 </ul>
-
 </section>
 <section id="slide-11-0-2">
 <h4 id="11-0-2"><span class="section-number-4">11.0.2.</span> Monoid: Count Specialization</h4>
@@ -7619,7 +7544,6 @@ identity is 0; combine is addition — the simplest possible monoid.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-11-0-3">
 <h4 id="11-0-3"><span class="section-number-4">11.0.3.</span> Monoid: Generic Helpers</h4>
@@ -7646,7 +7570,6 @@ These are the call shapes used by fold_map and all derived Foldable operations.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-11-0-4">
 <h4 id="11-0-4"><span class="section-number-4">11.0.4.</span> Monoid in Tests</h4>
@@ -7663,20 +7586,18 @@ CHECK(result.d_value == 3U);
 <aside class="notes">
 <p>
 monoid_combine dispatches through monoid_v&lt;Count&gt;. The test is mechanical, but it pins the specialization.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-11-0-5">
 <h4 id="11-0-5"><span class="section-number-4">11.0.5.</span> Monoid Identity Law in Tests</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp">{
-    <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">m</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
-    CHECK(m.combine(m.identity(), 42) == 42);
-    CHECK(m.combine(42, m.identity()) == 42);
+        <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">m</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
+        CHECK(m.combine(m.identity(), 42) == 42);
+        CHECK(m.combine(42, m.identity()) == 42);
 }
 </pre>
 </div>
@@ -7688,7 +7609,6 @@ If this fails the Monoid is not a monoid.
 </p>
 
 </aside>
-
 </section>
 <section id="slide-11-0-6">
 <h4 id="11-0-6"><span class="section-number-4">11.0.6.</span> Associativity as Algorithmic Leverage</h4>
@@ -7701,12 +7621,10 @@ If this fails the Monoid is not a monoid.
 
 <aside class="notes">
 <p>
-If the measure is a monoid, split/search become compositional.
-Source: (Steve Downey, 2026).
+If the measure is a monoid, split/search become compositional (Ralf Hinze and Ross Paterson, 2006).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-11-0-7">
 <h4 id="11-0-7"><span class="section-number-4">11.0.7.</span> Annotations as Summaries</h4>
@@ -7720,11 +7638,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 The data structure stays the same while behavior changes with the monoid.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-11-0-8">
 <h4 id="11-0-8"><span class="section-number-4">11.0.8.</span> Search and Split Driven by Measures</h4>
@@ -7737,15 +7653,13 @@ Source: (Steve Downey, 2026).
 
 <aside class="notes">
 <p>
-The original finger-tree papers promise amortized O(1) at the ends,
-O(log(min(n,m))) concatenation, and O(log n) split/search.
+The original finger-tree paper promises amortized O(1) at the ends,
+O(log(min(n,m))) concatenation, and O(log n) split/search (Ralf Hinze and Ross Paterson, 2006).
 The current implementation keeps the same API shape but does not yet meet those bounds.
 The point for the talk: the abstraction boundary is in the right place even before the optimization lands.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -7769,11 +7683,9 @@ Source: (Steve Downey, 2026).
 This is where abstractions meet implementation reality.
 The paper-level target bounds remain the north star.
 The current prototype contract is explicit linear split/search.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-12-0-2">
 <h4 id="12-0-2"><span class="section-number-4">12.0.2.</span> One Structure, Many Interpretations</h4>
@@ -7787,11 +7699,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 This is the strongest argument for measured trees in a standard library context.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 <ol class="org-ol">
 <li><a id="12-0-2-1"></a>Sequence: O(log n) Random Access<br />
 <div class="org-src-container">
@@ -7816,7 +7726,6 @@ push_front/push_back/insert/update/erase all work by measure-guided split and re
 
 </aside>
 </li>
-
 <li><a id="12-0-2-2"></a>Priority Queue: Min and Max in One Structure<br />
 <div class="org-src-container">
 
@@ -7836,14 +7745,13 @@ Monoid: (Min, Max) — a pair that combines by taking component-wise extrema.
 
 </aside>
 </li>
-
 <li><a id="12-0-2-3"></a>Rope: Character Buffer with Efficient Editing<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rope</span> = <span style="font-weight: bold; text-decoration: underline;">Rope</span>::from_text(<span style="font-style: italic;">"abCDxy"</span>, 2)
-                .insert(2, <span style="font-style: italic;">"--"</span>)
-                .erase(5, 2)
-                .replace(0, 2, <span style="font-style: italic;">"AB"</span>);
+                    .insert(2, <span style="font-style: italic;">"--"</span>)
+                    .erase(5, 2)
+                    .replace(0, 2, <span style="font-style: italic;">"AB"</span>);
 
 CHECK(rope.to_string() == <span style="font-style: italic;">"AB--Cy"</span>);
 CHECK(rope.size_bytes() == 6U);
@@ -7859,7 +7767,6 @@ insert, erase, and replace all navigate by cumulative byte offset using split.
 </aside>
 </li>
 </ol>
-
 </section>
 <section id="slide-12-0-3">
 <h4 id="12-0-3"><span class="section-number-4">12.0.3.</span> Why This Belongs in Modern C++</h4>
@@ -7874,11 +7781,9 @@ insert, erase, and replace all navigate by cumulative byte offset using split.
 <p>
 This is the concrete payoff: the design composes correctly across independent extension points.
 No monkey-patching, no reopening of classes, no central registry.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 </section>
 <section>
@@ -7899,11 +7804,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 Pattern matching and richer generic facilities should refine this API, not replace it.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-13-0-2">
 <h4 id="13-0-2"><span class="section-number-4">13.0.2.</span> Avoiding the <code>std::bind</code> vs. Lambda Overlap</h4>
@@ -7917,11 +7820,9 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 The goal is reducing cognitive branching in generic code.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
-
 </section>
 <section id="slide-13-0-3">
 <h4 id="13-0-3"><span class="section-number-4">13.0.3.</span> Keeping the Good Path Obvious</h4>
@@ -7935,7 +7836,6 @@ Source: (Steve Downey, 2026).
 <aside class="notes">
 <p>
 The best API docs in this space are tests that encode the laws.
-Source: (Steve Downey, 2026).
 </p>
 
 </aside>
