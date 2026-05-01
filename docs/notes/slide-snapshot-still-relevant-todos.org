@@ -7,28 +7,37 @@
 * Context
 This task list captures only items from the prior snapshot review that still appear relevant in the current repository state.
 
-* TODO Fix slide/code mismatch on core split/search behavior
+* DONE Fix slide/code mismatch on core split/search behavior
+CLOSED: [2026-05-01 Thu]
 :PROPERTIES:
 :ID:       slide-core-split-search-mismatch
 :AREA:     slides/finger-tree
 :PRIORITY: A
 :END:
-- [ ] Update the slide statement that currently says split scans a flattened sequence.
-- [ ] Align wording with current core implementation behavior in [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp).
-- [ ] Re-check nearby notes so asymptotic claims remain internally consistent.
+- [x] Update the slide statement that currently says split scans a flattened sequence.
+- [x] Align wording with current core implementation behavior in [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp).
+- [x] Re-check nearby notes so asymptotic claims remain internally consistent.
+
+Fixed: Line 643 updated to distinguish predicate-based core split (structural, tree-navigating) from
+index-based wrapper path (~split_at_index~, flatten-and-rebuild O(n)). Notes block expanded to make
+the distinction explicit. Lines 655-657/663 updated to match.
 
 Evidence:
 - [trees/foldable-applicable-traversable.org](trees/foldable-applicable-traversable.org#L643)
 
-* TODO Clarify wrapper complexity contract (prototype vs optimized)
+* DONE Clarify wrapper complexity contract (prototype vs optimized)
+CLOSED: [2026-05-01 Thu]
 :PROPERTIES:
 :ID:       wrapper-complexity-clarification
 :AREA:     slides+docs/wrappers
 :PRIORITY: A
 :END:
-- [ ] Add explicit caveat in slides/notes that several wrapper operations still materialize/rebuild.
-- [ ] For each wrapper section, state present complexity and intended target complexity separately.
-- [ ] Ensure claims do not imply optimized measured pruning where code is currently flatten-based.
+- [x] Add explicit caveat in slides/notes that several wrapper operations still materialize/rebuild.
+- [x] For each wrapper section, state present complexity and intended target complexity separately.
+- [x] Ensure claims do not imply optimized measured pruning where code is currently flatten-based.
+
+Fixed: Random-access notes now state push_front/push_back O(1), insert/erase/at O(n) pending optimization.
+Priority-queue notes now state push O(1), pop_min/pop_max O(n) pending optimization.
 
 Evidence:
 - [trees/src/smd/tree/finger_tree_random_access.hpp](trees/src/smd/tree/finger_tree_random_access.hpp#L53)
