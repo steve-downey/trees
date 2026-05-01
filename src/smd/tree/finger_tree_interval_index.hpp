@@ -9,11 +9,8 @@
 #include <smd/typeclass/monoid.hpp>
 #include <smd/typeclass/traversable.hpp>
 
-#include <algorithm>
 #include <cstddef>
 #include <functional>
-#include <iterator>
-#include <ranges>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -72,20 +69,17 @@ class FingerTreeIntervalIndex {
   {
     std::vector<PAYLOAD_TYPE> out;
 
-    // Use measure-based pruning: skip intervals where max_end <= point
-    // These intervals cannot contain the point by definition
+    // Prune: skip all intervals whose subtree max_end <= point.
     auto parts = d_tree.split_at([point](const IntervalMaxEndTag<PAYLOAD_TYPE>& prefix) {
       return prefix.d_max_end > point;
     });
 
-    // Only search within intervals with d_max_end > point
-    auto flat = parts.d_right.flatten();
-    std::ranges::copy(
-        flat | std::views::filter([point](const auto& e) {
-                   return e.d_start <= point && point < e.d_end;
-               })
-             | std::views::transform([](const auto& e) { return e.d_payload; }),
-        std::back_inserter(out));
+    // Fold the candidate subtree directly — no intermediate vector.
+    parts.d_right.for_each([&](const Entry& e) {
+      if (e.d_start <= point && point < e.d_end) {
+        out.push_back(e.d_payload);
+      }
+    });
 
     return out;
   }
@@ -95,20 +89,17 @@ class FingerTreeIntervalIndex {
   {
     std::vector<PAYLOAD_TYPE> out;
 
-    // Use measure-based pruning: skip intervals where max_end <= start
-    // These intervals cannot overlap with [start, end) by definition
+    // Prune: skip all intervals whose subtree max_end <= start.
     auto parts = d_tree.split_at([start](const IntervalMaxEndTag<PAYLOAD_TYPE>& prefix) {
       return prefix.d_max_end > start;
     });
 
-    // Only search within intervals with d_max_end > start
-    auto flat = parts.d_right.flatten();
-    std::ranges::copy(
-        flat | std::views::filter([start, end](const auto& e) {
-                   return e.d_start < end && start < e.d_end;
-               })
-             | std::views::transform([](const auto& e) { return e.d_payload; }),
-        std::back_inserter(out));
+    // Fold the candidate subtree directly — no intermediate vector.
+    parts.d_right.for_each([&](const Entry& e) {
+      if (e.d_start < end && start < e.d_end) {
+        out.push_back(e.d_payload);
+      }
+    });
 
     return out;
   }

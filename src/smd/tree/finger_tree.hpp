@@ -186,6 +186,17 @@ class FingerTree {
     }, node);
   }
 
+  template <typename F>
+  static void node_for_each(const NodeT& node, const F& callback)
+  {
+    std::visit(detail::overloaded{
+      [&](const Node2<T, Tag>& n) { callback(*n.a); callback(*n.b); },
+      [&](const Node3<T, Tag>& n) {
+        callback(*n.a); callback(*n.b); callback(*n.c);
+      }
+    }, node);
+  }
+
   static auto node_to_digit(const NodeT& node) -> Digit<T>
   {
     return std::visit(detail::overloaded{
@@ -253,6 +264,19 @@ class FingerTree {
       [&](const Four<T>& x) {
         out.push_back(x.a); out.push_back(x.b);
         out.push_back(x.c); out.push_back(x.d);
+      }
+    }, d);
+  }
+
+  template <typename F>
+  static void digit_for_each(const Digit<T>& d, const F& callback)
+  {
+    std::visit(detail::overloaded{
+      [&](const One<T>& x) { callback(x.a); },
+      [&](const Two<T>& x) { callback(x.a); callback(x.b); },
+      [&](const Three<T>& x) { callback(x.a); callback(x.b); callback(x.c); },
+      [&](const Four<T>& x) {
+        callback(x.a); callback(x.b); callback(x.c); callback(x.d);
       }
     }, d);
   }
@@ -688,6 +712,15 @@ class FingerTree {
     }
   }
 
+  template <typename F>
+  static void spine_for_each(const SpinePtr& sp, const F& callback)
+  {
+    if constexpr (DEPTH < kMaxDepth) {
+      if (spine_is_empty(sp)) return;
+      sp->for_each([&](const NodeT& node) { node_for_each(node, callback); });
+    }
+  }
+
  public:
   using value_type = T;
   using tag_type = Tag;
@@ -975,6 +1008,23 @@ class FingerTree {
         spine_flatten_into(d->d_spine, out);
         digit_flatten_into(d->d_right, out);
         return out;
+      }
+    }, d_repr);
+  }
+
+  // Call callback(const T&) for each element in sequence order, without heap
+  // allocation. Prefer over flatten() when results do not need to outlive the
+  // callback loop.
+  template <typename F>
+  void for_each(F&& callback) const
+  {
+    std::visit(detail::overloaded{
+      [](const Empty&) {},
+      [&](const Single& s) { std::invoke(callback, s.d_value); },
+      [&](const DeepPtr& d) {
+        digit_for_each(d->d_left, callback);
+        spine_for_each(d->d_spine, callback);
+        digit_for_each(d->d_right, callback);
       }
     }, d_repr);
   }
