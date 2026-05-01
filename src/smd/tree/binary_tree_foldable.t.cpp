@@ -1,4 +1,5 @@
 #include <smd/tree/binary_tree.hpp>
+#include <smd/tree/binary_tree.hpp>  // Re-inclusion check
 #include <smd/tree/binary_tree_foldable.hpp>
 #include <smd/typeclass/foldable.hpp>
 

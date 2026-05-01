@@ -1,4 +1,5 @@
 #include <smd/ranges/range_traversable.hpp>
+#include <smd/ranges/range_traversable.hpp>  // Re-inclusion check
 #include <smd/ziplist/zip_list_applicative.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -71,7 +72,6 @@ TEST_CASE("RangeTraversableTest - TraverseOptionalSuccess")
 {
     // c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02
     auto values = smd::ranges::from_vector(std::vector<int>{1, 2, 3});
-    const auto& traversable = smd::traversable_typeclass<decltype(values)>;
 
     auto traversed = smd::traverse(
         [](int value) -> std::optional<int> {
@@ -88,7 +88,6 @@ TEST_CASE("RangeTraversableTest - TraverseOptionalFailure")
 {
     // e9b1d4f2-7c3a-4e8b-f6c2-5d1a9e3b7f04
     auto values = smd::ranges::from_vector(std::vector<int>{1, -2, 3});
-    const auto& traversable = smd::traversable_typeclass<decltype(values)>;
 
     auto traversed = smd::traverse(
         [](int value) -> std::optional<int> {
@@ -104,7 +103,6 @@ TEST_CASE("RangeTraversableTest - TraverseOptionalFailure")
 TEST_CASE("RangeTraversableTest - TraverseWithRangeApplicativeEnumeratesChoices")
 {
     auto values = smd::ranges::from_vector(std::vector<int>{1, 2});
-    const auto& traversable = smd::traversable_typeclass<decltype(values)>;
 
     auto traversed = smd::traverse(
         [](int value) {

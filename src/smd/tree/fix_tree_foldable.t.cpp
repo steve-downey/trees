@@ -1,4 +1,5 @@
 #include <smd/tree/fix_tree.hpp>
+#include <smd/tree/fix_tree.hpp>  // Re-inclusion check
 #include <smd/tree/fix_tree_foldable.hpp>
 #include <smd/typeclass/foldable.hpp>
 

@@ -1,4 +1,5 @@
 #include <smd/tree/finger_tree_random_access.hpp>
+#include <smd/tree/finger_tree_random_access.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -36,7 +37,6 @@ TEST_CASE("FingerTreeRandomAccessTest - TraversableTypeclass")
     using Seq = smd::tree::FingerTreeRandomAccess<int>;
 
     auto seq = Seq::from_sequence({1, 2, 3});
-    const auto& traversable = smd::traversable_typeclass<Seq>;
 
     auto success = smd::traverse(
       [](int value) -> std::optional<int> { return value * 10; },

@@ -14,7 +14,6 @@ auto traversable_relabel_example() -> beman::optional::optional<std::size_t>
 {
     using IntTree = smd::tree::FixTree<int>;
     auto tree = IntTree::branch(IntTree::leaf(1), IntTree::leaf(2));
-    const auto& traversable = smd::traversable_typeclass<IntTree>;
 
     // 5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2
     using beman::optional::optional;
@@ -42,7 +41,6 @@ auto traversable_preserves_shape_example() -> bool
         auto tree = IntTree::branch(
             IntTree::leaf(1),
             IntTree::branch(IntTree::leaf(2), IntTree::leaf(3)));
-        const auto& traversable = smd::traversable_typeclass<IntTree>;
 
         // d804ec63-77d1-4fa0-99a6-9effce6f741b
         auto mapped = smd::traverse(

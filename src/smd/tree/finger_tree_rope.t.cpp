@@ -1,4 +1,5 @@
 #include <smd/tree/finger_tree_rope.hpp>
+#include <smd/tree/finger_tree_rope.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -40,7 +41,6 @@ TEST_CASE("FingerTreeRopeTest - TraversableTypeclass")
     using Rope = smd::tree::FingerTreeRope;
 
     auto rope = Rope::from_text("abcd", 2);
-    const auto& traversable = smd::traversable_typeclass<Rope>;
 
     auto success = smd::traverse(
       [](const std::string& chunk) -> std::optional<std::string> {
