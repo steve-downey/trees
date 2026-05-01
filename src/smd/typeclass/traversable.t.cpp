@@ -258,3 +258,50 @@ TEST_CASE("TraversableLaws - NaturalityLaw")
               smd::traverse(f_returning_beman, value));
     }
 }
+
+// NullOpt applicative: pure/apply always return an empty optional.
+// Used to guard that traverse_with honors the explicitly passed applicative
+// rather than re-looking up applicative_typeclass<std::optional<int>>.
+struct NullOptImpl {
+    template <class V>
+    auto pure(this auto&&, V&&) -> std::optional<std::remove_cvref_t<V>>
+    {
+        return {};
+    }
+
+    template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
+    auto apply(this auto&&,
+               FUNCTION_IN_CONTEXT&& function,
+               ARGUMENT_IN_CONTEXT&& argument)
+    {
+        using Result =
+            std::invoke_result_t<decltype(*function), decltype(*argument)>;
+        return std::optional<std::remove_cvref_t<Result>>{};
+    }
+};
+
+struct NullOptMap : smd::Applicative<NullOptImpl> {
+    using NullOptImpl::pure;
+    using NullOptImpl::apply;
+};
+
+TEST_CASE("TraversableTypeclassTest - TraverseWithHonorsExplicitApplicative")
+{
+    using Identity = smd::typeclass::test::Identity<int>;
+    const auto& traversable = smd::traversable_typeclass<Identity>;
+
+    auto value = Identity{10};
+    auto f = [](int x) -> std::optional<int> { return std::optional<int>{x + 1}; };
+
+    // Default path — must succeed.
+    auto default_result = smd::traverse(f, value);
+    REQUIRE(default_result.has_value());
+    CHECK(default_result->value == 11);
+
+    // traverse_with with NullOptMap must return empty: if the impl uses the
+    // explicit applicative, pure() returns nullopt and the result is empty.
+    // If it re-looks up the default applicative_typeclass, the result is non-empty.
+    NullOptMap null_opt{};
+    auto custom_result = traversable.traverse_with(traversable, null_opt, f, value);
+    CHECK_FALSE(custom_result.has_value());
+}
