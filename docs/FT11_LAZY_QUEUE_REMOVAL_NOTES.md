@@ -89,7 +89,7 @@ for (int i = 0; i < 250; ++i) {
   auto value = (i * 7) % 11;
   q = q.push(value);
   expected.insert(value);
-  
+
   if ((i % 2) == 0) {
     auto popped = q.pop_min();
     CHECK(popped->first == *expected.begin());
