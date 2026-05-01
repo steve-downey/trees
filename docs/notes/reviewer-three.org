@@ -1,0 +1,105 @@
+* C++Now 2026 Code Review: =trees/src= Implementation
+
+** Architecture & Typeclass Emulation (Concept Maps)
+*** Analysis
+The implementation successfully avoids the Curiously Recurring Template Pattern (CRTP). In standard C++ practice, CRTP is often used to inject static interfaces, but it forces an intrusive inheritance hierarchy.[1] Instead, the codebase utilizes a "Concept Map" pattern (e.g., =inline constexpr auto foldable_typeclass = std::false_type{};=) combined with C++20 concepts. This mirrors Haskell's non-intrusive dictionary passing.
+
+The mixin architecture in =smd/typeclass/applicative.hpp= is particularly elegant. By declaring =struct Applicative : protected Impl= and bringing in =pure= and =apply= with =using Impl::apply;=, you successfully inject derived operations like =invoke=, =ap=, and =map= without virtual overhead.
+
+*** Notes & Areas to Reconsider
+- *Review:* The design relies heavily on users specializing variable templates to opt into typeclasses. While this is mathematically sound and maps perfectly to Haskell, C++ developers might accidentally define methods that look correct but fail to satisfy the actual typeclass laws.[2] Consider adding =static_assert= checks or concept `requires` clauses inside the map definitions to enforce that the instantiated =Impl= actually provides =pure= and =apply= with matching signatures.
+
+** 2-3 Finger Tree implementation (=finger_tree.hpp=)
+*** Analysis & Fact Check
+Mathematically, a 2-3 Finger Tree relies on a first-order nested (non-regular) data type where the $n$-th level of the spine contains 2-3 trees of depth $n$.[2] The implementation in =smd/tree/finger_tree.hpp= diverges from this standard structural definition. Instead of nested templates (=FingerTree<Node<A>>=), it uses type erasure, virtual dispatch (=struct Segment { virtual ~Segment() = 0;...}=), and heap allocation via =std::shared_ptr=.
+
+While this correctly achieves the logical shape and functional persistence required for logarithmic concatenation and splitting [2], the pervasive use of =vtable= indirection will cause significant cache misses on modern CPU architectures.
+
+The amortized $O(1)$ bounds of Finger Trees critically rely on lazy evaluation to delay deep spine concatenations.[2] The implementation beautifully simulates this call-by-need laziness using =SuspendedSegment= and =erased_thunk=.
+
+*** Notes & Areas to Reconsider (Thread Safety)
+In =smd/tree/memoized_thunk.hpp=, the =thunk= function encapsulates delayed execution inside a =mutable= lambda that modifies a captured =std::shared_ptr<State>=.
+While =std::shared_ptr= control blocks are thread-safe, mutating the underlying =std::variant= cache is a data race if the tree is accessed concurrently. Because functional data structures are heavily advertised as thread-safe by default, this will surprise users.
+
+*** Suggested Diff: Thread-Safe Memoization
+To fix the data race and eliminate the need for the =mutable= keyword on the lambda, wrap the state in a structure with a =std::once_flag=.
+
+#+BEGIN_SRC diff
+--- smd/tree/memoized_thunk.hpp
++++ smd/tree/memoized_thunk.hpp
+@@ -58,11 +58,15 @@
+   using Closure = decltype(delay(std::forward<Callable>(c), std::forward<Args>(args)...));
+   using Result = std::invoke_result_t<Closure&>;
+   using State = std::variant<std::monostate, Closure, Result>;
+
+-  auto state = std::make_shared<State>(
+-    std::in_place_index<1>,
+-    delay(std::forward<Callable>(c), std::forward<Args>(args)...));
++  struct SharedState {
++      std::once_flag flag;
++      State data;
++      SharedState(Closure&& closure) : data(std::in_place_index<1>, std::move(closure)) {}
++  };
++
++  auto state = std::make_shared<SharedState>(
++      delay(std::forward<Callable>(c), std::forward<Args>(args)...));
+
+-  return [state = std::move(state)]() mutable -> const Result& {
+-    if (state->index() == 1U) {
+-      state->template emplace<2>(std::get<1>(*state)());
+-    }
+-    return std::get<2>(*state);
++  return [state = std::move(state)]() -> const Result& {
++    std::call_once(state->flag, [&]() {
++        state->data.template emplace<2>(std::get<1>(state->data)());
++    });
++    return std::get<2>(state->data);
+   };
+ }
+#+END_SRC
+
+** Recursion Schemes & Fix Trees (=fix_tree.hpp=)
+*** Analysis & Fact Check
+The mathematical foundation of recursion schemes requires an F-Algebra evaluated via a catamorphism (=cata=) over a generic fixed-point combinator (=Fix F=).[2]
+
+*** Notes & Areas to Reconsider
+The =FixTree= implementation in =smd/tree/fix_tree.hpp= hardcodes a binary tree topology using =std::variant<Leaf, Node>=. It is not actually a fixed point over a higher-kinded functor, which completely prevents writing generalized =cata= (catamorphism) and =ana= (anamorphism) operations. The folding logic in =FixTreeFoldableImpl= relies on manual recursion down =t.left()= and =t.right()=, failing to separate the structural traversal from the evaluation logic.
+
+*** Suggested Diff: True Fixed-Point Combinator
+To unlock the full power of generalized recursion schemes and deforestation, you should provide a true fixed point template and a generic =cata= function.[3]
+
+#+BEGIN_SRC diff
+--- smd/tree/fix_tree.hpp
++++ smd/tree/fix_tree.hpp
+@@ -4,6 +4,20 @@
+ #ifndef INCLUDED_SMD_TREE_FIX_TREE
+ #define INCLUDED_SMD_TREE_FIX_TREE
+
++#include <functional>
++
++namespace smd::tree {
++
++// True Fixed-Point Combinator for an arbitrary Functor F
++template <template <class> class F>
++struct Fix : F<Fix<F>> {
++    using F<Fix>::F;
++};
++
++// F-Algebra definition
++template <template <class> class F, class A>
++using Algebra = std::function<A(const F<A>&)>;
++
++// Note: A generic `cata` function should be provided alongside this
++// to map the algebra over the functor and recursively unwrap the `Fix` knot.
++
++} // close namespace smd::tree
+#+END_SRC
+
+** Foldable and Traversable Implementations
+*** Analysis & Fact Check
+In eager languages like C++, sequence reduction can accidentally force the materialization of deeply delayed sequences. However, a review of =ListRangeFoldableImpl= in =smd/ranges/range_foldable.hpp= shows an excellent architectural decision.
+
+While =fold_map= relies on the eager =std::ranges::fold_left=, you successfully separated short-circuiting predicates like =any_of=, =all_of=, and =find_first= to use standard library range algorithms directly. This correctly bypasses =fold_map= for these operations, ensuring they evaluate lazily and do not force infinite or heavily delayed streams to materialize entirely.
+
+*** Notes & Areas to Reconsider
+- *Review:* The =Traversable= instances correctly sequence the effects via the `Applicative` context while preserving the exact topological shape of the data structures.[2] The unit tests in =RangeTraversableTest= successfully prove that optionals/failures sequence properly across the range. The only caveat is that =ListRangeTraversableImpl::traverse= eagerly allocates a =std::vector= to collect intermediate applied results before repacking them into a list range. While conceptually correct, this intermediate allocation could bottleneck performance in tight loops.

@@ -152,6 +152,101 @@ Acceptance checks:
 Note: this is a lower-priority allocation improvement; the asymptotic class does
 not change. Schedule after the RandomAccess and PriorityQueue items.
 
+* TODO Reviewer Three: Typeclass concept guards
+:PROPERTIES:
+:ID:       typeclass-concept-guards
+:AREA:     typeclass/applicative
+:PRIORITY: B
+:SOURCE:   reviewer-three.org § Architecture & Typeclass Emulation
+:END:
+
+Reviewer suggests adding =requires= clauses or =static_assert= checks inside
+the typeclass base templates (=Applicative<Impl>=, =Foldable<Impl>=,
+=Traversable<Impl>=) to enforce that the instantiated =Impl= actually provides
+the required operations (=pure= / =apply= / =fold_map= / =traverse=) with
+matching signatures, rather than producing deep template error cascades.
+
+Current state:
+- =smd/typeclass/applicative.hpp=: =struct Applicative : protected Impl= —
+  no guard on what =Impl= must provide.
+- Similarly for =Foldable<Impl>= in =foldable.hpp= and =Traversable<Impl>= in
+  =traversable.hpp=.
+
+Target:
+- Add a =requires= clause or =static_assert= at the point of instantiation that
+  checks the minimal required interface (e.g., =Impl= has =pure= and =apply= for
+  =Applicative=; =Impl= has =fold_map= for =Foldable=; =Impl= has =traverse= and
+  =element_type= for =Traversable=).
+- Error message should name the missing operation and point to the Impl type.
+
+Acceptance checks:
+- [ ] An incorrect Impl (missing =apply=) produces a readable error citing the
+  missing member rather than a deep substitution failure.
+- [ ] All existing 172/172 tests still pass.
+- [ ] No change to the external API.
+
+* TODO Reviewer Three: Remove stale memoized_thunk include from finger_tree.hpp
+:PROPERTIES:
+:ID:       stale-memoized-thunk-include
+:AREA:     tree/finger-tree
+:PRIORITY: C
+:SOURCE:   reviewer-three.org § 2-3 Finger Tree (stale review note)
+:END:
+
+The reviewer's finger-tree section describes the old vtable/=SuspendedSegment=
+implementation (now removed in commit 0468f16). However, =finger_tree.hpp=
+still carries =#include <smd/tree/memoized_thunk.hpp>= from the old design —
+nothing in the current implementation calls =thunk()=, =erased_thunk=, or
+=measured_thunk= from that path. (=finger_tree.t.cpp= includes the header
+directly for its own thunk tests.)
+
+Target:
+- Remove =#include <smd/tree/memoized_thunk.hpp>= from =finger_tree.hpp=.
+- Confirm the test file still compiles (it has its own direct include).
+
+Acceptance checks:
+- [ ] =finger_tree.hpp= no longer includes =memoized_thunk.hpp=.
+- [ ] 172/172 tests still pass.
+
+Note: If a future optimization reintroduces lazy spine evaluation, the include
+should come back at that point. The thread-safety concern the reviewer raised
+about =thunk()= (non-atomic variant mutation via shared_ptr) would also need
+addressing before any lazy path is re-exposed.
+
+* TODO Reviewer Three: FixTree is not a true fixed-point combinator
+:PROPERTIES:
+:ID:       fix-tree-true-fixed-point
+:AREA:     tree/fix-tree
+:PRIORITY: C
+:SOURCE:   reviewer-three.org § Recursion Schemes & Fix Trees
+:END:
+
+The reviewer correctly notes that =FixTree= in =smd/tree/fix_tree.hpp=
+hardcodes a binary topology via =std::variant<Leaf, Node>= rather than being
+a genuine fixed point over a higher-kinded functor. This means =cata= and =ana=
+cannot be written generically over it; the fold in =FixTreeFoldableImpl= is
+manual structural recursion.
+
+For a talk whose thesis includes recursion schemes, this is worth addressing or
+explicitly naming. Options:
+
+1. Add a true =Fix<F>= template alongside the existing concrete tree, implement
+   a generic =cata=, and use the concrete tree as an example instance.
+2. Rename =FixTree= to something less misleading (e.g., =BinTree2=) and note
+   explicitly in slides that it is a concrete tree, not the Fix combinator.
+3. Keep as-is and call it out in the presentation as an intentional simplification.
+
+The reviewer's suggested =Fix<F>= sketch (=template <template <class> class F>
+struct Fix : F<Fix<F>>;=) is the right shape but inheriting from =F<Fix<F>>=
+requires =F= to be a class template whose first parameter is its recursive
+position — this is fine for trees but needs care for presentation clarity.
+
+Acceptance checks:
+- [ ] Decision made (extend / rename / note-in-slides) and recorded.
+- [ ] If extended: generic =cata<F, A>(Algebra<F,A>, Fix<F>)= compiles and is
+  tested.
+- [ ] Slides updated to reflect chosen framing.
+
 * TODO Delivery checklist
 :PROPERTIES:
 :ID:       delivery-checklist
