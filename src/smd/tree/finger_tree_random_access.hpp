@@ -47,12 +47,12 @@ class FingerTreeRandomAccess {
     if (index >= size()) {
       return std::nullopt;
     }
-    // Use indexed split to minimize materialization
-    // Split at index+1 to get everything up to and including the element
-    auto parts = d_tree.split_at_index(index + 1);
-    // The element at index is the last element of the left part
-    auto left_vec = parts.d_left.flatten();
-    return left_vec.back();
+    // split() with count predicate: pivot is the element at position index. O(log n).
+    auto sp = d_tree.split([index](std::size_t prefix) { return prefix > index; });
+    if (!sp.has_value()) {
+      return std::nullopt;
+    }
+    return sp->d_pivot;
   }
 
   auto push_back(T value) const -> FingerTreeRandomAccess
@@ -67,9 +67,11 @@ class FingerTreeRandomAccess {
 
   auto insert(std::size_t index, T value) const -> FingerTreeRandomAccess
   {
-    auto parts = d_tree.split_at_index(index);
-    auto middle = FingerTree<T>::leaf(std::move(value));
-    return FingerTreeRandomAccess(FingerTree<T>::concat(FingerTree<T>::concat(parts.d_left, middle), parts.d_right));
+    // split_at with count predicate puts [0,index) left, [index,n) right. O(log n).
+    auto parts = d_tree.split_at([index](std::size_t prefix) { return prefix > index; });
+    return FingerTreeRandomAccess(FingerTree<T>::concat(
+      FingerTree<T>::concat(parts.d_left, FingerTree<T>::leaf(std::move(value))),
+      parts.d_right));
   }
 
   auto erase(std::size_t index) const -> FingerTreeRandomAccess
@@ -77,15 +79,26 @@ class FingerTreeRandomAccess {
     if (index >= size()) {
       return *this;
     }
-
-    auto left_right = d_tree.split_at_index(index);
-    auto drop_rest = left_right.d_right.tail();
-    return FingerTreeRandomAccess(FingerTree<T>::concat(left_right.d_left, drop_rest));
+    // split() finds the element at index as pivot; drop it by concat(left, right). O(log n).
+    auto sp = d_tree.split([index](std::size_t prefix) { return prefix > index; });
+    if (!sp.has_value()) {
+      return *this;
+    }
+    return FingerTreeRandomAccess(FingerTree<T>::concat(sp->d_left, sp->d_right));
   }
 
   auto update(std::size_t index, T value) const -> FingerTreeRandomAccess
   {
-    return erase(index).insert(index, std::move(value));
+    if (index >= size()) {
+      return *this;
+    }
+    // Single split+replace: find element at index as pivot, swap in the new value. O(log n).
+    auto sp = d_tree.split([index](std::size_t prefix) { return prefix > index; });
+    if (!sp.has_value()) {
+      return *this;
+    }
+    return FingerTreeRandomAccess(
+      FingerTree<T>::concat(sp->d_left.snoc(std::move(value)), sp->d_right));
   }
 
   auto to_vector() const -> std::vector<T> { return d_tree.flatten(); }

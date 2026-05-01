@@ -491,7 +491,6 @@ TEST_CASE("FingerTreeTraversableTest - TraverseOptionalSuccess")
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3});
-    const auto& traversable = smd::traversable_typeclass<Tree>;
 
     auto traversed = smd::traverse(
         [](int x) -> std::optional<int> {
@@ -508,7 +507,6 @@ TEST_CASE("FingerTreeTraversableTest - TraverseOptionalFailure")
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, -2, 3});
-    const auto& traversable = smd::traversable_typeclass<Tree>;
 
     auto traversed = smd::traverse(
         [](int x) -> std::optional<int> {

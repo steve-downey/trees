@@ -20,8 +20,17 @@ namespace smd {
 
 template <class Impl>
 struct Traversable : protected Impl {
-    using Impl::traverse;
-    using element_type = typename Impl::element_type;
+  static_assert(
+    !std::is_same_v<Impl, std::false_type>,
+    "No traversable_typeclass<T> specialization found. "
+    "Specialize smd::traversable_typeclass<T> for your type T, "
+    "provide traverse(applicative, F, T), and declare 'using element_type = T;'.");
+  static_assert(
+    requires { typename Impl::element_type; },
+    "Traversable Impl must declare 'using element_type = T;' "
+    "so that sequence() and traverse_with() can deduce the element type.");
+  using Impl::traverse;
+  using element_type = typename Impl::element_type;
 
     // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11
 
