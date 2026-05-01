@@ -64,41 +64,6 @@ class FingerTreePriorityQueue {
     return TREE::from_sequence(std::move(values));
   }
 
-  template <typename TREE>
-  static auto has_multiple_instances(const TREE& tree, const T& needle) -> bool
-  {
-    return std::ranges::count(tree.flatten(), needle) > 1;
-  }
-
-  // Lazy split/concat removal path (experimental - use with caution)
-  static auto remove_one_split_min(const MinTree& tree, const T& needle)
-    -> MinTree
-  {
-    auto split = tree.split([&needle](const MinTag<T>& prefix) {
-      return prefix.d_value.has_value() && prefix.d_value.value() <= needle;
-    });
-
-    if (!split.has_value()) {
-      return tree;
-    }
-
-    return MinTree::concat(split->d_left, split->d_right);
-  }
-
-  static auto remove_one_split_max(const MaxTree& tree, const T& needle)
-    -> MaxTree
-  {
-    auto split = tree.split([&needle](const MaxTag<T>& prefix) {
-      return prefix.d_value.has_value() && prefix.d_value.value() >= needle;
-    });
-
-    if (!split.has_value()) {
-      return tree;
-    }
-
-    return MaxTree::concat(split->d_left, split->d_right);
-  }
-
  public:
   FingerTreePriorityQueue()
     : d_min_tree(MinTree::empty())
@@ -138,6 +103,9 @@ class FingerTreePriorityQueue {
     };
   }
 
+  // Removes the minimum element. Both trees are rebuilt from the flattened
+  // sequence (O(n)); this is a correctness-first implementation pending O(log n)
+  // split-based optimization that does not change the call-site API.
   auto pop_min() const -> std::optional<std::pair<T, FingerTreePriorityQueue>>
   {
     auto m = min();
@@ -154,6 +122,7 @@ class FingerTreePriorityQueue {
     };
   }
 
+  // Same semantics as pop_min but returns the maximum element.
   auto pop_max() const -> std::optional<std::pair<T, FingerTreePriorityQueue>>
   {
     auto m = max();
@@ -171,127 +140,6 @@ class FingerTreePriorityQueue {
   }
 
   auto to_vector() const -> std::vector<T> { return d_min_tree.flatten(); }
-
-  // TEST-ONLY: Alternative pop_min using split-based (lazy) removal
-  // This method is for debugging/testing the lazy removal path
-  auto pop_min_lazy() const -> std::optional<std::pair<T, FingerTreePriorityQueue>>
-  {
-    auto m = min();
-    if (!m.has_value()) {
-      return std::nullopt;
-    }
-
-    if (has_multiple_instances(d_min_tree, *m)) {
-      auto rebuilt_min = remove_one_rebuild(d_min_tree, *m);
-      auto rebuilt_max = remove_one_rebuild(d_max_tree, *m);
-      return std::pair<T, FingerTreePriorityQueue>{
-        *m,
-        FingerTreePriorityQueue{std::move(rebuilt_min), std::move(rebuilt_max)}
-      };
-    }
-
-    auto new_min_tree = remove_one_split_min(d_min_tree, *m);
-    auto new_max_tree = remove_one_rebuild(d_max_tree, *m);
-    if (new_min_tree.breadth() != new_max_tree.breadth()) {
-      return std::nullopt;
-    }
-
-    return std::pair<T, FingerTreePriorityQueue>{
-      *m,
-      FingerTreePriorityQueue{std::move(new_min_tree), std::move(new_max_tree)}
-    };
-  }
-
-  // TEST-ONLY: isolate MinTree split path without touching MaxTree.
-  auto debug_pop_min_split_min_only() const
-    -> std::optional<std::pair<T, FingerTreePriorityQueue>>
-  {
-    auto m = min();
-    if (!m.has_value()) {
-      return std::nullopt;
-    }
-
-    auto new_min_tree = remove_one_split_min(d_min_tree, *m);
-    return std::pair<T, FingerTreePriorityQueue>{
-      *m,
-      FingerTreePriorityQueue{std::move(new_min_tree), d_max_tree}
-    };
-  }
-
-  // TEST-ONLY: isolate MaxTree rebuild path without touching MinTree.
-  auto debug_pop_min_rebuild_max_only() const
-    -> std::optional<std::pair<T, FingerTreePriorityQueue>>
-  {
-    auto m = min();
-    if (!m.has_value()) {
-      return std::nullopt;
-    }
-
-    auto new_max_tree = remove_one_rebuild(d_max_tree, *m);
-    return std::pair<T, FingerTreePriorityQueue>{
-      *m,
-      FingerTreePriorityQueue{d_min_tree, std::move(new_max_tree)}
-    };
-  }
-
-  // TEST-ONLY: execute both pop_min_lazy removal steps without queue construction.
-  auto debug_pop_min_lazy_components_only() const -> std::optional<T>
-  {
-    auto m = min();
-    if (!m.has_value()) {
-      return std::nullopt;
-    }
-
-    auto new_min_tree = remove_one_split_min(d_min_tree, *m);
-    auto new_max_tree = remove_one_rebuild(d_max_tree, *m);
-    (void)new_min_tree;
-    (void)new_max_tree;
-    return m;
-  }
-
-  // TEST-ONLY: construct a queue from both lazy-pop components directly.
-  auto debug_construct_lazy_min_result() const -> bool
-  {
-    auto m = min();
-    if (!m.has_value()) {
-      return false;
-    }
-
-    auto new_min_tree = remove_one_split_min(d_min_tree, *m);
-    auto new_max_tree = remove_one_rebuild(d_max_tree, *m);
-    FingerTreePriorityQueue constructed{
-      std::move(new_min_tree), std::move(new_max_tree)};
-    return constructed.size() > 0U;
-  }
-
-  // TEST-ONLY: Alternative pop_max using split-based (lazy) removal
-  auto pop_max_lazy() const -> std::optional<std::pair<T, FingerTreePriorityQueue>>
-  {
-    auto m = max();
-    if (!m.has_value()) {
-      return std::nullopt;
-    }
-
-    if (has_multiple_instances(d_max_tree, *m)) {
-      auto rebuilt_max = remove_one_rebuild(d_max_tree, *m);
-      auto rebuilt_min = remove_one_rebuild(d_min_tree, *m);
-      return std::pair<T, FingerTreePriorityQueue>{
-        *m,
-        FingerTreePriorityQueue{std::move(rebuilt_min), std::move(rebuilt_max)}
-      };
-    }
-
-    auto rebuilt_max = remove_one_split_max(d_max_tree, *m);
-    auto rebuilt_min = remove_one_rebuild(d_min_tree, *m);
-    if (rebuilt_min.breadth() != rebuilt_max.breadth()) {
-      return std::nullopt;
-    }
-
-    return std::pair<T, FingerTreePriorityQueue>{
-      *m,
-      FingerTreePriorityQueue{std::move(rebuilt_min), std::move(rebuilt_max)}
-    };
-  }
 
  private:
   FingerTreePriorityQueue(MinTree min_tree, MaxTree max_tree)
@@ -343,7 +191,82 @@ struct Monoid<smd::tree::MaxTag<T>> {
 
 }  // namespace smd::typeclass
 
-#endif
+namespace smd {
 
-#include <smd/tree/finger_tree_priority_queue_foldable.hpp>
-#include <smd/tree/finger_tree_priority_queue_traversable.hpp>
+template <class T>
+struct FingerTreePriorityQueueFoldableImpl {
+  template <class F>
+  auto fold_map(this auto&&,
+                F&& function,
+                const smd::tree::FingerTreePriorityQueue<T>& queue)
+    -> remove_cvref_t<std::invoke_result_t<F, const T&>>
+  {
+    using Result = remove_cvref_t<std::invoke_result_t<F, const T&>>;
+    return std::ranges::fold_left(
+        queue.to_vector(),
+        smd::typeclass::monoid_v<Result>.identity(),
+        [&](Result acc, const auto& value) {
+          return smd::typeclass::monoid_v<Result>.combine(
+              std::move(acc), std::invoke(function, value));
+        });
+  }
+};
+
+template <class T>
+struct FingerTreePriorityQueueFoldableMap
+  : Foldable<FingerTreePriorityQueueFoldableImpl<T>> {
+  using FingerTreePriorityQueueFoldableImpl<T>::fold_map;
+};
+
+template <class T>
+inline constexpr auto foldable_typeclass<smd::tree::FingerTreePriorityQueue<T>> =
+  FingerTreePriorityQueueFoldableMap<T>{};
+
+template <class T>
+struct FingerTreePriorityQueueTraversableImpl {
+  using element_type = T;
+
+  template <class APPLICATIVE, class F>
+  auto traverse(this auto&&,
+                const APPLICATIVE& applicative,
+                F&& function,
+                const smd::tree::FingerTreePriorityQueue<T>& queue)
+  {
+    using Context = remove_cvref_t<std::invoke_result_t<F, const T&>>;
+    using U = smd::applicative_value_t<Context>;
+
+    auto accumulated = applicative.pure(std::vector<U>{});
+
+    for (const auto& value : queue.to_vector()) {
+      auto lifted = std::invoke(function, value);
+      accumulated = applicative.invoke(
+        [](std::vector<U> values, U element) {
+          values.push_back(std::move(element));
+          return values;
+        },
+        std::move(accumulated),
+        std::move(lifted));
+    }
+
+    return applicative.invoke(
+      [](std::vector<U> values) {
+        return smd::tree::FingerTreePriorityQueue<U>::from_values(
+          std::move(values));
+      },
+      std::move(accumulated));
+  }
+};
+
+template <class T>
+struct FingerTreePriorityQueueTraversableMap
+  : Traversable<FingerTreePriorityQueueTraversableImpl<T>> {
+  using FingerTreePriorityQueueTraversableImpl<T>::traverse;
+};
+
+template <class T>
+inline constexpr auto traversable_typeclass<smd::tree::FingerTreePriorityQueue<T>> =
+  FingerTreePriorityQueueTraversableMap<T>{};
+
+}  // namespace smd
+
+#endif

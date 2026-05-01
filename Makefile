@@ -215,6 +215,42 @@ view-coverage: ## View the coverage report
 docs: ## Build the docs with Doxygen
 	doxygen docs/Doxyfile
 
+.PHONY: docs-index
+docs-index: ## Regenerate docs/index.org from strict built-target snapshot
+	@set -euo pipefail; \
+	repo_root="$$(git rev-parse --show-toplevel)"; \
+	out="$$repo_root/trees/docs/index.org"; \
+	strict_snapshot="$$repo_root/trees/docs/live-src-main-built-targets.md"; \
+	{ \
+		printf '#+TITLE: Trees Active Source Index\n'; \
+		printf '#+AUTHOR: Generated\n'; \
+		printf '#+OPTIONS: toc:2 num:nil\n\n'; \
+		printf '* Overview\n'; \
+		printf 'This index transcludes active files under =trees/src= that are explicitly listed in CMake =target_sources()= entries.\n'; \
+		printf 'It excludes =deadcode= and =smd/conceptmap=.\n\n'; \
+		printf '* Active Source Files\n\n'; \
+		rg '^## ' "$$strict_snapshot" | sed 's/^## //' | sort -u | while IFS= read -r rel; do \
+			ext="$${rel##*.}"; \
+			lang='text'; \
+			case "$$ext" in \
+				cpp|cc|cxx|hpp|hh|hxx|h) lang='cpp' ;; \
+				md|markdown) lang='markdown' ;; \
+				org) lang='org' ;; \
+			esac; \
+			printf '** %s\n' "$$rel"; \
+			printf '#+transclude: [[file:../src/%s]] :src %s\n\n' "$$rel" "$$lang"; \
+		done; \
+		printf '* Regeneration\n'; \
+		printf 'Run from repository root to regenerate this file:\n\n'; \
+		printf '#+name: regenerate-index-org\n'; \
+		printf '#+begin_src bash :results output verbatim\n'; \
+		printf 'set -euo pipefail\n'; \
+		printf 'repo_root="$$(git rev-parse --show-toplevel)"\n'; \
+		printf 'make -C "$$repo_root/trees" docs-index\n'; \
+		printf '#+end_src\n'; \
+	} > "$$out"; \
+	echo "Updated $$out"
+
 .PHONY: mrdocs
 mrdocs: ## Build the docs with MrDocs
 	-rm -rf docs/adoc
