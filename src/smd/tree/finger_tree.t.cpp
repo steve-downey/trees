@@ -517,3 +517,195 @@ TEST_CASE("FingerTreeTraversableTest - TraverseOptionalFailure")
 
     CHECK_FALSE(traversed.has_value());
 }
+
+TEST_CASE("FingerTreeTest - FourDigitOverflowOnCons")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
+    auto t6 = tree.cons(0);
+    CHECK(t6.flatten() == (std::vector<int>{0, 1, 2, 3, 4, 5}));
+    CHECK(t6.breadth() == 6U);
+    CHECK(t6.measure() == 6U);
+    CHECK(t6.head() == 0);
+    CHECK(t6.last() == 5);
+
+    auto t7 = t6.cons(-1);
+    CHECK(t7.flatten() == (std::vector<int>{-1, 0, 1, 2, 3, 4, 5}));
+    CHECK(t7.breadth() == 7U);
+
+    auto t8 = t7.cons(-2);
+    CHECK(t8.flatten() == (std::vector<int>{-2, -1, 0, 1, 2, 3, 4, 5}));
+    CHECK(t8.breadth() == 8U);
+
+    auto t9 = t8.cons(-3);
+    CHECK(t9.flatten() == (std::vector<int>{-3, -2, -1, 0, 1, 2, 3, 4, 5}));
+    CHECK(t9.breadth() == 9U);
+    CHECK(t9.depth() >= 2U);
+}
+
+TEST_CASE("FingerTreeTest - FourDigitOverflowOnSnoc")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
+    auto t6 = tree.snoc(6);
+    auto t7 = t6.snoc(7);
+    auto t8 = t7.snoc(8);
+    auto t9 = t8.snoc(9);
+    auto t10 = t9.snoc(10);
+
+    CHECK(t10.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
+    CHECK(t10.breadth() == 10U);
+    CHECK(t10.measure() == 10U);
+    CHECK(t10.head() == 1);
+    CHECK(t10.last() == 10);
+}
+
+TEST_CASE("FingerTreeTest - NodeMeasureCachingWithWeightedSplit")
+{
+    using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
+
+    auto tree = Tree::empty();
+    for (int i = 1; i <= 20; ++i) {
+        tree = tree.snoc(i);
+    }
+
+    CHECK(tree.measure() == Weighted{2100U});
+    CHECK(tree.breadth() == 20U);
+
+    auto found = tree.search([](Weighted p) { return p.d_total >= 550U; });
+    REQUIRE(found.has_value());
+    CHECK(*found == 10);
+
+    auto split = tree.split([](Weighted p) { return p.d_total >= 550U; });
+    REQUIRE(split.has_value());
+    CHECK(split->d_left.measure() == Weighted{450U});
+    CHECK(split->d_pivot == 10);
+    CHECK(split->d_right.measure() == Weighted{1550U});
+    CHECK(split->d_left.breadth() + 1U + split->d_right.breadth() == 20U);
+}
+
+TEST_CASE("FingerTreeTest - NodesFromPackingViaConcat")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto left  = Tree::from_sequence({1, 2, 3, 4});
+    auto right = Tree::from_sequence({5, 6, 7, 8});
+    auto cat = Tree::concat(left, right);
+    CHECK(cat.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8}));
+    CHECK(cat.breadth() == 8U);
+    CHECK(cat.measure() == 8U);
+
+    auto cat3 = Tree::concat(cat, Tree::from_sequence({9, 10, 11}));
+    CHECK(cat3.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    CHECK(cat3.breadth() == 11U);
+
+    auto split = cat3.split([](std::size_t p) { return p >= 6U; });
+    REQUIRE(split.has_value());
+    CHECK(split->d_left.flatten() == (std::vector<int>{1, 2, 3, 4, 5}));
+    CHECK(split->d_pivot == 6);
+    CHECK(split->d_right.flatten() == (std::vector<int>{7, 8, 9, 10, 11}));
+}
+
+TEST_CASE("FingerTreeTest - SpineBorrowingViewL")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+    auto current = tree;
+    std::vector<int> collected;
+    while (!current.is_empty()) {
+        auto vl = current.view_l();
+        REQUIRE(vl.has_value());
+        collected.push_back(vl->d_value);
+        current = std::move(vl->d_rest);
+    }
+    CHECK(collected == (std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
+}
+
+TEST_CASE("FingerTreeTest - SpineBorrowingViewR")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+    auto current = tree;
+    std::vector<int> collected;
+    while (!current.is_empty()) {
+        auto vr = current.view_r();
+        REQUIRE(vr.has_value());
+        collected.push_back(vr->d_value);
+        current = std::move(vr->d_rest);
+    }
+    CHECK(collected == (std::vector<int>{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}));
+}
+
+TEST_CASE("FingerTreeTest - LargeTreeSplitAndConcat")
+{
+    using Tree = smd::tree::FingerTree<int>;
+    constexpr std::size_t kN = 256U;
+
+    auto tree = Tree::empty();
+    for (std::size_t i = 0; i < kN; ++i) {
+        tree = tree.snoc(static_cast<int>(i));
+    }
+    CHECK(tree.breadth() == kN);
+    CHECK(tree.measure() == kN);
+    CHECK(tree.head() == 0);
+    CHECK(tree.last() == 255);
+
+    auto mid = tree.split_at_index(kN / 2U);
+    CHECK(mid.d_left.breadth() == kN / 2U);
+    CHECK(mid.d_right.breadth() == kN / 2U);
+    auto rebuilt = Tree::concat(mid.d_left, mid.d_right);
+    CHECK(rebuilt.flatten() == tree.flatten());
+
+    auto other = Tree::empty();
+    for (std::size_t i = kN; i < 2U * kN; ++i) {
+        other = other.snoc(static_cast<int>(i));
+    }
+    auto big = Tree::concat(tree, other);
+    CHECK(big.breadth() == 2U * kN);
+    CHECK(big.head() == 0);
+    CHECK(big.last() == 511);
+
+    auto found = big.search([](std::size_t p) { return p >= 300U; });
+    REQUIRE(found.has_value());
+    CHECK(*found == 299);
+}
+
+TEST_CASE("FingerTreeTest - ConcatEdgeCases")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto empty = Tree::empty();
+    auto single = Tree::leaf(42);
+    auto multi = Tree::from_sequence({1, 2, 3});
+
+    CHECK(Tree::concat(empty, empty).is_empty());
+    CHECK(Tree::concat(empty, single).flatten() == (std::vector<int>{42}));
+    CHECK(Tree::concat(single, empty).flatten() == (std::vector<int>{42}));
+    CHECK(Tree::concat(single, single).flatten() == (std::vector<int>{42, 42}));
+    CHECK(Tree::concat(single, multi).flatten() == (std::vector<int>{42, 1, 2, 3}));
+    CHECK(Tree::concat(multi, single).flatten() == (std::vector<int>{1, 2, 3, 42}));
+    CHECK(Tree::concat(multi, multi).flatten() == (std::vector<int>{1, 2, 3, 1, 2, 3}));
+}
+
+TEST_CASE("FingerTreeTest - RepeatedTailDrainsTree")
+{
+    using Tree = smd::tree::FingerTree<int>;
+
+    auto tree = Tree::from_sequence({1, 2, 3, 4, 5, 6, 7, 8});
+    auto expected = tree.flatten();
+
+    std::vector<int> collected;
+    auto current = tree;
+    while (!current.is_empty()) {
+        collected.push_back(current.head());
+        current = current.tail();
+    }
+    CHECK(collected == expected);
+    CHECK(current.is_empty());
+    CHECK(current.breadth() == 0U);
+    CHECK(current.tail().is_empty());
+}
