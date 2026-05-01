@@ -18,7 +18,13 @@ target_sources(cpo_example PRIVATE cpo_example.cpp)
 
 target_link_libraries(cpo_example PRIVATE concept_map)
 
+add_executable(fixpoint_tree_example "")
+
+target_sources(fixpoint_tree_example PRIVATE fixpoint_tree_example.cpp)
+
+target_compile_features(fixpoint_tree_example PRIVATE cxx_std_23)
+
 install(
-    TARGETS main map_example cpo_example
+    TARGETS main map_example cpo_example fixpoint_tree_example
     DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
