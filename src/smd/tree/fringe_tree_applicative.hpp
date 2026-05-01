@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_FRINGE_TREE_APPLICATIVE_HPP
-#define INCLUDE_SMD_TREE_FRINGE_TREE_APPLICATIVE_HPP
+// src/smd/tree/fringe_tree_applicative.hpp                           -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_FRINGE_TREE_APPLICATIVE
+#define INCLUDED_SMD_TREE_FRINGE_TREE_APPLICATIVE
 
 #include <smd/tree/fringe_tree.hpp>
 #include <smd/typeclass/applicative.hpp>

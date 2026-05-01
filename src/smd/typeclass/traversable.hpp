@@ -1,6 +1,9 @@
-#ifndef INCLUDE_SMD_TYPECLASS_TRAVERSABLE_HPP
-#define INCLUDE_SMD_TYPECLASS_TRAVERSABLE_HPP
+// src/smd/typeclass/traversable.hpp                                  -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_TRAVERSABLE
+#define INCLUDED_SMD_TYPECLASS_TRAVERSABLE
 
+#include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/functor.hpp>
 #include <smd/typeclass/typeclass_base.hpp>
 
@@ -18,23 +21,33 @@ namespace smd {
 template <class Impl>
 struct Traversable : protected Impl {
     using Impl::traverse;
+    using element_type = typename Impl::element_type;
 
     // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11
 
+    // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46
     template <class T, class F>
     auto for_each(this auto&& self, T&& value, F&& function)
     {
-        return self.traverse(std::forward<F>(function),
+        using Context = remove_cvref_t<std::invoke_result_t<F, const element_type&>>;
+        const auto& applicative = smd::applicative_typeclass<Context>;
+        return self.traverse(applicative, std::forward<F>(function),
                              std::forward<T>(value));
     }
+    // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46 end
 
+    // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79
     template <class T>
     auto sequence(this auto&& self, T&& value)
     {
+        using Context = element_type;
+        const auto& applicative = smd::applicative_typeclass<Context>;
         return self.traverse(
+            applicative,
             [](auto&& x) { return std::forward<decltype(x)>(x); },
             std::forward<T>(value));
     }
+    // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79 end
 
     template <class TRAVERSABLE_MAP, class T, class F>
     auto traverse_with(this auto&&,
@@ -42,8 +55,22 @@ struct Traversable : protected Impl {
                        F&& function,
                        T&& value)
     {
-        return traversable_map.traverse(std::forward<F>(function),
-                                        std::forward<T>(value));
+        using Context = remove_cvref_t<std::invoke_result_t<
+            F, const typename remove_cvref_t<TRAVERSABLE_MAP>::element_type&>>;
+        const auto& applicative = smd::applicative_typeclass<Context>;
+        return traversable_map.traverse(
+            applicative, std::forward<F>(function), std::forward<T>(value));
+    }
+
+    template <class TRAVERSABLE_MAP, class APPLICATIVE_MAP, class T, class F>
+    auto traverse_with(this auto&&,
+                       const TRAVERSABLE_MAP& traversable_map,
+                       const APPLICATIVE_MAP& applicative_map,
+                       F&& function,
+                       T&& value)
+    {
+        return traversable_map.traverse(
+            applicative_map, std::forward<F>(function), std::forward<T>(value));
     }
 
     template <class TRAVERSABLE_MAP, class T>
@@ -61,6 +88,17 @@ struct Traversable : protected Impl {
 
 template <class T>
 inline constexpr auto traversable_typeclass = std::false_type{};
+
+template <class F, class T>
+auto traverse(F&& function, T&& value)
+{
+    const auto& map = traversable_typeclass<remove_cvref_t<T>>;
+    using element_type = typename remove_cvref_t<decltype(map)>::element_type;
+    using Context     = remove_cvref_t<std::invoke_result_t<F, const element_type&>>;
+    const auto& applicative = applicative_typeclass<Context>;
+    return map.traverse(
+        applicative, std::forward<F>(function), std::forward<T>(value));
+}
 
 }  // close namespace smd
 

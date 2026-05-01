@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_BINARY_TREE_HPP
-#define INCLUDE_SMD_TREE_BINARY_TREE_HPP
+// src/smd/tree/binary_tree.hpp                                       -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_BINARY_TREE
+#define INCLUDED_SMD_TREE_BINARY_TREE
 
 #include <cassert>
 #include <memory>

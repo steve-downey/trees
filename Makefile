@@ -284,6 +284,19 @@ ORGFILES := $(wildcard *.org)
 
 -include $(ORGFILES:%.org=%-slides.html.deps)
 
+%.md : %.org
+	$(EMACS) --init-directory=.emacs.d/ \
+	--batch --load .emacs.d/init.el  \
+	-f package-initialize \
+	--eval "(setq enable-local-variables :all)" \
+	--visit $< \
+	--eval "(org-transclusion-mode t)" \
+	--eval "(org-export-to-file 'gfm \"$@\")"
+	echo $@ : \\ > $@.deps
+	echo "  $<" \\ >> $@.deps
+	sed -n "s/^.*\[\[file:\(\S*\)::.*$$/\1/p" < $<  | sort -u | xargs printf "  %s \\\\\\n" >> $@.deps
+
+-include $(ORGFILES:%.org=%.md.deps)
 
 .PHONY: clean-emacs.d
 clean-emacs.d:
@@ -312,6 +325,7 @@ clean: clean-org-html
 presentation: test
 presentation: foldable-applicable-traversable.html
 presentation: foldable-applicable-traversable-slides.html
+presentation: foldable-applicable-traversable.md
 
 .PHONY: elpa
 elpa:

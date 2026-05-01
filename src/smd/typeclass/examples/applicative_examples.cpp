@@ -16,7 +16,7 @@ auto applicative_invoke_example() -> beman::optional::optional<int>
     optional<int> az = 3;
 
     // 3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11
-    auto sum = applicative.apply_pure(
+    auto sum = applicative.invoke(
         [](int a, int b, int c) { return a + b + c; },
         ax,
         ay,

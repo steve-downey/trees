@@ -21,7 +21,7 @@ target_link_libraries(smd_typeclass_slide_examples
 
 target_compile_features(smd_typeclass_slide_examples PUBLIC cxx_std_23)
 
-if(TREE_ENABLE_TESTING AND GTest_FOUND)
+if(TREE_ENABLE_TESTING)
     add_executable(smd_typeclass_slide_examples_tests examples.t.cpp)
 
     target_include_directories(smd_typeclass_slide_examples_tests
@@ -33,12 +33,10 @@ if(TREE_ENABLE_TESTING AND GTest_FOUND)
         PRIVATE
             smd_typeclass_slide_examples
             smd_typeclass
-            GTest::gtest
-            GTest::gtest_main
+            Catch2::Catch2WithMain
     )
 
     target_compile_features(smd_typeclass_slide_examples_tests PRIVATE cxx_std_23)
 
-    include(GoogleTest)
-    gtest_discover_tests(smd_typeclass_slide_examples_tests)
+    catch_discover_tests(smd_typeclass_slide_examples_tests)
 endif()

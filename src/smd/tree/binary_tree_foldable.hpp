@@ -1,5 +1,7 @@
-#ifndef INCLUDE_SMD_TREE_BINARY_TREE_FOLDABLE_HPP
-#define INCLUDE_SMD_TREE_BINARY_TREE_FOLDABLE_HPP
+// src/smd/tree/binary_tree_foldable.hpp                              -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TREE_BINARY_TREE_FOLDABLE
+#define INCLUDED_SMD_TREE_BINARY_TREE_FOLDABLE
 
 #include <smd/tree/binary_tree.hpp>
 #include <smd/typeclass/foldable.hpp>
@@ -21,16 +23,11 @@ struct BinaryTreeFoldableImpl {
     auto value_result = std::invoke(function, tree.value());
     using Result = remove_cvref_t<decltype(value_result)>;
 
-    auto acc = smd::typeclass::monoid_v<Result>.identity();
-
-    if (tree.has_left()) {
-      acc = smd::typeclass::monoid_v<Result>.combine(
-        std::move(acc),
-        self.fold_map(function, tree.left()));
-    }
-
-    acc = smd::typeclass::monoid_v<Result>.combine(std::move(acc),
-                                                    std::move(value_result));
+    Result acc = tree.has_left()
+      ? smd::typeclass::monoid_v<Result>.combine(
+          self.fold_map(function, tree.left()),
+          std::move(value_result))
+      : std::move(value_result);
 
     if (tree.has_right()) {
       acc = smd::typeclass::monoid_v<Result>.combine(

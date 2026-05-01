@@ -1,0 +1,9 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "make": true,
+        "awk": true,
+        "xmllint": true,
+        "uniq": true,
+        "/home/sdowney/.local/bin/uv": true
+    }
+}
