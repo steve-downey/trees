@@ -199,14 +199,14 @@ I only need the intuition here, not full categorical development.
 Foldable is the operational entry point for this in everyday code.
 #+end_notes
 
-**** FixTree fold_map: The Catamorphism
+**** Fixpoint Expression Tree: eval_algebra and cata
 
-#+transclude: [[file:src/smd/tree/fix_tree_foldable.hpp::a3f7b2e1-9c4d-4f8a-b6e3-2d5c8a1f4b07]] :lines 2- :src cpp :end "a3f7b2e1-9c4d-4f8a-b6e3-2d5c8a1f4b07 end"
+#+transclude: [[file:src/smd/tree/fixpoint_tree.hpp::e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04]] :lines 2- :src cpp :end "e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04 end"
 
 #+begin_notes
-Recursion control lives in fold_map; business logic goes in f.
-monoid_v<Result> looks up the Monoid instance for whatever type f returns.
-combine merges two sub-results; the tree is never flattened.
+eval_algebra consumes one fully-evaluated layer: constants return their value,
+binary nodes combine the already-folded children.  cata supplies the recursion.
+Separating the algebra from the recursion is the whole point.
 #+end_notes
 
 *** Separating Recursion from Business Logic
@@ -231,7 +231,7 @@ This replaces concept maps from C++0x with a simpler, working mechanism.
 
 **** Specializing the Variable Template
 
-#+transclude: [[file:src/smd/tree/fix_tree_foldable.hpp::d6e2b9f4-1a7c-4b3e-8f5d-3c9a2e7b6f08]] :lines 2- :src cpp :end "d6e2b9f4-1a7c-4b3e-8f5d-3c9a2e7b6f08 end"
+#+transclude: [[file:src/smd/tree/fixpoint_tree_foldable.hpp::c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83]] :lines 2- :src cpp :end "c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83 end"
 
 #+begin_notes
 Three lines of opt-in. No registry, no inheritance, no base class modification.
@@ -350,7 +350,7 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 #+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]] :lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
 
 #+begin_notes
-FixTree<int>. fold_map and to_vector dispatch through foldable_typeclass<FixTree<int>>.
+Expr (Fix<ExprF>). length dispatches through foldable_typeclass<Expr>; counts leaf constants.
 #+end_notes
 
 **** shared_ptr Binary Tree

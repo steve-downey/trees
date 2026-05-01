@@ -83,6 +83,7 @@ inline auto mul_expr(Expr left, Expr right) -> Expr
                       make_box<Expr>(std::move(right))}});
 }
 
+// e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04
 inline auto eval_algebra(const ExprF<double>& expr) -> double
 {
     return std::visit(
@@ -98,6 +99,7 @@ inline auto eval(const Expr& expr) -> double
 {
     return smd::fixpoint::cata<double>(eval_algebra, fmap_expr_fn, expr);
 }
+// e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04 end
 
 }  // close namespace smd::tree
 
