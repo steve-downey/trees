@@ -1,4 +1,5 @@
 #include <smd/tree/finger_tree_rope.hpp>
+#include <smd/tree/finger_tree_rope.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,4 +1,5 @@
 #include <smd/tree/finger_tree_random_access.hpp>
+#include <smd/tree/finger_tree_random_access.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,4 +1,5 @@
 #include <smd/ranges/range_applicative.hpp>
+#include <smd/ranges/range_applicative.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 
