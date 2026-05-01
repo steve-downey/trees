@@ -15,13 +15,15 @@ namespace smd {
 
 template <class PAYLOAD_TYPE>
 struct FingerTreeIntervalIndexTraversableImpl {
-  template <class F>
+  using element_type = PAYLOAD_TYPE;
+
+  template <class APPLICATIVE, class F>
   auto traverse(this auto&&,
+                const APPLICATIVE& applicative,
                 F&& function,
                 const smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE>& index)
   {
     using Context = remove_cvref_t<std::invoke_result_t<F, const PAYLOAD_TYPE&>>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
     using U = smd::applicative_value_t<Context>;
 
     auto accumulated = applicative.pure(std::vector<smd::tree::Interval<U>>{});

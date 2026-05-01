@@ -17,18 +17,16 @@ namespace smd {
 
 template <class T>
 struct BinaryTreeTraversableImpl {
-  template <class F>
-  auto traverse(this auto&& self, F&& function, const smd::tree::BinaryTree<T>& tree)
-    -> decltype(smd::applicative_typeclass<remove_cvref_t<std::invoke_result_t<F, const T&> >>.invoke(
-      [](auto&& value) {
-        using U = remove_cvref_t<decltype(value)>;
-        return smd::tree::BinaryTree<U>::leaf(std::forward<decltype(value)>(value));
-      },
-      std::invoke(std::forward<F>(function), tree.value())))
+  using element_type = T;
+
+  template <class APPLICATIVE, class F>
+  auto traverse(this auto&& self,
+                const APPLICATIVE& applicative,
+                F&& function,
+                const smd::tree::BinaryTree<T>& tree)
   {
     auto value_context = std::invoke(std::forward<F>(function), tree.value());
     using Context = remove_cvref_t<decltype(value_context)>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
     using U = smd::applicative_value_t<Context>;
     using TreeContext = decltype(applicative.invoke(
       [](auto&& value) {
@@ -48,12 +46,12 @@ struct BinaryTreeTraversableImpl {
 
     std::optional<TreeContext> left_tree_context;
     if (tree.has_left()) {
-      left_tree_context.emplace(self.traverse(function, tree.left()));
+      left_tree_context.emplace(self.traverse(applicative, function, tree.left()));
     }
 
     std::optional<TreeContext> right_tree_context;
     if (tree.has_right()) {
-      right_tree_context.emplace(self.traverse(function, tree.right()));
+      right_tree_context.emplace(self.traverse(applicative, function, tree.right()));
     }
 
     auto to_child_ptr = [&](const auto& child_tree_context) {

@@ -46,7 +46,7 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalPreservesShape")
         Tree::make_ptr(Tree::from_children_ptrs(3, {}, Tree::make_ptr(Tree::leaf(4)))));
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(PositiveTimesTen{}, tree);
+    auto traversed = smd::traverse(PositiveTimesTen{}, tree);
 
     REQUIRE(traversed.has_value());
     CHECK(traversed->value() == 20);
@@ -69,7 +69,7 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalDoesNotDuplicateRootEffec
 
     int invocations = 0;
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(
+    auto traversed = smd::traverse(
         [&](int x) -> std::optional<int> {
             ++invocations;
             return TimesTen{}(x);
@@ -90,7 +90,7 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeaf")
     auto tree = Tree::leaf(9);
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(PlusOne{}, tree);
+    auto traversed = smd::traverse(PlusOne{}, tree);
 
     REQUIRE(traversed.has_value());
     CHECK(traversed->value() == 10);
@@ -107,7 +107,7 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeftOnly")
         {});
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(TimesTen{}, tree);
+    auto traversed = smd::traverse(TimesTen{}, tree);
 
     REQUIRE(traversed.has_value());
     CHECK(traversed->value() == 20);
@@ -125,7 +125,7 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalFailure")
         {});
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(NonNegativeIdentity{}, tree);
+    auto traversed = smd::traverse(NonNegativeIdentity{}, tree);
 
     CHECK_FALSE(traversed.has_value());
 }

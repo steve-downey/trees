@@ -49,7 +49,7 @@ TEST_CASE("FingerTreePriorityQueueTest - TraversableTypeclass")
     auto q = Queue::from_values({5, 2, 8});
     const auto& traversable = smd::traversable_typeclass<Queue>;
 
-    auto success = traversable.traverse(
+    auto success = smd::traverse(
       [](int value) -> std::optional<int> { return value * 10; },
       q);
     REQUIRE(success.has_value());
@@ -59,7 +59,7 @@ TEST_CASE("FingerTreePriorityQueueTest - TraversableTypeclass")
     CHECK(*success->min() == 20);
     CHECK(*success->max() == 80);
 
-    auto failure = traversable.traverse(
+    auto failure = smd::traverse(
       [](int value) -> std::optional<int> {
           if (value == 8) {
               return std::nullopt;

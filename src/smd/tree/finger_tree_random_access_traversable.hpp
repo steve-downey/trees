@@ -16,13 +16,15 @@ namespace smd {
 
 template <class T>
 struct FingerTreeRandomAccessTraversableImpl {
-  template <class F>
+  using element_type = T;
+
+  template <class APPLICATIVE, class F>
   auto traverse(this auto&&,
+                const APPLICATIVE& applicative,
                 F&& function,
                 const smd::tree::FingerTreeRandomAccess<T>& sequence)
   {
     using Context = remove_cvref_t<std::invoke_result_t<F, const T&>>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
     using U = smd::applicative_value_t<Context>;
 
     auto accumulated = applicative.pure(std::vector<U>{});
@@ -31,7 +33,7 @@ struct FingerTreeRandomAccessTraversableImpl {
     // This improves cache locality and avoids intermediate allocations
     traverse_tree_elements(
       sequence,
-      [&function, &accumulated](const T& value) {
+      [&function, &accumulated, &applicative](const T& value) {
         auto lifted = std::invoke(function, value);
         accumulated = applicative.invoke(
           [](std::vector<U> values, U element) {

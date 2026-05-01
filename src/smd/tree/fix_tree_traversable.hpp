@@ -16,33 +16,32 @@ namespace smd {
 
 template <class T>
 struct FixTreeTraversableImpl {
-  template <class F>
-  auto traverse(this auto&& self, F&& f, const smd::tree::FixTree<T>& t)
+  using element_type = T;
+
+  template <class APPLICATIVE, class F>
+  auto traverse(this auto&& self,
+                const APPLICATIVE& applicative,
+                F&& f,
+                const smd::tree::FixTree<T>& t)
   {
     if (t.is_leaf()) {
-      auto lifted = std::invoke(std::forward<F>(f), t.value());
-      using Context = std::remove_cvref_t<decltype(lifted)>;
-      const auto& applicative = smd::applicative_typeclass<Context>;
-
       return applicative.invoke(
         [](auto&& value) {
           using U = std::remove_cvref_t<decltype(value)>;
           return smd::tree::FixTree<U>::leaf(
             std::forward<decltype(value)>(value));
         },
-        lifted);
+        std::invoke(std::forward<F>(f), t.value()));
     }
 
-      auto left = self.traverse(f, t.left());
-      auto right = self.traverse(f, t.right());
-    using Context = std::remove_cvref_t<decltype(left)>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
+    auto left = self.traverse(applicative, f, t.left());
+    auto right = self.traverse(applicative, f, t.right());
 
     return applicative.invoke(
       [](auto&& l, auto&& r) {
         using U = std::remove_cvref_t<decltype(l.value())>;
         return smd::tree::FixTree<U>::node(std::forward<decltype(l)>(l),
-                           std::forward<decltype(r)>(r));
+                                           std::forward<decltype(r)>(r));
       },
       left,
       right);

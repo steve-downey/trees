@@ -15,13 +15,15 @@ namespace smd {
 
 template <class T>
 struct FingerTreePriorityQueueTraversableImpl {
-  template <class F>
+  using element_type = T;
+
+  template <class APPLICATIVE, class F>
   auto traverse(this auto&&,
+                const APPLICATIVE& applicative,
                 F&& function,
                 const smd::tree::FingerTreePriorityQueue<T>& queue)
   {
     using Context = remove_cvref_t<std::invoke_result_t<F, const T&>>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
     using U = smd::applicative_value_t<Context>;
 
     auto accumulated = applicative.pure(std::vector<U>{});

@@ -14,13 +14,15 @@
 namespace smd {
 
 struct FingerTreeRopeTraversableImpl {
-  template <class F>
+  using element_type = std::string;
+
+  template <class APPLICATIVE, class F>
   auto traverse(this auto&&,
+                const APPLICATIVE& applicative,
                 F&& function,
                 const smd::tree::FingerTreeRope& rope)
   {
     using Context = remove_cvref_t<std::invoke_result_t<F, const std::string&>>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
     using U = smd::applicative_value_t<Context>;
 
     auto accumulated = applicative.pure(std::vector<U>{});

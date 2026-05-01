@@ -38,13 +38,13 @@ TEST_CASE("FingerTreeRandomAccessTest - TraversableTypeclass")
     auto seq = Seq::from_sequence({1, 2, 3});
     const auto& traversable = smd::traversable_typeclass<Seq>;
 
-    auto success = traversable.traverse(
+    auto success = smd::traverse(
       [](int value) -> std::optional<int> { return value * 10; },
       seq);
     REQUIRE(success.has_value());
     CHECK(success->to_vector() == (std::vector<int>{10, 20, 30}));
 
-    auto failure = traversable.traverse(
+    auto failure = smd::traverse(
       [](int value) -> std::optional<int> {
           if (value == 2) {
               return std::nullopt;

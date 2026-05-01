@@ -52,7 +52,7 @@ TEST_CASE("FingerTreeIntervalIndexTest - TraversableTypeclass")
     });
     const auto& traversable = smd::traversable_typeclass<Index>;
 
-    auto success = traversable.traverse(
+    auto success = smd::traverse(
       [](const std::string& payload) -> std::optional<std::string> {
           return payload + "!";
       },
@@ -62,7 +62,7 @@ TEST_CASE("FingerTreeIntervalIndexTest - TraversableTypeclass")
     CHECK(success->query_overlap(9U, 11U) ==
               (std::vector<std::string>{"B!", "C!"}));
 
-    auto failure = traversable.traverse(
+    auto failure = smd::traverse(
       [](const std::string& payload) -> std::optional<std::string> {
           if (payload == "B") {
               return std::nullopt;

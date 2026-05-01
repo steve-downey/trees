@@ -17,15 +17,17 @@ namespace smd {
 template <class VIEW>
     requires std::ranges::forward_range<VIEW>
 struct ListRangeTraversableImpl {
-    template <class FUNCTION>
+    using element_type = typename smd::ranges::list_range<VIEW>::value_type;
+
+    template <class APPLICATIVE, class FUNCTION>
     auto traverse(this auto&&,
+                  const APPLICATIVE& applicative,
                   FUNCTION&& function,
                   const smd::ranges::list_range<VIEW>& values)
     {
-        using Value = typename smd::ranges::list_range<VIEW>::value_type;
+        using Value = element_type;
         using Context = remove_cvref_t<std::invoke_result_t<FUNCTION, const Value&> >;
         using ResultValue = smd::applicative_value_t<Context>;
-        const auto& applicative = smd::applicative_typeclass<Context>;
 
         auto current = std::ranges::begin(values);
         const auto last = std::ranges::end(values);

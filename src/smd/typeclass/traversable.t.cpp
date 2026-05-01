@@ -13,7 +13,7 @@ TEST_CASE("TraversableTypeclassTest - TraverseOptionalSuccess")
     auto identity = Identity{1};
     const auto& traversable = smd::traversable_typeclass<Identity>;
 
-    auto traversed = traversable.traverse(
+    auto traversed = smd::traverse(
         [](int x) -> std::optional<int> {
             return x >= 0 ? std::optional<int>{x + 1} : std::optional<int>{};
         },
@@ -29,7 +29,7 @@ TEST_CASE("TraversableTypeclassTest - TraverseOptionalFailure")
     auto identity = Identity{-2};
     const auto& traversable = smd::traversable_typeclass<Identity>;
 
-    auto traversed = traversable.traverse(
+    auto traversed = smd::traverse(
         [](int x) -> std::optional<int> {
             return x >= 0 ? std::optional<int>{x + 1} : std::optional<int>{};
         },
@@ -77,7 +77,7 @@ TEST_CASE("TraversableTypeclassTest - ForEachMatchesTraverse")
     auto identity = Identity{4};
     const auto& traversable = smd::traversable_typeclass<Identity>;
 
-    auto via_traverse = traversable.traverse(
+    auto via_traverse = smd::traverse(
         [](int x) -> std::optional<int> { return std::optional<int>{x + 7}; },
         identity);
     auto via_for_each = traversable.for_each(
@@ -94,7 +94,7 @@ TEST_CASE("TraversableTypeclassTest - SequenceMatchesTraverseIdentity")
     const auto& traversable = smd::traversable_typeclass<IdentityOpt>;
 
     auto via_sequence = traversable.sequence(identity);
-    auto via_traverse_identity = traversable.traverse(
+    auto via_traverse_identity = smd::traverse(
         [](auto&& x) { return std::forward<decltype(x)>(x); },
         identity);
 
@@ -109,7 +109,7 @@ TEST_CASE("TraversableTypeclassTest - IdentityLawWithIdentityApplicative")
 
     auto value = Identity{42};
 
-    auto lhs = traversable.traverse(
+    auto lhs = smd::traverse(
         [](int x) { return applicative.pure(x); },
         value);
     auto rhs = applicative.pure(value);
@@ -124,11 +124,11 @@ TEST_CASE("TraversableTypeclassTest - TraverseMapCoherence")
 
     auto value = Identity{7};
 
-    auto via_traverse = traversable.traverse(
+    auto via_traverse = smd::traverse(
         [](int x) -> std::optional<int> { return std::optional<int>{x + 1}; },
         value);
 
-    auto via_mapped_traverse = traversable.traverse(
+    auto via_mapped_traverse = smd::traverse(
         [](int x) -> std::optional<int> {
             return std::optional<int>{(x + 1) * 3};
         },
@@ -155,7 +155,7 @@ TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
         return x % 2 == 0 ? std::optional<int>{x / 2} : std::optional<int>{};
     };
 
-    auto lhs = traversable.traverse(
+    auto lhs = smd::traverse(
         [&](int x) -> std::optional<std::optional<int> > {
             auto fx = f(x);
             if (!fx.has_value()) {
@@ -166,12 +166,12 @@ TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
         value);
 
     auto rhs = [&]() -> std::optional<std::optional<Identity> > {
-        auto traversed_once = traversable.traverse(f, value);
+        auto traversed_once = smd::traverse(f, value);
         if (!traversed_once.has_value()) {
             return std::optional<std::optional<Identity> >{std::optional<Identity>{}};
         }
 
-        auto traversed_twice = traversable.traverse(g, *traversed_once);
+        auto traversed_twice = smd::traverse(g, *traversed_once);
         return std::optional<std::optional<Identity> >{traversed_twice};
     }();
 
@@ -209,13 +209,13 @@ TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional")
     };
     auto natural = [](int x) { return x * 3; };
 
-    auto lhs = traversable.traverse(effectful, value);
+    auto lhs = smd::traverse(effectful, value);
     auto lhs_mapped = std::optional<Identity>{};
     if (lhs.has_value()) {
         lhs_mapped = Identity{natural(lhs->value)};
     }
 
-    auto rhs = traversable.traverse(
+    auto rhs = smd::traverse(
         [&](int x) -> std::optional<int> {
             auto result = effectful(x);
             if (!result.has_value()) {
@@ -252,15 +252,15 @@ TEST_CASE("TraversableLaws - NaturalityLaw")
     // a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43
     {
         auto value = Identity{3};
-        CHECK(to_beman(traversable.traverse(f, value)) ==
-              traversable.traverse(f_returning_beman, value));
+        CHECK(to_beman(smd::traverse(f, value)) ==
+              smd::traverse(f_returning_beman, value));
     }
     // a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43 end
 
     // Absent case: f(-1) == {}, to_beman({}) == {}
     {
         auto value = Identity{-1};
-        CHECK(to_beman(traversable.traverse(f, value)) ==
-              traversable.traverse(f_returning_beman, value));
+        CHECK(to_beman(smd::traverse(f, value)) ==
+              smd::traverse(f_returning_beman, value));
     }
 }

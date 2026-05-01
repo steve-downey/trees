@@ -197,30 +197,21 @@ inline constexpr auto foldable_typeclass<smd::typeclass::test::Sequence<VALUE_TY
 
 template <class VALUE_TYPE>
 struct TestIdentityTraversableImpl {
-  template <class FUNCTION>
+  using element_type = VALUE_TYPE;
+
+  template <class APPLICATIVE, class FUNCTION>
   auto traverse(this auto&&,
+                const APPLICATIVE& applicative,
                 FUNCTION&& function,
                 const smd::typeclass::test::Identity<VALUE_TYPE>& identity)
-    -> decltype(smd::applicative_typeclass<
-          remove_cvref_t<std::invoke_result_t<FUNCTION, const VALUE_TYPE&> >>.invoke(
-      [](auto&& value) {
-        using U = remove_cvref_t<decltype(value)>;
-        return smd::typeclass::test::Identity<U>{
-          std::forward<decltype(value)>(value)};
-      },
-      std::invoke(std::forward<FUNCTION>(function), identity.value)))
   {
-    auto lifted = std::invoke(std::forward<FUNCTION>(function), identity.value);
-    using Context = remove_cvref_t<decltype(lifted)>;
-    const auto& applicative = smd::applicative_typeclass<Context>;
-
     return applicative.invoke(
       [](auto&& value) {
         using U = remove_cvref_t<decltype(value)>;
         return smd::typeclass::test::Identity<U>{
           std::forward<decltype(value)>(value)};
       },
-      lifted);
+      std::invoke(std::forward<FUNCTION>(function), identity.value));
   }
 };
 

@@ -60,7 +60,7 @@ TEST_CASE("FringeTreeTraversableTest - TraverseOptional")
     auto tree = Tree::branch(Tree::leaf(1), Tree::branch(Tree::leaf(2), Tree::leaf(3)));
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(PositiveTimesTen{}, tree);
+    auto traversed = smd::traverse(PositiveTimesTen{}, tree);
 
     REQUIRE(traversed.has_value());
     CHECK(traversed->flatten() == (std::vector<int>{10, 20, 30}));
@@ -72,7 +72,7 @@ TEST_CASE("FringeTreeTraversableTest - TraverseOptionalEmpty")
     auto tree = Tree::empty();
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(TimesTen{}, tree);
+    auto traversed = smd::traverse(TimesTen{}, tree);
 
     REQUIRE(traversed.has_value());
     CHECK(traversed->is_empty());
@@ -84,7 +84,7 @@ TEST_CASE("FringeTreeTraversableTest - TraverseBemanOptionalEmpty")
     auto tree = Tree::empty();
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(TimesTenBeman{}, tree);
+    auto traversed = smd::traverse(TimesTenBeman{}, tree);
 
     REQUIRE(traversed.has_value());
     CHECK(traversed->is_empty());
@@ -96,7 +96,7 @@ TEST_CASE("FringeTreeTraversableTest - TraverseOptionalFailure")
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(-2));
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(NonNegativeIdentity{}, tree);
+    auto traversed = smd::traverse(NonNegativeIdentity{}, tree);
 
     CHECK_FALSE(traversed.has_value());
 }
@@ -107,7 +107,7 @@ TEST_CASE("FringeTreeTraversableTest - TraverseLeaf")
     auto tree = Tree::leaf(7);
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(PlusOne{}, tree);
+    auto traversed = smd::traverse(PlusOne{}, tree);
 
     REQUIRE(traversed.has_value());
     REQUIRE(traversed->is_leaf());
@@ -120,7 +120,7 @@ TEST_CASE("FringeTreeTraversableTest - TraverseBemanOptional")
     auto tree = Tree::branch(Tree::leaf(2), Tree::leaf(5));
 
     const auto& traversable = smd::traversable_typeclass<Tree>;
-    auto traversed = traversable.traverse(PlusSevenBeman{}, tree);
+    auto traversed = smd::traverse(PlusSevenBeman{}, tree);
 
     REQUIRE(traversed.has_value());
     CHECK(traversed->flatten() == (std::vector<int>{9, 12}));

@@ -42,7 +42,7 @@ TEST_CASE("FingerTreeRopeTest - TraversableTypeclass")
     auto rope = Rope::from_text("abcd", 2);
     const auto& traversable = smd::traversable_typeclass<Rope>;
 
-    auto success = traversable.traverse(
+    auto success = smd::traverse(
       [](const std::string& chunk) -> std::optional<std::string> {
           return chunk + "!";
       },
@@ -50,7 +50,7 @@ TEST_CASE("FingerTreeRopeTest - TraversableTypeclass")
     REQUIRE(success.has_value());
     CHECK(success->to_string() == "ab!cd!");
 
-    auto failure = traversable.traverse(
+    auto failure = smd::traverse(
       [](const std::string& chunk) -> std::optional<std::string> {
           if (chunk == "cd") {
               return std::nullopt;

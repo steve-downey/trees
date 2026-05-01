@@ -73,7 +73,7 @@ TEST_CASE("RangeTraversableTest - TraverseOptionalSuccess")
     auto values = smd::ranges::from_vector(std::vector<int>{1, 2, 3});
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
 
-    auto traversed = traversable.traverse(
+    auto traversed = smd::traverse(
         [](int value) -> std::optional<int> {
             return std::optional<int>{value + 1};
         },
@@ -90,7 +90,7 @@ TEST_CASE("RangeTraversableTest - TraverseOptionalFailure")
     auto values = smd::ranges::from_vector(std::vector<int>{1, -2, 3});
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
 
-    auto traversed = traversable.traverse(
+    auto traversed = smd::traverse(
         [](int value) -> std::optional<int> {
             return value >= 0 ? std::optional<int>{value + 1}
                               : std::optional<int>{};
@@ -106,7 +106,7 @@ TEST_CASE("RangeTraversableTest - TraverseWithRangeApplicativeEnumeratesChoices"
     auto values = smd::ranges::from_vector(std::vector<int>{1, 2});
     const auto& traversable = smd::traversable_typeclass<decltype(values)>;
 
-    auto traversed = traversable.traverse(
+    auto traversed = smd::traverse(
         [](int value) {
             return smd::ranges::from_vector(std::vector<int>{value, value + 10});
         },
