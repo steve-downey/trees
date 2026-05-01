@@ -1,4 +1,5 @@
 #include <smd/typeclass/monoid.hpp>
+#include <smd/typeclass/monoid.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 

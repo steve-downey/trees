@@ -1,6 +1,7 @@
 #include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree.hpp>  // Re-inclusion check
 #include <smd/tree/finger_tree_foldable.hpp>
-#include <smd/tree/memoized_thunk.hpp>
+#include <smd/thunk/memoize.hpp>
 #include <smd/tree/finger_tree_traversable.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -88,7 +89,7 @@ TEST_CASE("FingerTreeTest - EmptyLeafAndPredicates")
 TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkForcesOnce")
 {
     std::atomic<int> evaluations{0};
-    auto delayed = smd::tree::detail::thunk([
+    auto delayed = smd::thunk::memoize([
         &evaluations]() {
         evaluations.fetch_add(1, std::memory_order_relaxed);
         return 42;
@@ -102,7 +103,7 @@ TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkForcesOnce")
 TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkSharesAcrossCopies")
 {
     std::atomic<int> evaluations{0};
-    auto delayed = smd::tree::detail::thunk([
+    auto delayed = smd::thunk::memoize([
         &evaluations]() {
         evaluations.fetch_add(1, std::memory_order_relaxed);
         return 7;
@@ -117,7 +118,7 @@ TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkSharesAcrossCopies")
 TEST_CASE("FingerTreeStrictnessTest - MeasuredThunkExposesCachedMeasureWithoutForce")
 {
     std::atomic<int> evaluations{0};
-    auto delayed = smd::tree::detail::measured_thunk(
+    auto delayed = smd::thunk::measured_memoize(
         std::size_t{99},
         [&evaluations]() {
             evaluations.fetch_add(1, std::memory_order_relaxed);

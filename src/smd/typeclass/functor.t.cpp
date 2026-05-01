@@ -1,4 +1,5 @@
 #include <smd/typeclass/functor.hpp>
+#include <smd/typeclass/functor.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 

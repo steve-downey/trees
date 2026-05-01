@@ -1,5 +1,6 @@
 #include <smd/typeclass/test/test_support.hpp>
 #include <smd/typeclass/traversable.hpp>
+#include <smd/typeclass/traversable.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -11,7 +12,6 @@ TEST_CASE("TraversableTypeclassTest - TraverseOptionalSuccess")
 {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{1};
-    const auto& traversable = smd::traversable_typeclass<Identity>;
 
     auto traversed = smd::traverse(
         [](int x) -> std::optional<int> {
@@ -27,7 +27,6 @@ TEST_CASE("TraversableTypeclassTest - TraverseOptionalFailure")
 {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{-2};
-    const auto& traversable = smd::traversable_typeclass<Identity>;
 
     auto traversed = smd::traverse(
         [](int x) -> std::optional<int> {
@@ -104,7 +103,6 @@ TEST_CASE("TraversableTypeclassTest - SequenceMatchesTraverseIdentity")
 TEST_CASE("TraversableTypeclassTest - IdentityLawWithIdentityApplicative")
 {
     using Identity = smd::typeclass::test::Identity<int>;
-    const auto& traversable = smd::traversable_typeclass<Identity>;
     const auto& applicative = smd::applicative_typeclass<Identity>;
 
     auto value = Identity{42};
@@ -120,7 +118,6 @@ TEST_CASE("TraversableTypeclassTest - IdentityLawWithIdentityApplicative")
 TEST_CASE("TraversableTypeclassTest - TraverseMapCoherence")
 {
     using Identity = smd::typeclass::test::Identity<int>;
-    const auto& traversable = smd::traversable_typeclass<Identity>;
 
     auto value = Identity{7};
 
@@ -144,7 +141,6 @@ TEST_CASE("TraversableTypeclassTest - TraverseMapCoherence")
 TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
 {
     using Identity = smd::typeclass::test::Identity<int>;
-    const auto& traversable = smd::traversable_typeclass<Identity>;
 
     auto value = Identity{9};
 
@@ -200,7 +196,6 @@ TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
 TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional")
 {
     using Identity = smd::typeclass::test::Identity<int>;
-    const auto& traversable = smd::traversable_typeclass<Identity>;
 
     auto value = Identity{8};
 
@@ -234,7 +229,6 @@ TEST_CASE("TraversableLaws - NaturalityLaw")
     // to_beman: std::optional<B> → beman::optional<B> is one such morphism.
     // Law: to_beman(traverse f t) == traverse (f_returning_beman) t
     using Identity = smd::typeclass::test::Identity<int>;
-    const auto& traversable = smd::traversable_typeclass<Identity>;
 
     auto f = [](int x) -> std::optional<int> {
         return x > 0 ? std::optional<int>{x * 2} : std::optional<int>{};

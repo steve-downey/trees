@@ -1,6 +1,7 @@
 // src/smd/thunk/memoize.t.cpp                                        -*-C++-*-
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #include <smd/thunk/memoize.hpp>
+#include <smd/thunk/memoize.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 

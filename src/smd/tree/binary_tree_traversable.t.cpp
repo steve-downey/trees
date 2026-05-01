@@ -1,4 +1,5 @@
 #include <smd/tree/binary_tree.hpp>
+#include <smd/tree/binary_tree.hpp>  // Re-inclusion check
 #include <smd/tree/binary_tree_traversable.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -45,7 +46,6 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalPreservesShape")
         Tree::make_ptr(Tree::leaf(1)),
         Tree::make_ptr(Tree::from_children_ptrs(3, {}, Tree::make_ptr(Tree::leaf(4)))));
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(PositiveTimesTen{}, tree);
 
     REQUIRE(traversed.has_value());
@@ -68,7 +68,6 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalDoesNotDuplicateRootEffec
         Tree::make_ptr(Tree::leaf(5)));
 
     int invocations = 0;
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(
         [&](int x) -> std::optional<int> {
             ++invocations;
@@ -89,7 +88,6 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeaf")
     using Tree = smd::tree::BinaryTree<int>;
     auto tree = Tree::leaf(9);
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(PlusOne{}, tree);
 
     REQUIRE(traversed.has_value());
@@ -106,7 +104,6 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeftOnly")
         Tree::make_ptr(Tree::leaf(3)),
         {});
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(TimesTen{}, tree);
 
     REQUIRE(traversed.has_value());
@@ -124,7 +121,6 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalFailure")
         Tree::make_ptr(Tree::leaf(-1)),
         {});
 
-    const auto& traversable = smd::traversable_typeclass<Tree>;
     auto traversed = smd::traverse(NonNegativeIdentity{}, tree);
 
     CHECK_FALSE(traversed.has_value());
