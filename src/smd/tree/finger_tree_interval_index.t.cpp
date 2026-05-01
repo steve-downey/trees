@@ -1,4 +1,5 @@
 #include <smd/tree/finger_tree_interval_index.hpp>
+#include <smd/tree/finger_tree_interval_index.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 

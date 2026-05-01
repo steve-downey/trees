@@ -1,4 +1,5 @@
 #include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree.hpp>  // Re-inclusion check
 #include <smd/tree/finger_tree_foldable.hpp>
 #include <smd/thunk/memoize.hpp>
 #include <smd/tree/finger_tree_traversable.hpp>

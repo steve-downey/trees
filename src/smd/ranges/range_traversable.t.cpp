@@ -1,4 +1,5 @@
 #include <smd/ranges/range_traversable.hpp>
+#include <smd/ranges/range_traversable.hpp>  // Re-inclusion check
 #include <smd/ziplist/zip_list_applicative.hpp>
 
 #include <catch2/catch_test_macros.hpp>

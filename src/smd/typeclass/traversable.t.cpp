@@ -1,5 +1,6 @@
 #include <smd/typeclass/test/test_support.hpp>
 #include <smd/typeclass/traversable.hpp>
+#include <smd/typeclass/traversable.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 

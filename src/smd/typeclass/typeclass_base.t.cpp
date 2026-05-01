@@ -1,4 +1,5 @@
 #include <smd/typeclass/typeclass_base.hpp>
+#include <smd/typeclass/typeclass_base.hpp>  // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 

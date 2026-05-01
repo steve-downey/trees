@@ -1,4 +1,5 @@
 #include <smd/tree/binary_tree.hpp>
+#include <smd/tree/binary_tree.hpp>  // Re-inclusion check
 #include <smd/tree/binary_tree_traversable.hpp>
 
 #include <catch2/catch_test_macros.hpp>

@@ -1,4 +1,5 @@
 #include <smd/tree/fringe_tree.hpp>
+#include <smd/tree/fringe_tree.hpp>  // Re-inclusion check
 #include <smd/tree/fringe_tree_traversable.hpp>
 
 #include <catch2/catch_test_macros.hpp>

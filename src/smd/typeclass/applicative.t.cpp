@@ -1,4 +1,5 @@
 #include <smd/typeclass/applicative.hpp>
+#include <smd/typeclass/applicative.hpp>  // Re-inclusion check
 #include <smd/typeclass/test/test_support.hpp>
 
 #include <catch2/catch_test_macros.hpp>

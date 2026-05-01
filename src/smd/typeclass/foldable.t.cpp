@@ -1,4 +1,5 @@
 #include <smd/typeclass/foldable.hpp>
+#include <smd/typeclass/foldable.hpp>  // Re-inclusion check
 #include <smd/typeclass/test/test_support.hpp>
 
 #include <catch2/catch_test_macros.hpp>
