@@ -1,0 +1,84 @@
+#+TITLE: Final Review 2026-05-02 (All Aspects)
+
+* Scope
+
+Reviewed current unstaged changes across:
+- code: =trees/src/**=
+- build/config: =trees/CMakeLists.txt=, =trees/etc/**=
+- vendor touch points: =trees/vendor/optional/infra/cmake/**=
+- docs: =trees/docs/**= (including newly added design/review docs)
+
+Catch2 vendor subtree was previously cleaned and is out of scope in this pass.
+
+* Findings (ordered by severity)
+
+** HIGH: thread-safety hazard exists in memoization core (not newly introduced)
+
+File: =trees/src/smd/thunk/memoize.hpp=
+
+Evidence:
+- Source comment already documents non-thread-safe shared state mutation.
+- Current implementation mutates shared variant-backed state on first force.
+
+Impact:
+- Concurrent first access can race when shared memoized state is used across threads.
+- This is a real correctness risk, but appears pre-existing rather than introduced by the current formatting-heavy change set.
+
+Status:
+- No newly introduced regression confirmed in this pass; risk remains open until synchronized memoization is implemented.
+
+** MEDIUM: review/document drift in newly added reviewer notes
+
+File: =trees/docs/reviewer-three.org= (untracked in main)
+
+Evidence:
+- The document includes architecture claims that do not align with current source in =fixpoint_tree.hpp= and =finger_tree.hpp=.
+
+Impact:
+- Can misdirect future review/engineering effort if consumed as authoritative.
+
+Status:
+- Documentation accuracy issue; not a direct runtime/codegen defect.
+
+** MEDIUM: build artifact hygiene gap
+
+Path: =trees/recc-scan-deps.d/= (untracked in main)
+
+Evidence:
+- Cache/dependency scan artifacts are present and currently not excluded by =trees/.gitignore=.
+
+Impact:
+- Repository noise, merge friction, and accidental artifact commits.
+
+Status:
+- Process/config hygiene issue.
+
+** LOW: strict-fingertree design doc role is unclear
+
+File: =trees/docs/strict-fingertree.md= (untracked in main)
+
+Evidence:
+- Document mixes reference architecture guidance with proposals that are not fully reflected in current implementation.
+
+Impact:
+- Reader uncertainty about whether this is normative, aspirational, or historical guidance.
+
+Status:
+- Documentation clarity issue.
+
+* Non-findings / explicit checks
+
+- No concrete newly introduced behavioral regression was confirmed in current =trees/src= deltas.
+- Spot checks and whitespace-insensitive comparisons indicate dominant formatting churn.
+- =make compile= completed successfully (exit code 0) during this review cycle.
+
+* Recommended follow-ups
+
+1. Implement a thread-safe memoization path (e.g., once-guarded initialization) where shared memoized state can be accessed concurrently.
+2. Correct or clearly classify =reviewer-three.org= if it is to be retained.
+3. Add =recc-scan-deps.d/= to ignore rules and keep artifacts out of review diffs.
+4. Add an explicit preface in =strict-fingertree.md= stating whether it is target design, reference background, or exploratory notes.
+
+* Baseline note
+
+This file is the final all-aspects review note committed on =main= as requested.
