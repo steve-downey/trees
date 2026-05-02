@@ -722,6 +722,116 @@ No monkey-patching, no reopening of classes, no central registry.
 
 *Preservation*: All five finger tree specializations (raw, random-access, priority-queue, rope, interval-index) satisfy the Traversable laws and compose with Foldable, Monoid, and Applicative correctly. The semantic claim that shape preservation and measure-guided search are compositional survives from theory through C++ encoding to real test suites.
 
+* Cross-Language Name Mapping
+
+*** Functor
+
+| C++        | Haskell    | Cats (Scala) | PureScript | Core |
+|------------+------------+--------------+------------+------|
+| ~fmap~     | ~fmap~     | ~map~        | ~map~      | ✓    |
+| ~replace~  | ~(<$)~     | ~as~         | ~voidRight~ |      |
+
+#+begin_notes
+Functor is minimal everywhere: one operation. C++ keeps the Haskell name.
+Cats and PureScript prefer ~map~; C++ reserves ~map~ for the Applicative-derived version.
+#+end_notes
+
+*** Foldable
+
+| C++           | Haskell     | Cats (Scala)  | PureScript  | Core |
+|---------------+-------------+---------------+-------------+------|
+| ~fold_map~    | ~foldMap~   | ~foldMap~     | ~foldMap~   | ✓    |
+| ~fold_right~  | ~foldr~     | ~foldRight~   | ~foldr~     | ✓    |
+| ~fold_left~   | ~foldl'~    | ~foldLeft~    | ~foldl~     | ✓    |
+| ~length~      | ~length~    | ~size~        | ~length~    |      |
+| ~to_vector~   | ~toList~    | ~toList~      | —           |      |
+| ~empty~       | ~null~      | ~isEmpty~     | ~null~      |      |
+| ~any_of~      | ~any~       | ~exists~      | ~any~       |      |
+| ~all_of~      | ~all~       | ~forall~      | ~all~       |      |
+| ~find_first~  | ~find~      | ~find~        | ~find~      |      |
+| ~fold~        | ~fold~      | ~fold~        | ~fold~      |      |
+| ~combine_all~ | ~fold~      | ~combineAll~  | ~fold~      |      |
+
+#+begin_notes
+C++ names follow ~std::ranges~ conventions: ~any_of~, ~all_of~, ~fold_left~, ~fold_right~.
+~to_vector~ instead of ~toList~ — the natural C++ materialization target.
+~empty~ instead of ~null~ — avoids pointer connotation.
+Three different alternate cores across languages: Haskell allows ~foldMap~ or ~foldr~;
+Cats requires ~foldLeft~ + ~foldRight~; PureScript requires all three.
+This library defaults to ~fold_map~ as the primitive; the alternate-core pattern supports ~fold_right~.
+#+end_notes
+
+*** Applicative
+
+| C++              | Haskell    | Cats (Scala) | PureScript | Core |
+|------------------+------------+--------------+------------+------|
+| ~pure~           | ~pure~     | ~pure~       | ~pure~     | ✓    |
+| ~apply~          | ~(<*>)~    | ~ap~         | ~apply~    | ✓    |
+| ~zip_with~       | ~liftA2~   | ~map2~       | —          | ✓    |
+| ~invoke~         | —          | —            | —          |      |
+| ~map~            | ~fmap~     | ~map~        | ~map~      |      |
+| ~lift~           | ~pure~     | ~pure~       | ~pure~     |      |
+| ~ap~             | ~(<*>)~    | ~ap~         | ~apply~    |      |
+| ~discard_first~  | ~(*>)~     | ~productR~   | —          |      |
+| ~discard_second~ | ~(<*)~     | ~productL~   | —          |      |
+| ~apply_pure~     | —          | —            | —          |      |
+
+#+begin_notes
+~invoke~ is unique to this C++ library: applies a pure function to effectful arguments
+without requiring manual currying. It replaces what Haskell expresses with ~f <$> a <*> b <*> c~.
+~apply_pure~ is a teaching alias for ~invoke~ that preserves bracket notation for FP audiences.
+Haskell allows ~pure + (<*>)~ or ~pure + liftA2~ as alternate cores.
+Cats requires ~pure + ap~. PureScript requires ~pure + apply~.
+This library defaults to ~pure + apply~; the alternate-core pattern supports ~zip_with~.
+#+end_notes
+
+*** Traversable
+
+| C++              | Haskell      | Cats (Scala)  | PureScript  | Core |
+|------------------+--------------+---------------+-------------+------|
+| ~traverse~       | ~traverse~   | ~traverse~    | ~traverse~  | ✓    |
+| ~sequence~       | ~sequenceA~  | ~sequence~    | ~sequence~  | ✓    |
+| ~for_each~       | ~for~        | —             | ~for~       |      |
+| ~traverse_with~  | —            | —             | —           |      |
+| ~sequence_with~  | —            | —             | —           |      |
+
+#+begin_notes
+~sequence~ drops the ~A~ suffix (for Applicative) since this library omits the monadic ~sequence~.
+~for_each~ is the flipped form: container before function.
+~traverse_with~ and ~sequence_with~ are C++ innovations: explicit-object override for
+the applicative instance used during traversal. Haskell, Cats, and PureScript dispatch
+implicitly through their typeclass mechanisms; in C++ the lookup object is a value you can replace.
+Haskell allows ~traverse~ or ~sequenceA~ as alternate cores.
+Cats requires ~traverse~ only. PureScript requires both ~traverse~ and ~sequence~.
+This library defaults to ~traverse~; the alternate-core pattern supports ~sequence~.
+#+end_notes
+
+*** Monoid
+
+| C++          | Haskell    | Cats (Scala) | PureScript | Core |
+|--------------+------------+--------------+------------+------|
+| ~identity~   | ~mempty~   | ~empty~      | ~mempty~   | ✓    |
+| ~combine~    | ~(<>)~     | ~combine~    | ~append~   | ✓    |
+
+#+begin_notes
+All languages agree on two operations; naming varies.
+~identity~ is chosen over ~mempty~ for mathematical clarity.
+~combine~ matches Cats; ~(<>)~ is the Haskell operator (from Semigroup); PureScript uses ~append~.
+Haskell and PureScript separate Semigroup (~<>~) from Monoid (~mempty~); this library does not.
+#+end_notes
+
+*** Alternate Cores: Why This Matters
+- Haskell's ~{-# MINIMAL foldMap | foldr #-}~ pragma lets instances choose which operation to provide.
+- This C++ library supports the same idea via ~using Impl::primitive;~ in the Map class.
+- Different types naturally express different primitives: a tree may find ~fold_map~ natural; a stream may prefer ~fold_right~.
+- The ~using~ declaration selects the core; the base class derives everything else.
+
+#+begin_notes
+This is not speculative: the alternate-core pattern is load-bearing in the current implementation.
+The ~using Impl::traverse;~ declarations in every TraversableMap class implement this selection.
+A sequence-primitive Traversable would shadow ~sequence~ instead, and the base derives ~traverse~.
+#+end_notes
+
 * Designing APIs That Won't Age Poorly
 *** Library Abstractions Anticipating Language Features
 - Favor explicit, composable operations over magical overload sets.
