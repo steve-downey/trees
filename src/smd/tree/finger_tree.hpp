@@ -1092,11 +1092,14 @@ class FingerTree {
     if (index >= breadth()) {
       return SplitAt{*this, empty()};
     }
-    if constexpr (std::is_same_v<Tag, std::size_t>) {
-      // Prefix measure = running element count; navigate structurally, no flatten.
+    if constexpr (std::is_same_v<Tag, std::size_t>
+                  && std::is_same_v<MeasurePolicy, UnitMeasure<T, Tag>>) {
+      // Prefix measure is exactly running element count; navigate structurally,
+      // no flatten.
       return split_at([index](std::size_t prefix) { return prefix > index; });
     } else {
-      // Non-size_t tags don't accumulate position; fall back to flatten-and-rebuild.
+      // For non-count measures (including weighted size_t), split_at_index must
+      // preserve index semantics, so fall back to flatten-and-rebuild.
       auto vec = flatten();
       auto clamped = index > vec.size() ? vec.size() : index;
       std::vector<T> lv(vec.begin(),

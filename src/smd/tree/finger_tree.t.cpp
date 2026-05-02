@@ -327,6 +327,25 @@ TEST_CASE("FingerTreeTest - SplitAtIndexConvenience")
     CHECK(beyond.d_right.is_empty());
 }
 
+TEST_CASE("FingerTreeTest - SplitAtIndexUsesElementIndexForWeightedSizeTMeasure")
+{
+    // WeightedSizeMeasure: Tag = std::size_t but NOT UnitMeasure.
+    // split_at_index must still split by element position, not accumulated weight.
+    struct WeightedSizeMeasure {
+        auto operator()(int value) const -> std::size_t {
+            return static_cast<std::size_t>(value * 10);
+        }
+    };
+
+    using WeightedTree = smd::tree::FingerTree<int, std::size_t, WeightedSizeMeasure>;
+
+    auto tree = WeightedTree::from_sequence({1, 2, 3, 4});
+
+    auto split = tree.split_at_index(2U);
+    CHECK(split.d_left.flatten() == (std::vector<int>{1, 2}));
+    CHECK(split.d_right.flatten() == (std::vector<int>{3, 4}));
+}
+
 TEST_CASE("FingerTreeTest - SplitAtMeasureConvenience")
 {
     using CountTree = smd::tree::FingerTree<int>;
