@@ -1,8 +1,8 @@
 # Test Coverage Audit and Implementation Plan
 
-**Date:** 2026-05-01  
-**Scope:** Trees project (`trees/src/`)  
-**Excludes:** deadcode/, conceptmap/ directories  
+**Date:** 2026-05-01
+**Scope:** Trees project (`trees/src/`)
+**Excludes:** deadcode/, conceptmap/ directories
 **Status:** Audit complete, plan ready for implementation
 
 ---
@@ -147,9 +147,9 @@ This plan is structured for a secondary programmer to implement while the primar
 
 ### Phase 1: Documentation (Immediate — 1 hour)
 
-**Task 1.1:** Update `docs/codestyle.md` with the rule change above  
-**Deliverable:** Amended codestyle document with new subsection and examples  
-**Validation:** Read back to confirm rule is clear and unambiguous  
+**Task 1.1:** Update `docs/codestyle.md` with the rule change above
+**Deliverable:** Amended codestyle document with new subsection and examples
+**Validation:** Read back to confirm rule is clear and unambiguous
 
 ---
 
@@ -376,8 +376,8 @@ Phase 2: Retrofit (28 files)
 - No behavioral changes; structural improvement only
 
 Phase 3: New Test Files (9 files)
-- Added test files for range_list, binary_tree, finger_tree_foldable, 
-  finger_tree_traversable, finger_tree_wrappers, fix_tree, 
+- Added test files for range_list, binary_tree, finger_tree_foldable,
+  finger_tree_traversable, finger_tree_wrappers, fix_tree,
   fringe_tree_foldable, memoized_thunk, zip_list
 - Each includes tautological test + 2–3 substantive tests
 
@@ -386,7 +386,7 @@ Phase 4: Validation
 - No regressions in existing behavior
 - Full test suite runs cleanly
 
-This ensures every component has explicit test coverage and headers are 
+This ensures every component has explicit test coverage and headers are
 re-inclusion safe (no circular or partial macro issues).
 ```
 
@@ -410,20 +410,20 @@ re-inclusion safe (no circular or partial macro issues).
 
 ### Do's
 
-✅ Run `make test` after every 5–7 file modifications to catch issues early  
-✅ Use the template above for consistency  
-✅ Add a comment in each new test file explaining the component's purpose  
-✅ Verify that double-includes work by checking compiler output (should see no warnings)  
-✅ Keep each test case focused on one behavior  
-✅ Use descriptive names like `ComponentTest - <Behavior>`  
+✅ Run `make test` after every 5–7 file modifications to catch issues early
+✅ Use the template above for consistency
+✅ Add a comment in each new test file explaining the component's purpose
+✅ Verify that double-includes work by checking compiler output (should see no warnings)
+✅ Keep each test case focused on one behavior
+✅ Use descriptive names like `ComponentTest - <Behavior>`
 
 ### Don'ts
 
-❌ Do not remove or rename the tautological test; it serves as a build-time signal  
-❌ Do not skip re-inclusion for any file (even if it seems "trivial")  
-❌ Do not add tests to infrastructure headers (test_support.hpp, examples.hpp)  
-❌ Do not change the order of includes; canonical header must always come first  
-❌ Do not commit before running `make test` end-to-end  
+❌ Do not remove or rename the tautological test; it serves as a build-time signal
+❌ Do not skip re-inclusion for any file (even if it seems "trivial")
+❌ Do not add tests to infrastructure headers (test_support.hpp, examples.hpp)
+❌ Do not change the order of includes; canonical header must always come first
+❌ Do not commit before running `make test` end-to-end
 
 ### Debugging Tips
 
@@ -446,14 +446,14 @@ re-inclusion safe (no circular or partial macro issues).
 
 ## Acceptance Criteria
 
-✅ All 28 existing test files include the target header twice  
-✅ All 28 existing tests still pass (no regressions)  
-✅ All 9 new test files exist and compile  
-✅ Each new test file includes tautological + 2–3 substantive tests  
-✅ `make test` runs 170+ tests and passes 100%  
-✅ `make compile` produces no include-related warnings  
-✅ Code style documentation updated with new rule  
-✅ Secondary programmer can follow the plan with minimal guidance  
+✅ All 28 existing test files include the target header twice
+✅ All 28 existing tests still pass (no regressions)
+✅ All 9 new test files exist and compile
+✅ Each new test file includes tautological + 2–3 substantive tests
+✅ `make test` runs 170+ tests and passes 100%
+✅ `make compile` produces no include-related warnings
+✅ Code style documentation updated with new rule
+✅ Secondary programmer can follow the plan with minimal guidance
 
 ---
 

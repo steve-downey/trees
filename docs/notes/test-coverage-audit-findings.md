@@ -1,6 +1,6 @@
 # Test Coverage Audit: Findings & Implementation Plan
-**Date:** 2026-05-01  
-**Scope:** trees/src/ (excluding deadcode/, conceptmap/)  
+**Date:** 2026-05-01
+**Scope:** trees/src/ (excluding deadcode/, conceptmap/)
 **Status:** ✅ Audit complete, documentation updated, plan ready for implementation
 
 ---
@@ -88,16 +88,16 @@ TEST_CASE("SocketTest - SemanticBehavior")
 
 ### What This Catches
 
-✅ **Missing include guards** — header fails to compile on second inclusion  
-✅ **Macro pollution** — first include pollutes namespace, second fails  
-✅ **Circular dependencies** — hidden by single-file compilation  
-✅ **Partial definitions** — missing forward declarations surface  
+✅ **Missing include guards** — header fails to compile on second inclusion
+✅ **Macro pollution** — first include pollutes namespace, second fails
+✅ **Circular dependencies** — hidden by single-file compilation
+✅ **Partial definitions** — missing forward declarations surface
 
 ---
 
 ## 📚 Rule Changes to `docs/codestyle.md`
 
-**New section added:**  
+**New section added:**
 > "Test file double-include and TDD bootstrap pattern"
 
 **Key mandates:**
@@ -106,7 +106,7 @@ TEST_CASE("SocketTest - SemanticBehavior")
 3. Template provided with clear examples
 4. Rationale documented (re-inclusion safety, build coherency, TDD discipline)
 
-**Location in document:**  
+**Location in document:**
 After "Test naming and placement" section (line ~286)
 
 ---
@@ -212,19 +212,19 @@ After "Test naming and placement" section (line ~286)
 
 **Immediately after Phase 5:**
 
-✅ 37 active components each have test coverage  
-✅ 100% test file compliance with double-include rule  
-✅ Header hygiene verified at compile time  
-✅ TDD discipline enforced (bootstrap test first)  
-✅ Circular dependency issues caught early  
-✅ Refactoring confidence increased  
+✅ 37 active components each have test coverage
+✅ 100% test file compliance with double-include rule
+✅ Header hygiene verified at compile time
+✅ TDD discipline enforced (bootstrap test first)
+✅ Circular dependency issues caught early
+✅ Refactoring confidence increased
 
 **Long-term:**
 
-✨ New components follow pattern by default  
-✨ Maintenance overhead minimal (one pattern)  
-✨ CI/CD can verify rule compliance automatically  
-✨ Documentation reflects actual practices  
+✨ New components follow pattern by default
+✨ Maintenance overhead minimal (one pattern)
+✨ CI/CD can verify rule compliance automatically
+✨ Documentation reflects actual practices
 
 ---
 
@@ -238,18 +238,17 @@ After "Test naming and placement" section (line ~286)
 
 ## 📝 Summary
 
-**Rule:**  
+**Rule:**
 > Every `.hpp` file is a component. Every component must have a `.t.cpp` or `.test.cpp` test file that includes the header **twice** (for re-inclusion safety) and begins with a **tautological test** (for build coherency).
 
-**Current state:**  
-- ✅ 28 tests pass (baseline)  
-- ❌ 10 components missing tests  
-- ⚠️ 28 tests lack double-include pattern  
+**Current state:**
+- ✅ 28 tests pass (baseline)
+- ❌ 10 components missing tests
+- ⚠️ 28 tests lack double-include pattern
 
-**Plan:**  
-- Documentation: ✅ **Complete** (rule + template + 450-line detailed plan)  
-- Implementation: 📋 **Ready for handoff** (26–28 hours, 5 phases, clear checklists)  
+**Plan:**
+- Documentation: ✅ **Complete** (rule + template + 450-line detailed plan)
+- Implementation: 📋 **Ready for handoff** (26–28 hours, 5 phases, clear checklists)
 
-**Status:**  
+**Status:**
 🟢 **Audit Complete | Documentation Ready | Plan Finalized | Awaiting Implementation**
-
