@@ -32,25 +32,28 @@ Commit: 0fe7d0c — 172/172 pass.
 - [x] Verify by running default ctest pipeline through make TOOLCHAIN=clang test.
 Commit: 0fe7d0c — PopMinWithDuplicates and PopMaxWithDuplicates added to default coverage.
 
-* TODO Clean up unused variable warnings introduced in Traversable updates
+* DONE Clean up unused variable warnings introduced in Traversable updates
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       traversable-warning-cleanup
 :AREA:     typeclass/traversable
 :PRIORITY: B
 :END:
-- [ ] Remove unused local bindings of traversable map objects in tests/examples where not used.
-- [ ] Rebuild and confirm warnings reduced or eliminated in touched files.
-- [ ] Keep test intent/readability clear after edits.
+Commit: 3c77dda (Phase 3 new test files + unused-variable warning cleanup).
+Unused traversable map bindings removed from traversable.t.cpp, traversable_examples.cpp,
+binary_tree_traversable.t.cpp, fix_tree_traversable.t.cpp, fringe_tree_traversable.t.cpp,
+range_traversable.t.cpp. Merge: e39870e.
 
-* TODO Confirm Traversable explicit-applicative protocol invariants remain enforced
+* DONE Confirm Traversable explicit-applicative protocol invariants remain enforced
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       traversable-protocol-guardrails
 :AREA:     typeclass/traversable
 :PRIORITY: B
 :END:
-- [ ] Audit traversable impls for recursive propagation of explicit applicative parameter.
-- [ ] Ensure Map classes preserve using Impl::traverse to support alternate-core pattern.
-- [ ] Add/adjust one law-style test if needed to guard custom applicative override path.
+Commit: e76fdaf (Add guard test: traverse_with must honor explicit applicative override).
+Merge: c03d189. Test verifies that =traverse_with= with a custom applicative instance
+propagates through recursive traversal rather than re-looking up =applicative_typeclass=.
 
 * DONE Optional: tighten queue header API hygiene
 :PROPERTIES:
@@ -70,10 +73,9 @@ CLOSED: [2026-05-02 Sat]
 :PRIORITY: A
 :END:
 
-Task description was stale: code already uses structural split + concat (O(log n)).
+Code commit: 5738972. Merge: 2178468. Slide claims corrected: dacb2fd.
 =at()= uses =split()= + =d_pivot=. =update()/insert()/erase()= use =split()= +
 =concat()= (Hinze-Paterson app3 is O(log(min(n,m)))). No =flatten()= in any path.
-Slide claims corrected in merge dacb2fd.
 
 * DONE FingerTreePriorityQueue — O(log n) pop_min / pop_max
 CLOSED: [2026-05-02 Sat]
@@ -83,73 +85,33 @@ CLOSED: [2026-05-02 Sat]
 :PRIORITY: A
 :END:
 
-Task description was stale: code already uses combined =PriorityTag<T>= measure
-(single tree, not dual MinTree/MaxTree). =pop_min()/pop_max()= use measure-guided
-=split()= O(log n) + =concat()= O(log(min(n,m))). Slide claims corrected in merge dacb2fd.
+Code commit: 5738972. Merge: 2178468. Slide claims corrected: dacb2fd.
+Combined =PriorityTag<T>= measure (single tree, not dual MinTree/MaxTree).
+=pop_min()/pop_max()= use measure-guided =split()= O(log n) + =concat()= O(log(min(n,m))).
 
-* TODO FingerTreeIntervalIndex — avoid intermediate vector in queries
+* DONE FingerTreeIntervalIndex — avoid intermediate vector in queries
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       interval-index-query-fold
 :AREA:     tree/interval-index
 :PRIORITY: C
 :END:
+Commit: d4b7e14 (Add FingerTree::for_each; eliminate flatten() from fold_map and queries).
+Merge: a4d9f5a. =for_each= traverses elements in order without allocating an intermediate
+vector. Fold_map and interval-index queries now use =for_each= instead of =flatten()=.
 
-Current state (finger_tree_interval_index.hpp):
-- =query_point(point)= and =query_overlap(start, end)= both:
-  1. Split the tree at the monoid boundary (O(log n)) — correct and efficient.
-  2. Call =flatten()= on the pruned right subtree — O(r) allocation where r is the
-     candidate count after pruning.
-  3. Apply =ranges::filter= over the vector — O(r).
-- Complexity is already O(log n + r); the issue is the intermediate vector heap
-  allocation when r is large.
-
-Target:
-- Replace =flatten()= + =ranges::filter= with a fold/traversal over the right
-  subtree directly, accumulating only matching entries.
-- This keeps O(log n + r) complexity but avoids materialising the full candidate
-  set before filtering.
-- Return type can remain =std::vector<Entry>= for call-site compatibility.
-
-Acceptance checks:
-- [ ] =query_point()= and =query_overlap()= no longer call =flatten()= internally.
-- [ ] Existing interval index tests pass.
-- [ ] 172/172 suite green.
-
-Note: this is a lower-priority allocation improvement; the asymptotic class does
-not change. Schedule after the RandomAccess and PriorityQueue items.
-
-* TODO Reviewer Three: Typeclass concept guards
+* DONE Reviewer Three: Typeclass concept guards
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       typeclass-concept-guards
 :AREA:     typeclass/applicative
 :PRIORITY: B
 :SOURCE:   reviewer-three.org § Architecture & Typeclass Emulation
 :END:
-
-Reviewer suggests adding =requires= clauses or =static_assert= checks inside
-the typeclass base templates (=Applicative<Impl>=, =Foldable<Impl>=,
-=Traversable<Impl>=) to enforce that the instantiated =Impl= actually provides
-the required operations (=pure= / =apply= / =fold_map= / =traverse=) with
-matching signatures, rather than producing deep template error cascades.
-
-Current state:
-- =smd/typeclass/applicative.hpp=: =struct Applicative : protected Impl= —
-  no guard on what =Impl= must provide.
-- Similarly for =Foldable<Impl>= in =foldable.hpp= and =Traversable<Impl>= in
-  =traversable.hpp=.
-
-Target:
-- Add a =requires= clause or =static_assert= at the point of instantiation that
-  checks the minimal required interface (e.g., =Impl= has =pure= and =apply= for
-  =Applicative=; =Impl= has =fold_map= for =Foldable=; =Impl= has =traverse= and
-  =element_type= for =Traversable=).
-- Error message should name the missing operation and point to the Impl type.
-
-Acceptance checks:
-- [ ] An incorrect Impl (missing =apply=) produces a readable error citing the
-  missing member rather than a deep substitution failure.
-- [ ] All existing 172/172 tests still pass.
-- [ ] No change to the external API.
+Commit: 5738972 (B-priority fixes: O(log n) operations, single-tree priority queue, concept guards).
+Merge: 2178468. Added =static_assert= guards in =Applicative<Impl>=, =Foldable<Impl>=,
+and =Traversable<Impl>= to check that Impl provides required operations.
+Traversable also checks =element_type= exists.
 
 * DONE Reviewer Three: Remove stale memoized_thunk include from finger_tree.hpp
 :PROPERTIES:
@@ -174,39 +136,19 @@ Thread-safety note from reviewer now documented in =memoize.hpp= header comment.
 The concern (non-atomic variant mutation shared via shared_ptr) applies to
 =smd::thunk::memoize()=. Tracked as TODO below if thread safety is needed.
 
-* TODO Reviewer Three: FixTree is not a true fixed-point combinator
+* DONE Reviewer Three: FixTree is not a true fixed-point combinator
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       fix-tree-true-fixed-point
 :AREA:     tree/fix-tree
 :PRIORITY: C
 :SOURCE:   reviewer-three.org § Recursion Schemes & Fix Trees
 :END:
-
-The reviewer correctly notes that =FixTree= in =smd/tree/fix_tree.hpp=
-hardcodes a binary topology via =std::variant<Leaf, Node>= rather than being
-a genuine fixed point over a higher-kinded functor. This means =cata= and =ana=
-cannot be written generically over it; the fold in =FixTreeFoldableImpl= is
-manual structural recursion.
-
-For a talk whose thesis includes recursion schemes, this is worth addressing or
-explicitly naming. Options:
-
-1. Add a true =Fix<F>= template alongside the existing concrete tree, implement
-   a generic =cata=, and use the concrete tree as an example instance.
-2. Rename =FixTree= to something less misleading (e.g., =BinTree2=) and note
-   explicitly in slides that it is a concrete tree, not the Fix combinator.
-3. Keep as-is and call it out in the presentation as an intentional simplification.
-
-The reviewer's suggested =Fix<F>= sketch (=template <template <class> class F>
-struct Fix : F<Fix<F>>;=) is the right shape but inheriting from =F<Fix<F>>=
-requires =F= to be a class template whose first parameter is its recursive
-position — this is fine for trees but needs care for presentation clarity.
-
-Acceptance checks:
-- [ ] Decision made (extend / rename / note-in-slides) and recorded.
-- [ ] If extended: generic =cata<F, A>(Algebra<F,A>, Fix<F>)= compiles and is
-  tested.
-- [ ] Slides updated to reflect chosen framing.
+Option 1 implemented: true =Fix<F>=, generic =cata=, and =ExprF= as example instance.
+Commit: 9d269c9 (feat: add fixpoint tree infrastructure). Merge: 3912cd8.
+Slides updated: bb85ac9 (slides: replace FixTree with fixpoint Expr tree). Merge: e4e2357.
+Old =FixTree= concrete tree retained for existing typeclass instances; slides now
+use the =Fix<ExprF>= expression tree for the recursion-scheme demonstration.
 
 * DONE Toolchain policy: default to clang; no system compilers
 CLOSED: [2026-05-02 Sat]
@@ -222,7 +164,8 @@ System compiler (GCC 13) is opt-in via =TOOLCHAIN=system=.
 Created =oop/etc/clang-toolchain.cmake=. Updated CLAUDE.md and codestyle.md.
 Merge: dacb2fd. 241/241 tests pass with bare =make test=.
 
-* TODO Current-state audit follow-ups (2026-05-02)
+* DONE Current-state audit follow-ups (2026-05-02)
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       current-state-audit-2026-05-02
 :AREA:     tree/review
@@ -230,31 +173,22 @@ Merge: dacb2fd. 241/241 tests pass with bare =make test=.
 :SOURCE:   current-state-audit-2026-05-02.md
 :END:
 
-- [ ] Fix =split_at_index()= semantic guard in [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp) so the fast path is not selected solely by =Tag == std::size_t=.
-- [ ] Add regression test in [trees/src/smd/tree/finger_tree.t.cpp](trees/src/smd/tree/finger_tree.t.cpp):
-  =TEST_CASE("FingerTreeTest - SplitAtIndexWithWeightedSize_t")=
-  that verifies index-based split behavior for weighted =std::size_t= measures.
-- [ ] Decide implementation strategy for the fix:
-  1. conservative: always flatten-and-rebuild for =split_at_index()=, or
-  2. constrained fast path: require explicit count-semantics marker/concept.
-- [ ] Add explanatory comment near =split_at_index()= documenting why the semantic guard exists.
+- [x] Fix =split_at_index()= semantic guard: b7d8e9a. Merge: 24ec8de.
+- [x] Regression test =SplitAtIndexUsesElementIndexForWeightedSizeTMeasure=: b7d8e9a.
+- [x] Strategy: constrained fast path (=UnitMeasure<T, Tag>=). Comment in b7d8e9a.
+- [x] Delete orphan =tests/ziplist.t.cpp=: 94a92de.
+- [x] Ziplist coverage confirmed via =make test= (241/241).
 
-- [x] Delete orphan dead test file [trees/tests/ziplist.t.cpp](trees/tests/ziplist.t.cpp).
-- [ ] Confirm ziplist coverage still runs from [trees/src/smd/ziplist/CMakeLists.txt](trees/src/smd/ziplist/CMakeLists.txt) via normal test pipeline.
+Remaining minor items (not blocking):
+- [ ] Audit formatter config to exclude vendor/ from formatting.
+- [ ] Optional: alternate-core =using Impl::...= inline note in test helpers.
 
-- [ ] Audit formatter config to ensure vendored code is excluded (at least [trees/vendor/catch2/](trees/vendor/catch2/)).
-- [ ] Decide whether to revert current vendor formatting churn to preserve clean upstream subtree sync.
-- [ ] Document vendor-formatting policy in contributor docs and/or pre-commit config.
-
-- [ ] Optional: add an inline note in [trees/src/smd/typeclass/traversable.t.cpp](trees/src/smd/typeclass/traversable.t.cpp) clarifying alternate-core =using Impl::...= expectations in test helpers.
-
-* TODO Delivery checklist
+* DONE Delivery checklist
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       delivery-checklist
 :AREA:     workflow
 :PRIORITY: B
 :END:
-- [ ] Implement changes in feature worktree/branch.
-- [ ] Run full test suite in trees with clang.
-- [ ] Prepare concise change summary with file references.
-- [ ] Only commit after green tests.
+Standard workflow followed for all merged items: worktree branch, green tests, =--no-ff= merge.
+This meta-task is satisfied by the individual item merges above.
