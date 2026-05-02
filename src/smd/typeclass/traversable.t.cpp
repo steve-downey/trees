@@ -271,6 +271,7 @@ struct NullOptImpl {
     }
 };
 
+// Alternate-core: both pure and apply are primitives here (symmetric Applicative).
 struct NullOptMap : smd::Applicative<NullOptImpl> {
     using NullOptImpl::apply;
     using NullOptImpl::pure;
