@@ -1,15 +1,14 @@
-#include <smd/typeclass/test/test_support.hpp>
 #include <smd/typeclass/traversable.hpp>
-#include <smd/typeclass/traversable.hpp>  // Re-inclusion check
+#include <smd/typeclass/traversable.hpp> // Re-inclusion check
 
+#include <smd/typeclass/test/test_support.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include <beman/optional/optional.hpp>
 
 #include <optional>
 
-TEST_CASE("TraversableTypeclassTest - TraverseOptionalSuccess")
-{
+TEST_CASE("TraversableTypeclassTest - TraverseOptionalSuccess") {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{1};
 
@@ -23,8 +22,7 @@ TEST_CASE("TraversableTypeclassTest - TraverseOptionalSuccess")
     CHECK(traversed->value == 2);
 }
 
-TEST_CASE("TraversableTypeclassTest - TraverseOptionalFailure")
-{
+TEST_CASE("TraversableTypeclassTest - TraverseOptionalFailure") {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{-2};
 
@@ -37,27 +35,26 @@ TEST_CASE("TraversableTypeclassTest - TraverseOptionalFailure")
     CHECK_FALSE(traversed.has_value());
 }
 
-TEST_CASE("TraversableTypeclassTest - ForEachOptionalSuccess")
-{
+TEST_CASE("TraversableTypeclassTest - ForEachOptionalSuccess") {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{3};
-    const auto& traversable = smd::traversable_typeclass<Identity>;
+    const auto &traversable = smd::traversable_typeclass<Identity>;
 
-    auto traversed = traversable.for_each(identity, [](int x) -> std::optional<int> {
-        return std::optional<int>{x * 2};
-    });
+    auto traversed =
+        traversable.for_each(identity, [](int x) -> std::optional<int> {
+            return std::optional<int>{x * 2};
+        });
 
     REQUIRE(traversed.has_value());
     CHECK(traversed->value == 6);
 }
 
-TEST_CASE("TraversableTypeclassTest - SequenceAndSequenceWith")
-{
+TEST_CASE("TraversableTypeclassTest - SequenceAndSequenceWith") {
     // f1de12e0-2287-4568-98c7-75be4f6f7446
     // e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28
-    using IdentityOpt = smd::typeclass::test::Identity<std::optional<int> >;
+    using IdentityOpt = smd::typeclass::test::Identity<std::optional<int>>;
     auto identity = IdentityOpt{std::optional<int>{1}};
-    const auto& traversable = smd::traversable_typeclass<IdentityOpt>;
+    const auto &traversable = smd::traversable_typeclass<IdentityOpt>;
 
     auto sequenced = traversable.sequence(identity);
     REQUIRE(sequenced.has_value());
@@ -70,53 +67,47 @@ TEST_CASE("TraversableTypeclassTest - SequenceAndSequenceWith")
     // f1de12e0-2287-4568-98c7-75be4f6f7446 end
 }
 
-TEST_CASE("TraversableTypeclassTest - ForEachMatchesTraverse")
-{
+TEST_CASE("TraversableTypeclassTest - ForEachMatchesTraverse") {
     using Identity = smd::typeclass::test::Identity<int>;
     auto identity = Identity{4};
-    const auto& traversable = smd::traversable_typeclass<Identity>;
+    const auto &traversable = smd::traversable_typeclass<Identity>;
 
     auto via_traverse = smd::traverse(
         [](int x) -> std::optional<int> { return std::optional<int>{x + 7}; },
         identity);
-    auto via_for_each = traversable.for_each(
-        identity,
-        [](int x) -> std::optional<int> { return std::optional<int>{x + 7}; });
+    auto via_for_each =
+        traversable.for_each(identity, [](int x) -> std::optional<int> {
+            return std::optional<int>{x + 7};
+        });
 
     CHECK(via_traverse == via_for_each);
 }
 
-TEST_CASE("TraversableTypeclassTest - SequenceMatchesTraverseIdentity")
-{
-    using IdentityOpt = smd::typeclass::test::Identity<std::optional<int> >;
+TEST_CASE("TraversableTypeclassTest - SequenceMatchesTraverseIdentity") {
+    using IdentityOpt = smd::typeclass::test::Identity<std::optional<int>>;
     auto identity = IdentityOpt{std::optional<int>{5}};
-    const auto& traversable = smd::traversable_typeclass<IdentityOpt>;
+    const auto &traversable = smd::traversable_typeclass<IdentityOpt>;
 
     auto via_sequence = traversable.sequence(identity);
     auto via_traverse_identity = smd::traverse(
-        [](auto&& x) { return std::forward<decltype(x)>(x); },
-        identity);
+        [](auto &&x) { return std::forward<decltype(x)>(x); }, identity);
 
     CHECK(via_sequence == via_traverse_identity);
 }
 
-TEST_CASE("TraversableTypeclassTest - IdentityLawWithIdentityApplicative")
-{
+TEST_CASE("TraversableTypeclassTest - IdentityLawWithIdentityApplicative") {
     using Identity = smd::typeclass::test::Identity<int>;
-    const auto& applicative = smd::applicative_typeclass<Identity>;
+    const auto &applicative = smd::applicative_typeclass<Identity>;
 
     auto value = Identity{42};
 
-    auto lhs = smd::traverse(
-        [](int x) { return applicative.pure(x); },
-        value);
+    auto lhs = smd::traverse([](int x) { return applicative.pure(x); }, value);
     auto rhs = applicative.pure(value);
 
     CHECK(lhs == rhs);
 }
 
-TEST_CASE("TraversableTypeclassTest - TraverseMapCoherence")
-{
+TEST_CASE("TraversableTypeclassTest - TraverseMapCoherence") {
     using Identity = smd::typeclass::test::Identity<int>;
 
     auto value = Identity{7};
@@ -132,14 +123,13 @@ TEST_CASE("TraversableTypeclassTest - TraverseMapCoherence")
         value);
 
     REQUIRE(via_traverse.has_value());
-    auto mapped = std::optional<smd::typeclass::test::Identity<int> >{
+    auto mapped = std::optional<smd::typeclass::test::Identity<int>>{
         smd::typeclass::test::Identity<int>{via_traverse->value * 3}};
 
     CHECK(mapped == via_mapped_traverse);
 }
 
-TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
-{
+TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional") {
     using Identity = smd::typeclass::test::Identity<int>;
 
     auto value = Identity{9};
@@ -152,49 +142,53 @@ TEST_CASE("TraversableTypeclassTest - CompositionLawViaNestedOptional")
     };
 
     auto lhs = smd::traverse(
-        [&](int x) -> std::optional<std::optional<int> > {
+        [&](int x) -> std::optional<std::optional<int>> {
             auto fx = f(x);
             if (!fx.has_value()) {
-                return std::optional<std::optional<int> >{std::optional<int>{}};
+                return std::optional<std::optional<int>>{std::optional<int>{}};
             }
-            return std::optional<std::optional<int> >{g(*fx)};
+            return std::optional<std::optional<int>>{g(*fx)};
         },
         value);
 
-    auto rhs = [&]() -> std::optional<std::optional<Identity> > {
+    auto rhs = [&]() -> std::optional<std::optional<Identity>> {
         auto traversed_once = smd::traverse(f, value);
         if (!traversed_once.has_value()) {
-            return std::optional<std::optional<Identity> >{std::optional<Identity>{}};
+            return std::optional<std::optional<Identity>>{
+                std::optional<Identity>{}};
         }
 
         auto traversed_twice = smd::traverse(g, *traversed_once);
-        return std::optional<std::optional<Identity> >{traversed_twice};
+        return std::optional<std::optional<Identity>>{traversed_twice};
     }();
 
-    auto unwrap_identity = [](const std::optional<std::optional<Identity> >& nested)
-        -> std::optional<std::optional<int> > {
+    auto unwrap_identity =
+        [](const std::optional<std::optional<Identity>> &nested)
+        -> std::optional<std::optional<int>> {
         if (!nested.has_value()) {
-            return std::optional<std::optional<int> >{};
+            return std::optional<std::optional<int>>{};
         }
         if (!nested->has_value()) {
-            return std::optional<std::optional<int> >{std::optional<int>{}};
+            return std::optional<std::optional<int>>{std::optional<int>{}};
         }
-        return std::optional<std::optional<int> >{std::optional<int>{nested->value().value}};
+        return std::optional<std::optional<int>>{
+            std::optional<int>{nested->value().value}};
     };
 
-    auto unwrap_traversed = [](const std::optional<smd::typeclass::test::Identity<std::optional<int> > >& traversed)
-        -> std::optional<std::optional<int> > {
+    auto unwrap_traversed =
+        [](const std::optional<
+            smd::typeclass::test::Identity<std::optional<int>>> &traversed)
+        -> std::optional<std::optional<int>> {
         if (!traversed.has_value()) {
-            return std::optional<std::optional<int> >{};
+            return std::optional<std::optional<int>>{};
         }
-        return std::optional<std::optional<int> >{traversed->value};
+        return std::optional<std::optional<int>>{traversed->value};
     };
 
     CHECK(unwrap_traversed(lhs) == unwrap_identity(rhs));
 }
 
-TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional")
-{
+TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional") {
     using Identity = smd::typeclass::test::Identity<int>;
 
     auto value = Identity{8};
@@ -223,8 +217,7 @@ TEST_CASE("TraversableTypeclassTest - NaturalityLawWithOptional")
     CHECK(lhs_mapped == rhs);
 }
 
-TEST_CASE("TraversableLaws - NaturalityLaw")
-{
+TEST_CASE("TraversableLaws - NaturalityLaw") {
     // Naturality law: an applicative morphism commutes with traverse.
     // to_beman: std::optional<B> → beman::optional<B> is one such morphism.
     // Law: to_beman(traverse f t) == traverse (f_returning_beman) t
@@ -237,7 +230,8 @@ TEST_CASE("TraversableLaws - NaturalityLaw")
         return x > 0 ? beman::optional::optional<int>{x * 2}
                      : beman::optional::optional<int>{};
     };
-    auto to_beman = [](std::optional<Identity> o) -> beman::optional::optional<Identity> {
+    auto to_beman =
+        [](std::optional<Identity> o) -> beman::optional::optional<Identity> {
         return o.has_value() ? beman::optional::optional<Identity>{*o}
                              : beman::optional::optional<Identity>{};
     };
@@ -264,16 +258,13 @@ TEST_CASE("TraversableLaws - NaturalityLaw")
 // rather than re-looking up applicative_typeclass<std::optional<int>>.
 struct NullOptImpl {
     template <class V>
-    auto pure(this auto&&, V&&) -> std::optional<std::remove_cvref_t<V>>
-    {
+    auto pure(this auto &&, V &&) -> std::optional<std::remove_cvref_t<V>> {
         return {};
     }
 
     template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
-    auto apply(this auto&&,
-               FUNCTION_IN_CONTEXT&& function,
-               ARGUMENT_IN_CONTEXT&& argument)
-    {
+    auto apply(this auto &&, FUNCTION_IN_CONTEXT &&function,
+               ARGUMENT_IN_CONTEXT &&argument) {
         using Result =
             std::invoke_result_t<decltype(*function), decltype(*argument)>;
         return std::optional<std::remove_cvref_t<Result>>{};
@@ -281,17 +272,18 @@ struct NullOptImpl {
 };
 
 struct NullOptMap : smd::Applicative<NullOptImpl> {
-    using NullOptImpl::pure;
     using NullOptImpl::apply;
+    using NullOptImpl::pure;
 };
 
-TEST_CASE("TraversableTypeclassTest - TraverseWithHonorsExplicitApplicative")
-{
+TEST_CASE("TraversableTypeclassTest - TraverseWithHonorsExplicitApplicative") {
     using Identity = smd::typeclass::test::Identity<int>;
-    const auto& traversable = smd::traversable_typeclass<Identity>;
+    const auto &traversable = smd::traversable_typeclass<Identity>;
 
     auto value = Identity{10};
-    auto f = [](int x) -> std::optional<int> { return std::optional<int>{x + 1}; };
+    auto f = [](int x) -> std::optional<int> {
+        return std::optional<int>{x + 1};
+    };
 
     // Default path — must succeed.
     auto default_result = smd::traverse(f, value);
@@ -300,8 +292,10 @@ TEST_CASE("TraversableTypeclassTest - TraverseWithHonorsExplicitApplicative")
 
     // traverse_with with NullOptMap must return empty: if the impl uses the
     // explicit applicative, pure() returns nullopt and the result is empty.
-    // If it re-looks up the default applicative_typeclass, the result is non-empty.
+    // If it re-looks up the default applicative_typeclass, the result is
+    // non-empty.
     NullOptMap null_opt{};
-    auto custom_result = traversable.traverse_with(traversable, null_opt, f, value);
+    auto custom_result =
+        traversable.traverse_with(traversable, null_opt, f, value);
     CHECK_FALSE(custom_result.has_value());
 }
