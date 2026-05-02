@@ -61,15 +61,21 @@ Primary files:
 - [trees/src/smd/tree/finger_tree_interval_index.hpp](trees/src/smd/tree/finger_tree_interval_index.hpp)
 - [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp)
 
-* TODO Remove or justify unused representational scaffolding in core finger tree header
+* DONE Remove or justify unused representational scaffolding in core finger tree header
+CLOSED: [2026-05-02 Fri]
 :PROPERTIES:
 :ID:       core-fingertree-scaffolding-cleanup
 :AREA:     tree/core
 :PRIORITY: B
 :END:
-- [ ] Audit whether One/Two/Three/Digit/Node2/Node3/Node aliases are intentionally retained for upcoming refactor.
-- [ ] If not used, remove dead declarations to reduce reader confusion.
-- [ ] If retained intentionally, add a short comment documenting purpose and roadmap.
+- [x] Audit whether One/Two/Three/Digit/Node2/Node3/Node aliases are intentionally retained for upcoming refactor.
+- [x] If not used, remove dead declarations to reduce reader confusion.
+- [x] If retained intentionally, add a short comment documenting purpose and roadmap.
+
+Resolution: types ARE used (internal implementation of FingerTree digits and spine nodes)
+but were incorrectly at public namespace scope (smd::tree::One, etc.).
+Moved to smd::tree::detail with comments. Private template type aliases inside FingerTree
+shadow the detail:: names so the class body needed zero changes. 215/215 tests pass.
 
 Evidence:
 - [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp#L25)
