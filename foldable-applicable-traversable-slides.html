@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Generated on 2026-05-01 Fri 03:24 -->
+<!-- Generated on 2026-05-02 Sat 14:55 -->
 <meta charset="utf-8"/>
 <title>Algorithms for Trees: Foldable, Applicative, Traversable</title>
 <meta name="author" content="Steve Downey"/>
@@ -6444,6 +6444,7 @@ img.footerlogo
 </div>
 </div>
 </section>
+
 <section>
 <section id="slide-1">
 <h2 id="1"><span class="section-number-2">1.</span> Algorithms for Trees</h2>
@@ -6453,16 +6454,18 @@ img.footerlogo
 <li>Traversable.</li>
 
 </ul>
+
 </section>
 <section id="slide-1-1">
 <h3 id="1-1"><span class="section-number-3">1.1.</span> Abstract</h3>
 <ul>
-<li>Functor and monad patterns are proven; Foldable, Applicative, and Traversable are the next step.</li>
-<li>Trees and structured data lose too much information when flattened to a sequence.</li>
+<li>Functor and monad patterns have proven themselves in practice; Foldable, Applicative, and Traversable are the next step.</li>
+<li>Trees and structured data can lose important information when flattened to a sequence.</li>
 <li>Monoid underpins efficient tree algorithms; the three typeclasses compose on top of it.</li>
-<li>This talk proposes what a standard library <code>fingertree</code> API should look like.</li>
+<li>This talk illustrates one approach to designing a standard library <code>fingertree</code> API.</li>
 
 </ul>
+
 </section>
 <section id="slide-1-2">
 <h3 id="1-2"><span class="section-number-3">1.2.</span> Foldable</h3>
@@ -6472,6 +6475,7 @@ img.footerlogo
 <li>No flattening required.</li>
 
 </ul>
+
 </section>
 <section id="slide-1-3">
 <h3 id="1-3"><span class="section-number-3">1.3.</span> Applicative</h3>
@@ -6481,6 +6485,7 @@ img.footerlogo
 <li>Less sequencing machinery than monad for independent effects.</li>
 
 </ul>
+
 </section>
 <section id="slide-1-4">
 <h3 id="1-4"><span class="section-number-3">1.4.</span> Traversable</h3>
@@ -6490,15 +6495,17 @@ img.footerlogo
 <li>Commutes containers: a range of effects becomes an effect of a range.</li>
 
 </ul>
+
 </section>
 <section id="slide-1-5">
 <h3 id="1-5"><span class="section-number-3">1.5.</span> Not Monadic</h3>
 <ul>
 <li>This talk stops short of Monad deliberately.</li>
-<li>Monad adds sequencing and dependency between effects. Most tree operations do not need it.</li>
-<li>Applicative covers the independent-effect cases where the whole structure is known up front.</li>
+<li>Monad adds sequencing and dependency between effects; most tree operations do not need this overhead.</li>
+<li>Applicative covers the independent-effect cases where the whole structure is known upfront.</li>
 
 </ul>
+
 </section>
 </section>
 <section>
@@ -6523,6 +6530,7 @@ The talk is about recovering algorithms that preserve structure when structure m
 </p>
 
 </aside>
+
 </section>
 <section id="slide-2-0-2">
 <h4 id="2-0-2"><span class="section-number-4">2.0.2.</span> Where Structure Carries Meaning</h4>
@@ -6539,6 +6547,7 @@ The argument is practical: preserving shape enables better APIs for split/search
 </p>
 
 </aside>
+
 </section>
 <section id="slide-2-0-3">
 <h4 id="2-0-3"><span class="section-number-4">2.0.3.</span> Trees That Are Not Sequences</h4>
@@ -6555,6 +6564,7 @@ A range view is still useful, but it should be derived, not the primary model.
 </p>
 
 </aside>
+
 </section>
 </section>
 <section>
@@ -6567,7 +6577,7 @@ A range view is still useful, but it should be derived, not the primary model.
 <h4 id="3-0-1"><span class="section-number-4">3.0.1.</span> Visitor as Manual Recursion Control</h4>
 <ul>
 <li>Visitor centralizes recursion, but at the cost of ceremony and indirection.</li>
-<li>Every new operation requires another visitor type or lambda nest.</li>
+<li>Each new operation typically requires another visitor type or nested lambda structure.</li>
 <li>The control flow is explicit, but often noisy.</li>
 
 </ul>
@@ -6578,12 +6588,13 @@ Visitor is not wrong; it is just too low-level for everyday algebraic operations
 </p>
 
 </aside>
+
 </section>
 <section id="slide-3-0-2">
 <h4 id="3-0-2"><span class="section-number-4">3.0.2.</span> Pattern Matching as the Intended Interface</h4>
 <ul>
 <li>Pattern matching expresses what cases exist directly.</li>
-<li>C++ is moving in this direction, but we still need practical libraries now.</li>
+<li>C++ has active pattern-matching proposals, but no standardized feature yet.</li>
 <li>Typeclass-style APIs can encode the same intent with today's language.</li>
 
 </ul>
@@ -6594,6 +6605,7 @@ Design now so the API maps naturally to future language features.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-3-0-3">
 <h4 id="3-0-3"><span class="section-number-4">3.0.3.</span> Designing Today for Tomorrow's Syntax</h4>
@@ -6610,6 +6622,7 @@ The point is migration-friendly design, not speculative syntax tricks.
 </p>
 
 </aside>
+
 </section>
 </section>
 <section>
@@ -6633,13 +6646,14 @@ I only need the intuition here, not full categorical development.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-4-0-2">
 <h4 id="4-0-2"><span class="section-number-4">4.0.2.</span> Catamorphisms as a Principled Fold</h4>
 <ul>
 <li>Catamorphism: apply the algebra recursively until the structure is collapsed.</li>
 <li>In C++, this corresponds to a disciplined fold over a recursive representation.</li>
-<li>You get reuse without hardcoding each algorithm into the node type.</li>
+<li>This yields reuse without hardcoding each algorithm into the node type.</li>
 
 </ul>
 
@@ -6649,36 +6663,20 @@ Foldable is the operational entry point for this in everyday code.
 </p>
 
 </aside>
+
 <ol class="org-ol">
-<li><a id="4-0-2-1"></a>FixTree fold_map: The Catamorphism<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">F</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">fold_map</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">F</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">f</span>, <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">tree</span>::<span style="font-weight: bold; text-decoration: underline;">FixTree</span>&lt;T&gt;&amp; <span style="font-weight: bold; font-style: italic;">t</span>)
-{
-        <span style="font-weight: bold;">if</span> (t.is_leaf()) {
-            <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::invoke(f, t.value());
-        }
-
-        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lhs</span> = self.fold_map(f, t.left());
-        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rhs</span> = self.fold_map(f, t.right());
-
-        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">Result</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(lhs)&gt;;
-        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Result</span>&gt;.combine(lhs, rhs);
-}
-</pre>
-</div>
-
+<li><a id="4-0-2-1"></a>Fixpoint Expression Tree: eval_algebra and cata<br />
 <aside class="notes">
 <p>
-Recursion control lives in fold_map; business logic goes in f.
-monoid_v&lt;Result&gt; looks up the Monoid instance for whatever type f returns.
-combine merges two sub-results; the tree is never flattened.
+eval_algebra consumes one fully-evaluated layer: constants return their value,
+binary nodes combine the already-folded children.  cata supplies the recursion.
+Separating the algebra from the recursion is the whole point.
 </p>
 
 </aside>
 </li>
 </ol>
+
 </section>
 <section id="slide-4-0-3">
 <h4 id="4-0-3"><span class="section-number-4">4.0.3.</span> Separating Recursion from Business Logic</h4>
@@ -6695,6 +6693,7 @@ When recursion is abstracted, law tests become executable documentation.
 </p>
 
 </aside>
+
 </section>
 </section>
 <section>
@@ -6719,16 +6718,9 @@ This replaces concept maps from C++0x with a simpler, working mechanism.
 </p>
 
 </aside>
+
 <ol class="org-ol">
 <li><a id="5-0-1-1"></a>Specializing the Variable Template<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
-<span style="font-weight: bold;">inline</span> <span style="font-weight: bold;">constexpr</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; text-decoration: underline;">foldable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">tree</span>::<span style="font-weight: bold; text-decoration: underline;">FixTree</span><span style="font-weight: bold; font-style: italic;">&lt;T&gt; &gt;</span> =
-    <span style="font-weight: bold; text-decoration: underline;">FixTreeFoldableMap</span>&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;{};
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 Three lines of opt-in. No registry, no inheritance, no base class modification.
@@ -6738,6 +6730,7 @@ The specialization can live next to the type or in any adapter header.
 </aside>
 </li>
 </ol>
+
 </section>
 <section id="slide-5-0-2">
 <h4 id="5-0-2"><span class="section-number-4">5.0.2.</span> Three Lookup Modes</h4>
@@ -6756,20 +6749,10 @@ It proves that a generic helper's lookup is stable even when callers pass differ
 </p>
 
 </aside>
+
 </section>
 <section id="slide-5-0-3">
 <h4 id="5-0-3"><span class="section-number-4">5.0.3.</span> NTTP Pinning Example</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">STRUCTURE</span>,
-          <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">FOLDABLE</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">foldable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">STRUCTURE</span>&gt; &gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">sum_with_nttp_lookup</span>(<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">STRUCTURE</span>&amp; <span style="font-weight: bold; font-style: italic;">structure</span>)
-{
-    <span style="font-weight: bold;">return</span> FOLDABLE.fold_map([](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x; }, structure);
-}
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 The FOLDABLE parameter defaults to the variable template lookup.
@@ -6777,11 +6760,12 @@ Callers can supply a custom instance to change behavior for a specific call site
 </p>
 
 </aside>
+
 </section>
 <section id="slide-5-0-4">
 <h4 id="5-0-4"><span class="section-number-4">5.0.4.</span> Implementors: One Hook, Many Derived Operations</h4>
 <ul>
-<li>Implement one minimal hook per concept; all derived operations come for free.</li>
+<li>Implement one minimal hook per concept; all derived operations are provided automatically.</li>
 <li>Foldable: implement <code>fold_map</code> → counting, folding, predicates, collection.</li>
 <li>Applicative: implement <code>pure</code> + <code>apply</code> → <code>invoke</code> and five more operations.</li>
 <li>Traversable: implement <code>traverse</code> → <code>for_each</code>, <code>sequence</code>, and override variants.</li>
@@ -6794,12 +6778,13 @@ The implementor surface is small; the user-facing surface is rich.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-5-0-5">
 <h4 id="5-0-5"><span class="section-number-4">5.0.5.</span> CRTP and Deducing This</h4>
 <ul>
 <li>Each concept wrapper is a CRTP base (<code>Foldable&lt;Impl&gt;</code>, <code>Applicative&lt;Impl&gt;</code>, <code>Traversable&lt;Impl&gt;</code>).</li>
-<li><code>this auto&amp;&amp; self</code> preserves value category and constness through all wrapper calls.</li>
+<li><code>this auto&amp;&amp; self</code> (C++23 explicit object parameter) preserves value category and constness through all wrapper calls.</li>
 <li>Derived operations call back into the Impl via <code>self</code>; overrides are detected by <code>requires</code>.</li>
 <li>Dispatch stays fully static — no virtual calls, no type erasure.</li>
 
@@ -6811,6 +6796,7 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 </p>
 
 </aside>
+
 </section>
 </section>
 <section>
@@ -6824,7 +6810,7 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 <ul>
 <li>Minimal hook: <code>fmap(F, container)</code> — apply a pure function inside a context.</li>
 <li>Derived: <code>replace(container, value)</code> — overwrite all elements with a constant.</li>
-<li>Instances provided: <code>std::optional</code>, <code>beman::optional</code>, <code>std::vector</code>.</li>
+<li>Instances: <code>std::optional</code>, <code>beman::optional</code>, <code>std::vector</code>.</li>
 <li>Lookup: <code>smd::functor_typeclass&lt;std::optional&lt;int&gt;&gt;</code>.</li>
 
 </ul>
@@ -6835,29 +6821,17 @@ Functor is the base on which Applicative and Traversable are built.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-6-0-2">
 <h4 id="6-0-2"><span class="section-number-4">6.0.2.</span> Functor: Derived replace</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">U</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">replace</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>, <span style="font-weight: bold; text-decoration: underline;">U</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">replacement</span>)
-{
-        <span style="font-weight: bold;">return</span> self.fmap(
-            [<span style="font-weight: bold; font-style: italic;">replacement</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">U</span>&gt;(replacement)](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp;) {
-                <span style="font-weight: bold;">return</span> replacement;
-            },
-            <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
-}
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 replace is derived from fmap with a constant function — no extra instance work required.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-6-0-3">
 <h4 id="6-0-3"><span class="section-number-4">6.0.3.</span> Functor Identity Law in Tests</h4>
@@ -6866,22 +6840,17 @@ replace is derived from fmap with a constant function — no extra instance work
 
 </ul>
 
-<div class="org-src-container">
-
-<pre class="src src-cpp">{
-        <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">functor</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">functor_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-        CHECK(functor.fmap(id, <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{42}) == <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{42});
-        CHECK(functor.fmap(id, <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{}) == <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{});
-}
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 Tests that encode laws document intent more durably than comments.
 </p>
 
 </aside>
+
+<p>
+<b>Preservation</b>: This C++ encoding of Functor preserves the identity law in <code>functor.t.cpp</code>. Every instance (optional, beman::optional, vector) passes the law test; deviation signals a contract violation.
+</p>
+
 </section>
 </section>
 <section>
@@ -6907,6 +6876,7 @@ Formal treatment of each typeclass follows in the next three sections.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-7-0-2">
 <h4 id="7-0-2"><span class="section-number-4">7.0.2.</span> Crisp Contrast: Flatten vs. Preserve Shape</h4>
@@ -6915,25 +6885,11 @@ Formal treatment of each typeclass follows in the next three sections.
 <li>Traversable can map values and keep the original branching shape.</li>
 
 </ul>
+
 <ol class="org-ol">
-<li><a id="7-0-2-1"></a>Foldable Flattens and Loses Shape Identity<br />
-<div class="org-src-container">
+<li><a id="7-0-2-1"></a>Foldable Flattens and Loses Shape Identity<br /></li>
 
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">left_flat</span> = foldable.to_vector(left_heavy);
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">right_flat</span> = foldable.to_vector(right_heavy);
-</pre>
-</div>
-</li>
 <li><a id="7-0-2-2"></a>Traversable Maps While Preserving Shape<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">mapped</span> = traversable.traverse(
-    [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{x + 10}; },
-    tree);
-</pre>
-</div>
-
-
 <aside class="notes">
 <p>
 Foldable can collapse two different shapes to the same flat view.
@@ -6943,6 +6899,7 @@ Traversable keeps the tree skeleton and only transforms payloads.
 </aside>
 </li>
 </ol>
+
 </section>
 <section id="slide-7-0-3">
 <h4 id="7-0-3"><span class="section-number-4">7.0.3.</span> Same Algorithm, Two Tree Representations</h4>
@@ -6959,28 +6916,18 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 </p>
 
 </aside>
+
 <ol class="org-ol">
 <li><a id="7-0-3-1"></a>Fixpoint Tree<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
-FixTree&lt;int&gt;. fold_map and to_vector dispatch through foldable_typeclass&lt;FixTree&lt;int&gt;&gt;.
+Expr (Fix&lt;ExprF&gt;). length dispatches through foldable_typeclass&lt;Expr&gt;; counts leaf constants.
 </p>
 
 </aside>
 </li>
+
 <li><a id="7-0-3-2"></a>shared_ptr Binary Tree<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 BinaryTree&lt;int&gt;. Different type, different fold_map implementation — same call site.
@@ -6988,13 +6935,8 @@ BinaryTree&lt;int&gt;. Different type, different fold_map implementation — sam
 
 </aside>
 </li>
+
 <li><a id="7-0-3-3"></a>FringeTree (Simplified FingerTree)<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third representation.
@@ -7002,19 +6944,8 @@ FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third repres
 
 </aside>
 </li>
+
 <li><a id="7-0-3-4"></a>FringeTree: Traversable Also Preserves Shape<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">beman</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>::optional;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">relabelled</span> = traversable.traverse(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-            <span style="font-weight: bold;">return</span> x &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{x + 1} : <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
-        },
-        tree);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 The same FringeTree that folded to {1,2,3} under Foldable now maps values and comes back as a FringeTree.
@@ -7024,6 +6955,7 @@ The variant structure (Empty | Leaf | Branch) is intact; only the leaf values ch
 </aside>
 </li>
 </ol>
+
 </section>
 </section>
 <section>
@@ -7048,6 +6980,7 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 </p>
 
 </aside>
+
 </section>
 <section id="slide-8-0-2">
 <h4 id="8-0-2"><span class="section-number-4">8.0.2.</span> Foldable API: One Hook, Derived from fold_map</h4>
@@ -7057,37 +6990,11 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 <li>No traversal order is mandated; the instance chooses and must be consistent.</li>
 
 </ul>
+
 <ol class="org-ol">
-<li><a id="8-0-2-1"></a>fold_map → length<br />
-<div class="org-src-container">
+<li><a id="8-0-2-1"></a>fold_map → length<br /></li>
 
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">length</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">size_t</span>
-{
-  <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">count</span> = self.fold_map(
-    [](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp;) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">typeclass</span>::Count{1}; },
-    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
-  <span style="font-weight: bold;">return</span> count.d_value;
-}
-</pre>
-</div>
-</li>
 <li><a id="8-0-2-2"></a>fold_map → to_vector<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">to_vector</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
-{
-  <span style="font-weight: bold;">return</span> self.fold_map(
-    [](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) {
-        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">ValueType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;;
-        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">ValueType</span>&gt;{x};
-    },
-    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
-}
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 Every derived operation is implemented by specializing what fold_map collects.
@@ -7097,6 +7004,7 @@ fold_left and fold_right use a function-composition monoid internally.
 </aside>
 </li>
 </ol>
+
 </section>
 <section id="slide-8-0-3">
 <h4 id="8-0-3"><span class="section-number-4">8.0.3.</span> Foldable Proof: Tests as Examples</h4>
@@ -7105,17 +7013,6 @@ fold_left and fold_right use a function-composition monoid internally.
 
 </ul>
 
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">IntSequence</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">test</span>::<span style="font-weight: bold; text-decoration: underline;">Sequence</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequence</span> = IntSequence{{1, 2, 3}};
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">int_foldable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">foldable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">IntSequence</span>&gt;;
-
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">as_vector</span> = int_foldable.to_vector(sequence);
-CHECK(as_vector == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2, 3}));
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 The test encodes a semantic claim: to_vector of {1,2,3} is exactly {1,2,3}.
@@ -7123,6 +7020,7 @@ That claim would catch a traversal-order regression.
 </p>
 
 </aside>
+
 </section>
 </section>
 <section>
@@ -7148,58 +7046,30 @@ apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] fo
 </p>
 
 </aside>
+
 </section>
 <section id="slide-9-0-2">
 <h4 id="9-0-2"><span class="section-number-4">9.0.2.</span> Applicative in Use</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sum</span> = applicative.invoke(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a + b + c; },
-        ax,
-        ay,
-        az);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 Three independent optional arguments. If any is absent the whole computation short-circuits.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-9-0-3">
 <h4 id="9-0-3"><span class="section-number-4">9.0.3.</span> Applicative: invoke in Tests</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ax</span>{10};
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ay</span>{5};
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">applicative</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">applicative_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">result</span> = applicative.invoke([](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>) { <span style="font-weight: bold;">return</span> a - b; }, ax, ay);
-REQUIRE(result.has_value());
-CHECK(*result == 5);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-9-0-4">
 <h4 id="9-0-4"><span class="section-number-4">9.0.4.</span> Applicative: Short-Circuit on Absent</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ax</span>{1};
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ay</span>{};
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">invoke_result</span> = applicative.invoke([](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>) { <span style="font-weight: bold;">return</span> a + b; }, ax, ay);
-CHECK_FALSE(invoke_result.has_value());
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 ax is present; ay is absent. invoke short-circuits: f is never called.
@@ -7207,6 +7077,7 @@ This is the core contract of optional-as-applicative.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-9-0-5">
 <h4 id="9-0-5"><span class="section-number-4">9.0.5.</span> Applicative: invoke via Terminating Partial Application</h4>
@@ -7216,17 +7087,6 @@ This is the core contract of optional-as-applicative.
 
 </ul>
 
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">detail</span>::make_terminating_partial(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a * 100 + b * 10 + c; });
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial2</span> = partial(1);
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial3</span> = partial2(2);
-CHECK(partial3(3) == 123);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 make_terminating_partial wraps f; each call either invokes f if all args are present or returns a new partial.
@@ -7235,6 +7095,7 @@ Also derived from pure + apply: map, lift, ap, zip_with, discard_first, discard_
 </p>
 
 </aside>
+
 </section>
 <section id="slide-9-0-6">
 <h4 id="9-0-6"><span class="section-number-4">9.0.6.</span> Applicative Law: Interchange</h4>
@@ -7244,20 +7105,6 @@ Also derived from pure + apply: map, lift, ap, zip_with, discard_first, discard_
 
 </ul>
 
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">ap</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">applicative_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Fn</span>&gt; <span style="font-weight: bold; font-style: italic;">u</span>{[](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x * 3; }};
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lhs</span> = ap.ap(u, ap.pure(y));
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rhs</span> = ap.ap(ap.pure([](<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">Fn</span>&amp; <span style="font-weight: bold; font-style: italic;">fn</span>) { <span style="font-weight: bold;">return</span> fn(y); }), u);
-
-REQUIRE(lhs.has_value());
-CHECK(*lhs == 21);
-CHECK(lhs == rhs);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 The interchange law is the trickiest to build intuition for.
@@ -7265,6 +7112,7 @@ It constrains how pure values interact with contextual functions.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-9-0-7">
 <h4 id="9-0-7"><span class="section-number-4">9.0.7.</span> Applicative Law: Composition</h4>
@@ -7274,22 +7122,6 @@ It constrains how pure values interact with contextual functions.
 
 </ul>
 
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">ap</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">applicative_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;Fn&gt; <span style="font-weight: bold; font-style: italic;">u</span>{[](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x + 10; }};
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;Fn&gt; <span style="font-weight: bold; font-style: italic;">v</span>{[](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x * 2; }};
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">w</span>{3};
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lhs</span> = ap.ap(ap.invoke(compose, u, v), w);
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rhs</span> = ap.ap(u, ap.ap(v, w));
-
-REQUIRE(lhs.has_value());
-CHECK(*lhs == 16);  <span style="font-weight: bold; font-style: italic;">// </span><span style="font-weight: bold; font-style: italic;">(3 * 2) + 10
-</span>CHECK(lhs == rhs);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 The composition law ensures that effectful function composition is associative.
@@ -7297,6 +7129,11 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 </p>
 
 </aside>
+
+<p>
+<b>Preservation</b>: This C++ encoding of Applicative preserves all four laws (identity, homomorphism, interchange, composition) via executable tests in <code>applicative.t.cpp</code>. The semantic claim that effectful function application is associative survives the encoding as a statically-verified contract.
+</p>
+
 </section>
 </section>
 <section>
@@ -7314,50 +7151,20 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 <li>Use this to model validation, partial relabeling, and structured transformations.</li>
 
 </ul>
+
 </section>
 <section id="slide-10-0-2">
 <h4 id="10-0-2"><span class="section-number-4">10.0.2.</span> Traversable in Use: Success</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">values</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">ranges</span>::from_vector(<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2, 3});
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold;">decltype</span>(values)&gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">traversed</span> = traversable.traverse(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-            <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{value + 1};
-        },
-        values);
-
-REQUIRE(traversed.has_value());
-CHECK(collect(*traversed) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{2, 3, 4}));
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 Every element transforms successfully. The optional wrapping is removed and a new range is returned.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-10-0-3">
 <h4 id="10-0-3"><span class="section-number-4">10.0.3.</span> Traversable in Use: Failure Propagates</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">values</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">ranges</span>::from_vector(<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, -2, 3});
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold;">decltype</span>(values)&gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">traversed</span> = traversable.traverse(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-            <span style="font-weight: bold;">return</span> value &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{value + 1}
-                              : <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
-        },
-        values);
-
-CHECK_FALSE(traversed.has_value());
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 One absent result poisons the whole traversal. No partial range is returned.
@@ -7365,21 +7172,10 @@ This is the short-circuit behavior that distinguishes traverse from map.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-10-0-4">
 <h4 id="10-0-4"><span class="section-number-4">10.0.4.</span> Traversable API: sequence</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequence</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
-{
-        <span style="font-weight: bold;">return</span> self.traverse(
-            [](<span style="font-weight: bold;">auto</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;(x); },
-            <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
-}
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 sequence commutes a container of effects into an effect of a container.
@@ -7388,21 +7184,10 @@ Also derived: for_each, which is traverse with its arguments flipped (container 
 </p>
 
 </aside>
+
 </section>
 <section id="slide-10-0-5">
 <h4 id="10-0-5"><span class="section-number-4">10.0.5.</span> Traversable Proof: sequence in Tests</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">IdentityOpt</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">test</span>::<span style="font-weight: bold; text-decoration: underline;">Identity</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">identity</span> = IdentityOpt{<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1}};
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">IdentityOpt</span>&gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequenced</span> = traversable.sequence(identity);
-REQUIRE(sequenced.has_value());
-CHECK(sequenced-&gt;value == 1);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 sequence converts Identity&lt;optional&lt;int&gt;&gt; into optional&lt;Identity&lt;int&gt;&gt;.
@@ -7410,6 +7195,7 @@ The shape is preserved; the effect wraps the whole result.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-10-0-6">
 <h4 id="10-0-6"><span class="section-number-4">10.0.6.</span> Traversable Law: Naturality</h4>
@@ -7418,16 +7204,6 @@ The shape is preserved; the effect wraps the whole result.
 <li>Concretely: converting <code>optional&lt;B&gt;</code> → <code>beman::optional&lt;B&gt;</code> after traversal gives the same result as composing the conversion into <code>f</code> before traversal.</li>
 
 </ul>
-
-<div class="org-src-container">
-
-<pre class="src src-cpp">{
-        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">value</span> = Identity{3};
-        CHECK(to_beman(traversable.traverse(f, value)) ==
-              traversable.traverse(f_returning_beman, value));
-}
-</pre>
-</div>
 
 <aside class="notes">
 <p>
@@ -7438,6 +7214,7 @@ Both sides produce beman::optional&lt;Identity&lt;int&gt;&gt;{Identity{6}}.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-10-0-7">
 <h4 id="10-0-7"><span class="section-number-4">10.0.7.</span> Traversable Commute: Range and ZipList</h4>
@@ -7446,34 +7223,11 @@ Both sides produce beman::optional&lt;Identity&lt;int&gt;&gt;{Identity{6}}.
 <li>The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.</li>
 
 </ul>
+
 <ol class="org-ol">
-<li><a id="10-0-7-1"></a>Range of ZipLists → ZipList of Ranges<br />
-<div class="org-src-container">
+<li><a id="10-0-7-1"></a>Range of ZipLists → ZipList of Ranges<br /></li>
 
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequenced</span> = traversable.sequence(values);
-
-REQUIRE(sequenced.data.size() == 2U);
-CHECK(collect(sequenced.data[0]) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 10, 100}));
-CHECK(collect(sequenced.data[1]) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{2, 20, 200}));
-</pre>
-</div>
-</li>
 <li><a id="10-0-7-2"></a>ZipList of Vectors → Vector of ZipLists (matrix transpose)<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">zip_list</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt; <span style="font-weight: bold; font-style: italic;">zip_of_vectors</span>{
-        {{1, 10, 100}, {2, 20, 200}}};
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">as_rows</span> = to_vector_of_ziplists(zip_of_vectors);
-
-REQUIRE(as_rows.size() == 3U);
-CHECK(as_rows[0].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2}));
-CHECK(as_rows[1].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{10, 20}));
-CHECK(as_rows[2].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{100, 200}));
-</pre>
-</div>
-
-
 <aside class="notes">
 <p>
 This helper (<code>to_vector_of_ziplists</code>) is hand-coded to illustrate the inverse transpose concept.
@@ -7484,6 +7238,7 @@ Key law intuition: preserve shape and evaluation order discipline.
 </aside>
 </li>
 </ol>
+
 </section>
 <section id="slide-10-0-8">
 <h4 id="10-0-8"><span class="section-number-4">10.0.8.</span> Laws That Keep This Honest</h4>
@@ -7503,6 +7258,11 @@ The core teaching value of Applicative is visible in optional, range, and ZipLis
 </p>
 
 </aside>
+
+<p>
+<b>Preservation</b>: This C++ encoding of Traversable preserves identity and naturality laws in <code>traversable.t.cpp</code>. Composition is verified through range-of-ZipLists and ZipList-of-ranges commutation tests (matrix transpose). The semantic claim that traversal commutes shape and effect survives unbroken from theory to executable code.
+</p>
+
 </section>
 </section>
 <section>
@@ -7520,23 +7280,10 @@ The core teaching value of Applicative is visible in optional, range, and ZipLis
 <li>Lookup via <code>monoid_v&lt;T&gt;</code>; extend by specializing <code>Monoid&lt;T&gt;</code>.</li>
 
 </ul>
+
 </section>
 <section id="slide-11-0-2">
 <h4 id="11-0-2"><span class="section-number-4">11.0.2.</span> Monoid: Count Specialization</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;&gt;
-<span style="font-weight: bold;">struct</span> <span style="font-weight: bold; text-decoration: underline;">Monoid</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Count</span>&gt; {
-    <span style="font-weight: bold;">constexpr</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">identity</span>() <span style="font-weight: bold;">const</span> -&gt; <span style="font-weight: bold; text-decoration: underline;">Count</span> { <span style="font-weight: bold;">return</span> Count{0}; }
-
-    <span style="font-weight: bold;">constexpr</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">combine</span>(<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">Count</span>&amp; <span style="font-weight: bold; font-style: italic;">lhs</span>, <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">Count</span>&amp; <span style="font-weight: bold; font-style: italic;">rhs</span>) <span style="font-weight: bold;">const</span> -&gt; <span style="font-weight: bold; text-decoration: underline;">Count</span>
-    {
-        <span style="font-weight: bold;">return</span> Count{lhs.d_value + rhs.d_value};
-    }
-};
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 Count is the canonical monoid for counting elements.
@@ -7544,25 +7291,10 @@ identity is 0; combine is addition — the simplest possible monoid.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-11-0-3">
 <h4 id="11-0-3"><span class="section-number-4">11.0.3.</span> Monoid: Generic Helpers</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">monoid_identity</span>() -&gt; <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>
-{
-    <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&gt;.identity();
-}
-
-<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">monoid_combine</span>(<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&amp; <span style="font-weight: bold; font-style: italic;">lhs</span>, <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&amp; <span style="font-weight: bold; font-style: italic;">rhs</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>
-{
-    <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&gt;.combine(lhs, rhs);
-}
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 monoid_v&lt;T&gt; is the canonical lookup object; monoid_combine and monoid_identity are free-function helpers.
@@ -7570,38 +7302,20 @@ These are the call shapes used by fold_map and all derived Foldable operations.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-11-0-4">
 <h4 id="11-0-4"><span class="section-number-4">11.0.4.</span> Monoid in Tests</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">Count</span> <span style="font-weight: bold; font-style: italic;">one</span>{1};
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">Count</span> <span style="font-weight: bold; font-style: italic;">two</span>{2};
-
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">result</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::monoid_combine(one, two);
-CHECK(result.d_value == 3U);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 monoid_combine dispatches through monoid_v&lt;Count&gt;. The test is mechanical, but it pins the specialization.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-11-0-5">
 <h4 id="11-0-5"><span class="section-number-4">11.0.5.</span> Monoid Identity Law in Tests</h4>
-<div class="org-src-container">
-
-<pre class="src src-cpp">{
-        <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">m</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
-        CHECK(m.combine(m.identity(), 42) == 42);
-        CHECK(m.combine(42, m.identity()) == 42);
-}
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 The identity law is what makes identity() useful for initializing fold accumulators.
@@ -7609,6 +7323,11 @@ If this fails the Monoid is not a monoid.
 </p>
 
 </aside>
+
+<p>
+<b>Preservation</b>: This C++ encoding of Monoid preserves identity and associativity laws in <code>monoid.t.cpp</code>. Every specialization (Count, std::string, std::vector) must satisfy both laws to qualify as a lawful measure. This unlocks the algorithmic guarantee: regrouping combine operations changes nothing.
+</p>
+
 </section>
 <section id="slide-11-0-6">
 <h4 id="11-0-6"><span class="section-number-4">11.0.6.</span> Associativity as Algorithmic Leverage</h4>
@@ -7625,12 +7344,13 @@ If the measure is a monoid, split/search become compositional (Ralf Hinze and Ro
 </p>
 
 </aside>
+
 </section>
 <section id="slide-11-0-7">
 <h4 id="11-0-7"><span class="section-number-4">11.0.7.</span> Annotations as Summaries</h4>
 <ul>
 <li>Each node caches a measure of its subtree.</li>
-<li>Measures are domain-specific: size, min priority, span, or cost.</li>
+<li>Measures are domain-specific: size, minimum priority, span, or cost.</li>
 <li>Updating structure updates summaries locally.</li>
 
 </ul>
@@ -7641,13 +7361,14 @@ The data structure stays the same while behavior changes with the monoid.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-11-0-8">
 <h4 id="11-0-8"><span class="section-number-4">11.0.8.</span> Search and Split Driven by Measures</h4>
 <ul>
-<li>Design: each node carries a cumulative measure; split navigates by predicate on that measure.</li>
-<li>Current status: correct with linear-time bounds — split scans the flattened sequence.</li>
-<li>The API shape is already what O(log n) split would need; optimization does not change call sites.</li>
+<li>Each node carries a cumulative measure; split navigates by predicate on that measure.</li>
+<li>Predicate-based core split navigates tree structure in O(log n).</li>
+<li><code>split_at_index()</code> uses the structural path for count-measure trees; non-count measures fall back to flatten/rebuild.</li>
 
 </ul>
 
@@ -7655,11 +7376,14 @@ The data structure stays the same while behavior changes with the monoid.
 <p>
 The original finger-tree paper promises amortized O(1) at the ends,
 O(log(min(n,m))) concatenation, and O(log n) split/search (Ralf Hinze and Ross Paterson, 2006).
-The current implementation keeps the same API shape but does not yet meet those bounds.
-The point for the talk: the abstraction boundary is in the right place even before the optimization lands.
+The predicate-based core split (<code>split()</code> / <code>split_at()</code>) navigates tree structure in O(log n).
+<code>split_at_index()</code> uses a structural fast path when the measure is a count (UnitMeasure with size_t tag);
+non-count measures fall back to flatten/rebuild to preserve index semantics.
+Wrapper operations (random-access at/insert/erase/update, priority-queue pop) use structural split + concat and are O(log n).
 </p>
 
 </aside>
+
 </section>
 </section>
 <section>
@@ -7671,28 +7395,28 @@ The point for the talk: the abstraction boundary is in the right place even befo
 <section id="slide-12-0-1">
 <h4 id="12-0-1"><span class="section-number-4">12.0.1.</span> Persistent Concatenation and Splitting</h4>
 <ul>
-<li>Current prototype provides efficient, persistence-friendly concatenation.</li>
-<li>Current split/search paths are correct with linear-time upper bounds.</li>
-<li>The API is designed so split/search can be optimized later without changing call sites.</li>
-<li>The API naturally composes with foldable/traversable abstractions.</li>
+<li>Persistent, persistence-friendly concatenation in O(log(min(n,m))).</li>
+<li>Predicate-based split navigates tree structure in O(log n); wrapper operations use split + concat.</li>
+<li>The API composes naturally with foldable/traversable abstractions.</li>
 
 </ul>
 
 <aside class="notes">
 <p>
-This is where abstractions meet implementation reality.
-The paper-level target bounds remain the north star.
-The current prototype contract is explicit linear split/search.
+Concatenation uses Hinze-Paterson app3: O(log(min(n,m))).
+Split navigates the tree structurally in O(log n) and returns left, pivot, right.
+Wrapper operations (random-access, priority queue, rope) use split + concat directly.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-12-0-2">
 <h4 id="12-0-2"><span class="section-number-4">12.0.2.</span> One Structure, Many Interpretations</h4>
 <ul>
 <li>Change the monoid, change the interpretation.</li>
-<li>Same implementation can model sequence, priority queue, or rope.</li>
-<li>Reuse is semantic, not just syntactic.</li>
+<li>The same implementation can model sequence, priority queue, or rope.</li>
+<li>Reuse is semantic, not merely syntactic.</li>
 
 </ul>
 
@@ -7702,62 +7426,31 @@ This is the strongest argument for measured trees in a standard library context.
 </p>
 
 </aside>
+
 <ol class="org-ol">
 <li><a id="12-0-2-1"></a>Sequence: O(log n) Random Access<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">Seq</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">tree</span>::<span style="font-weight: bold; text-decoration: underline;">FingerTreeRandomAccess</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">seq</span> = <span style="font-weight: bold; text-decoration: underline;">Seq</span>::from_sequence({1, 2, 3});
-REQUIRE(seq.at(0).has_value());
-CHECK(*seq.at(0) == 1);
-CHECK_FALSE(seq.at(99).has_value());
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">edited</span> = seq.push_back(4).push_front(0).insert(2, 9).update(3, 7).erase(1);
-CHECK(edited.to_vector() == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{0, 9, 7, 3, 4}));
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 Monoid: size. The measure at each node is the count of elements below it.
-push_front/push_back/insert/update/erase all work by measure-guided split and rejoin.
+push_front/push_back are O(1) amortized.
+at/insert/erase/update use structural split O(log n) + concat O(log(min(n,m))).
 </p>
 
 </aside>
 </li>
+
 <li><a id="12-0-2-2"></a>Priority Queue: Min and Max in One Structure<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">q</span> = <span style="font-weight: bold; text-decoration: underline;">Queue</span>::from_values({5, 2, 8, 2, 7});
-REQUIRE(q.min().has_value());
-REQUIRE(q.max().has_value());
-CHECK(*q.min() == 2);
-CHECK(*q.max() == 8);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
-Two FingerTrees, one keyed by min, one by max. The same element lives in both.
+One FingerTree with a combined PriorityTag measure tracking both min and max simultaneously.
 Monoid: (Min, Max) — a pair that combines by taking component-wise extrema.
+push is O(1) amortized; pop_min/pop_max use measure-guided split O(log n) + concat O(log(min(n,m))).
 </p>
 
 </aside>
 </li>
+
 <li><a id="12-0-2-3"></a>Rope: Character Buffer with Efficient Editing<br />
-<div class="org-src-container">
-
-<pre class="src src-cpp"><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rope</span> = <span style="font-weight: bold; text-decoration: underline;">Rope</span>::from_text(<span style="font-style: italic;">"abCDxy"</span>, 2)
-                    .insert(2, <span style="font-style: italic;">"--"</span>)
-                    .erase(5, 2)
-                    .replace(0, 2, <span style="font-style: italic;">"AB"</span>);
-
-CHECK(rope.to_string() == <span style="font-style: italic;">"AB--Cy"</span>);
-CHECK(rope.size_bytes() == 6U);
-</pre>
-</div>
-
 <aside class="notes">
 <p>
 Monoid: byte-length. The measure at each node is the byte count of its chunk subtree.
@@ -7767,12 +7460,13 @@ insert, erase, and replace all navigate by cumulative byte offset using split.
 </aside>
 </li>
 </ol>
+
 </section>
 <section id="slide-12-0-3">
 <h4 id="12-0-3"><span class="section-number-4">12.0.3.</span> Why This Belongs in Modern C++</h4>
 <ul>
 <li>Adding Traversable to an existing type requires no modification to the type itself — one specialization in a header.</li>
-<li>The Rope, priority queue, and sequence share a Traversable implementation; no per-type code was written.</li>
+<li>The Rope, priority queue, and sequence expose the same Traversable interface, with separate per-type specializations in the current codebase.</li>
 <li>The abstraction is a library choice today; it maps cleanly to pattern matching and richer generic facilities when those arrive.</li>
 
 </ul>
@@ -7784,6 +7478,11 @@ No monkey-patching, no reopening of classes, no central registry.
 </p>
 
 </aside>
+
+<p>
+<b>Preservation</b>: All five finger tree specializations (raw, random-access, priority-queue, rope, interval-index) satisfy the Traversable laws and compose with Foldable, Monoid, and Applicative correctly. The semantic claim that shape preservation and measure-guided search are compositional survives from theory through C++ encoding to real test suites.
+</p>
+
 </section>
 </section>
 <section>
@@ -7807,6 +7506,7 @@ Pattern matching and richer generic facilities should refine this API, not repla
 </p>
 
 </aside>
+
 </section>
 <section id="slide-13-0-2">
 <h4 id="13-0-2"><span class="section-number-4">13.0.2.</span> Avoiding the <code>std::bind</code> vs. Lambda Overlap</h4>
@@ -7823,6 +7523,7 @@ The goal is reducing cognitive branching in generic code.
 </p>
 
 </aside>
+
 </section>
 <section id="slide-13-0-3">
 <h4 id="13-0-3"><span class="section-number-4">13.0.3.</span> Keeping the Good Path Obvious</h4>
@@ -7884,9 +7585,11 @@ The best API docs in this space are tests that encode the laws.
 				</div>
 			`,this.dom.querySelector(`.r-overlay-close`).addEventListener(`click`,e=>{this.close(),e.preventDefault()},!1),this.Reveal.dispatchEvent({type:`showhelp`})}}isOpen(){return!!this.dom}close(){return this.dom?(this.dom.remove(),this.dom=null,this.state={},this.Reveal.dispatchEvent({type:`closeoverlay`}),!0):!1}getState(){return this.state}setState(e){this.stateProps.every(t=>this.state[t]===e[t])||(e.previewIframe?this.previewIframe(e.previewIframe):e.previewImage?this.previewImage(e.previewImage,e.previewFit):e.previewVideo?this.previewVideo(e.previewVideo,e.previewFit):this.close())}onSlidesClicked(e){let t=e.target,n=t.closest(this.iframeTriggerSelector),r=t.closest(this.mediaTriggerSelector);if(n){if(e.metaKey||e.shiftKey||e.altKey)return;let t=n.getAttribute(`data-preview-link`),r=typeof t==`string`&&t.startsWith(`http`)?t:n.getAttribute(`href`);r&&(this.previewIframe(r),e.preventDefault())}else if(r){if(r.hasAttribute(`data-preview-image`)){let t=r.dataset.previewImage||r.getAttribute(`src`);t&&(this.previewImage(t,r.dataset.previewFit),e.preventDefault())}else if(r.hasAttribute(`data-preview-video`)){let t=r.dataset.previewVideo||r.getAttribute(`src`);if(!t){let e=r.querySelector(`source`);e&&(t=e.getAttribute(`src`))}t&&(this.previewVideo(t,r.dataset.previewFit),e.preventDefault())}}}destroy(){this.close()}},I=40,be=class{constructor(e){this.Reveal=e,this.touchStartX=0,this.touchStartY=0,this.touchStartCount=0,this.touchCaptured=!1,this.onPointerDown=this.onPointerDown.bind(this),this.onPointerMove=this.onPointerMove.bind(this),this.onPointerUp=this.onPointerUp.bind(this),this.onTouchStart=this.onTouchStart.bind(this),this.onTouchMove=this.onTouchMove.bind(this),this.onTouchEnd=this.onTouchEnd.bind(this)}bind(){let e=this.Reveal.getRevealElement();`onpointerdown`in window?(e.addEventListener(`pointerdown`,this.onPointerDown,!1),e.addEventListener(`pointermove`,this.onPointerMove,!1),e.addEventListener(`pointerup`,this.onPointerUp,!1)):window.navigator.msPointerEnabled?(e.addEventListener(`MSPointerDown`,this.onPointerDown,!1),e.addEventListener(`MSPointerMove`,this.onPointerMove,!1),e.addEventListener(`MSPointerUp`,this.onPointerUp,!1)):(e.addEventListener(`touchstart`,this.onTouchStart,!1),e.addEventListener(`touchmove`,this.onTouchMove,!1),e.addEventListener(`touchend`,this.onTouchEnd,!1))}unbind(){let e=this.Reveal.getRevealElement();e.removeEventListener(`pointerdown`,this.onPointerDown,!1),e.removeEventListener(`pointermove`,this.onPointerMove,!1),e.removeEventListener(`pointerup`,this.onPointerUp,!1),e.removeEventListener(`MSPointerDown`,this.onPointerDown,!1),e.removeEventListener(`MSPointerMove`,this.onPointerMove,!1),e.removeEventListener(`MSPointerUp`,this.onPointerUp,!1),e.removeEventListener(`touchstart`,this.onTouchStart,!1),e.removeEventListener(`touchmove`,this.onTouchMove,!1),e.removeEventListener(`touchend`,this.onTouchEnd,!1)}isSwipePrevented(e){if(a(e,`video[controls], audio[controls]`))return!0;for(;e&&typeof e.hasAttribute==`function`;){if(e.hasAttribute(`data-prevent-swipe`))return!0;e=e.parentNode}return!1}onTouchStart(e){if(this.touchCaptured=!1,this.isSwipePrevented(e.target))return!0;this.touchStartX=e.touches[0].clientX,this.touchStartY=e.touches[0].clientY,this.touchStartCount=e.touches.length}onTouchMove(e){if(this.isSwipePrevented(e.target))return!0;let t=this.Reveal.getConfig();if(this.touchCaptured)_&&e.preventDefault();else{this.Reveal.onUserInput(e);let n=e.touches[0].clientX,r=e.touches[0].clientY;if(e.touches.length===1&&this.touchStartCount!==2){let i=this.Reveal.availableRoutes({includeFragments:!0}),a=n-this.touchStartX,o=r-this.touchStartY;a>I&&Math.abs(a)>Math.abs(o)?(this.touchCaptured=!0,t.navigationMode===`linear`?t.rtl?this.Reveal.next():this.Reveal.prev():this.Reveal.left()):a<-I&&Math.abs(a)>Math.abs(o)?(this.touchCaptured=!0,t.navigationMode===`linear`?t.rtl?this.Reveal.prev():this.Reveal.next():this.Reveal.right()):o>I&&i.up?(this.touchCaptured=!0,t.navigationMode===`linear`?this.Reveal.prev():this.Reveal.up()):o<-I&&i.down&&(this.touchCaptured=!0,t.navigationMode===`linear`?this.Reveal.next():this.Reveal.down()),t.embedded?(this.touchCaptured||this.Reveal.isVerticalSlide())&&e.preventDefault():e.preventDefault()}}}onTouchEnd(e){this.touchCaptured&&!this.Reveal.slideContent.isAllowedToPlayAudio()&&this.Reveal.startEmbeddedContent(this.Reveal.getCurrentSlide()),this.touchCaptured=!1}onPointerDown(e){(e.pointerType===e.MSPOINTER_TYPE_TOUCH||e.pointerType===`touch`)&&(e.touches=[{clientX:e.clientX,clientY:e.clientY}],this.onTouchStart(e))}onPointerMove(e){(e.pointerType===e.MSPOINTER_TYPE_TOUCH||e.pointerType===`touch`)&&(e.touches=[{clientX:e.clientX,clientY:e.clientY}],this.onTouchMove(e))}onPointerUp(e){(e.pointerType===e.MSPOINTER_TYPE_TOUCH||e.pointerType===`touch`)&&(e.touches=[{clientX:e.clientX,clientY:e.clientY}],this.onTouchEnd(e))}},L=`focus`,R=`blur`,xe=class{constructor(e){this.Reveal=e,this.onRevealPointerDown=this.onRevealPointerDown.bind(this),this.onDocumentPointerDown=this.onDocumentPointerDown.bind(this)}configure(e,t){e.embedded?this.blur():(this.focus(),this.unbind())}bind(){this.Reveal.getConfig().embedded&&this.Reveal.getRevealElement().addEventListener(`pointerdown`,this.onRevealPointerDown,!1)}unbind(){this.Reveal.getRevealElement().removeEventListener(`pointerdown`,this.onRevealPointerDown,!1),document.removeEventListener(`pointerdown`,this.onDocumentPointerDown,!1)}focus(){this.state!==L&&(this.Reveal.getRevealElement().classList.add(`focused`),document.addEventListener(`pointerdown`,this.onDocumentPointerDown,!1)),this.state=L}blur(){this.state!==R&&(this.Reveal.getRevealElement().classList.remove(`focused`),document.removeEventListener(`pointerdown`,this.onDocumentPointerDown,!1)),this.state=R}isFocused(){return this.state===L}destroy(){this.Reveal.getRevealElement().classList.remove(`focused`)}onRevealPointerDown(e){this.focus()}onDocumentPointerDown(e){let t=o(e.target,`.reveal`);(!t||t!==this.Reveal.getRevealElement())&&this.blur()}},Se=class{constructor(e){this.Reveal=e}render(){this.element=document.createElement(`div`),this.element.className=`speaker-notes`,this.element.setAttribute(`data-prevent-swipe`,``),this.element.setAttribute(`tabindex`,`0`),this.Reveal.getRevealElement().appendChild(this.element)}configure(e,t){e.showNotes&&this.element.setAttribute(`data-layout`,typeof e.showNotes==`string`?e.showNotes:`inline`)}update(){this.Reveal.getConfig().showNotes&&this.element&&this.Reveal.getCurrentSlide()&&!this.Reveal.isScrollView()&&!this.Reveal.isPrintView()&&(this.element.innerHTML=this.getSlideNotes()||`<span class="notes-placeholder">No notes on this slide.</span>`)}updateVisibility(){this.Reveal.getConfig().showNotes&&this.hasNotes()&&!this.Reveal.isScrollView()&&!this.Reveal.isPrintView()?this.Reveal.getRevealElement().classList.add(`show-notes`):this.Reveal.getRevealElement().classList.remove(`show-notes`)}hasNotes(){return this.Reveal.getSlidesElement().querySelectorAll(`[data-notes], aside.notes`).length>0}isSpeakerNotesWindow(){return!!window.location.search.match(/receiver/gi)}getSlideNotes(e=this.Reveal.getCurrentSlide()){if(e.hasAttribute(`data-notes`))return e.getAttribute(`data-notes`);let t=e.querySelectorAll(`aside.notes`);return t?Array.from(t).map(e=>e.innerHTML).join(`
 `):null}destroy(){this.element.remove()}},Ce=class{constructor(e,t){this.diameter=100,this.diameter2=this.diameter/2,this.thickness=6,this.playing=!1,this.progress=0,this.progressOffset=1,this.container=e,this.progressCheck=t,this.canvas=document.createElement(`canvas`),this.canvas.className=`playback`,this.canvas.width=this.diameter,this.canvas.height=this.diameter,this.canvas.style.width=this.diameter2+`px`,this.canvas.style.height=this.diameter2+`px`,this.context=this.canvas.getContext(`2d`),this.container.appendChild(this.canvas),this.render()}setPlaying(e){let t=this.playing;this.playing=e,!t&&this.playing?this.animate():this.render()}animate(){let e=this.progress;this.progress=this.progressCheck(),e>.8&&this.progress<.2&&(this.progressOffset=this.progress),this.render(),this.playing&&requestAnimationFrame(this.animate.bind(this))}render(){let e=this.playing?this.progress:0,t=this.diameter2-this.thickness,n=this.diameter2,r=this.diameter2;this.progressOffset+=(1-this.progressOffset)*.1;let i=-Math.PI/2+Math.PI*2*e,a=-Math.PI/2+this.progressOffset*(Math.PI*2);this.context.save(),this.context.clearRect(0,0,this.diameter,this.diameter),this.context.beginPath(),this.context.arc(n,r,t+4,0,Math.PI*2,!1),this.context.fillStyle=`rgba( 0, 0, 0, 0.4 )`,this.context.fill(),this.context.beginPath(),this.context.arc(n,r,t,0,Math.PI*2,!1),this.context.lineWidth=this.thickness,this.context.strokeStyle=`rgba( 255, 255, 255, 0.2 )`,this.context.stroke(),this.playing&&(this.context.beginPath(),this.context.arc(n,r,t,a,i,!1),this.context.lineWidth=this.thickness,this.context.strokeStyle=`#fff`,this.context.stroke()),this.context.translate(n-28/2,r-28/2),this.playing?(this.context.fillStyle=`#fff`,this.context.fillRect(0,0,28/2-4,28),this.context.fillRect(18,0,28/2-4,28)):(this.context.beginPath(),this.context.translate(4,0),this.context.moveTo(0,0),this.context.lineTo(24,28/2),this.context.lineTo(0,28),this.context.fillStyle=`#fff`,this.context.fill()),this.context.restore()}on(e,t){this.canvas.addEventListener(e,t,!1)}off(e,t){this.canvas.removeEventListener(e,t,!1)}destroy(){this.playing=!1,this.canvas.parentNode&&this.container.removeChild(this.canvas)}},we={width:960,height:700,margin:.04,minScale:.2,maxScale:2,controls:!0,controlsTutorial:!0,controlsLayout:`bottom-right`,controlsBackArrows:`faded`,progress:!0,slideNumber:!1,showSlideNumber:`all`,hashOneBasedIndex:!1,hash:!1,respondToHashChanges:!0,jumpToSlide:!0,history:!1,keyboard:!0,keyboardCondition:null,disableLayout:!1,overview:!0,center:!0,touch:!0,loop:!1,rtl:!1,navigationMode:`default`,shuffle:!1,fragments:!0,fragmentInURL:!0,embedded:!1,help:!0,pause:!0,showNotes:!1,showHiddenSlides:!1,autoPlayMedia:null,preloadIframes:null,mouseWheel:!1,previewLinks:!1,viewDistance:3,mobileViewDistance:2,display:`block`,hideInactiveCursor:!0,hideCursorTime:5e3,sortFragmentsOnSync:!0,autoAnimate:!0,autoAnimateMatcher:null,autoAnimateEasing:`ease`,autoAnimateDuration:1,autoAnimateUnmatched:!0,autoAnimateStyles:[`opacity`,`color`,`background-color`,`padding`,`font-size`,`line-height`,`letter-spacing`,`border-width`,`border-color`,`border-radius`,`outline`,`outline-offset`],autoSlide:0,autoSlideStoppable:!0,autoSlideMethod:null,defaultTiming:null,postMessage:!0,postMessageEvents:!1,focusBodyOnPageVisibilityChange:!0,transition:`slide`,transitionSpeed:`default`,backgroundTransition:`fade`,parallaxBackgroundImage:``,parallaxBackgroundSize:``,parallaxBackgroundRepeat:``,parallaxBackgroundPosition:``,parallaxBackgroundHorizontal:null,parallaxBackgroundVertical:null,view:null,scrollLayout:`full`,scrollSnap:`mandatory`,scrollProgress:`auto`,scrollActivationWidth:435,pdfMaxPagesPerSlide:1/0,pdfSeparateFragments:!0,pdfPageHeightOffset:-1,dependencies:[],plugins:[]},Te=`6.0.1`;function z(a,s){arguments.length<2&&(s=arguments[0],a=document.querySelector(`.reveal`));let l={},f={},p=!1,m=!1,h,_,v,y,b={hasNavigatedHorizontally:!1,hasNavigatedVertically:!1},x=[],S=1,T={layout:``,overview:``},D={},ie=`idle`,O=0,k,A=0,se=-1,j=!1,M=new ee(l),N=new ne(l),P=new re(l),_e=new oe(l),I=new ae(l),L=new ce(l),R=new le(l),z=new ue(l),B=new de(l),V=new fe(l),H=new pe(l),U=new me(l),W=new he(l),Ee=new ge(l),G=new ve(l),K=new ye(l),q=new xe(l),De=new be(l),J=new Se(l);function Oe(e){if(!a)throw`Unable to find presentation root (<div class="reveal">).`;if(p)throw`Reveal.js has already been initialized.`;if(p=!0,D.wrapper=a,D.slides=a.querySelector(`.slides`),!D.slides)throw`Unable to find slides container (<div class="slides">).`;return f=F(F(F(F(F({},we),f),s),e),u()),/print-pdf/gi.test(window.location.search)&&(f.view=`print`),ke(),window.addEventListener(`load`,X,!1),G.load(f.plugins,f.dependencies).then(Ae),new Promise(e=>l.on(`ready`,e))}function ke(){f.embedded===!0?D.viewport=o(a,`.reveal-viewport`)||a:(D.viewport=document.body,document.documentElement.classList.add(`reveal-full-page`)),D.viewport.classList.add(`reveal-viewport`)}function Ae(){p!==!1&&(m=!0,Me(),Ne(),Be(),Re(),ze(),_t(),Ve(),I.update(!0),je(),H.readURL(),setTimeout(()=>{D.slides.classList.remove(`no-transition`),D.wrapper.classList.add(`ready`),Y({type:`ready`,data:{indexh:h,indexv:_,currentSlide:y}})},1))}function je(){let e=f.view===`print`,t=f.view===`scroll`||f.view===`reader`;(e||t)&&(e?Ue():De.unbind(),D.viewport.classList.add(`loading-scroll-mode`),e?document.readyState===`complete`?R.activate():window.addEventListener(`load`,()=>R.activate()):L.activate())}function Me(){f.showHiddenSlides||t(D.wrapper,`section[data-visibility="hidden"]`).forEach(e=>{let t=e.parentNode;t.childElementCount===1&&/section/i.test(t.nodeName)?t.remove():e.remove()})}function Ne(){D.slides.classList.add(`no-transition`),g?D.wrapper.classList.add(`no-hover`):D.wrapper.classList.remove(`no-hover`),I.render(),N.render(),P.render(),U.render(),W.render(),J.render(),D.pauseOverlay=c(D.wrapper,`div`,`pause-overlay`,f.controls?`<button class="resume-button">Resume presentation</button>`:null),D.statusElement=Pe(),D.wrapper.setAttribute(`role`,`application`)}function Pe(){let e=D.wrapper.querySelector(`.aria-status`);return e||(e=document.createElement(`div`),e.style.position=`absolute`,e.style.height=`1px`,e.style.width=`1px`,e.style.overflow=`hidden`,e.style.clip=`rect( 1px, 1px, 1px, 1px )`,e.classList.add(`aria-status`),e.setAttribute(`aria-live`,`polite`),e.setAttribute(`aria-atomic`,`true`),D.wrapper.appendChild(e)),e}function Fe(e){D.statusElement.textContent=e}function Ie(e){let t=``;if(e.nodeType===3)t+=e.textContent.trim();else if(e.nodeType===1){let n=e.getAttribute(`aria-hidden`),r=window.getComputedStyle(e).display===`none`;if(n!==`true`&&!r){if(e.tagName===`IMG`||e.tagName===`VIDEO`){let n=e.getAttribute(`alt`);n&&(t+=Le(n))}Array.from(e.childNodes).forEach(e=>{t+=Ie(e)}),[`P`,`DIV`,`UL`,`OL`,`LI`,`H1`,`H2`,`H3`,`H4`,`H5`,`H6`,`BLOCKQUOTE`].includes(e.tagName)&&t.trim()!==``&&(t=Le(t))}}return t=t.trim(),t===``?``:t+` `}function Le(e){let t=e.trim();return t===``?e:/[.!?]$/.test(t)?t:t+`.`}function Re(){setInterval(()=>{(!L.isActive()&&D.wrapper.scrollTop!==0||D.wrapper.scrollLeft!==0)&&(D.wrapper.scrollTop=0,D.wrapper.scrollLeft=0)},1e3)}function ze(){document.addEventListener(`fullscreenchange`,$t),document.addEventListener(`webkitfullscreenchange`,$t)}function Be(){f.postMessage&&window.addEventListener(`message`,Jt,!1)}function Ve(t){let r=F({},f);if(typeof t==`object`&&e(f,t),l.isReady()===!1)return;let i=D.wrapper.querySelectorAll(C).length;D.wrapper.classList.remove(r.transition),D.wrapper.classList.add(f.transition),D.wrapper.setAttribute(`data-transition-speed`,f.transitionSpeed),D.wrapper.setAttribute(`data-background-transition`,f.backgroundTransition),D.viewport.style.setProperty(`--slide-width`,typeof f.width==`string`?f.width:f.width+`px`),D.viewport.style.setProperty(`--slide-height`,typeof f.height==`string`?f.height:f.height+`px`),f.shuffle&&vt(),n(D.wrapper,`embedded`,f.embedded),n(D.wrapper,`rtl`,f.rtl),n(D.wrapper,`center`,f.center),f.pause===!1&&st(),_e.reset(),k&&(k.destroy(),k=null),i>1&&f.autoSlide&&f.autoSlideStoppable&&(k=new Ce(D.wrapper,()=>Math.min(Math.max((Date.now()-se)/O,0),1)),k.on(`click`,en),j=!1),f.navigationMode===`default`?D.wrapper.removeAttribute(`data-navigation-mode`):D.wrapper.setAttribute(`data-navigation-mode`,f.navigationMode),J.configure(f,r),q.configure(f,r),Ee.configure(f,r),U.configure(f,r),W.configure(f,r),V.configure(f,r),z.configure(f,r),N.configure(f,r),ht()}function He(){window.addEventListener(`resize`,Zt,!1),f.touch&&De.bind(),f.keyboard&&V.bind(),f.progress&&W.bind(),f.respondToHashChanges&&H.bind(),U.bind(),q.bind(),D.slides.addEventListener(`click`,Xt,!1),D.slides.addEventListener(`transitionend`,Yt,!1),D.pauseOverlay.addEventListener(`click`,st,!1),f.focusBodyOnPageVisibilityChange&&document.addEventListener(`visibilitychange`,Qt,!1)}function Ue(){De.unbind(),q.unbind(),V.unbind(),U.unbind(),W.unbind(),H.unbind(),window.removeEventListener(`resize`,Zt,!1),D.slides.removeEventListener(`click`,Xt,!1),D.slides.removeEventListener(`transitionend`,Yt,!1),D.pauseOverlay.removeEventListener(`click`,st,!1)}function We(){p=!1,m!==!1&&(Ue(),Rt(),J.destroy(),q.destroy(),K.destroy(),G.destroy(),Ee.destroy(),U.destroy(),W.destroy(),I.destroy(),N.destroy(),P.destroy(),document.removeEventListener(`fullscreenchange`,$t),document.removeEventListener(`webkitfullscreenchange`,$t),document.removeEventListener(`visibilitychange`,Qt,!1),window.removeEventListener(`message`,Jt,!1),window.removeEventListener(`load`,X,!1),D.pauseOverlay&&D.pauseOverlay.remove(),D.statusElement&&D.statusElement.remove(),document.documentElement.classList.remove(`reveal-full-page`),D.wrapper.classList.remove(`ready`,`center`,`has-horizontal-slides`,`has-vertical-slides`),D.wrapper.removeAttribute(`data-transition-speed`),D.wrapper.removeAttribute(`data-background-transition`),D.viewport.classList.remove(`reveal-viewport`),D.viewport.style.removeProperty(`--slide-width`),D.viewport.style.removeProperty(`--slide-height`),D.slides.style.removeProperty(`width`),D.slides.style.removeProperty(`height`),D.slides.style.removeProperty(`zoom`),D.slides.style.removeProperty(`left`),D.slides.style.removeProperty(`top`),D.slides.style.removeProperty(`bottom`),D.slides.style.removeProperty(`right`),D.slides.style.removeProperty(`transform`),Array.from(D.wrapper.querySelectorAll(C)).forEach(e=>{e.style.removeProperty(`display`),e.style.removeProperty(`top`),e.removeAttribute(`hidden`),e.removeAttribute(`aria-hidden`)}))}function Ge(e,t,n){a.addEventListener(e,t,n)}function Ke(e,t,n){a.removeEventListener(e,t,n)}function qe(e){typeof e.layout==`string`&&(T.layout=e.layout),typeof e.overview==`string`&&(T.overview=e.overview),T.layout?i(D.slides,T.layout+` `+T.overview):i(D.slides,T.overview)}function Y({target:t=D.wrapper,type:n,data:r,bubbles:i=!0}){let a=document.createEvent(`HTMLEvents`,1,2);return a.initEvent(n,i,!0),e(a,r),t.dispatchEvent(a),t===D.wrapper&&Ye(n),a}function Je(e){Y({type:`slidechanged`,data:{indexh:h,indexv:_,previousSlide:v,currentSlide:y,origin:e}})}function Ye(t,n){if(f.postMessageEvents&&window.parent!==window.self){let r={namespace:`reveal`,eventName:t,state:Ft()};e(r,n),window.parent.postMessage(JSON.stringify(r),`*`)}}function X(){if(D.wrapper&&!R.isActive()){let e=D.viewport.offsetWidth,t=D.viewport.offsetHeight;if(!f.disableLayout){g&&!f.embedded&&document.documentElement.style.setProperty(`--vh`,window.innerHeight*.01+`px`);let n=L.isActive()?Qe(e,t):Qe(),r=S;Xe(f.width,f.height),D.slides.style.width=n.width+`px`,D.slides.style.height=n.height+`px`,S=Math.min(n.presentationWidth/n.width,n.presentationHeight/n.height),S=Math.max(S,f.minScale),S=Math.min(S,f.maxScale),S===1||L.isActive()?(D.slides.style.zoom=``,D.slides.style.left=``,D.slides.style.top=``,D.slides.style.bottom=``,D.slides.style.right=``,qe({layout:``})):(D.slides.style.zoom=``,D.slides.style.left=`50%`,D.slides.style.top=`50%`,D.slides.style.bottom=`auto`,D.slides.style.right=`auto`,qe({layout:`translate(-50%, -50%) scale(`+S+`)`}));let i=Array.from(D.wrapper.querySelectorAll(C));for(let e=0,t=i.length;e<t;e++){let t=i[e];t.style.display!==`none`&&(f.center||t.classList.contains(`center`)?t.classList.contains(`stack`)?t.style.top=0:t.style.top=Math.max((n.height-t.scrollHeight)/2,0)+`px`:t.style.top=``)}r!==S&&Y({type:`resize`,data:{oldScale:r,scale:S,size:n}})}Ze(),D.viewport.style.setProperty(`--slide-scale`,S),D.viewport.style.setProperty(`--viewport-width`,e+`px`),D.viewport.style.setProperty(`--viewport-height`,t+`px`),L.layout(),W.update(),I.updateParallax(),B.isActive()&&B.update()}}function Xe(e,n){t(D.slides,`section > .stretch, section > .r-stretch`).forEach(t=>{let r=d(t,n);if(/(img|video)/gi.test(t.nodeName)){let n=t.naturalWidth||t.videoWidth,i=t.naturalHeight||t.videoHeight,a=Math.min(e/n,r/i);t.style.width=n*a+`px`,t.style.height=i*a+`px`}else t.style.width=e+`px`,t.style.height=r+`px`})}function Ze(){if(D.wrapper&&!f.disableLayout&&!R.isActive()&&typeof f.scrollActivationWidth==`number`&&f.view!==`scroll`){let e=Qe();e.presentationWidth>0&&e.presentationWidth<=f.scrollActivationWidth?L.isActive()||(I.create(),L.activate()):L.isActive()&&L.deactivate()}}function Qe(e,t){let n=f.width,r=f.height;f.disableLayout&&(n=D.slides.offsetWidth,r=D.slides.offsetHeight);let i={width:n,height:r,presentationWidth:e||D.wrapper.offsetWidth,presentationHeight:t||D.wrapper.offsetHeight};return i.presentationWidth-=i.presentationWidth*f.margin,i.presentationHeight-=i.presentationHeight*f.margin,typeof i.width==`string`&&/%$/.test(i.width)&&(i.width=parseInt(i.width,10)/100*i.presentationWidth),typeof i.height==`string`&&/%$/.test(i.height)&&(i.height=parseInt(i.height,10)/100*i.presentationHeight),i}function $e(e,t){typeof e==`object`&&typeof e.setAttribute==`function`&&e.setAttribute(`data-previous-indexv`,t||0)}function et(e){if(typeof e==`object`&&typeof e.setAttribute==`function`&&e.classList.contains(`stack`)){let t=e.hasAttribute(`data-start-indexv`)?`data-start-indexv`:`data-previous-indexv`;return parseInt(e.getAttribute(t)||0,10)}return 0}function tt(e=y){return e&&e.parentNode&&!!e.parentNode.nodeName.match(/section/i)}function nt(e=y){return e.classList.contains(`.stack`)||e.querySelector(`section`)!==null}function rt(){return y&&tt(y)?!y.nextElementSibling:!1}function it(){return h===0&&_===0}function at(){return y?!(y.nextElementSibling||tt(y)&&y.parentNode.nextElementSibling):!1}function ot(){if(f.pause){let e=D.wrapper.classList.contains(`paused`);Rt(),D.wrapper.classList.add(`paused`),e===!1&&Y({type:`paused`})}}function st(){let e=D.wrapper.classList.contains(`paused`);D.wrapper.classList.remove(`paused`),Lt(),e&&Y({type:`resumed`})}function ct(e){typeof e==`boolean`?e?ot():st():lt()?st():ot()}function lt(){return D.wrapper.classList.contains(`paused`)}function ut(e){typeof e==`boolean`?e?P.show():P.hide():P.isVisible()?P.hide():P.show()}function dt(e){typeof e==`boolean`?e?Bt():zt():j?Bt():zt()}function ft(){return!!(O&&!j)}function Z(e,t,n,r){if(Y({type:`beforeslidechange`,data:{indexh:e===void 0?h:e,indexv:t===void 0?_:t,origin:r}}).defaultPrevented)return;v=y;let i=D.wrapper.querySelectorAll(w);if(L.isActive()){let n=L.getSlideByIndices(e,t);n&&L.scrollToSlide(n);return}if(i.length===0)return;t===void 0&&!B.isActive()&&(t=et(i[e])),v&&v.parentNode&&v.parentNode.classList.contains(`stack`)&&$e(v.parentNode,_);let o=x.concat();x.length=0;let s=h||0,c=_||0;h=yt(w,e===void 0?h:e),_=yt(te,t===void 0?_:t);let l=h!==s||_!==c;l||(v=null);let u=i[h],d=u.querySelectorAll(`section`);a.classList.toggle(`is-vertical-slide`,d.length>1),y=d[_]||u;let p=!1;l&&v&&y&&!B.isActive()&&(ie=`running`,p=pt(v,y,s,c),p&&D.slides.classList.add(`disable-slide-transitions`)),St(),X(),B.isActive()&&B.update(),n!==void 0&&z.goto(n),v&&v!==y&&(v.classList.remove(`present`),v.setAttribute(`aria-hidden`,`true`),it()&&setTimeout(()=>{Ot().forEach(e=>{$e(e,0)})},0));stateLoop:for(let e=0,t=x.length;e<t;e++){for(let t=0;t<o.length;t++)if(o[t]===x[e]){o.splice(t,1);continue stateLoop}D.viewport.classList.add(x[e]),Y({type:x[e]})}for(;o.length;)D.viewport.classList.remove(o.pop());l&&(M.afterSlideChanged(),Je(r)),(l||!v)&&(M.stopEmbeddedContent(v),M.startEmbeddedContent(y)),requestAnimationFrame(()=>{Fe(Ie(y))}),W.update(),U.update(),J.update(),I.update(),I.updateParallax(),N.update(),z.update(),H.writeURL(),Lt(),p&&(setTimeout(()=>{D.slides.classList.remove(`disable-slide-transitions`)},0),f.autoAnimate&&_e.run(v,y))}function pt(e,t,n,r){return e.hasAttribute(`data-auto-animate`)&&t.hasAttribute(`data-auto-animate`)&&e.getAttribute(`data-auto-animate-id`)===t.getAttribute(`data-auto-animate-id`)&&!(h>n||_>r?t:e).hasAttribute(`data-auto-animate-restart`)}function mt(e,t,n){let r=h||0;h=t,_=n;let i=y!==e;v=y,y=e,y&&v&&f.autoAnimate&&pt(v,y,r,_)&&_e.run(v,y),i&&(M.afterSlideChanged(),v&&(M.stopEmbeddedContent(v),M.stopEmbeddedContent(v.slideBackgroundElement)),M.startEmbeddedContent(y),M.startEmbeddedContent(y.slideBackgroundElement)),requestAnimationFrame(()=>{Fe(Ie(y))}),Je()}function ht(){Ue(),He(),X(),O=f.autoSlide,Lt(),I.create(),H.writeURL(),f.sortFragmentsOnSync===!0&&z.sortAll(),h!==void 0&&(h=yt(w,h),_=yt(te,_)),U.update(),W.update(),St(),J.update(),J.updateVisibility(),K.update(),I.update(!0),N.update(),M.formatEmbeddedContent(),f.autoPlayMedia===!1?M.stopEmbeddedContent(y,{unloadIframes:!1}):M.startEmbeddedContent(y),B.isActive()&&B.layout(),Y({type:`sync`})}function gt(e=y){I.sync(e),z.sync(e),M.load(e),I.update(),J.update(),Y({type:`slidesync`,data:{slide:e}})}function _t(){$().forEach(e=>{t(e,`section`).forEach((e,t)=>{t>0&&(e.classList.remove(`present`),e.classList.remove(`past`),e.classList.add(`future`),e.setAttribute(`aria-hidden`,`true`))})})}function vt(e=$()){e.forEach((t,n)=>{let r=e[Math.floor(Math.random()*e.length)];r.parentNode===t.parentNode&&t.parentNode.insertBefore(t,r);let i=t.querySelectorAll(`section`);i.length&&vt(i)})}function yt(e,n){let r=t(D.wrapper,e),i=r.length,a=L.isActive()||R.isActive(),o=!1,s=!1;if(i){f.loop&&(n>=i&&(o=!0),n%=i,n<0&&(n=i+n,s=!0)),n=Math.max(Math.min(n,i-1),0);for(let e=0;e<i;e++){let t=r[e],i=f.rtl&&!tt(t);if(t.classList.remove(`past`),t.classList.remove(`present`),t.classList.remove(`future`),t.setAttribute(`hidden`,``),t.setAttribute(`aria-hidden`,`true`),t.querySelector(`section`)&&t.classList.add(`stack`),a){t.classList.add(`present`);continue}e<n?(t.classList.add(i?`future`:`past`),f.fragments&&bt(t)):e>n?(t.classList.add(i?`past`:`future`),f.fragments&&xt(t)):e===n&&f.fragments&&(o?xt(t):s&&bt(t))}let e=r[n],t=e.classList.contains(`present`);e.classList.add(`present`),e.removeAttribute(`hidden`),e.removeAttribute(`aria-hidden`),t||Y({target:e,type:`visible`,bubbles:!1});let c=e.getAttribute(`data-state`);c&&(x=x.concat(c.split(` `)))}else n=0;return n}function bt(e){t(e,`.fragment`).forEach(e=>{e.classList.add(`visible`),e.classList.remove(`current-fragment`)})}function xt(e){t(e,`.fragment.visible`).forEach(e=>{e.classList.remove(`visible`,`current-fragment`)})}function St(){let e=$(),n=e.length,r,i;if(n&&h!==void 0){let a=B.isActive(),o=a?10:f.viewDistance;g&&(o=a?6:f.mobileViewDistance),R.isActive()&&(o=Number.MAX_VALUE);for(let s=0;s<n;s++){let c=e[s],l=t(c,`section`),u=l.length;if(r=Math.abs((h||0)-s)||0,f.loop&&(r=Math.abs(((h||0)-s)%(n-o))||0),r<o?M.load(c):M.unload(c),u){let e=a?0:et(c);for(let t=0;t<u;t++){let n=l[t];i=Math.abs(s===(h||0)?(_||0)-t:t-e),r+i<o?M.load(n):M.unload(n)}}}At()?D.wrapper.classList.add(`has-vertical-slides`):D.wrapper.classList.remove(`has-vertical-slides`),kt()?D.wrapper.classList.add(`has-horizontal-slides`):D.wrapper.classList.remove(`has-horizontal-slides`)}}function Q({includeFragments:e=!1}={}){let t=D.wrapper.querySelectorAll(w),n=D.wrapper.querySelectorAll(te),r={left:h>0,right:h<t.length-1,up:_>0,down:_<n.length-1};if(f.loop&&(t.length>1&&(r.left=!0,r.right=!0),n.length>1&&(r.up=!0,r.down=!0)),t.length>1&&f.navigationMode===`linear`&&(r.right=r.right||r.down,r.left=r.left||r.up),e===!0){let e=z.availableRoutes();r.left=r.left||e.prev,r.up=r.up||e.prev,r.down=r.down||e.next,r.right=r.right||e.next}if(f.rtl){let e=r.left;r.left=r.right,r.right=e}return r}function Ct(e=y){let t=$(),n=0;mainLoop:for(let r=0;r<t.length;r++){let i=t[r],a=i.querySelectorAll(`section`);for(let t=0;t<a.length;t++){if(a[t]===e)break mainLoop;a[t].dataset.visibility!==`uncounted`&&n++}if(i===e)break;i.classList.contains(`stack`)===!1&&i.dataset.visibility!==`uncounted`&&n++}return n}function wt(){let e=Mt(),t=Ct();if(y){let e=y.querySelectorAll(`.fragment`);if(e.length>0){let n=y.querySelectorAll(`.fragment.visible`);t+=n.length/e.length*.9}}return Math.min(t/(e-1),1)}function Tt(e){let n=h,r=_,i;if(e)if(L.isActive())n=parseInt(e.getAttribute(`data-index-h`),10),e.getAttribute(`data-index-v`)&&(r=parseInt(e.getAttribute(`data-index-v`),10));else{let i=tt(e),a=i?e.parentNode:e,o=$();n=Math.max(o.indexOf(a),0),r=void 0,i&&(r=Math.max(t(e.parentNode,`section`).indexOf(e),0))}if(!e&&y&&y.querySelectorAll(`.fragment`).length>0){let e=y.querySelector(`.current-fragment`);i=e&&e.hasAttribute(`data-fragment-index`)?parseInt(e.getAttribute(`data-fragment-index`),10):y.querySelectorAll(`.fragment.visible`).length-1}return{h:n,v:r,f:i}}function Et(){return t(D.wrapper,C+`:not(.stack):not([data-visibility="uncounted"])`)}function $(){return t(D.wrapper,w)}function Dt(){return t(D.wrapper,`.slides>section>section`)}function Ot(){return t(D.wrapper,w+`.stack`)}function kt(){return $().length>1}function At(){return Dt().length>1}function jt(){return Et().map(e=>{let t={};for(let n=0;n<e.attributes.length;n++){let r=e.attributes[n];t[r.name]=r.value}return t})}function Mt(){return Et().length}function Nt(e,t){let n=$()[e],r=n&&n.querySelectorAll(`section`);return r&&r.length&&typeof t==`number`?r?r[t]:void 0:n}function Pt(e,t){let n=typeof e==`number`?Nt(e,t):e;if(n)return n.slideBackgroundElement}function Ft(){let e=Tt();return F({indexh:e.h,indexv:e.v,indexf:e.f,paused:lt(),overview:B.isActive()},K.getState())}function It(e){if(typeof e==`object`){Z(r(e.indexh),r(e.indexv),r(e.indexf));let t=r(e.paused),n=r(e.overview);typeof t==`boolean`&&t!==lt()&&ct(t),typeof n==`boolean`&&n!==B.isActive()&&B.toggle(n),K.setState(e)}}function Lt(){if(Rt(),y&&f.autoSlide!==!1){let e=y.querySelector(`.current-fragment[data-autoslide]`),n=e?e.getAttribute(`data-autoslide`):null,r=y.parentNode?y.parentNode.getAttribute(`data-autoslide`):null,i=y.getAttribute(`data-autoslide`);n?O=parseInt(n,10):i?O=parseInt(i,10):r?O=parseInt(r,10):(O=f.autoSlide,y.querySelectorAll(`.fragment`).length===0&&t(y,`video, audio`).forEach(e=>{e.hasAttribute(`data-autoplay`)&&O&&e.duration*1e3/e.playbackRate>O&&(O=e.duration*1e3/e.playbackRate+1e3)})),O&&!j&&!lt()&&!B.isActive()&&(!at()||z.availableRoutes().next||f.loop===!0)&&(A=setTimeout(()=>{typeof f.autoSlideMethod==`function`?f.autoSlideMethod():Kt(),Lt()},O),se=Date.now()),k&&k.setPlaying(A!==-1)}}function Rt(){clearTimeout(A),A=-1}function zt(){O&&!j&&(j=!0,Y({type:`autoslidepaused`}),clearTimeout(A),k&&k.setPlaying(!1))}function Bt(){O&&j&&(j=!1,Y({type:`autoslideresumed`}),Lt())}function Vt({skipFragments:e=!1}={}){if(b.hasNavigatedHorizontally=!0,L.isActive())return L.prev();f.rtl?(B.isActive()||e||z.next()===!1)&&Q().left&&Z(h+1,f.navigationMode===`grid`?_:void 0):(B.isActive()||e||z.prev()===!1)&&Q().left&&Z(h-1,f.navigationMode===`grid`?_:void 0)}function Ht({skipFragments:e=!1}={}){if(b.hasNavigatedHorizontally=!0,L.isActive())return L.next();f.rtl?(B.isActive()||e||z.prev()===!1)&&Q().right&&Z(h-1,f.navigationMode===`grid`?_:void 0):(B.isActive()||e||z.next()===!1)&&Q().right&&Z(h+1,f.navigationMode===`grid`?_:void 0)}function Ut({skipFragments:e=!1}={}){if(L.isActive())return L.prev();(B.isActive()||e||z.prev()===!1)&&Q().up&&Z(h,_-1)}function Wt({skipFragments:e=!1}={}){if(b.hasNavigatedVertically=!0,L.isActive())return L.next();(B.isActive()||e||z.next()===!1)&&Q().down&&Z(h,_+1)}function Gt({skipFragments:e=!1}={}){if(L.isActive())return L.prev();if(e||z.prev()===!1)if(Q().up)Ut({skipFragments:e});else{let n;if(n=f.rtl?t(D.wrapper,w+`.future`).pop():t(D.wrapper,w+`.past`).pop(),n&&n.classList.contains(`stack`)){let e=n.querySelectorAll(`section`).length-1||void 0;Z(h-1,e)}else f.rtl?Ht({skipFragments:e}):Vt({skipFragments:e})}}function Kt({skipFragments:e=!1}={}){if(b.hasNavigatedHorizontally=!0,b.hasNavigatedVertically=!0,L.isActive())return L.next();if(e||z.next()===!1){let t=Q();t.down&&t.right&&f.loop&&rt()&&(t.down=!1),t.down?Wt({skipFragments:e}):f.rtl?Vt({skipFragments:e}):Ht({skipFragments:e})}}function qt(e){f.autoSlideStoppable&&zt()}function Jt(e){let t=e.data;if(typeof t==`string`&&t.charAt(0)===`{`&&t.charAt(t.length-1)===`}`&&(t=JSON.parse(t),t.method&&typeof l[t.method]==`function`))if(E.test(t.method)===!1){let e=l[t.method].apply(l,t.args);Ye(`callback`,{method:t.method,result:e})}else console.warn(`reveal.js: "`+t.method+`" is is blacklisted from the postMessage API`)}function Yt(e){ie===`running`&&/section/gi.test(e.target.nodeName)&&(ie=`idle`,Y({type:`slidetransitionend`,data:{indexh:h,indexv:_,previousSlide:v,currentSlide:y}}))}function Xt(e){let t=o(e.target,`a[href^="#"]`);if(t){let n=t.getAttribute(`href`),r=H.getIndicesFromHash(n);r&&(l.slide(r.h,r.v,r.f),e.preventDefault())}}function Zt(e){X()}function Qt(e){document.hidden===!1&&document.activeElement!==document.body&&(typeof document.activeElement.blur==`function`&&document.activeElement.blur(),document.body.focus())}function $t(e){(document.fullscreenElement||document.webkitFullscreenElement)===D.wrapper&&(e.stopImmediatePropagation(),setTimeout(()=>{l.layout(),l.focus.focus()},1))}function en(e){at()&&f.loop===!1?(Z(0,0),Bt()):j?Bt():zt()}let tn={VERSION:Te,initialize:Oe,configure:Ve,destroy:We,sync:ht,syncSlide:gt,syncFragments:z.sync.bind(z),slide:Z,left:Vt,right:Ht,up:Ut,down:Wt,prev:Gt,next:Kt,navigateLeft:Vt,navigateRight:Ht,navigateUp:Ut,navigateDown:Wt,navigatePrev:Gt,navigateNext:Kt,navigateFragment:z.goto.bind(z),prevFragment:z.prev.bind(z),nextFragment:z.next.bind(z),on:Ge,off:Ke,addEventListener:Ge,removeEventListener:Ke,layout:X,shuffle:vt,availableRoutes:Q,availableFragments:z.availableRoutes.bind(z),toggleHelp:K.toggleHelp.bind(K),toggleOverview:B.toggle.bind(B),toggleScrollView:L.toggle.bind(L),togglePause:ct,toggleAutoSlide:dt,toggleJumpToSlide:ut,isFirstSlide:it,isLastSlide:at,isLastVerticalSlide:rt,isVerticalSlide:tt,isVerticalStack:nt,isPaused:lt,isAutoSliding:ft,isSpeakerNotes:J.isSpeakerNotesWindow.bind(J),isOverview:B.isActive.bind(B),isFocused:q.isFocused.bind(q),isOverlayOpen:K.isOpen.bind(K),isScrollView:L.isActive.bind(L),isPrintView:R.isActive.bind(R),isReady:()=>m,loadSlide:M.load.bind(M),unloadSlide:M.unload.bind(M),startEmbeddedContent:()=>M.startEmbeddedContent(y),stopEmbeddedContent:()=>M.stopEmbeddedContent(y,{unloadIframes:!1}),previewIframe:K.previewIframe.bind(K),previewImage:K.previewImage.bind(K),previewVideo:K.previewVideo.bind(K),showPreview:K.previewIframe.bind(K),hidePreview:K.close.bind(K),addEventListeners:He,removeEventListeners:Ue,dispatchEvent:Y,getState:Ft,setState:It,getProgress:wt,getIndices:Tt,getSlidesAttributes:jt,getSlidePastCount:Ct,getTotalSlides:Mt,getSlide:Nt,getPreviousSlide:()=>v,getCurrentSlide:()=>y,getSlideBackground:Pt,getSlideNotes:J.getSlideNotes.bind(J),getSlides:Et,getHorizontalSlides:$,getVerticalSlides:Dt,hasHorizontalSlides:kt,hasVerticalSlides:At,hasNavigatedHorizontally:()=>b.hasNavigatedHorizontally,hasNavigatedVertically:()=>b.hasNavigatedVertically,shouldAutoAnimateBetween:pt,addKeyBinding:V.addKeyBinding.bind(V),removeKeyBinding:V.removeKeyBinding.bind(V),triggerKey:V.triggerKey.bind(V),registerKeyboardShortcut:V.registerKeyboardShortcut.bind(V),getComputedSlideSize:Qe,setCurrentScrollPage:mt,removeHiddenSlides:Me,getScale:()=>S,getConfig:()=>f,getQueryHash:u,getSlidePath:H.getHash.bind(H),getRevealElement:()=>a,getSlidesElement:()=>D.slides,getViewportElement:()=>D.viewport,getBackgroundsElement:()=>I.element,registerPlugin:G.registerPlugin.bind(G),hasPlugin:G.hasPlugin.bind(G),getPlugin:G.getPlugin.bind(G),getPlugins:G.getRegisteredPlugins.bind(G)};return e(l,F(F({},tn),{},{announceStatus:Fe,getStatusText:Ie,focus:q,scroll:L,progress:W,controls:U,location:H,overview:B,keyboard:V,fragments:z,backgrounds:I,slideContent:M,slideNumber:N,onUserInput:qt,closeOverlay:K.close.bind(K),updateSlidesVisibility:St,layoutSlideContents:Xe,transformSlides:qe,cueAutoSlide:Lt,cancelAutoSlide:Rt})),tn}var B=z,V=[];return B.initialize=e=>{let t=document.querySelector(`.reveal`);if(!(t instanceof HTMLElement))throw Error(`Unable to find presentation root (<div class="reveal">).`);return Object.assign(B,new z(t,e)),V.map(e=>e(B)),B.initialize()},[`configure`,`on`,`off`,`addEventListener`,`removeEventListener`,`registerPlugin`].forEach(e=>{B[e]=(...t)=>{V.push(n=>n[e].call(null,...t))}}),B.isReady=()=>!1,B.VERSION=Te,B});
+
 </script>
 <script>
 (function(e,t){typeof exports==`object`&&typeof module<`u`?module.exports=t():typeof define==`function`&&define.amd?define([],t):(e=typeof globalThis<`u`?globalThis:e||self,e.RevealMath=t())})(this,function(){var e=()=>{let e,t={version:`latest`,delimiters:[{left:`$$`,right:`$$`,display:!0},{left:`$`,right:`$`,display:!1},{left:`\\(`,right:`\\)`,display:!1},{left:`\\[`,right:`\\]`,display:!0}],ignoredTags:[`script`,`noscript`,`style`,`textarea`,`pre`,`code`]},n=e=>{let t=document.createElement(`link`);t.rel=`stylesheet`,t.href=e,document.head.appendChild(t)},r=e=>new Promise((t,n)=>{let r=document.createElement(`script`);r.type=`text/javascript`,r.onload=t,r.onerror=n,r.src=e,document.head.append(r)});async function i(e){for(let t of e)await r(t)}return{id:`katex`,init:function(r){e=r;let a=e.getConfig().katex||{},o={...t,...a},{local:s,version:c,extensions:l,...u}=o,d=o.local||`https://cdn.jsdelivr.net/npm/katex`,f=o.local?``:`@`+o.version,p=d+f+`/dist/katex.min.css`,m=d+f+`/dist/katex.min.js`,h=d+f+`/dist/contrib/mhchem.min.js`,g=d+f+`/dist/contrib/auto-render.min.js`,_=[m];o.extensions&&o.extensions.includes(`mhchem`)&&_.push(h),_.push(g);let v=()=>{renderMathInElement(r.getSlidesElement(),u),e.layout()};n(p),i(_).then(()=>{e.isReady()?v():e.on(`ready`,v.bind(this))})}}},t=()=>{let e,t={messageStyle:`none`,tex2jax:{inlineMath:[[`$`,`$`],[`\\(`,`\\)`]],skipTags:[`script`,`noscript`,`style`,`textarea`,`pre`,`code`]},skipStartupTypeset:!0};function n(e,t){let n=document.querySelector(`head`),r=document.createElement(`script`);r.type=`text/javascript`,r.src=e;let i=()=>{typeof t==`function`&&(t.call(),t=null)};r.onload=i,r.onreadystatechange=()=>{this.readyState===`loaded`&&i()},n.appendChild(r)}return{id:`mathjax2`,init:function(r){e=r;let i=e.getConfig().mathjax2||e.getConfig().math||{},a={...t,...i},o=a.mathjax||`https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js`,s=a.config||`TeX-AMS_HTML-full`,c=o+`?config=`+s;a.tex2jax={...t.tex2jax,...i.tex2jax},a.mathjax=a.config=null,n(c,function(){MathJax.Hub.Config(a),MathJax.Hub.Queue([`Typeset`,MathJax.Hub,e.getRevealElement()]),MathJax.Hub.Queue(e.layout),e.on(`slidechanged`,function(e){MathJax.Hub.Queue([`Typeset`,MathJax.Hub,e.currentSlide])})})}}};return Plugin=Object.assign(t(),{KaTeX:e,MathJax2:t,MathJax3:()=>{let e,t={tex:{inlineMath:[[`$`,`$`],[`\\(`,`\\)`]]},options:{skipHtmlTags:[`script`,`noscript`,`style`,`textarea`,`pre`,`code`]},startup:{ready:()=>{MathJax.startup.defaultReady(),MathJax.startup.promise.then(()=>{e.layout()})}}};function n(e,t){let n=document.createElement(`script`);n.type=`text/javascript`,n.id=`MathJax-script`,n.src=e,n.async=!0,n.onload=()=>{typeof t==`function`&&(t.call(),t=null)},document.head.appendChild(n)}return{id:`mathjax3`,init:function(r){e=r;let i=e.getConfig().mathjax3||{},a={...t,...i};a.tex={...t.tex,...i.tex},a.options={...t.options,...i.options},a.startup={...t.startup,...i.startup};let o=a.mathjax||`https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js`;a.mathjax=null,window.MathJax=a,n(o,function(){e.addEventListener(`slidechanged`,function(e){MathJax.typeset()})})}}},MathJax4:()=>{let e,t={tex:{inlineMath:[[`$`,`$`],[`\\(`,`\\)`]]},options:{skipHtmlTags:[`script`,`noscript`,`style`,`textarea`,`pre`,`code`]},startup:{ready:()=>{MathJax.startup.defaultReady(),MathJax.startup.promise.then(()=>{e.layout()})}}};function n(e,t){let n=document.createElement(`script`);n.type=`text/javascript`,n.id=`MathJax-script`,n.src=e,n.async=!0,n.onload=()=>{typeof t==`function`&&(t.call(),t=null)},document.head.appendChild(n)}return{id:`mathjax4`,init:function(r){e=r;let i=e.getConfig().mathjax4||{},a={...t,...i};a.tex={...t.tex,...i.tex},a.options={...t.options,...i.options},a.startup={...t.startup,...i.startup};let o=a.mathjax||`https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js`;a.mathjax=null,window.MathJax=a,n(o,function(){MathJax.startup.promise.then(()=>{MathJax.typeset(),e.addEventListener(`slidechanged`,function(e){MathJax.typeset()})})})}}}})});
+
 </script>
 <script>
 (function(e,t){typeof exports==`object`&&typeof module<`u`?module.exports=t():typeof define==`function`&&define.amd?define([],t):(e=typeof globalThis<`u`?globalThis:e||self,e.RevealMarkdown=t())})(this,function(){function e(){return{async:!1,breaks:!1,extensions:null,gfm:!0,hooks:null,pedantic:!1,renderer:null,silent:!1,tokenizer:null,walkTokens:null}}var t=e();function n(e){t=e}var r={exec:()=>null};function i(e,t=``){let n=typeof e==`string`?e:e.source,r={replace:(e,t)=>{let i=typeof t==`string`?t:t.source;return i=i.replace(o.caret,`$1`),n=n.replace(e,i),r},getRegex:()=>new RegExp(n,t)};return r}var a=(()=>{try{return!0}catch{return!1}})(),o={codeRemoveIndent:/^(?: {1,4}| {0,3}\t)/gm,outputLinkReplace:/\\([\[\]])/g,indentCodeCompensation:/^(\s+)(?:```)/,beginningSpace:/^\s+/,endingHash:/#$/,startingSpaceChar:/^ /,endingSpaceChar:/ $/,nonSpaceChar:/[^ ]/,newLineCharGlobal:/\n/g,tabCharGlobal:/\t/g,multipleSpaceGlobal:/\s+/g,blankLine:/^[ \t]*$/,doubleBlankLine:/\n[ \t]*\n[ \t]*$/,blockquoteStart:/^ {0,3}>/,blockquoteSetextReplace:/\n {0,3}((?:=+|-+) *)(?=\n|$)/g,blockquoteSetextReplace2:/^ {0,3}>[ \t]?/gm,listReplaceNesting:/^ {1,4}(?=( {4})*[^ ])/g,listIsTask:/^\[[ xX]\] +\S/,listReplaceTask:/^\[[ xX]\] +/,listTaskCheckbox:/\[[ xX]\]/,anyLine:/\n.*\n/,hrefBrackets:/^<(.*)>$/,tableDelimiter:/[:|]/,tableAlignChars:/^\||\| *$/g,tableRowBlankLine:/\n[ \t]*$/,tableAlignRight:/^ *-+: *$/,tableAlignCenter:/^ *:-+: *$/,tableAlignLeft:/^ *:-+ *$/,startATag:/^<a /i,endATag:/^<\/a>/i,startPreScriptTag:/^<(pre|code|kbd|script)(\s|>)/i,endPreScriptTag:/^<\/(pre|code|kbd|script)(\s|>)/i,startAngleBracket:/^</,endAngleBracket:/>$/,pedanticHrefTitle:/^([^'"]*[^\s])\s+(['"])(.*)\2/,unicodeAlphaNumeric:/[\p{L}\p{N}]/u,escapeTest:/[&<>"']/,escapeReplace:/[&<>"']/g,escapeTestNoEncode:/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,escapeReplaceNoEncode:/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,caret:/(^|[^\[])\^/g,percentDecode:/%25/g,findPipe:/\|/g,splitPipe:/ \|/,slashPipe:/\\\|/g,carriageReturn:/\r\n|\r/g,spaceLine:/^ +$/gm,notSpaceStart:/^\S*/,endingNewline:/\n$/,listItemRegex:e=>RegExp(`^( {0,3}${e})((?:[	 ][^\\n]*)?(?:\\n|$))`),nextBulletRegex:e=>RegExp(`^ {0,${Math.min(3,e-1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`),hrRegex:e=>RegExp(`^ {0,${Math.min(3,e-1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`),fencesBeginRegex:e=>RegExp(`^ {0,${Math.min(3,e-1)}}(?:\`\`\`|~~~)`),headingBeginRegex:e=>RegExp(`^ {0,${Math.min(3,e-1)}}#`),htmlBeginRegex:e=>RegExp(`^ {0,${Math.min(3,e-1)}}<(?:[a-z].*>|!--)`,`i`),blockquoteBeginRegex:e=>RegExp(`^ {0,${Math.min(3,e-1)}}>`)},s=/^(?:[ \t]*(?:\n|$))+/,c=/^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/,l=/^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/,u=/^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/,d=/^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,f=/ {0,3}(?:[*+-]|\d{1,9}[.)])/,p=/^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/,m=i(p).replace(/bull/g,f).replace(/blockCode/g,/(?: {4}| {0,3}\t)/).replace(/fences/g,/ {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g,/ {0,3}>/).replace(/heading/g,/ {0,3}#{1,6}/).replace(/html/g,/ {0,3}<[^\n>]+>\n/).replace(/\|table/g,``).getRegex(),ee=i(p).replace(/bull/g,f).replace(/blockCode/g,/(?: {4}| {0,3}\t)/).replace(/fences/g,/ {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g,/ {0,3}>/).replace(/heading/g,/ {0,3}#{1,6}/).replace(/html/g,/ {0,3}<[^\n>]+>\n/).replace(/table/g,/ {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(),h=/^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/,te=/^[^\n]+/,g=/(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/,ne=i(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace(`label`,g).replace(`title`,/(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(),re=i(/^(bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g,f).getRegex(),_=`address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul`,v=/<!--(?:-?>|[\s\S]*?(?:-->|$))/,ie=i(`^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))`,`i`).replace(`comment`,v).replace(`tag`,_).replace(`attribute`,/ +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(),y=i(h).replace(`hr`,u).replace(`heading`,` {0,3}#{1,6}(?:\\s|$)`).replace(`|lheading`,``).replace(`|table`,``).replace(`blockquote`,` {0,3}>`).replace(`fences`," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace(`list`,` {0,3}(?:[*+-]|1[.)])[ \\t]`).replace(`html`,`</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)`).replace(`tag`,_).getRegex(),b={blockquote:i(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace(`paragraph`,y).getRegex(),code:c,def:ne,fences:l,heading:d,hr:u,html:ie,lheading:m,list:re,newline:s,paragraph:y,table:r,text:te},x=i(`^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)`).replace(`hr`,u).replace(`heading`,` {0,3}#{1,6}(?:\\s|$)`).replace(`blockquote`,` {0,3}>`).replace(`code`,`(?: {4}| {0,3}	)[^\\n]`).replace(`fences`," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace(`list`,` {0,3}(?:[*+-]|1[.)])[ \\t]`).replace(`html`,`</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)`).replace(`tag`,_).getRegex(),ae={...b,lheading:ee,table:x,paragraph:i(h).replace(`hr`,u).replace(`heading`,` {0,3}#{1,6}(?:\\s|$)`).replace(`|lheading`,``).replace(`table`,x).replace(`blockquote`,` {0,3}>`).replace(`fences`," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace(`list`,` {0,3}(?:[*+-]|1[.)])[ \\t]`).replace(`html`,`</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)`).replace(`tag`,_).getRegex()},oe={...b,html:i(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace(`comment`,v).replace(/tag/g,`(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b`).getRegex(),def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,heading:/^(#{1,6})(.*)(?:\n+|$)/,fences:r,lheading:/^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,paragraph:i(h).replace(`hr`,u).replace(`heading`,` *#{1,6} *[^
@@ -7952,6 +7655,7 @@ Please report this to https://github.com/markedjs/marked.`,e){let e=`<p>An error
 `,qe=null,Je=`^s*notes?:`,Ye=`\\.element\\s*?(.+?)$`,Xe=`\\.slide:\\s*?(\\S.+?)$`,Q=`__SCRIPT_END__`,$=/\[\s*((\d*):)?\s*([\s\d,|-]*)\]/,Ze={"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`};return()=>{let e,t=null;function n(e){let t=(e.querySelector(`[data-template]`)||e.querySelector(`script`)||e).textContent;t=t.replace(new RegExp(Q,`g`),`<\/script>`);let n=t.match(/^\n?(\s*)/)[1].length,r=t.match(/^\n?(\t*)/)[1].length;return r>0?t=t.replace(RegExp(`\\n?\\t{`+r+`}(.*)`,`g`),function(e,t){return`
 `+t}):n>1&&(t=t.replace(RegExp(`\\n? {`+n+`}(.*)`,`g`),function(e,t){return`
 `+t})),t}function r(e){let t=e.attributes,n=[];for(let e=0,r=t.length;e<r;e++){let r=t[e].name,i=t[e].value;/data\-(markdown|separator|vertical|notes)/gi.test(r)||(i?n.push(r+`="`+i+`"`):n.push(r))}return n.join(` `)}function i(t){let n=e?.getConfig?.().markdown;return t||={},t.separator=t.separator||n?.separator||Ke,t.verticalSeparator=t.verticalSeparator||n?.verticalSeparator||qe,t.notesSeparator=t.notesSeparator||n?.notesSeparator||Je,t.attributes=t.attributes||``,t}function a(e,n){n=i(n);let r=e.split(new RegExp(n.notesSeparator,`mgi`));return r.length===2&&t&&(e=r[0]+`<aside class="notes">`+t.parse(r[1].trim())+`</aside>`),e=e.replace(/<\/script>/g,Q),`<script type="text/template">`+e+`<\/script>`}function o(e,t){t=i(t);let n=RegExp(t.separator+(t.verticalSeparator?`|`+t.verticalSeparator:``),`mg`),r=new RegExp(t.separator),o,s=0,c,l=!0,u,d=[];for(;o=n.exec(e);)c=r.test(o[0]),!c&&l&&d.push([]),u=e.substring(s,o.index),c&&l?d.push(u):d[d.length-1].push(u),s=n.lastIndex,l=c;(l?d:d[d.length-1]).push(e.substring(s));let f=``;for(let e=0,n=d.length;e<n;e++)d[e]instanceof Array?(f+=`<section `+t.attributes+`>`,d[e].forEach(function(e){f+=`<section data-markdown>`+a(e,t)+`</section>`}),f+=`</section>`):f+=`<section `+t.attributes+` data-markdown>`+a(d[e],t)+`</section>`;return f}function s(e){return new Promise(function(t){let i=[];[].slice.call(e.querySelectorAll(`section[data-markdown]:not([data-markdown-parsed])`)).forEach(function(e,t){e.getAttribute(`data-markdown`).length?i.push(c(e).then(function(t,n){e.outerHTML=o(t.responseText,{separator:e.getAttribute(`data-separator`),verticalSeparator:e.getAttribute(`data-separator-vertical`),notesSeparator:e.getAttribute(`data-separator-notes`),attributes:r(e)})},function(t,n){e.outerHTML=`<section data-state="alert">ERROR: The attempt to fetch `+n+` failed with HTTP status `+t.status+`.Check your browser's JavaScript console for more details.<p>Remember that you need to serve the presentation HTML from a HTTP server.</p></section>`})):e.outerHTML=o(n(e),{separator:e.getAttribute(`data-separator`),verticalSeparator:e.getAttribute(`data-separator-vertical`),notesSeparator:e.getAttribute(`data-separator-notes`),attributes:r(e)})}),Promise.all(i).then(t)})}function c(e){return new Promise(function(t,n){let r=new XMLHttpRequest,i=e.getAttribute(`data-markdown`),a=e.getAttribute(`data-charset`);a!==null&&a!==``&&r.overrideMimeType(`text/html; charset=`+a),r.onreadystatechange=function(e,r){r.readyState===4&&(r.status>=200&&r.status<300||r.status===0?t(r,i):n(r,i))}.bind(this,e,r),r.open(`GET`,i,!0);try{r.send()}catch(e){console.warn(`Failed to get the Markdown file `+i+`. Make sure that the presentation and the file are served by a HTTP server and the file can be found there. `+e),t(r,i)}})}function l(e,t,n){let r=new RegExp(n,`mg`),i=RegExp(`([^"= ]+?)="([^"]+?)"|(data-[^"= ]+?)(?=[" ])`,`mg`),a=e.nodeValue,o,s;if(o=r.exec(a)){let n=o[1];for(a=a.substring(0,o.index)+a.substring(r.lastIndex),e.nodeValue=a;s=i.exec(n);)s[2]?t.setAttribute(s[1],s[2]):t.setAttribute(s[3],``);return!0}return!1}function u(e,t,n,r,i){if(t!==null&&t.childNodes!==void 0&&t.childNodes.length>0){let n=t;for(let a=0;a<t.childNodes.length;a++){let o=t.childNodes[a];if(a>0){let e=a-1;for(;e>=0;){let r=t.childNodes[e];if(typeof r.setAttribute==`function`&&r.tagName!==`BR`){n=r;break}--e}}let s=e;o.nodeName===`section`&&(s=o,n=o),(typeof o.setAttribute==`function`||o.nodeType===Node.COMMENT_NODE)&&u(s,o,n,r,i)}}if(t.nodeType===Node.COMMENT_NODE){let a=n;a&&(a.tagName===`UL`||a.tagName===`OL`)&&(a=a.lastElementChild||a),l(t,a,r)===!1&&l(t,e,i)}}function d(){let r=e.getRevealElement().querySelectorAll(`[data-markdown]:not([data-markdown-parsed])`);return[].slice.call(r).forEach(function(e){e.setAttribute(`data-markdown-parsed`,!0);let r=e.querySelector(`aside.notes`),i=n(e);e.innerHTML=t?t.parse(i):i,u(e,e,null,e.getAttribute(`data-element-attributes`)||e.parentNode.getAttribute(`data-element-attributes`)||Ye,e.getAttribute(`data-attributes`)||e.parentNode.getAttribute(`data-attributes`)||Xe),r&&e.appendChild(r)}),Promise.resolve()}function f(e){return e.replace(/([&<>'"])/g,e=>Ze[e])}return{id:`markdown`,init:function(n){e=n;let{renderer:r,animateLists:i,smartypants:a,...o}=e.getConfig().markdown||{},c=r||{code({text:e,lang:t}){let n=t||``,r=``,i=``;if($.test(n)){let e=n.match($)[2];e&&(r=`data-ln-start-from="${e.trim()}"`),i=n.match($)[3].trim(),i=`data-line-numbers="${i}"`,n=n.replace($,``).trim()}return e=f(e),`<pre><code ${i} ${r} class="${n}">${e}</code></pre>`}};return i===!0&&!r&&(c.listitem=function(e){return`<li class="fragment">${e.tokens?this.parser.parseInline(e.tokens):e.text||``}</li>`}),t=new Y,t.use({renderer:c,...o}),a&&t.use(Ge()),s(e.getRevealElement()).then(d)},processSlides:s,convertSlides:d,slidify:o,get marked(){return t},get markdownOptions(){return e&&e.getConfig().markdown||{}}}}});
+
 </script>
 <script>
 (function(e,t){typeof exports==`object`&&typeof module<`u`?module.exports=t():typeof define==`function`&&define.amd?define([],t):(e=typeof globalThis<`u`?globalThis:e||self,e.RevealNotes=t())})(this,function(){var e=`<!--
@@ -8924,13 +8628,16 @@ ${e}</tr>
 `}strong({tokens:e}){return`<strong>${this.parser.parseInline(e)}</strong>`}em({tokens:e}){return`<em>${this.parser.parseInline(e)}</em>`}codespan({text:e}){return`<code>${V(e,!0)}</code>`}br(e){return`<br>`}del({tokens:e}){return`<del>${this.parser.parseInline(e)}</del>`}link({href:e,title:t,tokens:n}){let r=this.parser.parseInline(n),i=H(e);if(i===null)return r;e=i;let a=`<a href="`+e+`"`;return t&&(a+=` title="`+V(t)+`"`),a+=`>`+r+`</a>`,a}image({href:e,title:t,text:n,tokens:r}){r&&(n=this.parser.parseInline(r,this.parser.textRenderer));let i=H(e);if(i===null)return V(n);e=i;let a=`<img src="${e}" alt="${V(n)}"`;return t&&(a+=` title="${V(t)}"`),a+=`>`,a}text(e){return`tokens`in e&&e.tokens?this.parser.parseInline(e.tokens):`escaped`in e&&e.escaped?e.text:V(e.text)}},Y=class{strong({text:e}){return e}em({text:e}){return e}codespan({text:e}){return e}del({text:e}){return e}html({text:e}){return e}text({text:e}){return e}link({text:e}){return``+e}image({text:e}){return``+e}br(){return``}checkbox({raw:e}){return e}},X=class e{options;renderer;textRenderer;constructor(e){this.options=e||n,this.options.renderer=this.options.renderer||new J,this.renderer=this.options.renderer,this.renderer.options=this.options,this.renderer.parser=this,this.textRenderer=new Y}static parse(t,n){return new e(n).parse(t)}static parseInline(t,n){return new e(n).parseInline(t)}parse(e){this.renderer.parser=this;let t=``;for(let n=0;n<e.length;n++){let r=e[n];if(this.options.extensions?.renderers?.[r.type]){let e=r,n=this.options.extensions.renderers[e.type].call({parser:this},e);if(n!==!1||![`space`,`hr`,`heading`,`code`,`table`,`blockquote`,`list`,`html`,`def`,`paragraph`,`text`].includes(e.type)){t+=n||``;continue}}let i=r;switch(i.type){case`space`:t+=this.renderer.space(i);break;case`hr`:t+=this.renderer.hr(i);break;case`heading`:t+=this.renderer.heading(i);break;case`code`:t+=this.renderer.code(i);break;case`table`:t+=this.renderer.table(i);break;case`blockquote`:t+=this.renderer.blockquote(i);break;case`list`:t+=this.renderer.list(i);break;case`checkbox`:t+=this.renderer.checkbox(i);break;case`html`:t+=this.renderer.html(i);break;case`def`:t+=this.renderer.def(i);break;case`paragraph`:t+=this.renderer.paragraph(i);break;case`text`:t+=this.renderer.text(i);break;default:{let e=`Token with "`+i.type+`" type was not found.`;if(this.options.silent)return console.error(e),``;throw Error(e)}}}return t}parseInline(e,t=this.renderer){this.renderer.parser=this;let n=``;for(let r=0;r<e.length;r++){let i=e[r];if(this.options.extensions?.renderers?.[i.type]){let e=this.options.extensions.renderers[i.type].call({parser:this},i);if(e!==!1||![`escape`,`html`,`link`,`image`,`strong`,`em`,`codespan`,`br`,`del`,`text`].includes(i.type)){n+=e||``;continue}}let a=i;switch(a.type){case`escape`:n+=t.text(a);break;case`html`:n+=t.html(a);break;case`link`:n+=t.link(a);break;case`image`:n+=t.image(a);break;case`checkbox`:n+=t.checkbox(a);break;case`strong`:n+=t.strong(a);break;case`em`:n+=t.em(a);break;case`codespan`:n+=t.codespan(a);break;case`br`:n+=t.br(a);break;case`del`:n+=t.del(a);break;case`text`:n+=t.text(a);break;default:{let e=`Token with "`+a.type+`" type was not found.`;if(this.options.silent)return console.error(e),``;throw Error(e)}}}return n}},Z=class{options;block;constructor(e){this.options=e||n}static passThroughHooks=new Set([`preprocess`,`postprocess`,`processAllTokens`,`emStrongMask`]);static passThroughHooksRespectAsync=new Set([`preprocess`,`postprocess`,`processAllTokens`]);preprocess(e){return e}postprocess(e){return e}processAllTokens(e){return e}emStrongMask(e){return e}provideLexer(){return this.block?q.lex:q.lexInline}provideParser(){return this.block?X.parse:X.parseInline}},Q=new class{defaults=t();options=this.setOptions;parse=this.parseMarkdown(!0);parseInline=this.parseMarkdown(!1);Parser=X;Renderer=J;TextRenderer=Y;Lexer=q;Tokenizer=K;Hooks=Z;constructor(...e){this.use(...e)}walkTokens(e,t){let n=[];for(let r of e)switch(n=n.concat(t.call(this,r)),r.type){case`table`:{let e=r;for(let r of e.header)n=n.concat(this.walkTokens(r.tokens,t));for(let r of e.rows)for(let e of r)n=n.concat(this.walkTokens(e.tokens,t));break}case`list`:{let e=r;n=n.concat(this.walkTokens(e.items,t));break}default:{let e=r;this.defaults.extensions?.childTokens?.[e.type]?this.defaults.extensions.childTokens[e.type].forEach(r=>{let i=e[r].flat(1/0);n=n.concat(this.walkTokens(i,t))}):e.tokens&&(n=n.concat(this.walkTokens(e.tokens,t)))}}return n}use(...e){let t=this.defaults.extensions||{renderers:{},childTokens:{}};return e.forEach(e=>{let n={...e};if(n.async=this.defaults.async||n.async||!1,e.extensions&&(e.extensions.forEach(e=>{if(!e.name)throw Error(`extension name required`);if(`renderer`in e){let n=t.renderers[e.name];n?t.renderers[e.name]=function(...t){let r=e.renderer.apply(this,t);return r===!1&&(r=n.apply(this,t)),r}:t.renderers[e.name]=e.renderer}if(`tokenizer`in e){if(!e.level||e.level!==`block`&&e.level!==`inline`)throw Error(`extension level must be 'block' or 'inline'`);let n=t[e.level];n?n.unshift(e.tokenizer):t[e.level]=[e.tokenizer],e.start&&(e.level===`block`?t.startBlock?t.startBlock.push(e.start):t.startBlock=[e.start]:e.level===`inline`&&(t.startInline?t.startInline.push(e.start):t.startInline=[e.start]))}`childTokens`in e&&e.childTokens&&(t.childTokens[e.name]=e.childTokens)}),n.extensions=t),e.renderer){let t=this.defaults.renderer||new J(this.defaults);for(let n in e.renderer){if(!(n in t))throw Error(`renderer '${n}' does not exist`);if([`options`,`parser`].includes(n))continue;let r=n,i=e.renderer[r],a=t[r];t[r]=(...e)=>{let n=i.apply(t,e);return n===!1&&(n=a.apply(t,e)),n||``}}n.renderer=t}if(e.tokenizer){let t=this.defaults.tokenizer||new K(this.defaults);for(let n in e.tokenizer){if(!(n in t))throw Error(`tokenizer '${n}' does not exist`);if([`options`,`rules`,`lexer`].includes(n))continue;let r=n,i=e.tokenizer[r],a=t[r];t[r]=(...e)=>{let n=i.apply(t,e);return n===!1&&(n=a.apply(t,e)),n}}n.tokenizer=t}if(e.hooks){let t=this.defaults.hooks||new Z;for(let n in e.hooks){if(!(n in t))throw Error(`hook '${n}' does not exist`);if([`options`,`block`].includes(n))continue;let r=n,i=e.hooks[r],a=t[r];Z.passThroughHooks.has(n)?t[r]=e=>{if(this.defaults.async&&Z.passThroughHooksRespectAsync.has(n))return(async()=>{let n=await i.call(t,e);return a.call(t,n)})();let r=i.call(t,e);return a.call(t,r)}:t[r]=(...e)=>{if(this.defaults.async)return(async()=>{let n=await i.apply(t,e);return n===!1&&(n=await a.apply(t,e)),n})();let n=i.apply(t,e);return n===!1&&(n=a.apply(t,e)),n}}n.hooks=t}if(e.walkTokens){let t=this.defaults.walkTokens,r=e.walkTokens;n.walkTokens=function(e){let n=[];return n.push(r.call(this,e)),t&&(n=n.concat(t.call(this,e))),n}}this.defaults={...this.defaults,...n}}),this}setOptions(e){return this.defaults={...this.defaults,...e},this}lexer(e,t){return q.lex(e,t??this.defaults)}parser(e,t){return X.parse(e,t??this.defaults)}parseMarkdown(e){return(t,n)=>{let r={...n},i={...this.defaults,...r},a=this.onError(!!i.silent,!!i.async);if(this.defaults.async===!0&&r.async===!1)return a(Error(`marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise.`));if(typeof t>`u`||t===null)return a(Error(`marked(): input parameter is undefined or null`));if(typeof t!=`string`)return a(Error(`marked(): input parameter is of type `+Object.prototype.toString.call(t)+`, string expected`));if(i.hooks&&(i.hooks.options=i,i.hooks.block=e),i.async)return(async()=>{let n=i.hooks?await i.hooks.preprocess(t):t,r=await(i.hooks?await i.hooks.provideLexer():e?q.lex:q.lexInline)(n,i),a=i.hooks?await i.hooks.processAllTokens(r):r;i.walkTokens&&await Promise.all(this.walkTokens(a,i.walkTokens));let o=await(i.hooks?await i.hooks.provideParser():e?X.parse:X.parseInline)(a,i);return i.hooks?await i.hooks.postprocess(o):o})().catch(a);try{i.hooks&&(t=i.hooks.preprocess(t));let n=(i.hooks?i.hooks.provideLexer():e?q.lex:q.lexInline)(t,i);i.hooks&&(n=i.hooks.processAllTokens(n)),i.walkTokens&&this.walkTokens(n,i.walkTokens);let r=(i.hooks?i.hooks.provideParser():e?X.parse:X.parseInline)(n,i);return i.hooks&&(r=i.hooks.postprocess(r)),r}catch(e){return a(e)}}}onError(e,t){return n=>{if(n.message+=`
 Please report this to https://github.com/markedjs/marked.`,e){let e=`<p>An error occurred:</p><pre>`+V(n.message+``,!0)+`</pre>`;return t?Promise.resolve(e):e}if(t)return Promise.reject(n);throw n}}};function $(e,t){return Q.parse(e,t)}return $.options=$.setOptions=function(e){return Q.setOptions(e),$.defaults=Q.defaults,r($.defaults),$},$.getDefaults=t,$.defaults=n,$.use=function(...e){return Q.use(...e),$.defaults=Q.defaults,r($.defaults),$},$.walkTokens=function(e,t){return Q.walkTokens(e,t)},$.parseInline=Q.parseInline,$.Parser=X,$.parser=X.parse,$.Renderer=J,$.TextRenderer=Y,$.Lexer=q,$.lexer=q.lex,$.Tokenizer=K,$.Hooks=Z,$.parse=$,$.options,$.setOptions,$.use,$.walkTokens,$.parseInline,X.parse,q.lex,()=>{let t,n=null,r;function i(){if(n&&!n.closed)n.focus();else{if(n=window.open(`about:blank`,`reveal.js - Notes`,`width=1100,height=700`),n.marked=$,n.document.write(e),!n){alert(`Speaker view popup failed to open. Please make sure popups are allowed and reopen the speaker view.`);return}o()}}function a(e){n&&!n.closed?n.focus():(n=e,window.addEventListener(`message`,u),d())}function o(){let e=r.getConfig().url,i=typeof e==`string`?e:window.location.protocol+`//`+window.location.host+window.location.pathname+window.location.search;t=setInterval(function(){n.postMessage(JSON.stringify({namespace:`reveal-notes`,type:`connect`,state:r.getState(),url:i}),`*`)},500),window.addEventListener(`message`,u)}function s(e,t,i){let a=r[e].apply(r,t);n.postMessage(JSON.stringify({namespace:`reveal-notes`,type:`return`,result:a,callId:i}),`*`)}function c(e){let t=r.getCurrentSlide(),i=t.querySelectorAll(`aside.notes`),a=t.querySelector(`.current-fragment`),o={namespace:`reveal-notes`,type:`state`,notes:``,markdown:!1,whitespace:`normal`,state:r.getState()};if(t.hasAttribute(`data-notes`)&&(o.notes=t.getAttribute(`data-notes`),o.whitespace=`pre-wrap`),a){let e=a.querySelector(`aside.notes`);e?(o.notes=e.innerHTML,o.markdown=typeof e.getAttribute(`data-markdown`)==`string`,i=null):a.hasAttribute(`data-notes`)&&(o.notes=a.getAttribute(`data-notes`),o.whitespace=`pre-wrap`,i=null)}i&&i.length&&(i=Array.from(i).filter(e=>e.closest(`.fragment`)===null),o.notes=i.map(e=>e.innerHTML).join(`
 `),o.markdown=i[0]&&typeof i[0].getAttribute(`data-markdown`)==`string`),n.postMessage(JSON.stringify(o),`*`)}function l(e){try{return window.location.origin===e.source.location.origin}catch{return!1}}function u(e){if(l(e))try{let n=JSON.parse(e.data);n&&n.namespace===`reveal-notes`&&n.type===`connected`?(clearInterval(t),d()):n&&n.namespace===`reveal-notes`&&n.type===`call`&&s(n.methodName,n.arguments,n.callId)}catch{}}function d(){r.on(`slidechanged`,c),r.on(`fragmentshown`,c),r.on(`fragmenthidden`,c),r.on(`overviewhidden`,c),r.on(`overviewshown`,c),r.on(`paused`,c),r.on(`resumed`,c),r.on(`previewiframe`,c),r.on(`previewimage`,c),r.on(`previewvideo`,c),r.on(`closeoverlay`,c),c()}return{id:`notes`,init:function(e){r=e,/receiver/i.test(window.location.search)||(window.location.search.match(/(\?|\&)notes/gi)===null?window.addEventListener(`message`,e=>{if(!n&&typeof e.data==`string`){let t;try{t=JSON.parse(e.data)}catch{}t&&t.namespace===`reveal-notes`&&t.type===`heartbeat`&&a(e.source)}}):i(),r.addKeyBinding({keyCode:83,key:`S`,description:`Speaker notes view`},function(){i()}))},open:i}}});
+
 </script>
 <script>
 (function(e,t){typeof exports==`object`&&typeof module<`u`?module.exports=t():typeof define==`function`&&define.amd?define([],t):(e=typeof globalThis<`u`?globalThis:e||self,e.RevealSearch=t())})(this,function(){return()=>{let e,t,n,r,i,a,o;function s(){t=document.createElement(`div`),t.classList.add(`searchbox`),t.style.position=`absolute`,t.style.top=`10px`,t.style.right=`10px`,t.style.zIndex=10,t.innerHTML=`<input type="search" class="searchinput" placeholder="Search..." style="vertical-align: top;"/>
 		</span>`,n=t.querySelector(`.searchinput`),n.style.width=`240px`,n.style.fontSize=`14px`,n.style.padding=`4px 6px`,n.style.color=`#000`,n.style.background=`#fff`,n.style.borderRadius=`2px`,n.style.border=`0`,n.style.outline=`0`,n.style.boxShadow=`0 2px 18px rgba(0, 0, 0, 0.2)`,n.style[`-webkit-appearance`]=`none`,e.getRevealElement().appendChild(t),n.addEventListener(`keyup`,function(e){switch(e.keyCode){case 13:e.preventDefault(),d(),a=!1;break;default:a=!0}},!1),l()}function c(){t||s(),t.style.display=`inline`,n.focus(),n.select()}function l(){t||s(),t.style.display=`none`,o&&o.remove()}function u(){t||s(),t.style.display===`inline`?l():c()}function d(){if(a){var t=n.value;t===``?(o&&o.remove(),r=null):(o=new f(`slidecontent`),r=o.apply(t),i=0)}r&&(r.length&&r.length<=i&&(i=0),r.length>i&&(e.slide(r[i].h,r[i].v),i++))}function f(t,n){var r=document.getElementById(t)||document.body,i=n||`EM`,a=RegExp(`^(?:`+i+`|SCRIPT|FORM)$`),o=[`#ff6`,`#a0ffff`,`#9f9`,`#f99`,`#f6f`],s=[],c=0,l=``,u=[];this.setRegex=function(e){e=e.trim(),l=RegExp(`(`+e+`)`,`i`)},this.getRegex=function(){return l.toString().replace(/^\/\\b\(|\)\\b\/i$/g,``).replace(/\|/g,` `)},this.hiliteWords=function(t){if(!(t==null||!t)&&l&&!a.test(t.nodeName)){if(t.hasChildNodes())for(var n=0;n<t.childNodes.length;n++)this.hiliteWords(t.childNodes[n]);if(t.nodeType==3){var r,d;if((r=t.nodeValue)&&(d=l.exec(r))){for(var f=t;f!=null&&f.nodeName!=`SECTION`;)f=f.parentNode;for(var p=e.getIndices(f),m=u.length,h=!1,n=0;n<m;n++)u[n].h===p.h&&u[n].v===p.v&&(h=!0);h||u.push(p),s[d[0].toLowerCase()]||(s[d[0].toLowerCase()]=o[c++%o.length]);var g=document.createElement(i);g.appendChild(document.createTextNode(d[0])),g.style.backgroundColor=s[d[0].toLowerCase()],g.style.fontStyle=`inherit`,g.style.color=`#000`;var _=t.splitText(d.index);_.nodeValue=_.nodeValue.substring(d[0].length),t.parentNode.insertBefore(g,_)}}}},this.remove=function(){for(var e=document.getElementsByTagName(i),t;e.length&&(t=e[0]);)t.parentNode.replaceChild(t.firstChild,t)},this.apply=function(e){if(!(e==null||!e))return this.remove(),this.setRegex(e),this.hiliteWords(r),u}}return{id:`search`,init:t=>{e=t,e.registerKeyboardShortcut(`CTRL + Shift + F`,`Search`),document.addEventListener(`keydown`,function(e){e.key==`F`&&(e.ctrlKey||e.metaKey)&&(e.preventDefault(),u())},!1)},open:c,close:l,toggle:u}}});
+
 </script>
 <script>
 (function(e,t){typeof exports==`object`&&typeof module<`u`?module.exports=t():typeof define==`function`&&define.amd?define([],t):(e=typeof globalThis<`u`?globalThis:e||self,e.RevealZoom=t())})(this,function(){var e={id:`zoom`,init:function(e){e.getRevealElement().addEventListener(`mousedown`,function(t){var r=/Linux/.test(window.navigator.platform)?`ctrl`:`alt`,i=(e.getConfig().zoomKey?e.getConfig().zoomKey:r)+`Key`,a=e.getConfig().zoomLevel?e.getConfig().zoomLevel:2;t[i]&&!e.isOverview()&&(t.preventDefault(),n.to({x:t.clientX,y:t.clientY,scale:a,pan:!1}))})},destroy:()=>{n.reset()}},t=()=>e,n=(function(){var e=1,t=0,r=0,i=-1,a=-1,o=`transform`in document.body.style;o&&(document.body.style.transition=`transform 0.8s ease`),document.addEventListener(`keyup`,function(t){e!==1&&t.keyCode===27&&n.out()}),document.addEventListener(`mousemove`,function(n){e!==1&&(t=n.clientX,r=n.clientY)});function s(t,n){var r=l();if(t.width=t.width||1,t.height=t.height||1,t.x-=(window.innerWidth-t.width*n)/2,t.y-=(window.innerHeight-t.height*n)/2,o)if(n===1)document.body.style.transform=``;else{var i=r.x+`px `+r.y+`px`,a=`translate(`+-t.x+`px,`+-t.y+`px) scale(`+n+`)`;document.body.style.transformOrigin=i,document.body.style.transform=a}else n===1?(document.body.style.position=``,document.body.style.left=``,document.body.style.top=``,document.body.style.width=``,document.body.style.height=``,document.body.style.zoom=``):(document.body.style.position=`relative`,document.body.style.left=-(r.x+t.x)/n+`px`,document.body.style.top=-(r.y+t.y)/n+`px`,document.body.style.width=n*100+`%`,document.body.style.height=n*100+`%`,document.body.style.zoom=n);e=n,document.documentElement.classList&&(e===1?document.documentElement.classList.remove(`zoomed`):document.documentElement.classList.add(`zoomed`))}function c(){var n=.12,i=window.innerWidth*n,a=window.innerHeight*n,o=l();r<a?window.scroll(o.x,o.y-(1-r/a)*(14/e)):r>window.innerHeight-a&&window.scroll(o.x,o.y+(1-(window.innerHeight-r)/a)*(14/e)),t<i?window.scroll(o.x-(1-t/i)*(14/e),o.y):t>window.innerWidth-i&&window.scroll(o.x+(1-(window.innerWidth-t)/i)*(14/e),o.y)}function l(){return{x:window.scrollX===void 0?window.pageXOffset:window.scrollX,y:window.scrollY===void 0?window.pageYOffset:window.scrollY}}return{to:function(t){if(e!==1)n.out();else{if(t.x=t.x||0,t.y=t.y||0,t.element){var r=20,o=t.element.getBoundingClientRect();t.x=o.left-r,t.y=o.top-r,t.width=o.width+r*2,t.height=o.height+r*2}t.width!==void 0&&t.height!==void 0&&(t.scale=Math.max(Math.min(window.innerWidth/t.width,window.innerHeight/t.height),1)),t.scale>1&&(t.x*=t.scale,t.y*=t.scale,s(t,t.scale),t.pan!==!1&&(i=setTimeout(function(){a=setInterval(c,1e3/60)},800)))}},out:function(){clearTimeout(i),clearInterval(a),s({x:0,y:0},1),e=1},magnify:function(e){this.to(e)},reset:function(){this.out()},zoomLevel:function(){return e}}})();return t});
+
 </script>
 <script>
 // Full list of configuration options available here:
