@@ -468,7 +468,7 @@ Work exclusively inside that worktree. Do not modify files in the main working t
 
 Commit when and only when all tests pass:
 ```bash
-make TOOLCHAIN=clang test   # must show 170/170 (or current total) passed, 0 failed
+make test   # must show 241/241 (or current total) passed, 0 failed
 git commit -m "<imperative subject>" ...
 ```
 Do not commit with failing tests. Do not commit partial work as a stepping stone unless explicitly instructed.

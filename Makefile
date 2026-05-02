@@ -34,7 +34,9 @@ CONFIG ?= Asan
 
 export
 
-ifeq ($(strip $(TOOLCHAIN)),)
+TOOLCHAIN ?= clang
+
+ifeq ($(strip $(TOOLCHAIN)),system)
 	_build_name?=build-system/
 	_build_dir?=.build/
 	_local_toolchain?=$(CURDIR)/etc/toolchain.cmake
