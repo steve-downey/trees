@@ -1,77 +1,77 @@
-- [Algorithms for Trees](#org6ff138f)
-  - [Abstract](#org5a29566)
-  - [Foldable](#org2cf2146)
-  - [Applicative](#org8649321)
-  - [Traversable](#orgbbec14f)
-  - [Not Monadic](#orgc8150a7)
-- [Ranges Flatten the World](#org537c24e)
-    - [Linearization as a Design Assumption](#org5c64570)
-    - [Where Structure Carries Meaning](#org8284274)
-    - [Trees That Are Not Sequences](#org5e1ee3f)
-- [Visitors, Pattern Matching, and the Missing Syntax](#orgdf6de48)
-    - [Visitor as Manual Recursion Control](#orgad7e8a5)
-    - [Pattern Matching as the Intended Interface](#orgd1ed3f6)
-    - [Designing Today for Tomorrow's Syntax](#org970ab98)
-- [Recursion Schemes You Can Actually Use](#orgfffd94c)
-    - [F-Algebras: How to Collapse One Layer](#orgff7432d)
-    - [Catamorphisms as a Principled Fold](#orge948a5a)
-    - [Separating Recursion from Business Logic](#org2c2580c)
-- [The Typeclass Object Pattern](#org9e464ea)
-    - [Typeclass Lookup: One Object Per Concept](#orgac4b198)
-    - [Three Lookup Modes](#org32b4eac)
-    - [NTTP Pinning Example](#orgeb94303)
-    - [Implementors: One Hook, Many Derived Operations](#org406d990)
-    - [CRTP and Deducing This](#orgd968b03)
-- [Functor: The Foundation](#org245cf2c)
-    - [Functor Interface](#org31228da)
-    - [Functor: Derived replace](#org6378fad)
-    - [Functor Identity Law in Tests](#org29e56d7)
-- [Preserving Shape: Traversable and Friends](#org59e2713)
-    - [Foldable vs. Traversable: Sequence vs. Shape](#org301aa1c)
-    - [Crisp Contrast: Flatten vs. Preserve Shape](#orga4057ec)
-    - [Same Algorithm, Two Tree Representations](#orgfe871af)
-- [Foldable](#orgee407b5)
-    - [Monoid: The Glue fold\_map Needs](#org0e67692)
-    - [Foldable API: One Hook, Derived from fold\_map](#org74fb402)
-    - [Foldable Proof: Tests as Examples](#orgbca2221)
-- [Applicative](#org5424093)
-    - [Applicative Model: Pure Function over Effectful Arguments](#org0875a0e)
-    - [Applicative in Use](#orgc2aab76)
-    - [Applicative: invoke in Tests](#orgae0f63e)
-    - [Applicative: Short-Circuit on Absent](#orgf2409cd)
-    - [Applicative: invoke via Terminating Partial Application](#org48fd129)
-    - [Applicative Law: Interchange](#org7d997dc)
-    - [Applicative Law: Composition](#org8c633cc)
-- [Traversable](#orgce88c8d)
-    - [Traversable Model: Commute Shape and Effect](#org15cab4b)
-    - [Traversable in Use: Success](#org22b7ccb)
-    - [Traversable in Use: Failure Propagates](#org2f6d341)
-    - [Traversable API: sequence](#org39c2469)
-    - [Traversable Proof: sequence in Tests](#org955bde8)
-    - [Traversable Law: Naturality](#org1c05d00)
-    - [Traversable Commute: Range and ZipList](#org64092d8)
-    - [Laws That Keep This Honest](#org718d79e)
-- [Monoids and Measured Trees](#org7639e49)
-    - [Monoid Interface](#org3e60867)
-    - [Monoid: Count Specialization](#orgeebc58c)
-    - [Monoid: Generic Helpers](#org528eb5e)
-    - [Monoid in Tests](#org695f1c8)
-    - [Monoid Identity Law in Tests](#org8d2539a)
-    - [Associativity as Algorithmic Leverage](#org74f00a6)
-    - [Annotations as Summaries](#org825fa3b)
-    - [Search and Split Driven by Measures](#orgfd7abd9)
-- [Finger Trees as a Case Study](#orgf9ab397)
-    - [Persistent Concatenation and Splitting](#org5d745c1)
-    - [One Structure, Many Interpretations](#orgc86289b)
-    - [Why This Belongs in Modern C++](#org355ee58)
-- [Designing APIs That Won't Age Poorly](#org2faca00)
-    - [Library Abstractions Anticipating Language Features](#orgb89ab37)
-    - [Avoiding the `std::bind` vs. Lambda Overlap](#orge5473a7)
-    - [Keeping the Good Path Obvious](#orgc100c33)
+- [Algorithms for Trees](#orgd3bce4e)
+  - [Abstract](#orgccfa834)
+  - [Foldable](#org683f1a6)
+  - [Applicative](#orgac0c04b)
+  - [Traversable](#orgabd68b1)
+  - [Not Monadic](#orge35010d)
+- [Ranges Flatten the World](#org37339f7)
+    - [Linearization as a Design Assumption](#orga9eb4d0)
+    - [Where Structure Carries Meaning](#orgeb8eafd)
+    - [Trees That Are Not Sequences](#org3a39270)
+- [Visitors, Pattern Matching, and the Missing Syntax](#org1b0a180)
+    - [Visitor as Manual Recursion Control](#orgd4ea5a5)
+    - [Pattern Matching as the Intended Interface](#orgf933d16)
+    - [Designing Today for Tomorrow's Syntax](#org36e2bf9)
+- [Recursion Schemes You Can Actually Use](#orgb19739c)
+    - [F-Algebras: How to Collapse One Layer](#orgb1d65ef)
+    - [Catamorphisms as a Principled Fold](#org3f5f166)
+    - [Separating Recursion from Business Logic](#orge073e5f)
+- [The Typeclass Object Pattern](#orgb492dea)
+    - [Typeclass Lookup: One Object Per Concept](#org0891070)
+    - [Three Lookup Modes](#org3eb092b)
+    - [NTTP Pinning Example](#orgd6054df)
+    - [Implementors: One Hook, Many Derived Operations](#orgd1aa92f)
+    - [CRTP and Deducing This](#orgce2c464)
+- [Functor: The Foundation](#orgcfaab6f)
+    - [Functor Interface](#org19cd7d2)
+    - [Functor: Derived replace](#org0a6f388)
+    - [Functor Identity Law in Tests](#org58fd64d)
+- [Preserving Shape: Traversable and Friends](#org31339e1)
+    - [Foldable vs. Traversable: Sequence vs. Shape](#org704877d)
+    - [Crisp Contrast: Flatten vs. Preserve Shape](#orgc0963f8)
+    - [Same Algorithm, Two Tree Representations](#org4cee177)
+- [Foldable](#org7c67419)
+    - [Monoid: The Glue fold\_map Needs](#orgcea5e8a)
+    - [Foldable API: One Hook, Derived from fold\_map](#org45f7ff6)
+    - [Foldable Proof: Tests as Examples](#org13232e0)
+- [Applicative](#orgc383fce)
+    - [Applicative Model: Pure Function over Effectful Arguments](#org898cb53)
+    - [Applicative in Use](#orgaf2deea)
+    - [Applicative: invoke in Tests](#org73bb43e)
+    - [Applicative: Short-Circuit on Absent](#org46d276b)
+    - [Applicative: invoke via Terminating Partial Application](#org71e21b7)
+    - [Applicative Law: Interchange](#orgeb46ad2)
+    - [Applicative Law: Composition](#orgae89d31)
+- [Traversable](#org0f2cca9)
+    - [Traversable Model: Commute Shape and Effect](#org2e8da61)
+    - [Traversable in Use: Success](#org76103dd)
+    - [Traversable in Use: Failure Propagates](#orgc259923)
+    - [Traversable API: sequence](#org88d3729)
+    - [Traversable Proof: sequence in Tests](#org2b7479b)
+    - [Traversable Law: Naturality](#org1195886)
+    - [Traversable Commute: Range and ZipList](#orge98de12)
+    - [Laws That Keep This Honest](#org2e37194)
+- [Monoids and Measured Trees](#org09e450c)
+    - [Monoid Interface](#org12a776d)
+    - [Monoid: Count Specialization](#org6f0d480)
+    - [Monoid: Generic Helpers](#org7ebb3cb)
+    - [Monoid in Tests](#org232f234)
+    - [Monoid Identity Law in Tests](#orga263379)
+    - [Associativity as Algorithmic Leverage](#orged103e2)
+    - [Annotations as Summaries](#orgd25e477)
+    - [Search and Split Driven by Measures](#orge5aadb1)
+- [Finger Trees as a Case Study](#orgc2060c1)
+    - [Persistent Concatenation and Splitting](#org1ae14e7)
+    - [One Structure, Many Interpretations](#org1a5098f)
+    - [Why This Belongs in Modern C++](#org318b6b9)
+- [Designing APIs That Won't Age Poorly](#orgd307f52)
+    - [Library Abstractions Anticipating Language Features](#orga2271c8)
+    - [Avoiding the `std::bind` vs. Lambda Overlap](#org0adac7f)
+    - [Keeping the Good Path Obvious](#orga3f7e56)
 
 
 
-<a id="org6ff138f"></a>
+<a id="orgd3bce4e"></a>
 
 # Algorithms for Trees
 
@@ -80,17 +80,17 @@
 -   Traversable.
 
 
-<a id="org5a29566"></a>
+<a id="orgccfa834"></a>
 
 ## Abstract
 
--   Functor and monad patterns are proven; Foldable, Applicative, and Traversable are the next step.
--   Trees and structured data lose too much information when flattened to a sequence.
+-   Functor and monad patterns have proven themselves in practice; Foldable, Applicative, and Traversable are the next step.
+-   Trees and structured data can lose important information when flattened to a sequence.
 -   Monoid underpins efficient tree algorithms; the three typeclasses compose on top of it.
--   This talk proposes what a standard library `fingertree` API should look like.
+-   This talk illustrates one approach to designing a standard library `fingertree` API.
 
 
-<a id="org2cf2146"></a>
+<a id="org683f1a6"></a>
 
 ## Foldable
 
@@ -99,7 +99,7 @@
 -   No flattening required.
 
 
-<a id="org8649321"></a>
+<a id="orgac0c04b"></a>
 
 ## Applicative
 
@@ -108,7 +108,7 @@
 -   Less sequencing machinery than monad for independent effects.
 
 
-<a id="orgbbec14f"></a>
+<a id="orgabd68b1"></a>
 
 ## Traversable
 
@@ -117,21 +117,21 @@
 -   Commutes containers: a range of effects becomes an effect of a range.
 
 
-<a id="orgc8150a7"></a>
+<a id="orge35010d"></a>
 
 ## Not Monadic
 
 -   This talk stops short of Monad deliberately.
--   Monad adds sequencing and dependency between effects. Most tree operations do not need it.
--   Applicative covers the independent-effect cases where the whole structure is known up front.
+-   Monad adds sequencing and dependency between effects; most tree operations do not need this overhead.
+-   Applicative covers the independent-effect cases where the whole structure is known upfront.
 
 
-<a id="org537c24e"></a>
+<a id="org37339f7"></a>
 
 # Ranges Flatten the World
 
 
-<a id="org5c64570"></a>
+<a id="orga9eb4d0"></a>
 
 ### Linearization as a Design Assumption
 
@@ -139,7 +139,7 @@
 -   Many generic algorithms quietly assume that flattening first is semantically neutral.
 -   For trees, flattening throws away parent/child relationships and subtree boundaries.
 
-<div class="notes" id="org89ecbf7">
+<div class="notes" id="orgde25247">
 <p>
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
@@ -148,7 +148,7 @@ The talk is about recovering algorithms that preserve structure when structure m
 </div>
 
 
-<a id="org8284274"></a>
+<a id="orgeb8eafd"></a>
 
 ### Where Structure Carries Meaning
 
@@ -156,7 +156,7 @@ The talk is about recovering algorithms that preserve structure when structure m
 -   The same inorder sequence can come from many different trees.
 -   If we flatten too early, we lose algorithmic leverage.
 
-<div class="notes" id="org95ef039">
+<div class="notes" id="org02de8b7">
 <p>
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
 </p>
@@ -164,7 +164,7 @@ The argument is practical: preserving shape enables better APIs for split/search
 </div>
 
 
-<a id="org5e1ee3f"></a>
+<a id="org3a39270"></a>
 
 ### Trees That Are Not Sequences
 
@@ -172,7 +172,7 @@ The argument is practical: preserving shape enables better APIs for split/search
 -   Syntax trees: children have roles, not just positions.
 -   Measured trees: internal summaries define split/search interfaces and drive optimization.
 
-<div class="notes" id="org281e715">
+<div class="notes" id="org097d178">
 <p>
 A range view is still useful, but it should be derived, not the primary model.
 </p>
@@ -180,20 +180,20 @@ A range view is still useful, but it should be derived, not the primary model.
 </div>
 
 
-<a id="orgdf6de48"></a>
+<a id="org1b0a180"></a>
 
 # Visitors, Pattern Matching, and the Missing Syntax
 
 
-<a id="orgad7e8a5"></a>
+<a id="orgd4ea5a5"></a>
 
 ### Visitor as Manual Recursion Control
 
 -   Visitor centralizes recursion, but at the cost of ceremony and indirection.
--   Every new operation requires another visitor type or lambda nest.
+-   Each new operation typically requires another visitor type or nested lambda structure.
 -   The control flow is explicit, but often noisy.
 
-<div class="notes" id="orgfb343f1">
+<div class="notes" id="org080a644">
 <p>
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
 </p>
@@ -201,15 +201,15 @@ Visitor is not wrong; it is just too low-level for everyday algebraic operations
 </div>
 
 
-<a id="orgd1ed3f6"></a>
+<a id="orgf933d16"></a>
 
 ### Pattern Matching as the Intended Interface
 
 -   Pattern matching expresses what cases exist directly.
--   C++ is moving in this direction, but we still need practical libraries now.
+-   C++ has active pattern-matching proposals, but no standardized feature yet.
 -   Typeclass-style APIs can encode the same intent with today's language.
 
-<div class="notes" id="orgefd5233">
+<div class="notes" id="org48309e6">
 <p>
 Design now so the API maps naturally to future language features.
 </p>
@@ -217,7 +217,7 @@ Design now so the API maps naturally to future language features.
 </div>
 
 
-<a id="org970ab98"></a>
+<a id="org36e2bf9"></a>
 
 ### Designing Today for Tomorrow's Syntax
 
@@ -225,7 +225,7 @@ Design now so the API maps naturally to future language features.
 -   Expose a small vocabulary: `fold_map`, `invoke`, `traverse`.
 -   Make call sites read like intent, not machinery.
 
-<div class="notes" id="org6a4ddc3">
+<div class="notes" id="org1598359">
 <p>
 The point is migration-friendly design, not speculative syntax tricks.
 </p>
@@ -233,12 +233,12 @@ The point is migration-friendly design, not speculative syntax tricks.
 </div>
 
 
-<a id="orgfffd94c"></a>
+<a id="orgb19739c"></a>
 
 # Recursion Schemes You Can Actually Use
 
 
-<a id="orgff7432d"></a>
+<a id="orgb1d65ef"></a>
 
 ### F-Algebras: How to Collapse One Layer
 
@@ -246,7 +246,7 @@ The point is migration-friendly design, not speculative syntax tricks.
 -   The recursion pattern stays fixed while business logic changes.
 -   This separation makes tree algorithms easier to reason about.
 
-<div class="notes" id="org69f644e">
+<div class="notes" id="org354bfe5">
 <p>
 I only need the intuition here, not full categorical development.
 </p>
@@ -254,50 +254,34 @@ I only need the intuition here, not full categorical development.
 </div>
 
 
-<a id="orge948a5a"></a>
+<a id="org3f5f166"></a>
 
 ### Catamorphisms as a Principled Fold
 
 -   Catamorphism: apply the algebra recursively until the structure is collapsed.
 -   In C++, this corresponds to a disciplined fold over a recursive representation.
--   You get reuse without hardcoding each algorithm into the node type.
+-   This yields reuse without hardcoding each algorithm into the node type.
 
-<div class="notes" id="org306271b">
+<div class="notes" id="org53e766e">
 <p>
 Foldable is the operational entry point for this in everyday code.
 </p>
 
 </div>
 
-1.  FixTree fold\_map: The Catamorphism
+1.  Fixpoint Expression Tree: eval\_algebra and cata
 
-    ```cpp
-    template <class F>
-    auto fold_map(this auto&& self, F&& f, const smd::tree::FixTree<T>& t)
-    {
-            if (t.is_leaf()) {
-                return std::invoke(f, t.value());
-            }
-    
-            auto lhs = self.fold_map(f, t.left());
-            auto rhs = self.fold_map(f, t.right());
-    
-            using Result = std::remove_cvref_t<decltype(lhs)>;
-            return smd::typeclass::monoid_v<Result>.combine(lhs, rhs);
-    }
-    ```
-    
-    <div class="notes" id="org665ec0d">
+    <div class="notes" id="org451f337">
     <p>
-    Recursion control lives in fold_map; business logic goes in f.
-    monoid_v&lt;Result&gt; looks up the Monoid instance for whatever type f returns.
-    combine merges two sub-results; the tree is never flattened.
+    eval_algebra consumes one fully-evaluated layer: constants return their value,
+    binary nodes combine the already-folded children.  cata supplies the recursion.
+    Separating the algebra from the recursion is the whole point.
     </p>
     
     </div>
 
 
-<a id="org2c2580c"></a>
+<a id="orge073e5f"></a>
 
 ### Separating Recursion from Business Logic
 
@@ -305,7 +289,7 @@ Foldable is the operational entry point for this in everyday code.
 -   This yields smaller tests and more reusable algorithms.
 -   It also creates a natural place to enforce laws.
 
-<div class="notes" id="orgaf57ea5">
+<div class="notes" id="orgf96b26f">
 <p>
 When recursion is abstracted, law tests become executable documentation.
 </p>
@@ -313,12 +297,12 @@ When recursion is abstracted, law tests become executable documentation.
 </div>
 
 
-<a id="org9e464ea"></a>
+<a id="orgb492dea"></a>
 
 # The Typeclass Object Pattern
 
 
-<a id="orgac4b198"></a>
+<a id="org0891070"></a>
 
 ### Typeclass Lookup: One Object Per Concept
 
@@ -327,7 +311,7 @@ When recursion is abstracted, law tests become executable documentation.
 -   New types opt in by specializing the variable template — no inheritance required.
 -   Instances are open-world: add one close to the type, not in a central registry.
 
-<div class="notes" id="org740d531">
+<div class="notes" id="org3ab59ae">
 <p>
 This replaces concept maps from C++0x with a simpler, working mechanism.
 </p>
@@ -336,13 +320,7 @@ This replaces concept maps from C++0x with a simpler, working mechanism.
 
 1.  Specializing the Variable Template
 
-    ```cpp
-    template <class T>
-    inline constexpr auto foldable_typeclass<smd::tree::FixTree<T> > =
-        FixTreeFoldableMap<T>{};
-    ```
-    
-    <div class="notes" id="org93606cc">
+    <div class="notes" id="orgdde5f42">
     <p>
     Three lines of opt-in. No registry, no inheritance, no base class modification.
     The specialization can live next to the type or in any adapter header.
@@ -351,7 +329,7 @@ This replaces concept maps from C++0x with a simpler, working mechanism.
     </div>
 
 
-<a id="org32b4eac"></a>
+<a id="org3eb092b"></a>
 
 ### Three Lookup Modes
 
@@ -360,7 +338,7 @@ This replaces concept maps from C++0x with a simpler, working mechanism.
 -   NTTP pinning: `template <const auto& F = foldable_typeclass<Tree>>` — lookup bound at instantiation.
 -   All three produce the same dispatch; the choice is about stability and explicitness.
 
-<div class="notes" id="orga8d9645">
+<div class="notes" id="org5646aa5">
 <p>
 NTTP pinning is demonstrated in conceptmap functor tests (testP, testP2).
 It proves that a generic helper's lookup is stable even when callers pass different instances.
@@ -369,20 +347,11 @@ It proves that a generic helper's lookup is stable even when callers pass differ
 </div>
 
 
-<a id="orgeb94303"></a>
+<a id="orgd6054df"></a>
 
 ### NTTP Pinning Example
 
-```cpp
-template <class STRUCTURE,
-          const auto& FOLDABLE = smd::foldable_typeclass<STRUCTURE> >
-auto sum_with_nttp_lookup(const STRUCTURE& structure)
-{
-    return FOLDABLE.fold_map([](int x) { return x; }, structure);
-}
-```
-
-<div class="notes" id="org8f5c562">
+<div class="notes" id="org5e7fe5d">
 <p>
 The FOLDABLE parameter defaults to the variable template lookup.
 Callers can supply a custom instance to change behavior for a specific call site.
@@ -391,16 +360,16 @@ Callers can supply a custom instance to change behavior for a specific call site
 </div>
 
 
-<a id="org406d990"></a>
+<a id="orgd1aa92f"></a>
 
 ### Implementors: One Hook, Many Derived Operations
 
--   Implement one minimal hook per concept; all derived operations come for free.
+-   Implement one minimal hook per concept; all derived operations are provided automatically.
 -   Foldable: implement `fold_map` → counting, folding, predicates, collection.
 -   Applicative: implement `pure` + `apply` → `invoke` and five more operations.
 -   Traversable: implement `traverse` → `for_each`, `sequence`, and override variants.
 
-<div class="notes" id="org71dd9c6">
+<div class="notes" id="org8beefe9">
 <p>
 The implementor surface is small; the user-facing surface is rich.
 </p>
@@ -408,16 +377,16 @@ The implementor surface is small; the user-facing surface is rich.
 </div>
 
 
-<a id="orgd968b03"></a>
+<a id="orgce2c464"></a>
 
 ### CRTP and Deducing This
 
 -   Each concept wrapper is a CRTP base (`Foldable<Impl>`, `Applicative<Impl>`, `Traversable<Impl>`).
--   `this auto&& self` preserves value category and constness through all wrapper calls.
+-   `this auto&& self` (C++23 explicit object parameter) preserves value category and constness through all wrapper calls.
 -   Derived operations call back into the Impl via `self`; overrides are detected by `requires`.
 -   Dispatch stays fully static — no virtual calls, no type erasure.
 
-<div class="notes" id="org6d942fd">
+<div class="notes" id="orga2acac3">
 <p>
 CRTP supplies structure; deducing this keeps wrappers generic without losing type information.
 </p>
@@ -425,21 +394,21 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 </div>
 
 
-<a id="org245cf2c"></a>
+<a id="orgcfaab6f"></a>
 
 # Functor: The Foundation
 
 
-<a id="org31228da"></a>
+<a id="org19cd7d2"></a>
 
 ### Functor Interface
 
 -   Minimal hook: `fmap(F, container)` — apply a pure function inside a context.
 -   Derived: `replace(container, value)` — overwrite all elements with a constant.
--   Instances provided: `std::optional`, `beman::optional`, `std::vector`.
+-   Instances: `std::optional`, `beman::optional`, `std::vector`.
 -   Lookup: `smd::functor_typeclass<std::optional<int>>`.
 
-<div class="notes" id="orga9ae95c">
+<div class="notes" id="orgcc135ad">
 <p>
 Functor is the base on which Applicative and Traversable are built.
 </p>
@@ -447,23 +416,11 @@ Functor is the base on which Applicative and Traversable are built.
 </div>
 
 
-<a id="org6378fad"></a>
+<a id="org0a6f388"></a>
 
 ### Functor: Derived replace
 
-```cpp
-template <class T, class U>
-auto replace(this auto&& self, T&& value, U&& replacement)
-{
-        return self.fmap(
-            [replacement = std::forward<U>(replacement)](const auto&) {
-                return replacement;
-            },
-            std::forward<T>(value));
-}
-```
-
-<div class="notes" id="org5a368dd">
+<div class="notes" id="org907cc85">
 <p>
 replace is derived from fmap with a constant function — no extra instance work required.
 </p>
@@ -471,34 +428,28 @@ replace is derived from fmap with a constant function — no extra instance work
 </div>
 
 
-<a id="org29e56d7"></a>
+<a id="org58fd64d"></a>
 
 ### Functor Identity Law in Tests
 
 -   fmap(id, x) == x for every instance and every shape.
 
-```cpp
-{
-        const auto& functor = smd::functor_typeclass<std::optional<int> >;
-        CHECK(functor.fmap(id, std::optional<int>{42}) == std::optional<int>{42});
-        CHECK(functor.fmap(id, std::optional<int>{}) == std::optional<int>{});
-}
-```
-
-<div class="notes" id="orgbb7fbb5">
+<div class="notes" id="org406942e">
 <p>
 Tests that encode laws document intent more durably than comments.
 </p>
 
 </div>
 
+**Preservation**: This C++ encoding of Functor preserves the identity law in `functor.t.cpp`. Every instance (optional, beman::optional, vector) passes the law test; deviation signals a contract violation.
 
-<a id="org59e2713"></a>
+
+<a id="org31339e1"></a>
 
 # Preserving Shape: Traversable and Friends
 
 
-<a id="org301aa1c"></a>
+<a id="org704877d"></a>
 
 ### Foldable vs. Traversable: Sequence vs. Shape
 
@@ -506,7 +457,7 @@ Tests that encode laws document intent more durably than comments.
 -   Traversable maps with effects while rebuilding the same outer shape.
 -   For trees, this is the difference between counting nodes and relabeling them in place.
 
-<div class="notes" id="orge4abb69">
+<div class="notes" id="org5aef040">
 <p>
 This section shows concrete code now, before the formal typeclass introductions.
 The goal is to build intuition: Foldable = collapse to value, Traversable = transform in place.
@@ -516,7 +467,7 @@ Formal treatment of each typeclass follows in the next three sections.
 </div>
 
 
-<a id="orga4057ec"></a>
+<a id="orgc0963f8"></a>
 
 ### Crisp Contrast: Flatten vs. Preserve Shape
 
@@ -525,20 +476,9 @@ Formal treatment of each typeclass follows in the next three sections.
 
 1.  Foldable Flattens and Loses Shape Identity
 
-    ```cpp
-    auto left_flat = foldable.to_vector(left_heavy);
-    auto right_flat = foldable.to_vector(right_heavy);
-    ```
-
 2.  Traversable Maps While Preserving Shape
 
-    ```cpp
-    auto mapped = traversable.traverse(
-        [](int x) -> optional<int> { return optional<int>{x + 10}; },
-        tree);
-    ```
-    
-    <div class="notes" id="org76e3a54">
+    <div class="notes" id="org86bebed">
     <p>
     Foldable can collapse two different shapes to the same flat view.
     Traversable keeps the tree skeleton and only transforms payloads.
@@ -547,14 +487,14 @@ Formal treatment of each typeclass follows in the next three sections.
     </div>
 
 
-<a id="orgfe871af"></a>
+<a id="org4cee177"></a>
 
 ### Same Algorithm, Two Tree Representations
 
 -   Fixpoint tree and shared\_ptr binary tree can share the same Foldable call shape.
 -   The representation changes; the typeclass API and algorithm intent stay the same.
 
-<div class="notes" id="org7ec94e5">
+<div class="notes" id="org788c121">
 <p>
 The call site reads identically across all three representations.
 This is the key payoff of typeclass lookup: the algorithm is written once against an interface, not once per type.
@@ -564,24 +504,16 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 
 1.  Fixpoint Tree
 
-    ```cpp
-    auto n = foldable.length(tree);
-    ```
-    
-    <div class="notes" id="org786a5cb">
+    <div class="notes" id="org6636c4e">
     <p>
-    FixTree&lt;int&gt;. fold_map and to_vector dispatch through foldable_typeclass&lt;FixTree&lt;int&gt;&gt;.
+    Expr (Fix&lt;ExprF&gt;). length dispatches through foldable_typeclass&lt;Expr&gt;; counts leaf constants.
     </p>
     
     </div>
 
 2.  shared\_ptr Binary Tree
 
-    ```cpp
-    auto n = foldable.length(tree);
-    ```
-    
-    <div class="notes" id="org755051f">
+    <div class="notes" id="org3f23f93">
     <p>
     BinaryTree&lt;int&gt;. Different type, different fold_map implementation — same call site.
     </p>
@@ -590,11 +522,7 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 
 3.  FringeTree (Simplified FingerTree)
 
-    ```cpp
-    auto n = foldable.length(tree);
-    ```
-    
-    <div class="notes" id="org98046e4">
+    <div class="notes" id="org78e6390">
     <p>
     FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third representation.
     </p>
@@ -603,17 +531,7 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 
 4.  FringeTree: Traversable Also Preserves Shape
 
-    ```cpp
-    using beman::optional::optional;
-    
-    auto relabelled = traversable.traverse(
-            [](int x) -> optional<int> {
-                return x >= 0 ? optional<int>{x + 1} : optional<int>{};
-            },
-            tree);
-    ```
-    
-    <div class="notes" id="org50deb17">
+    <div class="notes" id="org9531416">
     <p>
     The same FringeTree that folded to {1,2,3} under Foldable now maps values and comes back as a FringeTree.
     The variant structure (Empty | Leaf | Branch) is intact; only the leaf values changed.
@@ -622,12 +540,12 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
     </div>
 
 
-<a id="orgee407b5"></a>
+<a id="org7c67419"></a>
 
 # Foldable
 
 
-<a id="org0e67692"></a>
+<a id="orgcea5e8a"></a>
 
 ### Monoid: The Glue fold\_map Needs
 
@@ -635,7 +553,7 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 -   That result type must support two operations: a neutral starting value and an associative merge.
 -   In other words: a Monoid. Counting uses `Count{0}` + addition. Collecting uses `vector{}` + append.
 
-<div class="notes" id="orgc26704d">
+<div class="notes" id="orgd733e1e">
 <p>
 This is a brief primer so the fold_map code makes sense immediately.
 Full treatment — specialization, law tests, measured trees, finger tree policies — is in "Monoids and Measured Trees".
@@ -644,7 +562,7 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 </div>
 
 
-<a id="org74fb402"></a>
+<a id="org45f7ff6"></a>
 
 ### Foldable API: One Hook, Derived from fold\_map
 
@@ -654,33 +572,9 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 
 1.  fold\_map → length
 
-    ```cpp
-    template <class T>
-    auto length(this auto&& self, T&& value) -> std::size_t
-    {
-      const auto count = self.fold_map(
-        [](const auto&) { return typeclass::Count{1}; },
-        std::forward<T>(value));
-      return count.d_value;
-    }
-    ```
-
 2.  fold\_map → to\_vector
 
-    ```cpp
-    template <class T>
-    auto to_vector(this auto&& self, T&& value)
-    {
-      return self.fold_map(
-        [](const auto& x) {
-            using ValueType = remove_cvref_t<decltype(x)>;
-            return std::vector<ValueType>{x};
-        },
-        std::forward<T>(value));
-    }
-    ```
-    
-    <div class="notes" id="org8d5f26d">
+    <div class="notes" id="orgf8bef94">
     <p>
     Every derived operation is implemented by specializing what fold_map collects.
     fold_left and fold_right use a function-composition monoid internally.
@@ -689,22 +583,13 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
     </div>
 
 
-<a id="orgbca2221"></a>
+<a id="org13232e0"></a>
 
 ### Foldable Proof: Tests as Examples
 
 -   Derived operations are verified directly against concrete inputs.
 
-```cpp
-using IntSequence = smd::typeclass::test::Sequence<int>;
-auto sequence = IntSequence{{1, 2, 3}};
-const auto& int_foldable = smd::foldable_typeclass<IntSequence>;
-
-const auto as_vector = int_foldable.to_vector(sequence);
-CHECK(as_vector == (std::vector<int>{1, 2, 3}));
-```
-
-<div class="notes" id="orgf855350">
+<div class="notes" id="orgbd0c16b">
 <p>
 The test encodes a semantic claim: to_vector of {1,2,3} is exactly {1,2,3}.
 That claim would catch a traversal-order regression.
@@ -713,12 +598,12 @@ That claim would catch a traversal-order regression.
 </div>
 
 
-<a id="org5424093"></a>
+<a id="orgc383fce"></a>
 
 # Applicative
 
 
-<a id="org0875a0e"></a>
+<a id="org898cb53"></a>
 
 ### Applicative Model: Pure Function over Effectful Arguments
 
@@ -727,7 +612,7 @@ That claim would catch a traversal-order regression.
 -   User API: `invoke` — matches the mental model of `std::invoke` over effectful values.
 -   Less sequencing machinery than monadic formulations for independent effects.
 
-<div class="notes" id="org059c039">
+<div class="notes" id="org909be69">
 <p>
 McBride's "applicative style" paper is the primary reference (Conor McBride and Ross Paterson, 2008).
 apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] for Haskell audiences; invoke is the preferred C++ spelling.
@@ -736,19 +621,11 @@ apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] fo
 </div>
 
 
-<a id="orgc2aab76"></a>
+<a id="orgaf2deea"></a>
 
 ### Applicative in Use
 
-```cpp
-auto sum = applicative.invoke(
-        [](int a, int b, int c) { return a + b + c; },
-        ax,
-        ay,
-        az);
-```
-
-<div class="notes" id="orgd7a4d93">
+<div class="notes" id="org2cdf250">
 <p>
 Three independent optional arguments. If any is absent the whole computation short-circuits.
 </p>
@@ -756,21 +633,11 @@ Three independent optional arguments. If any is absent the whole computation sho
 </div>
 
 
-<a id="orgae0f63e"></a>
+<a id="org73bb43e"></a>
 
 ### Applicative: invoke in Tests
 
-```cpp
-std::optional<int> ax{10};
-std::optional<int> ay{5};
-const auto& applicative = smd::applicative_typeclass<std::optional<int> >;
-
-auto result = applicative.invoke([](int a, int b) { return a - b; }, ax, ay);
-REQUIRE(result.has_value());
-CHECK(*result == 5);
-```
-
-<div class="notes" id="org21de390">
+<div class="notes" id="org154c21a">
 <p>
 invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
 </p>
@@ -778,18 +645,11 @@ invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
 </div>
 
 
-<a id="orgf2409cd"></a>
+<a id="org46d276b"></a>
 
 ### Applicative: Short-Circuit on Absent
 
-```cpp
-std::optional<int> ax{1};
-std::optional<int> ay{};
-auto invoke_result = applicative.invoke([](int a, int b) { return a + b; }, ax, ay);
-CHECK_FALSE(invoke_result.has_value());
-```
-
-<div class="notes" id="org7842b96">
+<div class="notes" id="org69e6c60">
 <p>
 ax is present; ay is absent. invoke short-circuits: f is never called.
 This is the core contract of optional-as-applicative.
@@ -798,23 +658,14 @@ This is the core contract of optional-as-applicative.
 </div>
 
 
-<a id="org48fd129"></a>
+<a id="org71e21b7"></a>
 
 ### Applicative: invoke via Terminating Partial Application
 
 -   `invoke` is derived: `pure(partial(f))` lifts f; each `apply` peels off one contextual argument.
 -   Implementations provide only `pure` + `apply`; `invoke` can be overridden for custom semantics.
 
-```cpp
-auto partial = smd::detail::make_terminating_partial(
-        [](int a, int b, int c) { return a * 100 + b * 10 + c; });
-
-auto partial2 = partial(1);
-auto partial3 = partial2(2);
-CHECK(partial3(3) == 123);
-```
-
-<div class="notes" id="org492abb3">
+<div class="notes" id="orgc9d7688">
 <p>
 make_terminating_partial wraps f; each call either invokes f if all args are present or returns a new partial.
 This avoids std::bind complexity while handling arbitrary arity uniformly.
@@ -824,26 +675,14 @@ Also derived from pure + apply: map, lift, ap, zip_with, discard_first, discard_
 </div>
 
 
-<a id="org7d997dc"></a>
+<a id="orgeb46ad2"></a>
 
 ### Applicative Law: Interchange
 
 -   Interchange: `ap(u, pure(y)) == ap(pure(λf. f(y)), u)`
 -   Applying a contextual function to a pure value is symmetric.
 
-```cpp
-const auto& ap = smd::applicative_typeclass<std::optional<int> >;
-std::optional<Fn> u{[](int x) { return x * 3; }};
-
-auto lhs = ap.ap(u, ap.pure(y));
-auto rhs = ap.ap(ap.pure([](const Fn& fn) { return fn(y); }), u);
-
-REQUIRE(lhs.has_value());
-CHECK(*lhs == 21);
-CHECK(lhs == rhs);
-```
-
-<div class="notes" id="orgc0d1220">
+<div class="notes" id="org75892ff">
 <p>
 The interchange law is the trickiest to build intuition for.
 It constrains how pure values interact with contextual functions.
@@ -852,28 +691,14 @@ It constrains how pure values interact with contextual functions.
 </div>
 
 
-<a id="org8c633cc"></a>
+<a id="orgae89d31"></a>
 
 ### Applicative Law: Composition
 
 -   Composition: `ap(invoke(compose, u, v), w) == ap(u, ap(v, w))`
 -   Composing effectful functions then applying equals sequencing the applications.
 
-```cpp
-const auto& ap = smd::applicative_typeclass<std::optional<int> >;
-std::optional<Fn> u{[](int x) { return x + 10; }};
-std::optional<Fn> v{[](int x) { return x * 2; }};
-std::optional<int> w{3};
-
-auto lhs = ap.ap(ap.invoke(compose, u, v), w);
-auto rhs = ap.ap(u, ap.ap(v, w));
-
-REQUIRE(lhs.has_value());
-CHECK(*lhs == 16);  // (3 * 2) + 10
-CHECK(lhs == rhs);
-```
-
-<div class="notes" id="org93dfd76">
+<div class="notes" id="org4f300cc">
 <p>
 The composition law ensures that effectful function composition is associative.
 w = 3, v doubles to 6, u adds 10: result is 16.
@@ -881,13 +706,15 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 
 </div>
 
+**Preservation**: This C++ encoding of Applicative preserves all four laws (identity, homomorphism, interchange, composition) via executable tests in `applicative.t.cpp`. The semantic claim that effectful function application is associative survives the encoding as a statically-verified contract.
 
-<a id="orgce88c8d"></a>
+
+<a id="org0f2cca9"></a>
 
 # Traversable
 
 
-<a id="org15cab4b"></a>
+<a id="org2e8da61"></a>
 
 ### Traversable Model: Commute Shape and Effect
 
@@ -897,25 +724,11 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 -   Use this to model validation, partial relabeling, and structured transformations.
 
 
-<a id="org22b7ccb"></a>
+<a id="org76103dd"></a>
 
 ### Traversable in Use: Success
 
-```cpp
-auto values = smd::ranges::from_vector(std::vector<int>{1, 2, 3});
-const auto& traversable = smd::traversable_typeclass<decltype(values)>;
-
-auto traversed = traversable.traverse(
-        [](int value) -> std::optional<int> {
-            return std::optional<int>{value + 1};
-        },
-        values);
-
-REQUIRE(traversed.has_value());
-CHECK(collect(*traversed) == (std::vector<int>{2, 3, 4}));
-```
-
-<div class="notes" id="org94ecb48">
+<div class="notes" id="orge67e114">
 <p>
 Every element transforms successfully. The optional wrapping is removed and a new range is returned.
 </p>
@@ -923,25 +736,11 @@ Every element transforms successfully. The optional wrapping is removed and a ne
 </div>
 
 
-<a id="org2f6d341"></a>
+<a id="orgc259923"></a>
 
 ### Traversable in Use: Failure Propagates
 
-```cpp
-auto values = smd::ranges::from_vector(std::vector<int>{1, -2, 3});
-const auto& traversable = smd::traversable_typeclass<decltype(values)>;
-
-auto traversed = traversable.traverse(
-        [](int value) -> std::optional<int> {
-            return value >= 0 ? std::optional<int>{value + 1}
-                              : std::optional<int>{};
-        },
-        values);
-
-CHECK_FALSE(traversed.has_value());
-```
-
-<div class="notes" id="org1a0d431">
+<div class="notes" id="org32bd513">
 <p>
 One absent result poisons the whole traversal. No partial range is returned.
 This is the short-circuit behavior that distinguishes traverse from map.
@@ -950,21 +749,11 @@ This is the short-circuit behavior that distinguishes traverse from map.
 </div>
 
 
-<a id="org39c2469"></a>
+<a id="org88d3729"></a>
 
 ### Traversable API: sequence
 
-```cpp
-template <class T>
-auto sequence(this auto&& self, T&& value)
-{
-        return self.traverse(
-            [](auto&& x) { return std::forward<decltype(x)>(x); },
-            std::forward<T>(value));
-}
-```
-
-<div class="notes" id="org2abdf02">
+<div class="notes" id="org1939d8f">
 <p>
 sequence commutes a container of effects into an effect of a container.
 The identity function here means "the effect IS the structure": traverse(id, t).
@@ -974,21 +763,11 @@ Also derived: for_each, which is traverse with its arguments flipped (container 
 </div>
 
 
-<a id="org955bde8"></a>
+<a id="org2b7479b"></a>
 
 ### Traversable Proof: sequence in Tests
 
-```cpp
-using IdentityOpt = smd::typeclass::test::Identity<std::optional<int> >;
-auto identity = IdentityOpt{std::optional<int>{1}};
-const auto& traversable = smd::traversable_typeclass<IdentityOpt>;
-
-auto sequenced = traversable.sequence(identity);
-REQUIRE(sequenced.has_value());
-CHECK(sequenced->value == 1);
-```
-
-<div class="notes" id="org685a493">
+<div class="notes" id="org769f02a">
 <p>
 sequence converts Identity&lt;optional&lt;int&gt;&gt; into optional&lt;Identity&lt;int&gt;&gt;.
 The shape is preserved; the effect wraps the whole result.
@@ -997,22 +776,14 @@ The shape is preserved; the effect wraps the whole result.
 </div>
 
 
-<a id="org1c05d00"></a>
+<a id="org1195886"></a>
 
 ### Traversable Law: Naturality
 
 -   If you have a function that converts between applicatives and respects `pure` and `ap`, traversal commutes through it.
 -   Concretely: converting `optional<B>` → `beman::optional<B>` after traversal gives the same result as composing the conversion into `f` before traversal.
 
-```cpp
-{
-        auto value = Identity{3};
-        CHECK(to_beman(traversable.traverse(f, value)) ==
-              traversable.traverse(f_returning_beman, value));
-}
-```
-
-<div class="notes" id="org7724a0c">
+<div class="notes" id="org4741a6c">
 <p>
 Formal law: for an applicative morphism φ (commutes with pure and ap), φ(traverse f t) == traverse (φ∘f) t.
 to_beman is the morphism: converts std::optional&lt;Identity&lt;int&gt;&gt; to beman::optional&lt;Identity&lt;int&gt;&gt;.
@@ -1023,7 +794,7 @@ Both sides produce beman::optional&lt;Identity&lt;int&gt;&gt;{Identity{6}}.
 </div>
 
 
-<a id="org64092d8"></a>
+<a id="orge98de12"></a>
 
 ### Traversable Commute: Range and ZipList
 
@@ -1032,29 +803,9 @@ Both sides produce beman::optional&lt;Identity&lt;int&gt;&gt;{Identity{6}}.
 
 1.  Range of ZipLists → ZipList of Ranges
 
-    ```cpp
-    auto sequenced = traversable.sequence(values);
-    
-    REQUIRE(sequenced.data.size() == 2U);
-    CHECK(collect(sequenced.data[0]) == (std::vector<int>{1, 10, 100}));
-    CHECK(collect(sequenced.data[1]) == (std::vector<int>{2, 20, 200}));
-    ```
-
 2.  ZipList of Vectors → Vector of ZipLists (matrix transpose)
 
-    ```cpp
-    smd::zip_list<std::vector<int> > zip_of_vectors{
-            {{1, 10, 100}, {2, 20, 200}}};
-    
-    auto as_rows = to_vector_of_ziplists(zip_of_vectors);
-    
-    REQUIRE(as_rows.size() == 3U);
-    CHECK(as_rows[0].data == (std::vector<int>{1, 2}));
-    CHECK(as_rows[1].data == (std::vector<int>{10, 20}));
-    CHECK(as_rows[2].data == (std::vector<int>{100, 200}));
-    ```
-    
-    <div class="notes" id="org89f5f02">
+    <div class="notes" id="orgb516454">
     <p>
     This helper (<code>to_vector_of_ziplists</code>) is hand-coded to illustrate the inverse transpose concept.
     The Traversable version is the range-of-ZipLists → ZipList-of-ranges test on the previous slide.
@@ -1064,7 +815,7 @@ Both sides produce beman::optional&lt;Identity&lt;int&gt;&gt;{Identity{6}}.
     </div>
 
 
-<a id="org718d79e"></a>
+<a id="org2e37194"></a>
 
 ### Laws That Keep This Honest
 
@@ -1073,7 +824,7 @@ Both sides produce beman::optional&lt;Identity&lt;int&gt;&gt;{Identity{6}}.
 -   Foldable: all derived operations exercised directly against `fold_map`.
 -   If these fail, abstractions become accidental APIs rather than reliable interfaces.
 
-<div class="notes" id="org954d978">
+<div class="notes" id="org2013492">
 <p>
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
 Note: tree applicative (applying a tree of functions to a tree of values) is a policy choice, not the core applicative story.
@@ -1082,13 +833,15 @@ The core teaching value of Applicative is visible in optional, range, and ZipLis
 
 </div>
 
+**Preservation**: This C++ encoding of Traversable preserves identity and naturality laws in `traversable.t.cpp`. Composition is verified through range-of-ZipLists and ZipList-of-ranges commutation tests (matrix transpose). The semantic claim that traversal commutes shape and effect survives unbroken from theory to executable code.
 
-<a id="org7639e49"></a>
+
+<a id="org09e450c"></a>
 
 # Monoids and Measured Trees
 
 
-<a id="org3e60867"></a>
+<a id="org12a776d"></a>
 
 ### Monoid Interface
 
@@ -1098,23 +851,11 @@ The core teaching value of Applicative is visible in optional, range, and ZipLis
 -   Lookup via `monoid_v<T>`; extend by specializing `Monoid<T>`.
 
 
-<a id="orgeebc58c"></a>
+<a id="org6f0d480"></a>
 
 ### Monoid: Count Specialization
 
-```cpp
-template <>
-struct Monoid<Count> {
-    constexpr auto identity() const -> Count { return Count{0}; }
-
-    constexpr auto combine(const Count& lhs, const Count& rhs) const -> Count
-    {
-        return Count{lhs.d_value + rhs.d_value};
-    }
-};
-```
-
-<div class="notes" id="orge4cb274">
+<div class="notes" id="orgfbf5ba0">
 <p>
 Count is the canonical monoid for counting elements.
 identity is 0; combine is addition — the simplest possible monoid.
@@ -1123,25 +864,11 @@ identity is 0; combine is addition — the simplest possible monoid.
 </div>
 
 
-<a id="org528eb5e"></a>
+<a id="org7ebb3cb"></a>
 
 ### Monoid: Generic Helpers
 
-```cpp
-template <class VALUE_TYPE>
-auto monoid_identity() -> VALUE_TYPE
-{
-    return typeclass::monoid_v<VALUE_TYPE>.identity();
-}
-
-template <class VALUE_TYPE>
-auto monoid_combine(const VALUE_TYPE& lhs, const VALUE_TYPE& rhs) -> VALUE_TYPE
-{
-    return typeclass::monoid_v<VALUE_TYPE>.combine(lhs, rhs);
-}
-```
-
-<div class="notes" id="org1425fd9">
+<div class="notes" id="org7950f4b">
 <p>
 monoid_v&lt;T&gt; is the canonical lookup object; monoid_combine and monoid_identity are free-function helpers.
 These are the call shapes used by fold_map and all derived Foldable operations.
@@ -1150,19 +877,11 @@ These are the call shapes used by fold_map and all derived Foldable operations.
 </div>
 
 
-<a id="org695f1c8"></a>
+<a id="org232f234"></a>
 
 ### Monoid in Tests
 
-```cpp
-const smd::typeclass::Count one{1};
-const smd::typeclass::Count two{2};
-
-const auto result = smd::monoid_combine(one, two);
-CHECK(result.d_value == 3U);
-```
-
-<div class="notes" id="org1e77474">
+<div class="notes" id="org5ba2a9c">
 <p>
 monoid_combine dispatches through monoid_v&lt;Count&gt;. The test is mechanical, but it pins the specialization.
 </p>
@@ -1170,19 +889,11 @@ monoid_combine dispatches through monoid_v&lt;Count&gt;. The test is mechanical,
 </div>
 
 
-<a id="org8d2539a"></a>
+<a id="orga263379"></a>
 
 ### Monoid Identity Law in Tests
 
-```cpp
-{
-        const auto& m = smd::typeclass::monoid_v<int>;
-        CHECK(m.combine(m.identity(), 42) == 42);
-        CHECK(m.combine(42, m.identity()) == 42);
-}
-```
-
-<div class="notes" id="orgba4aa38">
+<div class="notes" id="org340ebfc">
 <p>
 The identity law is what makes identity() useful for initializing fold accumulators.
 If this fails the Monoid is not a monoid.
@@ -1190,8 +901,10 @@ If this fails the Monoid is not a monoid.
 
 </div>
 
+**Preservation**: This C++ encoding of Monoid preserves identity and associativity laws in `monoid.t.cpp`. Every specialization (Count, std::string, std::vector) must satisfy both laws to qualify as a lawful measure. This unlocks the algorithmic guarantee: regrouping combine operations changes nothing.
 
-<a id="org74f00a6"></a>
+
+<a id="orged103e2"></a>
 
 ### Associativity as Algorithmic Leverage
 
@@ -1199,7 +912,7 @@ If this fails the Monoid is not a monoid.
 -   Measured trees exploit this to maintain summaries incrementally.
 -   This is the bridge from algebra to explicit performance contracts.
 
-<div class="notes" id="org0b6bfa3">
+<div class="notes" id="orgfbaacb4">
 <p>
 If the measure is a monoid, split/search become compositional (Ralf Hinze and Ross Paterson, 2006).
 </p>
@@ -1207,15 +920,15 @@ If the measure is a monoid, split/search become compositional (Ralf Hinze and Ro
 </div>
 
 
-<a id="org825fa3b"></a>
+<a id="orgd25e477"></a>
 
 ### Annotations as Summaries
 
 -   Each node caches a measure of its subtree.
--   Measures are domain-specific: size, min priority, span, or cost.
+-   Measures are domain-specific: size, minimum priority, span, or cost.
 -   Updating structure updates summaries locally.
 
-<div class="notes" id="org296f9cb">
+<div class="notes" id="org3c05e5a">
 <p>
 The data structure stays the same while behavior changes with the monoid.
 </p>
@@ -1223,58 +936,59 @@ The data structure stays the same while behavior changes with the monoid.
 </div>
 
 
-<a id="orgfd7abd9"></a>
+<a id="orge5aadb1"></a>
 
 ### Search and Split Driven by Measures
 
--   Design: each node carries a cumulative measure; split navigates by predicate on that measure.
--   Current status: correct with linear-time bounds — split scans the flattened sequence.
--   The API shape is already what O(log n) split would need; optimization does not change call sites.
+-   Each node carries a cumulative measure; split navigates by predicate on that measure.
+-   Predicate-based core split navigates tree structure in O(log n).
+-   `split_at_index()` uses the structural path for count-measure trees; non-count measures fall back to flatten/rebuild.
 
-<div class="notes" id="org4863e73">
+<div class="notes" id="orgb992012">
 <p>
 The original finger-tree paper promises amortized O(1) at the ends,
 O(log(min(n,m))) concatenation, and O(log n) split/search (Ralf Hinze and Ross Paterson, 2006).
-The current implementation keeps the same API shape but does not yet meet those bounds.
-The point for the talk: the abstraction boundary is in the right place even before the optimization lands.
+The predicate-based core split (<code>split()</code> / <code>split_at()</code>) navigates tree structure in O(log n).
+<code>split_at_index()</code> uses a structural fast path when the measure is a count (UnitMeasure with size_t tag);
+non-count measures fall back to flatten/rebuild to preserve index semantics.
+Wrapper operations (random-access at/insert/erase/update, priority-queue pop) use structural split + concat and are O(log n).
 </p>
 
 </div>
 
 
-<a id="orgf9ab397"></a>
+<a id="orgc2060c1"></a>
 
 # Finger Trees as a Case Study
 
 
-<a id="org5d745c1"></a>
+<a id="org1ae14e7"></a>
 
 ### Persistent Concatenation and Splitting
 
--   Current prototype provides efficient, persistence-friendly concatenation.
--   Current split/search paths are correct with linear-time upper bounds.
--   The API is designed so split/search can be optimized later without changing call sites.
--   The API naturally composes with foldable/traversable abstractions.
+-   Persistent, persistence-friendly concatenation in O(log(min(n,m))).
+-   Predicate-based split navigates tree structure in O(log n); wrapper operations use split + concat.
+-   The API composes naturally with foldable/traversable abstractions.
 
-<div class="notes" id="orgda94c72">
+<div class="notes" id="org4d08ad4">
 <p>
-This is where abstractions meet implementation reality.
-The paper-level target bounds remain the north star.
-The current prototype contract is explicit linear split/search.
+Concatenation uses Hinze-Paterson app3: O(log(min(n,m))).
+Split navigates the tree structurally in O(log n) and returns left, pivot, right.
+Wrapper operations (random-access, priority queue, rope) use split + concat directly.
 </p>
 
 </div>
 
 
-<a id="orgc86289b"></a>
+<a id="org1a5098f"></a>
 
 ### One Structure, Many Interpretations
 
 -   Change the monoid, change the interpretation.
--   Same implementation can model sequence, priority queue, or rope.
--   Reuse is semantic, not just syntactic.
+-   The same implementation can model sequence, priority queue, or rope.
+-   Reuse is semantic, not merely syntactic.
 
-<div class="notes" id="org1591b81">
+<div class="notes" id="orgc7508ea">
 <p>
 This is the strongest argument for measured trees in a standard library context.
 </p>
@@ -1283,57 +997,29 @@ This is the strongest argument for measured trees in a standard library context.
 
 1.  Sequence: O(log n) Random Access
 
-    ```cpp
-    using Seq = smd::tree::FingerTreeRandomAccess<int>;
-    
-    auto seq = Seq::from_sequence({1, 2, 3});
-    REQUIRE(seq.at(0).has_value());
-    CHECK(*seq.at(0) == 1);
-    CHECK_FALSE(seq.at(99).has_value());
-    
-    auto edited = seq.push_back(4).push_front(0).insert(2, 9).update(3, 7).erase(1);
-    CHECK(edited.to_vector() == (std::vector<int>{0, 9, 7, 3, 4}));
-    ```
-    
-    <div class="notes" id="orgd7ef4e4">
+    <div class="notes" id="org6d7da98">
     <p>
     Monoid: size. The measure at each node is the count of elements below it.
-    push_front/push_back/insert/update/erase all work by measure-guided split and rejoin.
+    push_front/push_back are O(1) amortized.
+    at/insert/erase/update use structural split O(log n) + concat O(log(min(n,m))).
     </p>
     
     </div>
 
 2.  Priority Queue: Min and Max in One Structure
 
-    ```cpp
-    auto q = Queue::from_values({5, 2, 8, 2, 7});
-    REQUIRE(q.min().has_value());
-    REQUIRE(q.max().has_value());
-    CHECK(*q.min() == 2);
-    CHECK(*q.max() == 8);
-    ```
-    
-    <div class="notes" id="org0601074">
+    <div class="notes" id="org8c687fe">
     <p>
-    Two FingerTrees, one keyed by min, one by max. The same element lives in both.
+    One FingerTree with a combined PriorityTag measure tracking both min and max simultaneously.
     Monoid: (Min, Max) — a pair that combines by taking component-wise extrema.
+    push is O(1) amortized; pop_min/pop_max use measure-guided split O(log n) + concat O(log(min(n,m))).
     </p>
     
     </div>
 
 3.  Rope: Character Buffer with Efficient Editing
 
-    ```cpp
-    auto rope = Rope::from_text("abCDxy", 2)
-                        .insert(2, "--")
-                        .erase(5, 2)
-                        .replace(0, 2, "AB");
-    
-    CHECK(rope.to_string() == "AB--Cy");
-    CHECK(rope.size_bytes() == 6U);
-    ```
-    
-    <div class="notes" id="org8944cfe">
+    <div class="notes" id="orgb957405">
     <p>
     Monoid: byte-length. The measure at each node is the byte count of its chunk subtree.
     insert, erase, and replace all navigate by cumulative byte offset using split.
@@ -1342,15 +1028,15 @@ This is the strongest argument for measured trees in a standard library context.
     </div>
 
 
-<a id="org355ee58"></a>
+<a id="org318b6b9"></a>
 
 ### Why This Belongs in Modern C++
 
 -   Adding Traversable to an existing type requires no modification to the type itself — one specialization in a header.
--   The Rope, priority queue, and sequence share a Traversable implementation; no per-type code was written.
+-   The Rope, priority queue, and sequence expose the same Traversable interface, with separate per-type specializations in the current codebase.
 -   The abstraction is a library choice today; it maps cleanly to pattern matching and richer generic facilities when those arrive.
 
-<div class="notes" id="org68a7875">
+<div class="notes" id="orgdd56aef">
 <p>
 This is the concrete payoff: the design composes correctly across independent extension points.
 No monkey-patching, no reopening of classes, no central registry.
@@ -1358,13 +1044,15 @@ No monkey-patching, no reopening of classes, no central registry.
 
 </div>
 
+**Preservation**: All five finger tree specializations (raw, random-access, priority-queue, rope, interval-index) satisfy the Traversable laws and compose with Foldable, Monoid, and Applicative correctly. The semantic claim that shape preservation and measure-guided search are compositional survives from theory through C++ encoding to real test suites.
 
-<a id="org2faca00"></a>
+
+<a id="orgd307f52"></a>
 
 # Designing APIs That Won't Age Poorly
 
 
-<a id="orgb89ab37"></a>
+<a id="orga2271c8"></a>
 
 ### Library Abstractions Anticipating Language Features
 
@@ -1372,7 +1060,7 @@ No monkey-patching, no reopening of classes, no central registry.
 -   Keep extension points separate from core type definitions.
 -   Make future language support a simplification, not a rewrite.
 
-<div class="notes" id="org6e61a1e">
+<div class="notes" id="org9f1451a">
 <p>
 Pattern matching and richer generic facilities should refine this API, not replace it.
 </p>
@@ -1380,7 +1068,7 @@ Pattern matching and richer generic facilities should refine this API, not repla
 </div>
 
 
-<a id="orge5473a7"></a>
+<a id="org0adac7f"></a>
 
 ### Avoiding the `std::bind` vs. Lambda Overlap
 
@@ -1388,7 +1076,7 @@ Pattern matching and richer generic facilities should refine this API, not repla
 -   Choose one clear good path per concept.
 -   For Applicative, that path is `invoke`; `apply_pure` remains a teaching aid.
 
-<div class="notes" id="org87fe6e7">
+<div class="notes" id="orgfa04382">
 <p>
 The goal is reducing cognitive branching in generic code.
 </p>
@@ -1396,7 +1084,7 @@ The goal is reducing cognitive branching in generic code.
 </div>
 
 
-<a id="orgc100c33"></a>
+<a id="orga3f7e56"></a>
 
 ### Keeping the Good Path Obvious
 
@@ -1404,7 +1092,7 @@ The goal is reducing cognitive branching in generic code.
 -   Keep naming consistent across concepts.
 -   Back claims with executable law tests.
 
-<div class="notes" id="orge6e3b0b">
+<div class="notes" id="org24e1685">
 <p>
 The best API docs in this space are tests that encode the laws.
 </p>

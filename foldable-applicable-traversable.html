@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-05-01 Fri 03:24 -->
+<!-- 2026-05-02 Sat 14:55 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Algorithms for Trees: Foldable, Applicative, Traversable</title>
 <meta name="author" content="Steve Downey" />
 <meta name="generator" content="Org Mode" />
-<style type="text/css">
+<style>
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -55,7 +55,6 @@
   pre.src-asymptote:before { content: 'Asymptote'; }
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
-  pre.src-c:before { content: 'C'; }
   pre.src-C:before { content: 'C'; }
   /* pre.src-C++ doesn't work in CSS */
   pre.src-clojure:before { content: 'Clojure'; }
@@ -70,7 +69,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'JavaScript'; }
+  pre.src-js:before { content: 'Javascript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -205,159 +204,159 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orge852ba9">1. Algorithms for Trees</a>
+<li><a href="#orgbe765e1">1. Algorithms for Trees</a>
 <ul>
-<li><a href="#org94cc167">1.1. Abstract</a></li>
-<li><a href="#org382bb89">1.2. Foldable</a></li>
-<li><a href="#orgd2f7b11">1.3. Applicative</a></li>
-<li><a href="#org09919f9">1.4. Traversable</a></li>
-<li><a href="#org3fe9bcc">1.5. Not Monadic</a></li>
+<li><a href="#org58478d0">1.1. Abstract</a></li>
+<li><a href="#orgb228eca">1.2. Foldable</a></li>
+<li><a href="#orga7cf688">1.3. Applicative</a></li>
+<li><a href="#org80bec3d">1.4. Traversable</a></li>
+<li><a href="#orga03eb99">1.5. Not Monadic</a></li>
 </ul>
 </li>
-<li><a href="#orga11fc63">2. Ranges Flatten the World</a>
+<li><a href="#org1f471d8">2. Ranges Flatten the World</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgc079b8c">2.0.1. Linearization as a Design Assumption</a></li>
-<li><a href="#orgda2b9ce">2.0.2. Where Structure Carries Meaning</a></li>
-<li><a href="#orgbf6d0c0">2.0.3. Trees That Are Not Sequences</a></li>
+<li><a href="#orgc2e401e">2.0.1. Linearization as a Design Assumption</a></li>
+<li><a href="#orge6a1edf">2.0.2. Where Structure Carries Meaning</a></li>
+<li><a href="#org93d2bb1">2.0.3. Trees That Are Not Sequences</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org217677e">3. Visitors, Pattern Matching, and the Missing Syntax</a>
+<li><a href="#orgd84070d">3. Visitors, Pattern Matching, and the Missing Syntax</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgda92551">3.0.1. Visitor as Manual Recursion Control</a></li>
-<li><a href="#org3c14f55">3.0.2. Pattern Matching as the Intended Interface</a></li>
-<li><a href="#org13e2c4b">3.0.3. Designing Today for Tomorrow's Syntax</a></li>
+<li><a href="#org4c5db43">3.0.1. Visitor as Manual Recursion Control</a></li>
+<li><a href="#orgadfe51a">3.0.2. Pattern Matching as the Intended Interface</a></li>
+<li><a href="#orgec8af34">3.0.3. Designing Today for Tomorrow's Syntax</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org239f091">4. Recursion Schemes You Can Actually Use</a>
+<li><a href="#orgbc9a84a">4. Recursion Schemes You Can Actually Use</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orga001b21">4.0.1. F-Algebras: How to Collapse One Layer</a></li>
-<li><a href="#org5c60a36">4.0.2. Catamorphisms as a Principled Fold</a></li>
-<li><a href="#orga5d15ec">4.0.3. Separating Recursion from Business Logic</a></li>
+<li><a href="#org5bbcdff">4.0.1. F-Algebras: How to Collapse One Layer</a></li>
+<li><a href="#org8d2e544">4.0.2. Catamorphisms as a Principled Fold</a></li>
+<li><a href="#org03e2101">4.0.3. Separating Recursion from Business Logic</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgb308d10">5. The Typeclass Object Pattern</a>
+<li><a href="#orgd2559a4">5. The Typeclass Object Pattern</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orga20955e">5.0.1. Typeclass Lookup: One Object Per Concept</a></li>
-<li><a href="#org55f797f">5.0.2. Three Lookup Modes</a></li>
-<li><a href="#org87c5e3d">5.0.3. NTTP Pinning Example</a></li>
-<li><a href="#orgae1fda2">5.0.4. Implementors: One Hook, Many Derived Operations</a></li>
-<li><a href="#org3cb4c5d">5.0.5. CRTP and Deducing This</a></li>
+<li><a href="#orgea87c8c">5.0.1. Typeclass Lookup: One Object Per Concept</a></li>
+<li><a href="#orgb270cb8">5.0.2. Three Lookup Modes</a></li>
+<li><a href="#orgecdeb5e">5.0.3. NTTP Pinning Example</a></li>
+<li><a href="#orgf1a5132">5.0.4. Implementors: One Hook, Many Derived Operations</a></li>
+<li><a href="#orgf1df30c">5.0.5. CRTP and Deducing This</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org8f95e59">6. Functor: The Foundation</a>
+<li><a href="#org90bb154">6. Functor: The Foundation</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgaa1aa20">6.0.1. Functor Interface</a></li>
-<li><a href="#org9d4bcf8">6.0.2. Functor: Derived replace</a></li>
-<li><a href="#org35f57bc">6.0.3. Functor Identity Law in Tests</a></li>
+<li><a href="#org42835fb">6.0.1. Functor Interface</a></li>
+<li><a href="#org1b714e6">6.0.2. Functor: Derived replace</a></li>
+<li><a href="#org70a2abf">6.0.3. Functor Identity Law in Tests</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org8d24e61">7. Preserving Shape: Traversable and Friends</a>
+<li><a href="#orga3bf1ee">7. Preserving Shape: Traversable and Friends</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgac62c85">7.0.1. Foldable vs. Traversable: Sequence vs. Shape</a></li>
-<li><a href="#org9d6ac89">7.0.2. Crisp Contrast: Flatten vs. Preserve Shape</a></li>
-<li><a href="#org5591655">7.0.3. Same Algorithm, Two Tree Representations</a></li>
+<li><a href="#org4caa098">7.0.1. Foldable vs. Traversable: Sequence vs. Shape</a></li>
+<li><a href="#orga37e38f">7.0.2. Crisp Contrast: Flatten vs. Preserve Shape</a></li>
+<li><a href="#org8935334">7.0.3. Same Algorithm, Two Tree Representations</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgbec6b59">8. Foldable</a>
+<li><a href="#org27dded1">8. Foldable</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org1ef6730">8.0.1. Monoid: The Glue fold_map Needs</a></li>
-<li><a href="#org140f170">8.0.2. Foldable API: One Hook, Derived from fold_map</a></li>
-<li><a href="#org646555e">8.0.3. Foldable Proof: Tests as Examples</a></li>
+<li><a href="#org5dff776">8.0.1. Monoid: The Glue fold_map Needs</a></li>
+<li><a href="#orgc58f7a2">8.0.2. Foldable API: One Hook, Derived from fold_map</a></li>
+<li><a href="#org4145f4e">8.0.3. Foldable Proof: Tests as Examples</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org4be7b91">9. Applicative</a>
+<li><a href="#org01d58c1">9. Applicative</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgb3fd557">9.0.1. Applicative Model: Pure Function over Effectful Arguments</a></li>
-<li><a href="#orgcdc3ba2">9.0.2. Applicative in Use</a></li>
-<li><a href="#org312d768">9.0.3. Applicative: invoke in Tests</a></li>
-<li><a href="#orgacfb982">9.0.4. Applicative: Short-Circuit on Absent</a></li>
-<li><a href="#orgc87d079">9.0.5. Applicative: invoke via Terminating Partial Application</a></li>
-<li><a href="#orgce37e15">9.0.6. Applicative Law: Interchange</a></li>
-<li><a href="#orgc6a90e6">9.0.7. Applicative Law: Composition</a></li>
+<li><a href="#org65a0957">9.0.1. Applicative Model: Pure Function over Effectful Arguments</a></li>
+<li><a href="#orgde1f35b">9.0.2. Applicative in Use</a></li>
+<li><a href="#org70716ff">9.0.3. Applicative: invoke in Tests</a></li>
+<li><a href="#orgf44357e">9.0.4. Applicative: Short-Circuit on Absent</a></li>
+<li><a href="#org2be3803">9.0.5. Applicative: invoke via Terminating Partial Application</a></li>
+<li><a href="#org8a232cb">9.0.6. Applicative Law: Interchange</a></li>
+<li><a href="#org3ba9812">9.0.7. Applicative Law: Composition</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orga62cb7b">10. Traversable</a>
+<li><a href="#org29ec82a">10. Traversable</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org235f435">10.0.1. Traversable Model: Commute Shape and Effect</a></li>
-<li><a href="#org7b91e0c">10.0.2. Traversable in Use: Success</a></li>
-<li><a href="#org26f6f48">10.0.3. Traversable in Use: Failure Propagates</a></li>
-<li><a href="#org095f366">10.0.4. Traversable API: sequence</a></li>
-<li><a href="#org3470352">10.0.5. Traversable Proof: sequence in Tests</a></li>
-<li><a href="#org066d365">10.0.6. Traversable Law: Naturality</a></li>
-<li><a href="#org03f212d">10.0.7. Traversable Commute: Range and ZipList</a></li>
-<li><a href="#org0da8bd1">10.0.8. Laws That Keep This Honest</a></li>
+<li><a href="#orga417498">10.0.1. Traversable Model: Commute Shape and Effect</a></li>
+<li><a href="#orgeee8820">10.0.2. Traversable in Use: Success</a></li>
+<li><a href="#org4fce62b">10.0.3. Traversable in Use: Failure Propagates</a></li>
+<li><a href="#orgc14c8dc">10.0.4. Traversable API: sequence</a></li>
+<li><a href="#orge248f72">10.0.5. Traversable Proof: sequence in Tests</a></li>
+<li><a href="#org12a3f2a">10.0.6. Traversable Law: Naturality</a></li>
+<li><a href="#orgdcb98a7">10.0.7. Traversable Commute: Range and ZipList</a></li>
+<li><a href="#orge46074d">10.0.8. Laws That Keep This Honest</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orge23efa0">11. Monoids and Measured Trees</a>
+<li><a href="#orgbb023e7">11. Monoids and Measured Trees</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgdcc329d">11.0.1. Monoid Interface</a></li>
-<li><a href="#org765a4fb">11.0.2. Monoid: Count Specialization</a></li>
-<li><a href="#orgf64645b">11.0.3. Monoid: Generic Helpers</a></li>
-<li><a href="#org1cd7808">11.0.4. Monoid in Tests</a></li>
-<li><a href="#org140e871">11.0.5. Monoid Identity Law in Tests</a></li>
-<li><a href="#org5409ab8">11.0.6. Associativity as Algorithmic Leverage</a></li>
-<li><a href="#org924f0f3">11.0.7. Annotations as Summaries</a></li>
-<li><a href="#org0cd8466">11.0.8. Search and Split Driven by Measures</a></li>
+<li><a href="#org38c0bd5">11.0.1. Monoid Interface</a></li>
+<li><a href="#org4120e28">11.0.2. Monoid: Count Specialization</a></li>
+<li><a href="#org388b4e7">11.0.3. Monoid: Generic Helpers</a></li>
+<li><a href="#org1409aeb">11.0.4. Monoid in Tests</a></li>
+<li><a href="#org5b38c40">11.0.5. Monoid Identity Law in Tests</a></li>
+<li><a href="#org002231a">11.0.6. Associativity as Algorithmic Leverage</a></li>
+<li><a href="#orgd8facc4">11.0.7. Annotations as Summaries</a></li>
+<li><a href="#org605394e">11.0.8. Search and Split Driven by Measures</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org11bd135">12. Finger Trees as a Case Study</a>
+<li><a href="#org6d0711e">12. Finger Trees as a Case Study</a>
 <ul>
 <li>
 <ul>
-<li><a href="#orgeeeff50">12.0.1. Persistent Concatenation and Splitting</a></li>
-<li><a href="#org399eae0">12.0.2. One Structure, Many Interpretations</a></li>
-<li><a href="#orga5e7ed2">12.0.3. Why This Belongs in Modern C++</a></li>
+<li><a href="#org5f724c9">12.0.1. Persistent Concatenation and Splitting</a></li>
+<li><a href="#orgc3544b3">12.0.2. One Structure, Many Interpretations</a></li>
+<li><a href="#orgfd35232">12.0.3. Why This Belongs in Modern C++</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgbf467e2">13. Designing APIs That Won't Age Poorly</a>
+<li><a href="#org298c340">13. Designing APIs That Won't Age Poorly</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org5c20cd9">13.0.1. Library Abstractions Anticipating Language Features</a></li>
-<li><a href="#org57de6f6">13.0.2. Avoiding the <code>std::bind</code> vs. Lambda Overlap</a></li>
-<li><a href="#orgaae9fbd">13.0.3. Keeping the Good Path Obvious</a></li>
+<li><a href="#orgecbf0eb">13.0.1. Library Abstractions Anticipating Language Features</a></li>
+<li><a href="#org1275095">13.0.2. Avoiding the <code>std::bind</code> vs. Lambda Overlap</a></li>
+<li><a href="#orgfbd8ac2">13.0.3. Keeping the Good Path Obvious</a></li>
 </ul>
 </li>
 </ul>
@@ -365,8 +364,9 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-orge852ba9" class="outline-2">
-<h2 id="orge852ba9"><span class="section-number-2">1.</span> Algorithms for Trees</h2>
+
+<div id="outline-container-orgbe765e1" class="outline-2">
+<h2 id="orgbe765e1"><span class="section-number-2">1.</span> Algorithms for Trees</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li>Foldable.</li>
@@ -374,19 +374,21 @@
 <li>Traversable.</li>
 </ul>
 </div>
-<div id="outline-container-org94cc167" class="outline-3">
-<h3 id="org94cc167"><span class="section-number-3">1.1.</span> Abstract</h3>
+
+<div id="outline-container-org58478d0" class="outline-3">
+<h3 id="org58478d0"><span class="section-number-3">1.1.</span> Abstract</h3>
 <div class="outline-text-3" id="text-1-1">
 <ul class="org-ul">
-<li>Functor and monad patterns are proven; Foldable, Applicative, and Traversable are the next step.</li>
-<li>Trees and structured data lose too much information when flattened to a sequence.</li>
+<li>Functor and monad patterns have proven themselves in practice; Foldable, Applicative, and Traversable are the next step.</li>
+<li>Trees and structured data can lose important information when flattened to a sequence.</li>
 <li>Monoid underpins efficient tree algorithms; the three typeclasses compose on top of it.</li>
-<li>This talk proposes what a standard library <code>fingertree</code> API should look like.</li>
+<li>This talk illustrates one approach to designing a standard library <code>fingertree</code> API.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org382bb89" class="outline-3">
-<h3 id="org382bb89"><span class="section-number-3">1.2.</span> Foldable</h3>
+
+<div id="outline-container-orgb228eca" class="outline-3">
+<h3 id="orgb228eca"><span class="section-number-3">1.2.</span> Foldable</h3>
 <div class="outline-text-3" id="text-1-2">
 <ul class="org-ul">
 <li>Opt-in hook: <code>fold_map</code> — provides the algorithmic power of <code>std::ranges</code>.</li>
@@ -395,8 +397,9 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-orgd2f7b11" class="outline-3">
-<h3 id="orgd2f7b11"><span class="section-number-3">1.3.</span> Applicative</h3>
+
+<div id="outline-container-orga7cf688" class="outline-3">
+<h3 id="orga7cf688"><span class="section-number-3">1.3.</span> Applicative</h3>
 <div class="outline-text-3" id="text-1-3">
 <ul class="org-ul">
 <li>Apply a pure function to independent effectful arguments.</li>
@@ -405,8 +408,9 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org09919f9" class="outline-3">
-<h3 id="org09919f9"><span class="section-number-3">1.4.</span> Traversable</h3>
+
+<div id="outline-container-org80bec3d" class="outline-3">
+<h3 id="org80bec3d"><span class="section-number-3">1.4.</span> Traversable</h3>
 <div class="outline-text-3" id="text-1-4">
 <ul class="org-ul">
 <li>Generalizes Foldable: maps with effects while rebuilding the container shape.</li>
@@ -415,23 +419,25 @@
 </ul>
 </div>
 </div>
-<div id="outline-container-org3fe9bcc" class="outline-3">
-<h3 id="org3fe9bcc"><span class="section-number-3">1.5.</span> Not Monadic</h3>
+
+<div id="outline-container-orga03eb99" class="outline-3">
+<h3 id="orga03eb99"><span class="section-number-3">1.5.</span> Not Monadic</h3>
 <div class="outline-text-3" id="text-1-5">
 <ul class="org-ul">
 <li>This talk stops short of Monad deliberately.</li>
-<li>Monad adds sequencing and dependency between effects. Most tree operations do not need it.</li>
-<li>Applicative covers the independent-effect cases where the whole structure is known up front.</li>
+<li>Monad adds sequencing and dependency between effects; most tree operations do not need this overhead.</li>
+<li>Applicative covers the independent-effect cases where the whole structure is known upfront.</li>
 </ul>
 </div>
 </div>
 </div>
-<div id="outline-container-orga11fc63" class="outline-2">
-<h2 id="orga11fc63"><span class="section-number-2">2.</span> Ranges Flatten the World</h2>
+
+<div id="outline-container-org1f471d8" class="outline-2">
+<h2 id="org1f471d8"><span class="section-number-2">2.</span> Ranges Flatten the World</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orgc079b8c" class="outline-4">
-<h4 id="orgc079b8c"><span class="section-number-4">2.0.1.</span> Linearization as a Design Assumption</h4>
+<div id="outline-container-orgc2e401e" class="outline-4">
+<h4 id="orgc2e401e"><span class="section-number-4">2.0.1.</span> Linearization as a Design Assumption</h4>
 <div class="outline-text-4" id="text-2-0-1">
 <ul class="org-ul">
 <li>Ranges are a great default when the structure is inherently sequential.</li>
@@ -439,7 +445,7 @@
 <li>For trees, flattening throws away parent/child relationships and subtree boundaries.</li>
 </ul>
 
-<div class="notes" id="orgd151cbb">
+<div class="notes" id="org0b996a0">
 <p>
 This is the setup: flattening is a design choice, not a law of nature.
 The talk is about recovering algorithms that preserve structure when structure matters.
@@ -448,8 +454,9 @@ The talk is about recovering algorithms that preserve structure when structure m
 </div>
 </div>
 </div>
-<div id="outline-container-orgda2b9ce" class="outline-4">
-<h4 id="orgda2b9ce"><span class="section-number-4">2.0.2.</span> Where Structure Carries Meaning</h4>
+
+<div id="outline-container-orge6a1edf" class="outline-4">
+<h4 id="orge6a1edf"><span class="section-number-4">2.0.2.</span> Where Structure Carries Meaning</h4>
 <div class="outline-text-4" id="text-2-0-2">
 <ul class="org-ul">
 <li>Search paths, balancing, and decomposition points are part of the meaning.</li>
@@ -457,7 +464,7 @@ The talk is about recovering algorithms that preserve structure when structure m
 <li>If we flatten too early, we lose algorithmic leverage.</li>
 </ul>
 
-<div class="notes" id="org2af1176">
+<div class="notes" id="org9ce6b48">
 <p>
 The argument is practical: preserving shape enables better APIs for split/search/relabel.
 </p>
@@ -465,8 +472,9 @@ The argument is practical: preserving shape enables better APIs for split/search
 </div>
 </div>
 </div>
-<div id="outline-container-orgbf6d0c0" class="outline-4">
-<h4 id="orgbf6d0c0"><span class="section-number-4">2.0.3.</span> Trees That Are Not Sequences</h4>
+
+<div id="outline-container-org93d2bb1" class="outline-4">
+<h4 id="org93d2bb1"><span class="section-number-4">2.0.3.</span> Trees That Are Not Sequences</h4>
 <div class="outline-text-4" id="text-2-0-3">
 <ul class="org-ul">
 <li>Expression trees: hierarchy controls precedence and rewrite legality.</li>
@@ -474,7 +482,7 @@ The argument is practical: preserving shape enables better APIs for split/search
 <li>Measured trees: internal summaries define split/search interfaces and drive optimization.</li>
 </ul>
 
-<div class="notes" id="orga190da5">
+<div class="notes" id="orgf1128cf">
 <p>
 A range view is still useful, but it should be derived, not the primary model.
 </p>
@@ -483,20 +491,21 @@ A range view is still useful, but it should be derived, not the primary model.
 </div>
 </div>
 </div>
-<div id="outline-container-org217677e" class="outline-2">
-<h2 id="org217677e"><span class="section-number-2">3.</span> Visitors, Pattern Matching, and the Missing Syntax</h2>
+
+<div id="outline-container-orgd84070d" class="outline-2">
+<h2 id="orgd84070d"><span class="section-number-2">3.</span> Visitors, Pattern Matching, and the Missing Syntax</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-orgda92551" class="outline-4">
-<h4 id="orgda92551"><span class="section-number-4">3.0.1.</span> Visitor as Manual Recursion Control</h4>
+<div id="outline-container-org4c5db43" class="outline-4">
+<h4 id="org4c5db43"><span class="section-number-4">3.0.1.</span> Visitor as Manual Recursion Control</h4>
 <div class="outline-text-4" id="text-3-0-1">
 <ul class="org-ul">
 <li>Visitor centralizes recursion, but at the cost of ceremony and indirection.</li>
-<li>Every new operation requires another visitor type or lambda nest.</li>
+<li>Each new operation typically requires another visitor type or nested lambda structure.</li>
 <li>The control flow is explicit, but often noisy.</li>
 </ul>
 
-<div class="notes" id="orgb2bdb65">
+<div class="notes" id="org396b020">
 <p>
 Visitor is not wrong; it is just too low-level for everyday algebraic operations.
 </p>
@@ -504,16 +513,17 @@ Visitor is not wrong; it is just too low-level for everyday algebraic operations
 </div>
 </div>
 </div>
-<div id="outline-container-org3c14f55" class="outline-4">
-<h4 id="org3c14f55"><span class="section-number-4">3.0.2.</span> Pattern Matching as the Intended Interface</h4>
+
+<div id="outline-container-orgadfe51a" class="outline-4">
+<h4 id="orgadfe51a"><span class="section-number-4">3.0.2.</span> Pattern Matching as the Intended Interface</h4>
 <div class="outline-text-4" id="text-3-0-2">
 <ul class="org-ul">
 <li>Pattern matching expresses what cases exist directly.</li>
-<li>C++ is moving in this direction, but we still need practical libraries now.</li>
+<li>C++ has active pattern-matching proposals, but no standardized feature yet.</li>
 <li>Typeclass-style APIs can encode the same intent with today's language.</li>
 </ul>
 
-<div class="notes" id="org3d2df69">
+<div class="notes" id="org5cd59f2">
 <p>
 Design now so the API maps naturally to future language features.
 </p>
@@ -521,8 +531,9 @@ Design now so the API maps naturally to future language features.
 </div>
 </div>
 </div>
-<div id="outline-container-org13e2c4b" class="outline-4">
-<h4 id="org13e2c4b"><span class="section-number-4">3.0.3.</span> Designing Today for Tomorrow's Syntax</h4>
+
+<div id="outline-container-orgec8af34" class="outline-4">
+<h4 id="orgec8af34"><span class="section-number-4">3.0.3.</span> Designing Today for Tomorrow's Syntax</h4>
 <div class="outline-text-4" id="text-3-0-3">
 <ul class="org-ul">
 <li>Keep recursion control in library algorithms, not business code.</li>
@@ -530,7 +541,7 @@ Design now so the API maps naturally to future language features.
 <li>Make call sites read like intent, not machinery.</li>
 </ul>
 
-<div class="notes" id="org4d1780b">
+<div class="notes" id="orga778a8a">
 <p>
 The point is migration-friendly design, not speculative syntax tricks.
 </p>
@@ -539,12 +550,13 @@ The point is migration-friendly design, not speculative syntax tricks.
 </div>
 </div>
 </div>
-<div id="outline-container-org239f091" class="outline-2">
-<h2 id="org239f091"><span class="section-number-2">4.</span> Recursion Schemes You Can Actually Use</h2>
+
+<div id="outline-container-orgbc9a84a" class="outline-2">
+<h2 id="orgbc9a84a"><span class="section-number-2">4.</span> Recursion Schemes You Can Actually Use</h2>
 <div class="outline-text-2" id="text-4">
 </div>
-<div id="outline-container-orga001b21" class="outline-4">
-<h4 id="orga001b21"><span class="section-number-4">4.0.1.</span> F-Algebras: How to Collapse One Layer</h4>
+<div id="outline-container-org5bbcdff" class="outline-4">
+<h4 id="org5bbcdff"><span class="section-number-4">4.0.1.</span> F-Algebras: How to Collapse One Layer</h4>
 <div class="outline-text-4" id="text-4-0-1">
 <ul class="org-ul">
 <li>Think of an algebra as consuming one layer and summarizing it.</li>
@@ -552,7 +564,7 @@ The point is migration-friendly design, not speculative syntax tricks.
 <li>This separation makes tree algorithms easier to reason about.</li>
 </ul>
 
-<div class="notes" id="org648df35">
+<div class="notes" id="org16a9eee">
 <p>
 I only need the intuition here, not full categorical development.
 </p>
@@ -560,47 +572,32 @@ I only need the intuition here, not full categorical development.
 </div>
 </div>
 </div>
-<div id="outline-container-org5c60a36" class="outline-4">
-<h4 id="org5c60a36"><span class="section-number-4">4.0.2.</span> Catamorphisms as a Principled Fold</h4>
+
+<div id="outline-container-org8d2e544" class="outline-4">
+<h4 id="org8d2e544"><span class="section-number-4">4.0.2.</span> Catamorphisms as a Principled Fold</h4>
 <div class="outline-text-4" id="text-4-0-2">
 <ul class="org-ul">
 <li>Catamorphism: apply the algebra recursively until the structure is collapsed.</li>
 <li>In C++, this corresponds to a disciplined fold over a recursive representation.</li>
-<li>You get reuse without hardcoding each algorithm into the node type.</li>
+<li>This yields reuse without hardcoding each algorithm into the node type.</li>
 </ul>
 
-<div class="notes" id="org7ec1a66">
+<div class="notes" id="org1cba031">
 <p>
 Foldable is the operational entry point for this in everyday code.
 </p>
 
 </div>
 </div>
+
 <ol class="org-ol">
-<li><a id="orgbff8fef"></a>FixTree fold_map: The Catamorphism<br />
+<li><a id="org0a6c115"></a>Fixpoint Expression Tree: eval_algebra and cata<br />
 <div class="outline-text-5" id="text-4-0-2-1">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">F</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">fold_map</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">F</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">f</span>, <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">tree</span>::<span style="font-weight: bold; text-decoration: underline;">FixTree</span>&lt;T&gt;&amp; <span style="font-weight: bold; font-style: italic;">t</span>)
-{
-        <span style="font-weight: bold;">if</span> (t.is_leaf()) {
-            <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::invoke(f, t.value());
-        }
-
-        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lhs</span> = self.fold_map(f, t.left());
-        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rhs</span> = self.fold_map(f, t.right());
-
-        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">Result</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(lhs)&gt;;
-        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Result</span>&gt;.combine(lhs, rhs);
-}
-</code></pre>
-</div>
-
-<div class="notes" id="org9e8f86d">
+<div class="notes" id="orgb1ef542">
 <p>
-Recursion control lives in fold_map; business logic goes in f.
-monoid_v&lt;Result&gt; looks up the Monoid instance for whatever type f returns.
-combine merges two sub-results; the tree is never flattened.
+eval_algebra consumes one fully-evaluated layer: constants return their value,
+binary nodes combine the already-folded children.  cata supplies the recursion.
+Separating the algebra from the recursion is the whole point.
 </p>
 
 </div>
@@ -608,8 +605,9 @@ combine merges two sub-results; the tree is never flattened.
 </li>
 </ol>
 </div>
-<div id="outline-container-orga5d15ec" class="outline-4">
-<h4 id="orga5d15ec"><span class="section-number-4">4.0.3.</span> Separating Recursion from Business Logic</h4>
+
+<div id="outline-container-org03e2101" class="outline-4">
+<h4 id="org03e2101"><span class="section-number-4">4.0.3.</span> Separating Recursion from Business Logic</h4>
 <div class="outline-text-4" id="text-4-0-3">
 <ul class="org-ul">
 <li>Business logic should answer how to combine results, not how to recurse.</li>
@@ -617,7 +615,7 @@ combine merges two sub-results; the tree is never flattened.
 <li>It also creates a natural place to enforce laws.</li>
 </ul>
 
-<div class="notes" id="org4f941bc">
+<div class="notes" id="org15cdb88">
 <p>
 When recursion is abstracted, law tests become executable documentation.
 </p>
@@ -626,12 +624,13 @@ When recursion is abstracted, law tests become executable documentation.
 </div>
 </div>
 </div>
-<div id="outline-container-orgb308d10" class="outline-2">
-<h2 id="orgb308d10"><span class="section-number-2">5.</span> The Typeclass Object Pattern</h2>
+
+<div id="outline-container-orgd2559a4" class="outline-2">
+<h2 id="orgd2559a4"><span class="section-number-2">5.</span> The Typeclass Object Pattern</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-orga20955e" class="outline-4">
-<h4 id="orga20955e"><span class="section-number-4">5.0.1.</span> Typeclass Lookup: One Object Per Concept</h4>
+<div id="outline-container-orgea87c8c" class="outline-4">
+<h4 id="orgea87c8c"><span class="section-number-4">5.0.1.</span> Typeclass Lookup: One Object Per Concept</h4>
 <div class="outline-text-4" id="text-5-0-1">
 <ul class="org-ul">
 <li>Each concept has a variable template: <code>foldable_typeclass&lt;T&gt;</code>, <code>applicative_typeclass&lt;T&gt;</code>, <code>traversable_typeclass&lt;T&gt;</code>.</li>
@@ -640,24 +639,18 @@ When recursion is abstracted, law tests become executable documentation.
 <li>Instances are open-world: add one close to the type, not in a central registry.</li>
 </ul>
 
-<div class="notes" id="orgadbcde1">
+<div class="notes" id="org1c06be3">
 <p>
 This replaces concept maps from C++0x with a simpler, working mechanism.
 </p>
 
 </div>
 </div>
-<ol class="org-ol">
-<li><a id="orgd4ce26b"></a>Specializing the Variable Template<br />
-<div class="outline-text-5" id="text-5-0-1-1">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
-<span style="font-weight: bold;">inline</span> <span style="font-weight: bold;">constexpr</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; text-decoration: underline;">foldable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">tree</span>::<span style="font-weight: bold; text-decoration: underline;">FixTree</span><span style="font-weight: bold; font-style: italic;">&lt;T&gt; &gt;</span> =
-    <span style="font-weight: bold; text-decoration: underline;">FixTreeFoldableMap</span>&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;{};
-</code></pre>
-</div>
 
-<div class="notes" id="org3920d61">
+<ol class="org-ol">
+<li><a id="org74d9789"></a>Specializing the Variable Template<br />
+<div class="outline-text-5" id="text-5-0-1-1">
+<div class="notes" id="orgf2d3871">
 <p>
 Three lines of opt-in. No registry, no inheritance, no base class modification.
 The specialization can live next to the type or in any adapter header.
@@ -668,8 +661,9 @@ The specialization can live next to the type or in any adapter header.
 </li>
 </ol>
 </div>
-<div id="outline-container-org55f797f" class="outline-4">
-<h4 id="org55f797f"><span class="section-number-4">5.0.2.</span> Three Lookup Modes</h4>
+
+<div id="outline-container-orgb270cb8" class="outline-4">
+<h4 id="orgb270cb8"><span class="section-number-4">5.0.2.</span> Three Lookup Modes</h4>
 <div class="outline-text-4" id="text-5-0-2">
 <ul class="org-ul">
 <li>Implicit: <code>const auto&amp; f = smd::foldable_typeclass&lt;Tree&gt;;</code> then call <code>f.method(...)</code></li>
@@ -678,7 +672,7 @@ The specialization can live next to the type or in any adapter header.
 <li>All three produce the same dispatch; the choice is about stability and explicitness.</li>
 </ul>
 
-<div class="notes" id="org11a7551">
+<div class="notes" id="org0ec408b">
 <p>
 NTTP pinning is demonstrated in conceptmap functor tests (testP, testP2).
 It proves that a generic helper's lookup is stable even when callers pass different instances.
@@ -687,20 +681,11 @@ It proves that a generic helper's lookup is stable even when callers pass differ
 </div>
 </div>
 </div>
-<div id="outline-container-org87c5e3d" class="outline-4">
-<h4 id="org87c5e3d"><span class="section-number-4">5.0.3.</span> NTTP Pinning Example</h4>
-<div class="outline-text-4" id="text-5-0-3">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">STRUCTURE</span>,
-          <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">FOLDABLE</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">foldable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">STRUCTURE</span>&gt; &gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">sum_with_nttp_lookup</span>(<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">STRUCTURE</span>&amp; <span style="font-weight: bold; font-style: italic;">structure</span>)
-{
-    <span style="font-weight: bold;">return</span> FOLDABLE.fold_map([](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x; }, structure);
-}
-</code></pre>
-</div>
 
-<div class="notes" id="orgb034b65">
+<div id="outline-container-orgecdeb5e" class="outline-4">
+<h4 id="orgecdeb5e"><span class="section-number-4">5.0.3.</span> NTTP Pinning Example</h4>
+<div class="outline-text-4" id="text-5-0-3">
+<div class="notes" id="org03d89de">
 <p>
 The FOLDABLE parameter defaults to the variable template lookup.
 Callers can supply a custom instance to change behavior for a specific call site.
@@ -709,17 +694,18 @@ Callers can supply a custom instance to change behavior for a specific call site
 </div>
 </div>
 </div>
-<div id="outline-container-orgae1fda2" class="outline-4">
-<h4 id="orgae1fda2"><span class="section-number-4">5.0.4.</span> Implementors: One Hook, Many Derived Operations</h4>
+
+<div id="outline-container-orgf1a5132" class="outline-4">
+<h4 id="orgf1a5132"><span class="section-number-4">5.0.4.</span> Implementors: One Hook, Many Derived Operations</h4>
 <div class="outline-text-4" id="text-5-0-4">
 <ul class="org-ul">
-<li>Implement one minimal hook per concept; all derived operations come for free.</li>
+<li>Implement one minimal hook per concept; all derived operations are provided automatically.</li>
 <li>Foldable: implement <code>fold_map</code> → counting, folding, predicates, collection.</li>
 <li>Applicative: implement <code>pure</code> + <code>apply</code> → <code>invoke</code> and five more operations.</li>
 <li>Traversable: implement <code>traverse</code> → <code>for_each</code>, <code>sequence</code>, and override variants.</li>
 </ul>
 
-<div class="notes" id="org8e21e26">
+<div class="notes" id="orga8dc7f5">
 <p>
 The implementor surface is small; the user-facing surface is rich.
 </p>
@@ -727,17 +713,18 @@ The implementor surface is small; the user-facing surface is rich.
 </div>
 </div>
 </div>
-<div id="outline-container-org3cb4c5d" class="outline-4">
-<h4 id="org3cb4c5d"><span class="section-number-4">5.0.5.</span> CRTP and Deducing This</h4>
+
+<div id="outline-container-orgf1df30c" class="outline-4">
+<h4 id="orgf1df30c"><span class="section-number-4">5.0.5.</span> CRTP and Deducing This</h4>
 <div class="outline-text-4" id="text-5-0-5">
 <ul class="org-ul">
 <li>Each concept wrapper is a CRTP base (<code>Foldable&lt;Impl&gt;</code>, <code>Applicative&lt;Impl&gt;</code>, <code>Traversable&lt;Impl&gt;</code>).</li>
-<li><code>this auto&amp;&amp; self</code> preserves value category and constness through all wrapper calls.</li>
+<li><code>this auto&amp;&amp; self</code> (C++23 explicit object parameter) preserves value category and constness through all wrapper calls.</li>
 <li>Derived operations call back into the Impl via <code>self</code>; overrides are detected by <code>requires</code>.</li>
 <li>Dispatch stays fully static — no virtual calls, no type erasure.</li>
 </ul>
 
-<div class="notes" id="orgae1fee7">
+<div class="notes" id="org496c275">
 <p>
 CRTP supplies structure; deducing this keeps wrappers generic without losing type information.
 </p>
@@ -746,21 +733,22 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 </div>
 </div>
 </div>
-<div id="outline-container-org8f95e59" class="outline-2">
-<h2 id="org8f95e59"><span class="section-number-2">6.</span> Functor: The Foundation</h2>
+
+<div id="outline-container-org90bb154" class="outline-2">
+<h2 id="org90bb154"><span class="section-number-2">6.</span> Functor: The Foundation</h2>
 <div class="outline-text-2" id="text-6">
 </div>
-<div id="outline-container-orgaa1aa20" class="outline-4">
-<h4 id="orgaa1aa20"><span class="section-number-4">6.0.1.</span> Functor Interface</h4>
+<div id="outline-container-org42835fb" class="outline-4">
+<h4 id="org42835fb"><span class="section-number-4">6.0.1.</span> Functor Interface</h4>
 <div class="outline-text-4" id="text-6-0-1">
 <ul class="org-ul">
 <li>Minimal hook: <code>fmap(F, container)</code> — apply a pure function inside a context.</li>
 <li>Derived: <code>replace(container, value)</code> — overwrite all elements with a constant.</li>
-<li>Instances provided: <code>std::optional</code>, <code>beman::optional</code>, <code>std::vector</code>.</li>
+<li>Instances: <code>std::optional</code>, <code>beman::optional</code>, <code>std::vector</code>.</li>
 <li>Lookup: <code>smd::functor_typeclass&lt;std::optional&lt;int&gt;&gt;</code>.</li>
 </ul>
 
-<div class="notes" id="org9065fbd">
+<div class="notes" id="org36bb69b">
 <p>
 Functor is the base on which Applicative and Traversable are built.
 </p>
@@ -768,23 +756,11 @@ Functor is the base on which Applicative and Traversable are built.
 </div>
 </div>
 </div>
-<div id="outline-container-org9d4bcf8" class="outline-4">
-<h4 id="org9d4bcf8"><span class="section-number-4">6.0.2.</span> Functor: Derived replace</h4>
-<div class="outline-text-4" id="text-6-0-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>, <span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">U</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">replace</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>, <span style="font-weight: bold; text-decoration: underline;">U</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">replacement</span>)
-{
-        <span style="font-weight: bold;">return</span> self.fmap(
-            [<span style="font-weight: bold; font-style: italic;">replacement</span> = <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">U</span>&gt;(replacement)](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp;) {
-                <span style="font-weight: bold;">return</span> replacement;
-            },
-            <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
-}
-</code></pre>
-</div>
 
-<div class="notes" id="org9f8d6d0">
+<div id="outline-container-org1b714e6" class="outline-4">
+<h4 id="org1b714e6"><span class="section-number-4">6.0.2.</span> Functor: Derived replace</h4>
+<div class="outline-text-4" id="text-6-0-2">
+<div class="notes" id="orgb8faac1">
 <p>
 replace is derived from fmap with a constant function — no extra instance work required.
 </p>
@@ -792,37 +768,34 @@ replace is derived from fmap with a constant function — no extra instance work
 </div>
 </div>
 </div>
-<div id="outline-container-org35f57bc" class="outline-4">
-<h4 id="org35f57bc"><span class="section-number-4">6.0.3.</span> Functor Identity Law in Tests</h4>
+
+<div id="outline-container-org70a2abf" class="outline-4">
+<h4 id="org70a2abf"><span class="section-number-4">6.0.3.</span> Functor Identity Law in Tests</h4>
 <div class="outline-text-4" id="text-6-0-3">
 <ul class="org-ul">
 <li>fmap(id, x) == x for every instance and every shape.</li>
 </ul>
 
-<div class="org-src-container">
-<pre class="src src-cpp"><code>{
-        <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">functor</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">functor_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-        CHECK(functor.fmap(id, <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{42}) == <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{42});
-        CHECK(functor.fmap(id, <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{}) == <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{});
-}
-</code></pre>
-</div>
-
-<div class="notes" id="orgc9e830e">
+<div class="notes" id="orgaa43ba1">
 <p>
 Tests that encode laws document intent more durably than comments.
 </p>
 
 </div>
+
+<p>
+<b>Preservation</b>: This C++ encoding of Functor preserves the identity law in <code>functor.t.cpp</code>. Every instance (optional, beman::optional, vector) passes the law test; deviation signals a contract violation.
+</p>
 </div>
 </div>
 </div>
-<div id="outline-container-org8d24e61" class="outline-2">
-<h2 id="org8d24e61"><span class="section-number-2">7.</span> Preserving Shape: Traversable and Friends</h2>
+
+<div id="outline-container-orga3bf1ee" class="outline-2">
+<h2 id="orga3bf1ee"><span class="section-number-2">7.</span> Preserving Shape: Traversable and Friends</h2>
 <div class="outline-text-2" id="text-7">
 </div>
-<div id="outline-container-orgac62c85" class="outline-4">
-<h4 id="orgac62c85"><span class="section-number-4">7.0.1.</span> Foldable vs. Traversable: Sequence vs. Shape</h4>
+<div id="outline-container-org4caa098" class="outline-4">
+<h4 id="org4caa098"><span class="section-number-4">7.0.1.</span> Foldable vs. Traversable: Sequence vs. Shape</h4>
 <div class="outline-text-4" id="text-7-0-1">
 <ul class="org-ul">
 <li>Foldable consumes structure into a summary.</li>
@@ -830,7 +803,7 @@ Tests that encode laws document intent more durably than comments.
 <li>For trees, this is the difference between counting nodes and relabeling them in place.</li>
 </ul>
 
-<div class="notes" id="org8a1a211">
+<div class="notes" id="org115698c">
 <p>
 This section shows concrete code now, before the formal typeclass introductions.
 The goal is to build intuition: Foldable = collapse to value, Traversable = transform in place.
@@ -840,35 +813,25 @@ Formal treatment of each typeclass follows in the next three sections.
 </div>
 </div>
 </div>
-<div id="outline-container-org9d6ac89" class="outline-4">
-<h4 id="org9d6ac89"><span class="section-number-4">7.0.2.</span> Crisp Contrast: Flatten vs. Preserve Shape</h4>
+
+<div id="outline-container-orga37e38f" class="outline-4">
+<h4 id="orga37e38f"><span class="section-number-4">7.0.2.</span> Crisp Contrast: Flatten vs. Preserve Shape</h4>
 <div class="outline-text-4" id="text-7-0-2">
 <ul class="org-ul">
 <li>Two differently shaped trees can flatten to the same sequence under Foldable.</li>
 <li>Traversable can map values and keep the original branching shape.</li>
 </ul>
 </div>
+
 <ol class="org-ol">
-<li><a id="org2359ccf"></a>Foldable Flattens and Loses Shape Identity<br />
+<li><a id="orgc637929"></a>Foldable Flattens and Loses Shape Identity<br />
 <div class="outline-text-5" id="text-7-0-2-1">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">left_flat</span> = foldable.to_vector(left_heavy);
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">right_flat</span> = foldable.to_vector(right_heavy);
-</code></pre>
-</div>
 </div>
 </li>
-<li><a id="org8d3bd8d"></a>Traversable Maps While Preserving Shape<br />
+
+<li><a id="orga2cd5d2"></a>Traversable Maps While Preserving Shape<br />
 <div class="outline-text-5" id="text-7-0-2-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">mapped</span> = traversable.traverse(
-    [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{x + 10}; },
-    tree);
-</code></pre>
-</div>
-
-
-<div class="notes" id="orga0a02b6">
+<div class="notes" id="org4b22f53">
 <p>
 Foldable can collapse two different shapes to the same flat view.
 Traversable keeps the tree skeleton and only transforms payloads.
@@ -879,15 +842,16 @@ Traversable keeps the tree skeleton and only transforms payloads.
 </li>
 </ol>
 </div>
-<div id="outline-container-org5591655" class="outline-4">
-<h4 id="org5591655"><span class="section-number-4">7.0.3.</span> Same Algorithm, Two Tree Representations</h4>
+
+<div id="outline-container-org8935334" class="outline-4">
+<h4 id="org8935334"><span class="section-number-4">7.0.3.</span> Same Algorithm, Two Tree Representations</h4>
 <div class="outline-text-4" id="text-7-0-3">
 <ul class="org-ul">
 <li>Fixpoint tree and shared_ptr binary tree can share the same Foldable call shape.</li>
 <li>The representation changes; the typeclass API and algorithm intent stay the same.</li>
 </ul>
 
-<div class="notes" id="orgb53b157">
+<div class="notes" id="orga3f0ebc">
 <p>
 The call site reads identically across all three representations.
 This is the key payoff of typeclass lookup: the algorithm is written once against an interface, not once per type.
@@ -895,30 +859,22 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 
 </div>
 </div>
-<ol class="org-ol">
-<li><a id="orga8cad7c"></a>Fixpoint Tree<br />
-<div class="outline-text-5" id="text-7-0-3-1">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
-</code></pre>
-</div>
 
-<div class="notes" id="orga18f7af">
+<ol class="org-ol">
+<li><a id="orgf26f737"></a>Fixpoint Tree<br />
+<div class="outline-text-5" id="text-7-0-3-1">
+<div class="notes" id="org8b8542d">
 <p>
-FixTree&lt;int&gt;. fold_map and to_vector dispatch through foldable_typeclass&lt;FixTree&lt;int&gt;&gt;.
+Expr (Fix&lt;ExprF&gt;). length dispatches through foldable_typeclass&lt;Expr&gt;; counts leaf constants.
 </p>
 
 </div>
 </div>
 </li>
-<li><a id="orge6fdb0a"></a>shared_ptr Binary Tree<br />
-<div class="outline-text-5" id="text-7-0-3-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
-</code></pre>
-</div>
 
-<div class="notes" id="org0b197ac">
+<li><a id="orgf9ab96d"></a>shared_ptr Binary Tree<br />
+<div class="outline-text-5" id="text-7-0-3-2">
+<div class="notes" id="org40d4a62">
 <p>
 BinaryTree&lt;int&gt;. Different type, different fold_map implementation — same call site.
 </p>
@@ -926,14 +882,10 @@ BinaryTree&lt;int&gt;. Different type, different fold_map implementation — sam
 </div>
 </div>
 </li>
-<li><a id="orgf57b158"></a>FringeTree (Simplified FingerTree)<br />
-<div class="outline-text-5" id="text-7-0-3-3">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">n</span> = foldable.length(tree);
-</code></pre>
-</div>
 
-<div class="notes" id="org032c8e0">
+<li><a id="orge59cd7c"></a>FringeTree (Simplified FingerTree)<br />
+<div class="outline-text-5" id="text-7-0-3-3">
+<div class="notes" id="org7edf858">
 <p>
 FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third representation.
 </p>
@@ -941,20 +893,10 @@ FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third repres
 </div>
 </div>
 </li>
-<li><a id="orgafdd341"></a>FringeTree: Traversable Also Preserves Shape<br />
+
+<li><a id="orgc0dcf9d"></a>FringeTree: Traversable Also Preserves Shape<br />
 <div class="outline-text-5" id="text-7-0-3-4">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">beman</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>::optional;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">relabelled</span> = traversable.traverse(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-            <span style="font-weight: bold;">return</span> x &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{x + 1} : <span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
-        },
-        tree);
-</code></pre>
-</div>
-
-<div class="notes" id="org12aca2b">
+<div class="notes" id="org3057ff2">
 <p>
 The same FringeTree that folded to {1,2,3} under Foldable now maps values and comes back as a FringeTree.
 The variant structure (Empty | Leaf | Branch) is intact; only the leaf values changed.
@@ -966,12 +908,13 @@ The variant structure (Empty | Leaf | Branch) is intact; only the leaf values ch
 </ol>
 </div>
 </div>
-<div id="outline-container-orgbec6b59" class="outline-2">
-<h2 id="orgbec6b59"><span class="section-number-2">8.</span> Foldable</h2>
+
+<div id="outline-container-org27dded1" class="outline-2">
+<h2 id="org27dded1"><span class="section-number-2">8.</span> Foldable</h2>
 <div class="outline-text-2" id="text-8">
 </div>
-<div id="outline-container-org1ef6730" class="outline-4">
-<h4 id="org1ef6730"><span class="section-number-4">8.0.1.</span> Monoid: The Glue fold_map Needs</h4>
+<div id="outline-container-org5dff776" class="outline-4">
+<h4 id="org5dff776"><span class="section-number-4">8.0.1.</span> Monoid: The Glue fold_map Needs</h4>
 <div class="outline-text-4" id="text-8-0-1">
 <ul class="org-ul">
 <li><code>fold_map</code> maps each element to some type, then folds the results into one.</li>
@@ -979,7 +922,7 @@ The variant structure (Empty | Leaf | Branch) is intact; only the leaf values ch
 <li>In other words: a Monoid. Counting uses <code>Count{0}</code> + addition. Collecting uses <code>vector{}</code> + append.</li>
 </ul>
 
-<div class="notes" id="org44746ea">
+<div class="notes" id="org6f070a7">
 <p>
 This is a brief primer so the fold_map code makes sense immediately.
 Full treatment — specialization, law tests, measured trees, finger tree policies — is in "Monoids and Measured Trees".
@@ -988,8 +931,9 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 </div>
 </div>
 </div>
-<div id="outline-container-org140f170" class="outline-4">
-<h4 id="org140f170"><span class="section-number-4">8.0.2.</span> Foldable API: One Hook, Derived from fold_map</h4>
+
+<div id="outline-container-orgc58f7a2" class="outline-4">
+<h4 id="orgc58f7a2"><span class="section-number-4">8.0.2.</span> Foldable API: One Hook, Derived from fold_map</h4>
 <div class="outline-text-4" id="text-8-0-2">
 <ul class="org-ul">
 <li>Minimal hook: <code>fold_map(F, container)</code> — apply F to each element, combine results.</li>
@@ -997,39 +941,16 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 <li>No traversal order is mandated; the instance chooses and must be consistent.</li>
 </ul>
 </div>
+
 <ol class="org-ol">
-<li><a id="orga4e72f5"></a>fold_map → length<br />
+<li><a id="org72ac36b"></a>fold_map → length<br />
 <div class="outline-text-5" id="text-8-0-2-1">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">length</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">size_t</span>
-{
-  <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">count</span> = self.fold_map(
-    [](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp;) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">typeclass</span>::Count{1}; },
-    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
-  <span style="font-weight: bold;">return</span> count.d_value;
-}
-</code></pre>
-</div>
 </div>
 </li>
-<li><a id="org32bff9f"></a>fold_map → to_vector<br />
-<div class="outline-text-5" id="text-8-0-2-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">to_vector</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
-{
-  <span style="font-weight: bold;">return</span> self.fold_map(
-    [](<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">x</span>) {
-        <span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">ValueType</span> = <span style="font-weight: bold; text-decoration: underline;">remove_cvref_t</span>&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;;
-        <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">ValueType</span>&gt;{x};
-    },
-    <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
-}
-</code></pre>
-</div>
 
-<div class="notes" id="orgc5d7169">
+<li><a id="org62211a1"></a>fold_map → to_vector<br />
+<div class="outline-text-5" id="text-8-0-2-2">
+<div class="notes" id="orgaf61ce8">
 <p>
 Every derived operation is implemented by specializing what fold_map collects.
 fold_left and fold_right use a function-composition monoid internally.
@@ -1040,24 +961,15 @@ fold_left and fold_right use a function-composition monoid internally.
 </li>
 </ol>
 </div>
-<div id="outline-container-org646555e" class="outline-4">
-<h4 id="org646555e"><span class="section-number-4">8.0.3.</span> Foldable Proof: Tests as Examples</h4>
+
+<div id="outline-container-org4145f4e" class="outline-4">
+<h4 id="org4145f4e"><span class="section-number-4">8.0.3.</span> Foldable Proof: Tests as Examples</h4>
 <div class="outline-text-4" id="text-8-0-3">
 <ul class="org-ul">
 <li>Derived operations are verified directly against concrete inputs.</li>
 </ul>
 
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">IntSequence</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">test</span>::<span style="font-weight: bold; text-decoration: underline;">Sequence</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequence</span> = IntSequence{{1, 2, 3}};
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">int_foldable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">foldable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">IntSequence</span>&gt;;
-
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">as_vector</span> = int_foldable.to_vector(sequence);
-CHECK(as_vector == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2, 3}));
-</code></pre>
-</div>
-
-<div class="notes" id="org47ac73f">
+<div class="notes" id="orge59103e">
 <p>
 The test encodes a semantic claim: to_vector of {1,2,3} is exactly {1,2,3}.
 That claim would catch a traversal-order regression.
@@ -1067,12 +979,13 @@ That claim would catch a traversal-order regression.
 </div>
 </div>
 </div>
-<div id="outline-container-org4be7b91" class="outline-2">
-<h2 id="org4be7b91"><span class="section-number-2">9.</span> Applicative</h2>
+
+<div id="outline-container-org01d58c1" class="outline-2">
+<h2 id="org01d58c1"><span class="section-number-2">9.</span> Applicative</h2>
 <div class="outline-text-2" id="text-9">
 </div>
-<div id="outline-container-orgb3fd557" class="outline-4">
-<h4 id="orgb3fd557"><span class="section-number-4">9.0.1.</span> Applicative Model: Pure Function over Effectful Arguments</h4>
+<div id="outline-container-org65a0957" class="outline-4">
+<h4 id="org65a0957"><span class="section-number-4">9.0.1.</span> Applicative Model: Pure Function over Effectful Arguments</h4>
 <div class="outline-text-4" id="text-9-0-1">
 <ul class="org-ul">
 <li>Applicative captures applying a pure function to independent effectful arguments.</li>
@@ -1081,7 +994,7 @@ That claim would catch a traversal-order regression.
 <li>Less sequencing machinery than monadic formulations for independent effects.</li>
 </ul>
 
-<div class="notes" id="org4c44f5a">
+<div class="notes" id="org7cb0e96">
 <p>
 McBride's "applicative style" paper is the primary reference (Conor McBride and Ross Paterson, 2008).
 apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] for Haskell audiences; invoke is the preferred C++ spelling.
@@ -1090,19 +1003,11 @@ apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] fo
 </div>
 </div>
 </div>
-<div id="outline-container-orgcdc3ba2" class="outline-4">
-<h4 id="orgcdc3ba2"><span class="section-number-4">9.0.2.</span> Applicative in Use</h4>
-<div class="outline-text-4" id="text-9-0-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sum</span> = applicative.invoke(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a + b + c; },
-        ax,
-        ay,
-        az);
-</code></pre>
-</div>
 
-<div class="notes" id="orge2f8ca0">
+<div id="outline-container-orgde1f35b" class="outline-4">
+<h4 id="orgde1f35b"><span class="section-number-4">9.0.2.</span> Applicative in Use</h4>
+<div class="outline-text-4" id="text-9-0-2">
+<div class="notes" id="org6e1b381">
 <p>
 Three independent optional arguments. If any is absent the whole computation short-circuits.
 </p>
@@ -1110,21 +1015,11 @@ Three independent optional arguments. If any is absent the whole computation sho
 </div>
 </div>
 </div>
-<div id="outline-container-org312d768" class="outline-4">
-<h4 id="org312d768"><span class="section-number-4">9.0.3.</span> Applicative: invoke in Tests</h4>
+
+<div id="outline-container-org70716ff" class="outline-4">
+<h4 id="org70716ff"><span class="section-number-4">9.0.3.</span> Applicative: invoke in Tests</h4>
 <div class="outline-text-4" id="text-9-0-3">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ax</span>{10};
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ay</span>{5};
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">applicative</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">applicative_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">result</span> = applicative.invoke([](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>) { <span style="font-weight: bold;">return</span> a - b; }, ax, ay);
-REQUIRE(result.has_value());
-CHECK(*result == 5);
-</code></pre>
-</div>
-
-<div class="notes" id="org2f6e60b">
+<div class="notes" id="org55b54c4">
 <p>
 invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
 </p>
@@ -1132,18 +1027,11 @@ invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
 </div>
 </div>
 </div>
-<div id="outline-container-orgacfb982" class="outline-4">
-<h4 id="orgacfb982"><span class="section-number-4">9.0.4.</span> Applicative: Short-Circuit on Absent</h4>
-<div class="outline-text-4" id="text-9-0-4">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ax</span>{1};
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">ay</span>{};
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">invoke_result</span> = applicative.invoke([](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>) { <span style="font-weight: bold;">return</span> a + b; }, ax, ay);
-CHECK_FALSE(invoke_result.has_value());
-</code></pre>
-</div>
 
-<div class="notes" id="org58a7c68">
+<div id="outline-container-orgf44357e" class="outline-4">
+<h4 id="orgf44357e"><span class="section-number-4">9.0.4.</span> Applicative: Short-Circuit on Absent</h4>
+<div class="outline-text-4" id="text-9-0-4">
+<div class="notes" id="org10df09b">
 <p>
 ax is present; ay is absent. invoke short-circuits: f is never called.
 This is the core contract of optional-as-applicative.
@@ -1152,25 +1040,16 @@ This is the core contract of optional-as-applicative.
 </div>
 </div>
 </div>
-<div id="outline-container-orgc87d079" class="outline-4">
-<h4 id="orgc87d079"><span class="section-number-4">9.0.5.</span> Applicative: invoke via Terminating Partial Application</h4>
+
+<div id="outline-container-org2be3803" class="outline-4">
+<h4 id="org2be3803"><span class="section-number-4">9.0.5.</span> Applicative: invoke via Terminating Partial Application</h4>
 <div class="outline-text-4" id="text-9-0-5">
 <ul class="org-ul">
 <li><code>invoke</code> is derived: <code>pure(partial(f))</code> lifts f; each <code>apply</code> peels off one contextual argument.</li>
 <li>Implementations provide only <code>pure</code> + <code>apply</code>; <code>invoke</code> can be overridden for custom semantics.</li>
 </ul>
 
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">detail</span>::make_terminating_partial(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">a</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">b</span>, <span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">c</span>) { <span style="font-weight: bold;">return</span> a * 100 + b * 10 + c; });
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial2</span> = partial(1);
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">partial3</span> = partial2(2);
-CHECK(partial3(3) == 123);
-</code></pre>
-</div>
-
-<div class="notes" id="org8bb1caa">
+<div class="notes" id="orgb110453">
 <p>
 make_terminating_partial wraps f; each call either invokes f if all args are present or returns a new partial.
 This avoids std::bind complexity while handling arbitrary arity uniformly.
@@ -1180,28 +1059,16 @@ Also derived from pure + apply: map, lift, ap, zip_with, discard_first, discard_
 </div>
 </div>
 </div>
-<div id="outline-container-orgce37e15" class="outline-4">
-<h4 id="orgce37e15"><span class="section-number-4">9.0.6.</span> Applicative Law: Interchange</h4>
+
+<div id="outline-container-org8a232cb" class="outline-4">
+<h4 id="org8a232cb"><span class="section-number-4">9.0.6.</span> Applicative Law: Interchange</h4>
 <div class="outline-text-4" id="text-9-0-6">
 <ul class="org-ul">
 <li>Interchange: <code>ap(u, pure(y)) == ap(pure(λf. f(y)), u)</code></li>
 <li>Applying a contextual function to a pure value is symmetric.</li>
 </ul>
 
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">ap</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">applicative_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Fn</span>&gt; <span style="font-weight: bold; font-style: italic;">u</span>{[](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x * 3; }};
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lhs</span> = ap.ap(u, ap.pure(y));
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rhs</span> = ap.ap(ap.pure([](<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">Fn</span>&amp; <span style="font-weight: bold; font-style: italic;">fn</span>) { <span style="font-weight: bold;">return</span> fn(y); }), u);
-
-REQUIRE(lhs.has_value());
-CHECK(*lhs == 21);
-CHECK(lhs == rhs);
-</code></pre>
-</div>
-
-<div class="notes" id="orgad9b638">
+<div class="notes" id="org3578e2a">
 <p>
 The interchange law is the trickiest to build intuition for.
 It constrains how pure values interact with contextual functions.
@@ -1210,45 +1077,36 @@ It constrains how pure values interact with contextual functions.
 </div>
 </div>
 </div>
-<div id="outline-container-orgc6a90e6" class="outline-4">
-<h4 id="orgc6a90e6"><span class="section-number-4">9.0.7.</span> Applicative Law: Composition</h4>
+
+<div id="outline-container-org3ba9812" class="outline-4">
+<h4 id="org3ba9812"><span class="section-number-4">9.0.7.</span> Applicative Law: Composition</h4>
 <div class="outline-text-4" id="text-9-0-7">
 <ul class="org-ul">
 <li>Composition: <code>ap(invoke(compose, u, v), w) == ap(u, ap(v, w))</code></li>
 <li>Composing effectful functions then applying equals sequencing the applications.</li>
 </ul>
 
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">ap</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">applicative_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;Fn&gt; <span style="font-weight: bold; font-style: italic;">u</span>{[](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x + 10; }};
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;Fn&gt; <span style="font-weight: bold; font-style: italic;">v</span>{[](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> x * 2; }};
-<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; <span style="font-weight: bold; font-style: italic;">w</span>{3};
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">lhs</span> = ap.ap(ap.invoke(compose, u, v), w);
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rhs</span> = ap.ap(u, ap.ap(v, w));
-
-REQUIRE(lhs.has_value());
-CHECK(*lhs == 16);  <span style="font-weight: bold; font-style: italic;">// </span><span style="font-weight: bold; font-style: italic;">(3 * 2) + 10
-</span>CHECK(lhs == rhs);
-</code></pre>
-</div>
-
-<div class="notes" id="org57883e9">
+<div class="notes" id="orgd36676a">
 <p>
 The composition law ensures that effectful function composition is associative.
 w = 3, v doubles to 6, u adds 10: result is 16.
 </p>
 
 </div>
+
+<p>
+<b>Preservation</b>: This C++ encoding of Applicative preserves all four laws (identity, homomorphism, interchange, composition) via executable tests in <code>applicative.t.cpp</code>. The semantic claim that effectful function application is associative survives the encoding as a statically-verified contract.
+</p>
 </div>
 </div>
 </div>
-<div id="outline-container-orga62cb7b" class="outline-2">
-<h2 id="orga62cb7b"><span class="section-number-2">10.</span> Traversable</h2>
+
+<div id="outline-container-org29ec82a" class="outline-2">
+<h2 id="org29ec82a"><span class="section-number-2">10.</span> Traversable</h2>
 <div class="outline-text-2" id="text-10">
 </div>
-<div id="outline-container-org235f435" class="outline-4">
-<h4 id="org235f435"><span class="section-number-4">10.0.1.</span> Traversable Model: Commute Shape and Effect</h4>
+<div id="outline-container-orga417498" class="outline-4">
+<h4 id="orga417498"><span class="section-number-4">10.0.1.</span> Traversable Model: Commute Shape and Effect</h4>
 <div class="outline-text-4" id="text-10-0-1">
 <ul class="org-ul">
 <li>Traversal commutes shape and effect: from a structure of effects to an effect of a structure.</li>
@@ -1258,25 +1116,11 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 </ul>
 </div>
 </div>
-<div id="outline-container-org7b91e0c" class="outline-4">
-<h4 id="org7b91e0c"><span class="section-number-4">10.0.2.</span> Traversable in Use: Success</h4>
+
+<div id="outline-container-orgeee8820" class="outline-4">
+<h4 id="orgeee8820"><span class="section-number-4">10.0.2.</span> Traversable in Use: Success</h4>
 <div class="outline-text-4" id="text-10-0-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">values</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">ranges</span>::from_vector(<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2, 3});
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold;">decltype</span>(values)&gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">traversed</span> = traversable.traverse(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-            <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{value + 1};
-        },
-        values);
-
-REQUIRE(traversed.has_value());
-CHECK(collect(*traversed) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{2, 3, 4}));
-</code></pre>
-</div>
-
-<div class="notes" id="orga7a2a10">
+<div class="notes" id="orgcac4ddf">
 <p>
 Every element transforms successfully. The optional wrapping is removed and a new range is returned.
 </p>
@@ -1284,25 +1128,11 @@ Every element transforms successfully. The optional wrapping is removed and a ne
 </div>
 </div>
 </div>
-<div id="outline-container-org26f6f48" class="outline-4">
-<h4 id="org26f6f48"><span class="section-number-4">10.0.3.</span> Traversable in Use: Failure Propagates</h4>
+
+<div id="outline-container-org4fce62b" class="outline-4">
+<h4 id="org4fce62b"><span class="section-number-4">10.0.3.</span> Traversable in Use: Failure Propagates</h4>
 <div class="outline-text-4" id="text-10-0-3">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">values</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">ranges</span>::from_vector(<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, -2, 3});
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold;">decltype</span>(values)&gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">traversed</span> = traversable.traverse(
-        [](<span style="font-weight: bold; text-decoration: underline;">int</span> <span style="font-weight: bold; font-style: italic;">value</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; {
-            <span style="font-weight: bold;">return</span> value &gt;= 0 ? <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{value + 1}
-                              : <span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{};
-        },
-        values);
-
-CHECK_FALSE(traversed.has_value());
-</code></pre>
-</div>
-
-<div class="notes" id="orgeaab4a1">
+<div class="notes" id="orgc778761">
 <p>
 One absent result poisons the whole traversal. No partial range is returned.
 This is the short-circuit behavior that distinguishes traverse from map.
@@ -1311,21 +1141,11 @@ This is the short-circuit behavior that distinguishes traverse from map.
 </div>
 </div>
 </div>
-<div id="outline-container-org095f366" class="outline-4">
-<h4 id="org095f366"><span class="section-number-4">10.0.4.</span> Traversable API: sequence</h4>
-<div class="outline-text-4" id="text-10-0-4">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">T</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequence</span>(<span style="font-weight: bold;">this</span> <span style="font-weight: bold;">auto</span>&amp;&amp; self, <span style="font-weight: bold; text-decoration: underline;">T</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">value</span>)
-{
-        <span style="font-weight: bold;">return</span> self.traverse(
-            [](<span style="font-weight: bold;">auto</span>&amp;&amp; <span style="font-weight: bold; font-style: italic;">x</span>) { <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold;">decltype</span>(x)&gt;(x); },
-            <span style="font-weight: bold; text-decoration: underline;">std</span>::forward&lt;<span style="font-weight: bold; text-decoration: underline;">T</span>&gt;(value));
-}
-</code></pre>
-</div>
 
-<div class="notes" id="org36c704c">
+<div id="outline-container-orgc14c8dc" class="outline-4">
+<h4 id="orgc14c8dc"><span class="section-number-4">10.0.4.</span> Traversable API: sequence</h4>
+<div class="outline-text-4" id="text-10-0-4">
+<div class="notes" id="org7bf554a">
 <p>
 sequence commutes a container of effects into an effect of a container.
 The identity function here means "the effect IS the structure": traverse(id, t).
@@ -1335,21 +1155,11 @@ Also derived: for_each, which is traverse with its arguments flipped (container 
 </div>
 </div>
 </div>
-<div id="outline-container-org3470352" class="outline-4">
-<h4 id="org3470352"><span class="section-number-4">10.0.5.</span> Traversable Proof: sequence in Tests</h4>
+
+<div id="outline-container-orge248f72" class="outline-4">
+<h4 id="orge248f72"><span class="section-number-4">10.0.5.</span> Traversable Proof: sequence in Tests</h4>
 <div class="outline-text-4" id="text-10-0-5">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">IdentityOpt</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">test</span>::<span style="font-weight: bold; text-decoration: underline;">Identity</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt;;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">identity</span> = IdentityOpt{<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">optional</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1}};
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">traversable</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">traversable_typeclass</span>&lt;<span style="font-weight: bold; text-decoration: underline;">IdentityOpt</span>&gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequenced</span> = traversable.sequence(identity);
-REQUIRE(sequenced.has_value());
-CHECK(sequenced-&gt;value == 1);
-</code></pre>
-</div>
-
-<div class="notes" id="org8b3ee84">
+<div class="notes" id="org0a62b70">
 <p>
 sequence converts Identity&lt;optional&lt;int&gt;&gt; into optional&lt;Identity&lt;int&gt;&gt;.
 The shape is preserved; the effect wraps the whole result.
@@ -1358,24 +1168,16 @@ The shape is preserved; the effect wraps the whole result.
 </div>
 </div>
 </div>
-<div id="outline-container-org066d365" class="outline-4">
-<h4 id="org066d365"><span class="section-number-4">10.0.6.</span> Traversable Law: Naturality</h4>
+
+<div id="outline-container-org12a3f2a" class="outline-4">
+<h4 id="org12a3f2a"><span class="section-number-4">10.0.6.</span> Traversable Law: Naturality</h4>
 <div class="outline-text-4" id="text-10-0-6">
 <ul class="org-ul">
 <li>If you have a function that converts between applicatives and respects <code>pure</code> and <code>ap</code>, traversal commutes through it.</li>
 <li>Concretely: converting <code>optional&lt;B&gt;</code> → <code>beman::optional&lt;B&gt;</code> after traversal gives the same result as composing the conversion into <code>f</code> before traversal.</li>
 </ul>
 
-<div class="org-src-container">
-<pre class="src src-cpp"><code>{
-        <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">value</span> = Identity{3};
-        CHECK(to_beman(traversable.traverse(f, value)) ==
-              traversable.traverse(f_returning_beman, value));
-}
-</code></pre>
-</div>
-
-<div class="notes" id="org84edd4f">
+<div class="notes" id="org5acd1a9">
 <p>
 Formal law: for an applicative morphism φ (commutes with pure and ap), φ(traverse f t) == traverse (φ∘f) t.
 to_beman is the morphism: converts std::optional&lt;Identity&lt;int&gt;&gt; to beman::optional&lt;Identity&lt;int&gt;&gt;.
@@ -1386,44 +1188,25 @@ Both sides produce beman::optional&lt;Identity&lt;int&gt;&gt;{Identity{6}}.
 </div>
 </div>
 </div>
-<div id="outline-container-org03f212d" class="outline-4">
-<h4 id="org03f212d"><span class="section-number-4">10.0.7.</span> Traversable Commute: Range and ZipList</h4>
+
+<div id="outline-container-orgdcb98a7" class="outline-4">
+<h4 id="orgdcb98a7"><span class="section-number-4">10.0.7.</span> Traversable Commute: Range and ZipList</h4>
 <div class="outline-text-4" id="text-10-0-7">
 <ul class="org-ul">
 <li>Traversable commutes a range of ZipLists into a ZipList of ranges.</li>
 <li>The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.</li>
 </ul>
 </div>
-<ol class="org-ol">
-<li><a id="orgd5cf93e"></a>Range of ZipLists → ZipList of Ranges<br />
-<div class="outline-text-5" id="text-10-0-7-1">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">sequenced</span> = traversable.sequence(values);
 
-REQUIRE(sequenced.data.size() == 2U);
-CHECK(collect(sequenced.data[0]) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 10, 100}));
-CHECK(collect(sequenced.data[1]) == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{2, 20, 200}));
-</code></pre>
-</div>
+<ol class="org-ol">
+<li><a id="org1168ddc"></a>Range of ZipLists → ZipList of Ranges<br />
+<div class="outline-text-5" id="text-10-0-7-1">
 </div>
 </li>
-<li><a id="org93f0e9d"></a>ZipList of Vectors → Vector of ZipLists (matrix transpose)<br />
+
+<li><a id="org1edbfd2"></a>ZipList of Vectors → Vector of ZipLists (matrix transpose)<br />
 <div class="outline-text-5" id="text-10-0-7-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">zip_list</span>&lt;<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt; &gt; <span style="font-weight: bold; font-style: italic;">zip_of_vectors</span>{
-        {{1, 10, 100}, {2, 20, 200}}};
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">as_rows</span> = to_vector_of_ziplists(zip_of_vectors);
-
-REQUIRE(as_rows.size() == 3U);
-CHECK(as_rows[0].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{1, 2}));
-CHECK(as_rows[1].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{10, 20}));
-CHECK(as_rows[2].data == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{100, 200}));
-</code></pre>
-</div>
-
-
-<div class="notes" id="org0b1e32c">
+<div class="notes" id="org63cfd03">
 <p>
 This helper (<code>to_vector_of_ziplists</code>) is hand-coded to illustrate the inverse transpose concept.
 The Traversable version is the range-of-ZipLists → ZipList-of-ranges test on the previous slide.
@@ -1435,8 +1218,9 @@ Key law intuition: preserve shape and evaluation order discipline.
 </li>
 </ol>
 </div>
-<div id="outline-container-org0da8bd1" class="outline-4">
-<h4 id="org0da8bd1"><span class="section-number-4">10.0.8.</span> Laws That Keep This Honest</h4>
+
+<div id="outline-container-orge46074d" class="outline-4">
+<h4 id="orge46074d"><span class="section-number-4">10.0.8.</span> Laws That Keep This Honest</h4>
 <div class="outline-text-4" id="text-10-0-8">
 <ul class="org-ul">
 <li>Applicative: identity, homomorphism, interchange, composition — all automated.</li>
@@ -1445,7 +1229,7 @@ Key law intuition: preserve shape and evaluation order discipline.
 <li>If these fail, abstractions become accidental APIs rather than reliable interfaces.</li>
 </ul>
 
-<div class="notes" id="orgcc776c7">
+<div class="notes" id="orgb4623e8">
 <p>
 If these fail, abstractions become accidental APIs rather than reliable interfaces.
 Note: tree applicative (applying a tree of functions to a tree of values) is a policy choice, not the core applicative story.
@@ -1453,15 +1237,20 @@ The core teaching value of Applicative is visible in optional, range, and ZipLis
 </p>
 
 </div>
+
+<p>
+<b>Preservation</b>: This C++ encoding of Traversable preserves identity and naturality laws in <code>traversable.t.cpp</code>. Composition is verified through range-of-ZipLists and ZipList-of-ranges commutation tests (matrix transpose). The semantic claim that traversal commutes shape and effect survives unbroken from theory to executable code.
+</p>
 </div>
 </div>
 </div>
-<div id="outline-container-orge23efa0" class="outline-2">
-<h2 id="orge23efa0"><span class="section-number-2">11.</span> Monoids and Measured Trees</h2>
+
+<div id="outline-container-orgbb023e7" class="outline-2">
+<h2 id="orgbb023e7"><span class="section-number-2">11.</span> Monoids and Measured Trees</h2>
 <div class="outline-text-2" id="text-11">
 </div>
-<div id="outline-container-orgdcc329d" class="outline-4">
-<h4 id="orgdcc329d"><span class="section-number-4">11.0.1.</span> Monoid Interface</h4>
+<div id="outline-container-org38c0bd5" class="outline-4">
+<h4 id="org38c0bd5"><span class="section-number-4">11.0.1.</span> Monoid Interface</h4>
 <div class="outline-text-4" id="text-11-0-1">
 <ul class="org-ul">
 <li>The full contract: <code>identity()</code> (neutral element) and <code>combine(lhs, rhs)</code> (associative merge).</li>
@@ -1471,23 +1260,11 @@ The core teaching value of Applicative is visible in optional, range, and ZipLis
 </ul>
 </div>
 </div>
-<div id="outline-container-org765a4fb" class="outline-4">
-<h4 id="org765a4fb"><span class="section-number-4">11.0.2.</span> Monoid: Count Specialization</h4>
+
+<div id="outline-container-org4120e28" class="outline-4">
+<h4 id="org4120e28"><span class="section-number-4">11.0.2.</span> Monoid: Count Specialization</h4>
 <div class="outline-text-4" id="text-11-0-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;&gt;
-<span style="font-weight: bold;">struct</span> <span style="font-weight: bold; text-decoration: underline;">Monoid</span>&lt;<span style="font-weight: bold; text-decoration: underline;">Count</span>&gt; {
-    <span style="font-weight: bold;">constexpr</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">identity</span>() <span style="font-weight: bold;">const</span> -&gt; <span style="font-weight: bold; text-decoration: underline;">Count</span> { <span style="font-weight: bold;">return</span> Count{0}; }
-
-    <span style="font-weight: bold;">constexpr</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">combine</span>(<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">Count</span>&amp; <span style="font-weight: bold; font-style: italic;">lhs</span>, <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">Count</span>&amp; <span style="font-weight: bold; font-style: italic;">rhs</span>) <span style="font-weight: bold;">const</span> -&gt; <span style="font-weight: bold; text-decoration: underline;">Count</span>
-    {
-        <span style="font-weight: bold;">return</span> Count{lhs.d_value + rhs.d_value};
-    }
-};
-</code></pre>
-</div>
-
-<div class="notes" id="org3b20775">
+<div class="notes" id="org1bf825d">
 <p>
 Count is the canonical monoid for counting elements.
 identity is 0; combine is addition — the simplest possible monoid.
@@ -1496,25 +1273,11 @@ identity is 0; combine is addition — the simplest possible monoid.
 </div>
 </div>
 </div>
-<div id="outline-container-orgf64645b" class="outline-4">
-<h4 id="orgf64645b"><span class="section-number-4">11.0.3.</span> Monoid: Generic Helpers</h4>
+
+<div id="outline-container-org388b4e7" class="outline-4">
+<h4 id="org388b4e7"><span class="section-number-4">11.0.3.</span> Monoid: Generic Helpers</h4>
 <div class="outline-text-4" id="text-11-0-3">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">monoid_identity</span>() -&gt; <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>
-{
-    <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&gt;.identity();
-}
-
-<span style="font-weight: bold;">template</span> &lt;<span style="font-weight: bold;">class</span> <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&gt;
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold;">monoid_combine</span>(<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&amp; <span style="font-weight: bold; font-style: italic;">lhs</span>, <span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&amp; <span style="font-weight: bold; font-style: italic;">rhs</span>) -&gt; <span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>
-{
-    <span style="font-weight: bold;">return</span> <span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">VALUE_TYPE</span>&gt;.combine(lhs, rhs);
-}
-</code></pre>
-</div>
-
-<div class="notes" id="org42ccaba">
+<div class="notes" id="orgd27c87b">
 <p>
 monoid_v&lt;T&gt; is the canonical lookup object; monoid_combine and monoid_identity are free-function helpers.
 These are the call shapes used by fold_map and all derived Foldable operations.
@@ -1523,19 +1286,11 @@ These are the call shapes used by fold_map and all derived Foldable operations.
 </div>
 </div>
 </div>
-<div id="outline-container-org1cd7808" class="outline-4">
-<h4 id="org1cd7808"><span class="section-number-4">11.0.4.</span> Monoid in Tests</h4>
+
+<div id="outline-container-org1409aeb" class="outline-4">
+<h4 id="org1409aeb"><span class="section-number-4">11.0.4.</span> Monoid in Tests</h4>
 <div class="outline-text-4" id="text-11-0-4">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">Count</span> <span style="font-weight: bold; font-style: italic;">one</span>{1};
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">Count</span> <span style="font-weight: bold; font-style: italic;">two</span>{2};
-
-<span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">result</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::monoid_combine(one, two);
-CHECK(result.d_value == 3U);
-</code></pre>
-</div>
-
-<div class="notes" id="orgb5fbdb2">
+<div class="notes" id="orgf48ed6e">
 <p>
 monoid_combine dispatches through monoid_v&lt;Count&gt;. The test is mechanical, but it pins the specialization.
 </p>
@@ -1543,29 +1298,26 @@ monoid_combine dispatches through monoid_v&lt;Count&gt;. The test is mechanical,
 </div>
 </div>
 </div>
-<div id="outline-container-org140e871" class="outline-4">
-<h4 id="org140e871"><span class="section-number-4">11.0.5.</span> Monoid Identity Law in Tests</h4>
-<div class="outline-text-4" id="text-11-0-5">
-<div class="org-src-container">
-<pre class="src src-cpp"><code>{
-        <span style="font-weight: bold;">const</span> <span style="font-weight: bold;">auto</span>&amp; <span style="font-weight: bold; font-style: italic;">m</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">typeclass</span>::<span style="font-weight: bold; text-decoration: underline;">monoid_v</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
-        CHECK(m.combine(m.identity(), 42) == 42);
-        CHECK(m.combine(42, m.identity()) == 42);
-}
-</code></pre>
-</div>
 
-<div class="notes" id="org39fb246">
+<div id="outline-container-org5b38c40" class="outline-4">
+<h4 id="org5b38c40"><span class="section-number-4">11.0.5.</span> Monoid Identity Law in Tests</h4>
+<div class="outline-text-4" id="text-11-0-5">
+<div class="notes" id="org53bdfc7">
 <p>
 The identity law is what makes identity() useful for initializing fold accumulators.
 If this fails the Monoid is not a monoid.
 </p>
 
 </div>
+
+<p>
+<b>Preservation</b>: This C++ encoding of Monoid preserves identity and associativity laws in <code>monoid.t.cpp</code>. Every specialization (Count, std::string, std::vector) must satisfy both laws to qualify as a lawful measure. This unlocks the algorithmic guarantee: regrouping combine operations changes nothing.
+</p>
 </div>
 </div>
-<div id="outline-container-org5409ab8" class="outline-4">
-<h4 id="org5409ab8"><span class="section-number-4">11.0.6.</span> Associativity as Algorithmic Leverage</h4>
+
+<div id="outline-container-org002231a" class="outline-4">
+<h4 id="org002231a"><span class="section-number-4">11.0.6.</span> Associativity as Algorithmic Leverage</h4>
 <div class="outline-text-4" id="text-11-0-6">
 <ul class="org-ul">
 <li>Associativity lets us regroup work without changing results.</li>
@@ -1573,7 +1325,7 @@ If this fails the Monoid is not a monoid.
 <li>This is the bridge from algebra to explicit performance contracts.</li>
 </ul>
 
-<div class="notes" id="org22160a8">
+<div class="notes" id="orgd6d2620">
 <p>
 If the measure is a monoid, split/search become compositional (Ralf Hinze and Ross Paterson, 2006).
 </p>
@@ -1581,16 +1333,17 @@ If the measure is a monoid, split/search become compositional (Ralf Hinze and Ro
 </div>
 </div>
 </div>
-<div id="outline-container-org924f0f3" class="outline-4">
-<h4 id="org924f0f3"><span class="section-number-4">11.0.7.</span> Annotations as Summaries</h4>
+
+<div id="outline-container-orgd8facc4" class="outline-4">
+<h4 id="orgd8facc4"><span class="section-number-4">11.0.7.</span> Annotations as Summaries</h4>
 <div class="outline-text-4" id="text-11-0-7">
 <ul class="org-ul">
 <li>Each node caches a measure of its subtree.</li>
-<li>Measures are domain-specific: size, min priority, span, or cost.</li>
+<li>Measures are domain-specific: size, minimum priority, span, or cost.</li>
 <li>Updating structure updates summaries locally.</li>
 </ul>
 
-<div class="notes" id="org6515394">
+<div class="notes" id="org40c9e68">
 <p>
 The data structure stays the same while behavior changes with the monoid.
 </p>
@@ -1598,126 +1351,102 @@ The data structure stays the same while behavior changes with the monoid.
 </div>
 </div>
 </div>
-<div id="outline-container-org0cd8466" class="outline-4">
-<h4 id="org0cd8466"><span class="section-number-4">11.0.8.</span> Search and Split Driven by Measures</h4>
+
+<div id="outline-container-org605394e" class="outline-4">
+<h4 id="org605394e"><span class="section-number-4">11.0.8.</span> Search and Split Driven by Measures</h4>
 <div class="outline-text-4" id="text-11-0-8">
 <ul class="org-ul">
-<li>Design: each node carries a cumulative measure; split navigates by predicate on that measure.</li>
-<li>Current status: correct with linear-time bounds — split scans the flattened sequence.</li>
-<li>The API shape is already what O(log n) split would need; optimization does not change call sites.</li>
+<li>Each node carries a cumulative measure; split navigates by predicate on that measure.</li>
+<li>Predicate-based core split navigates tree structure in O(log n).</li>
+<li><code>split_at_index()</code> uses the structural path for count-measure trees; non-count measures fall back to flatten/rebuild.</li>
 </ul>
 
-<div class="notes" id="org3d63021">
+<div class="notes" id="org4fcddc2">
 <p>
 The original finger-tree paper promises amortized O(1) at the ends,
 O(log(min(n,m))) concatenation, and O(log n) split/search (Ralf Hinze and Ross Paterson, 2006).
-The current implementation keeps the same API shape but does not yet meet those bounds.
-The point for the talk: the abstraction boundary is in the right place even before the optimization lands.
+The predicate-based core split (<code>split()</code> / <code>split_at()</code>) navigates tree structure in O(log n).
+<code>split_at_index()</code> uses a structural fast path when the measure is a count (UnitMeasure with size_t tag);
+non-count measures fall back to flatten/rebuild to preserve index semantics.
+Wrapper operations (random-access at/insert/erase/update, priority-queue pop) use structural split + concat and are O(log n).
 </p>
 
 </div>
 </div>
 </div>
 </div>
-<div id="outline-container-org11bd135" class="outline-2">
-<h2 id="org11bd135"><span class="section-number-2">12.</span> Finger Trees as a Case Study</h2>
+
+<div id="outline-container-org6d0711e" class="outline-2">
+<h2 id="org6d0711e"><span class="section-number-2">12.</span> Finger Trees as a Case Study</h2>
 <div class="outline-text-2" id="text-12">
 </div>
-<div id="outline-container-orgeeeff50" class="outline-4">
-<h4 id="orgeeeff50"><span class="section-number-4">12.0.1.</span> Persistent Concatenation and Splitting</h4>
+<div id="outline-container-org5f724c9" class="outline-4">
+<h4 id="org5f724c9"><span class="section-number-4">12.0.1.</span> Persistent Concatenation and Splitting</h4>
 <div class="outline-text-4" id="text-12-0-1">
 <ul class="org-ul">
-<li>Current prototype provides efficient, persistence-friendly concatenation.</li>
-<li>Current split/search paths are correct with linear-time upper bounds.</li>
-<li>The API is designed so split/search can be optimized later without changing call sites.</li>
-<li>The API naturally composes with foldable/traversable abstractions.</li>
+<li>Persistent, persistence-friendly concatenation in O(log(min(n,m))).</li>
+<li>Predicate-based split navigates tree structure in O(log n); wrapper operations use split + concat.</li>
+<li>The API composes naturally with foldable/traversable abstractions.</li>
 </ul>
 
-<div class="notes" id="orga442ece">
+<div class="notes" id="org6b15434">
 <p>
-This is where abstractions meet implementation reality.
-The paper-level target bounds remain the north star.
-The current prototype contract is explicit linear split/search.
+Concatenation uses Hinze-Paterson app3: O(log(min(n,m))).
+Split navigates the tree structurally in O(log n) and returns left, pivot, right.
+Wrapper operations (random-access, priority queue, rope) use split + concat directly.
 </p>
 
 </div>
 </div>
 </div>
-<div id="outline-container-org399eae0" class="outline-4">
-<h4 id="org399eae0"><span class="section-number-4">12.0.2.</span> One Structure, Many Interpretations</h4>
+
+<div id="outline-container-orgc3544b3" class="outline-4">
+<h4 id="orgc3544b3"><span class="section-number-4">12.0.2.</span> One Structure, Many Interpretations</h4>
 <div class="outline-text-4" id="text-12-0-2">
 <ul class="org-ul">
 <li>Change the monoid, change the interpretation.</li>
-<li>Same implementation can model sequence, priority queue, or rope.</li>
-<li>Reuse is semantic, not just syntactic.</li>
+<li>The same implementation can model sequence, priority queue, or rope.</li>
+<li>Reuse is semantic, not merely syntactic.</li>
 </ul>
 
-<div class="notes" id="org3138298">
+<div class="notes" id="org8f0735c">
 <p>
 This is the strongest argument for measured trees in a standard library context.
 </p>
 
 </div>
 </div>
+
 <ol class="org-ol">
-<li><a id="orga1440c9"></a>Sequence: O(log n) Random Access<br />
+<li><a id="org4e277bf"></a>Sequence: O(log n) Random Access<br />
 <div class="outline-text-5" id="text-12-0-2-1">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">using</span> <span style="font-weight: bold; text-decoration: underline;">Seq</span> = <span style="font-weight: bold; text-decoration: underline;">smd</span>::<span style="font-weight: bold; text-decoration: underline;">tree</span>::<span style="font-weight: bold; text-decoration: underline;">FingerTreeRandomAccess</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;;
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">seq</span> = <span style="font-weight: bold; text-decoration: underline;">Seq</span>::from_sequence({1, 2, 3});
-REQUIRE(seq.at(0).has_value());
-CHECK(*seq.at(0) == 1);
-CHECK_FALSE(seq.at(99).has_value());
-
-<span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">edited</span> = seq.push_back(4).push_front(0).insert(2, 9).update(3, 7).erase(1);
-CHECK(edited.to_vector() == (<span style="font-weight: bold; text-decoration: underline;">std</span>::<span style="font-weight: bold; text-decoration: underline;">vector</span>&lt;<span style="font-weight: bold; text-decoration: underline;">int</span>&gt;{0, 9, 7, 3, 4}));
-</code></pre>
-</div>
-
-<div class="notes" id="org2d3a958">
+<div class="notes" id="org2818000">
 <p>
 Monoid: size. The measure at each node is the count of elements below it.
-push_front/push_back/insert/update/erase all work by measure-guided split and rejoin.
+push_front/push_back are O(1) amortized.
+at/insert/erase/update use structural split O(log n) + concat O(log(min(n,m))).
 </p>
 
 </div>
 </div>
 </li>
-<li><a id="orgdaf4215"></a>Priority Queue: Min and Max in One Structure<br />
+
+<li><a id="org89c8a35"></a>Priority Queue: Min and Max in One Structure<br />
 <div class="outline-text-5" id="text-12-0-2-2">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">q</span> = <span style="font-weight: bold; text-decoration: underline;">Queue</span>::from_values({5, 2, 8, 2, 7});
-REQUIRE(q.min().has_value());
-REQUIRE(q.max().has_value());
-CHECK(*q.min() == 2);
-CHECK(*q.max() == 8);
-</code></pre>
-</div>
-
-<div class="notes" id="orgdc1146b">
+<div class="notes" id="orgb63bc52">
 <p>
-Two FingerTrees, one keyed by min, one by max. The same element lives in both.
+One FingerTree with a combined PriorityTag measure tracking both min and max simultaneously.
 Monoid: (Min, Max) — a pair that combines by taking component-wise extrema.
+push is O(1) amortized; pop_min/pop_max use measure-guided split O(log n) + concat O(log(min(n,m))).
 </p>
 
 </div>
 </div>
 </li>
-<li><a id="orgffd350f"></a>Rope: Character Buffer with Efficient Editing<br />
+
+<li><a id="org67a8cac"></a>Rope: Character Buffer with Efficient Editing<br />
 <div class="outline-text-5" id="text-12-0-2-3">
-<div class="org-src-container">
-<pre class="src src-cpp"><code><span style="font-weight: bold;">auto</span> <span style="font-weight: bold; font-style: italic;">rope</span> = <span style="font-weight: bold; text-decoration: underline;">Rope</span>::from_text(<span style="font-style: italic;">"abCDxy"</span>, 2)
-                    .insert(2, <span style="font-style: italic;">"--"</span>)
-                    .erase(5, 2)
-                    .replace(0, 2, <span style="font-style: italic;">"AB"</span>);
-
-CHECK(rope.to_string() == <span style="font-style: italic;">"AB--Cy"</span>);
-CHECK(rope.size_bytes() == 6U);
-</code></pre>
-</div>
-
-<div class="notes" id="orge0aa7fd">
+<div class="notes" id="org6096f3d">
 <p>
 Monoid: byte-length. The measure at each node is the byte count of its chunk subtree.
 insert, erase, and replace all navigate by cumulative byte offset using split.
@@ -1728,31 +1457,37 @@ insert, erase, and replace all navigate by cumulative byte offset using split.
 </li>
 </ol>
 </div>
-<div id="outline-container-orga5e7ed2" class="outline-4">
-<h4 id="orga5e7ed2"><span class="section-number-4">12.0.3.</span> Why This Belongs in Modern C++</h4>
+
+<div id="outline-container-orgfd35232" class="outline-4">
+<h4 id="orgfd35232"><span class="section-number-4">12.0.3.</span> Why This Belongs in Modern C++</h4>
 <div class="outline-text-4" id="text-12-0-3">
 <ul class="org-ul">
 <li>Adding Traversable to an existing type requires no modification to the type itself — one specialization in a header.</li>
-<li>The Rope, priority queue, and sequence share a Traversable implementation; no per-type code was written.</li>
+<li>The Rope, priority queue, and sequence expose the same Traversable interface, with separate per-type specializations in the current codebase.</li>
 <li>The abstraction is a library choice today; it maps cleanly to pattern matching and richer generic facilities when those arrive.</li>
 </ul>
 
-<div class="notes" id="org0ff5e51">
+<div class="notes" id="orgcde78fe">
 <p>
 This is the concrete payoff: the design composes correctly across independent extension points.
 No monkey-patching, no reopening of classes, no central registry.
 </p>
 
 </div>
+
+<p>
+<b>Preservation</b>: All five finger tree specializations (raw, random-access, priority-queue, rope, interval-index) satisfy the Traversable laws and compose with Foldable, Monoid, and Applicative correctly. The semantic claim that shape preservation and measure-guided search are compositional survives from theory through C++ encoding to real test suites.
+</p>
 </div>
 </div>
 </div>
-<div id="outline-container-orgbf467e2" class="outline-2">
-<h2 id="orgbf467e2"><span class="section-number-2">13.</span> Designing APIs That Won't Age Poorly</h2>
+
+<div id="outline-container-org298c340" class="outline-2">
+<h2 id="org298c340"><span class="section-number-2">13.</span> Designing APIs That Won't Age Poorly</h2>
 <div class="outline-text-2" id="text-13">
 </div>
-<div id="outline-container-org5c20cd9" class="outline-4">
-<h4 id="org5c20cd9"><span class="section-number-4">13.0.1.</span> Library Abstractions Anticipating Language Features</h4>
+<div id="outline-container-orgecbf0eb" class="outline-4">
+<h4 id="orgecbf0eb"><span class="section-number-4">13.0.1.</span> Library Abstractions Anticipating Language Features</h4>
 <div class="outline-text-4" id="text-13-0-1">
 <ul class="org-ul">
 <li>Favor explicit, composable operations over magical overload sets.</li>
@@ -1760,7 +1495,7 @@ No monkey-patching, no reopening of classes, no central registry.
 <li>Make future language support a simplification, not a rewrite.</li>
 </ul>
 
-<div class="notes" id="org3b52f58">
+<div class="notes" id="org3277312">
 <p>
 Pattern matching and richer generic facilities should refine this API, not replace it.
 </p>
@@ -1768,8 +1503,9 @@ Pattern matching and richer generic facilities should refine this API, not repla
 </div>
 </div>
 </div>
-<div id="outline-container-org57de6f6" class="outline-4">
-<h4 id="org57de6f6"><span class="section-number-4">13.0.2.</span> Avoiding the <code>std::bind</code> vs. Lambda Overlap</h4>
+
+<div id="outline-container-org1275095" class="outline-4">
+<h4 id="org1275095"><span class="section-number-4">13.0.2.</span> Avoiding the <code>std::bind</code> vs. Lambda Overlap</h4>
 <div class="outline-text-4" id="text-13-0-2">
 <ul class="org-ul">
 <li>Avoid parallel abstractions that solve the same use case differently.</li>
@@ -1777,7 +1513,7 @@ Pattern matching and richer generic facilities should refine this API, not repla
 <li>For Applicative, that path is <code>invoke</code>; <code>apply_pure</code> remains a teaching aid.</li>
 </ul>
 
-<div class="notes" id="orgebaa283">
+<div class="notes" id="orgc560b2a">
 <p>
 The goal is reducing cognitive branching in generic code.
 </p>
@@ -1785,8 +1521,9 @@ The goal is reducing cognitive branching in generic code.
 </div>
 </div>
 </div>
-<div id="outline-container-orgaae9fbd" class="outline-4">
-<h4 id="orgaae9fbd"><span class="section-number-4">13.0.3.</span> Keeping the Good Path Obvious</h4>
+
+<div id="outline-container-orgfbd8ac2" class="outline-4">
+<h4 id="orgfbd8ac2"><span class="section-number-4">13.0.3.</span> Keeping the Good Path Obvious</h4>
 <div class="outline-text-4" id="text-13-0-3">
 <ul class="org-ul">
 <li>Make lawful defaults easy and alternative policies explicit.</li>
@@ -1794,7 +1531,7 @@ The goal is reducing cognitive branching in generic code.
 <li>Back claims with executable law tests.</li>
 </ul>
 
-<div class="notes" id="org27aa2ef">
+<div class="notes" id="org9d20b2b">
 <p>
 The best API docs in this space are tests that encode the laws.
 </p>
@@ -1807,7 +1544,7 @@ The best API docs in this space are tests that encode the laws.
 <div id="postamble" class="status">
 <p class="date">Date: 2026-05-01 Fri 00:00</p>
 <p class="author">Author: Steve Downey</p>
-<p class="date">Created: 2026-05-01 Fri 03:24</p>
+<p class="date">Created: 2026-05-02 Sat 14:55</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
