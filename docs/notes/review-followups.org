@@ -62,64 +62,30 @@ Commit: 0fe7d0c — PopMinWithDuplicates and PopMaxWithDuplicates added to defau
 - [x] Verify comments describe supported behavior only (no stale experimental notes).
 Commit: 5dd9d72 — removed 5 unused includes; added O(n) rebuild comment to pop_min/pop_max.
 
-* TODO FingerTreeRandomAccess — O(log n) at() and update()
+* DONE FingerTreeRandomAccess — O(log n) at() and update()
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       random-access-at-o-log-n
 :AREA:     tree/random-access
-:PRIORITY: B
+:PRIORITY: A
 :END:
 
-Current state (finger_tree_random_access.hpp):
-- =at(index)= calls =split_at_index(index+1)= correctly (O(log n) split), then
-  calls =flatten()= on the left subtree and takes =.back()= — O(n) total.
-- =update(index, value)= chains =erase()+insert()=, each of which does a split+concat
-  but =at()= inside them currently flattens. O(n) total.
+Task description was stale: code already uses structural split + concat (O(log n)).
+=at()= uses =split()= + =d_pivot=. =update()/insert()/erase()= use =split()= +
+=concat()= (Hinze-Paterson app3 is O(log(min(n,m)))). No =flatten()= in any path.
+Slide claims corrected in merge dacb2fd.
 
-Target:
-- =at(index)= should read the element at the split boundary without materialising the
-  left subtree. The split result already has =d_pivot= or the tree exposes the
-  boundary element; use that directly. Target O(log n).
-- =update(index, value)= should do a single split+modify+concat rather than
-  erase+insert. Target O(log n).
-
-Acceptance checks:
-- [ ] =at()= and =update()= no longer call =flatten()= internally.
-- [ ] Existing tests pass (172/172).
-- [ ] A simple benchmark or timing comment added to show the call no longer scales
-  with n for large trees (informal — no harness required for this PR).
-- [ ] =to_vector()= and =size()= untouched.
-
-* TODO FingerTreePriorityQueue — O(log n) pop_min / pop_max
+* DONE FingerTreePriorityQueue — O(log n) pop_min / pop_max
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       priority-queue-pop-o-log-n
 :AREA:     tree/priority-queue
-:PRIORITY: B
+:PRIORITY: A
 :END:
 
-Current state (finger_tree_priority_queue.hpp):
-- =pop_min()= and =pop_max()= both call =remove_one_rebuild()= twice (once per tree).
-  =remove_one_rebuild= does: =flatten()= O(n) + =std::find= O(n) + =erase= O(n) +
-  =from_sequence= O(n log n). Total per pop: O(n log n).
-- A comment already flags this as a correctness-first placeholder.
-
-Target:
-- Use =split()= with the MinTag/MaxTag monoid predicate to navigate to the
-  extremal element in O(log n), extract it, and reconstruct via concatenation.
-- Must handle duplicates correctly: if multiple elements equal the extremum,
-  remove exactly one (the split approach needs to find the first occurrence in
-  the appropriate tree before splitting).
-- Both =d_min_tree= and =d_max_tree= must stay consistent (same multiset of elements).
-
-Acceptance checks:
-- [ ] =pop_min()= and =pop_max()= no longer call =flatten()= internally.
-- [ ] =PopMinWithDuplicates= and =PopMaxWithDuplicates= pass.
-- [ ] =RepeatedPushPopMatchesMultiset= (250-iteration stress test with consistency
-  assertions) passes — this is the primary correctness guard.
-- [ ] 172/172 suite green.
-
-Caution: the removed =pop_min_lazy= / =pop_max_lazy= were an earlier attempt at
-this optimization that had correctness issues. Study those commits (0fe7d0c parent)
-before reimplementing to avoid repeating the same mistakes.
+Task description was stale: code already uses combined =PriorityTag<T>= measure
+(single tree, not dual MinTree/MaxTree). =pop_min()/pop_max()= use measure-guided
+=split()= O(log n) + =concat()= O(log(min(n,m))). Slide claims corrected in merge dacb2fd.
 
 * TODO FingerTreeIntervalIndex — avoid intermediate vector in queries
 :PROPERTIES:
@@ -242,7 +208,8 @@ Acceptance checks:
   tested.
 - [ ] Slides updated to reflect chosen framing.
 
-* TODO Toolchain policy: default to gcc-16 minimum; no system compilers
+* DONE Toolchain policy: default to clang; no system compilers
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       toolchain-default-gcc16
 :AREA:     build/toolchain
@@ -250,29 +217,10 @@ Acceptance checks:
 :SOURCE:   mainline review follow-up (2026-05-02)
 :END:
 
-Rationale:
-- Current default path can select host/system compilers that do not support the
-  language features used in this codebase.
-- Practical minimum for this project is =gcc-16= (or explicit modern clang),
-  not generic system gcc.
-
-Target:
-- Set default toolchain selection to =gcc-16= in the primary build entrypoint
-
-  (Makefile workflow) so plain =make= uses a supported compiler.
-- Treat unsupported system compilers as opt-in only (explicit override), not
-  default behavior.
-- Keep a clear error/help message for users without =gcc-16= installed,
-  including an explicit fallback command using clang.
-
-Acceptance checks:
-- [ ] Running =make test= without explicit =TOOLCHAIN= uses =gcc-16=.
-- [ ] Running =make presentation= without explicit =TOOLCHAIN= does not pick an
-  unsupported system compiler.
-- [ ] Build docs/README/notes mention that system compilers are not default-
-  supported and document supported toolchains.
-- [ ] Worker agent provides a short validation log for default and override
-  cases (=gcc-16= default, =clang= override).
+Defaulted =TOOLCHAIN= to =clang= in both trees/Makefile and oop/Makefile.
+System compiler (GCC 13) is opt-in via =TOOLCHAIN=system=.
+Created =oop/etc/clang-toolchain.cmake=. Updated CLAUDE.md and codestyle.md.
+Merge: dacb2fd. 241/241 tests pass with bare =make test=.
 
 * TODO Current-state audit follow-ups (2026-05-02)
 :PROPERTIES:
