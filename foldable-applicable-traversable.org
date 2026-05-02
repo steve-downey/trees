@@ -98,10 +98,10 @@
 
 ** Abstract
 
-- Functor and monad patterns are proven; Foldable, Applicative, and Traversable are the next step.
-- Trees and structured data lose too much information when flattened to a sequence.
+- Functor and monad patterns have proven themselves in practice; Foldable, Applicative, and Traversable are the next step.
+- Trees and structured data can lose important information when flattened to a sequence.
 - Monoid underpins efficient tree algorithms; the three typeclasses compose on top of it.
-- This talk proposes what a standard library ~fingertree~ API should look like.
+- This talk illustrates one approach to designing a standard library ~fingertree~ API.
 
 ** Foldable
 - Opt-in hook: ~fold_map~ — provides the algorithmic power of ~std::ranges~.
@@ -120,8 +120,8 @@
 
 ** Not Monadic
 - This talk stops short of Monad deliberately.
-- Monad adds sequencing and dependency between effects. Most tree operations do not need it.
-- Applicative covers the independent-effect cases where the whole structure is known up front.
+- Monad adds sequencing and dependency between effects; most tree operations do not need this overhead.
+- Applicative covers the independent-effect cases where the whole structure is known upfront.
 
 * Ranges Flatten the World
 *** Linearization as a Design Assumption
@@ -155,7 +155,7 @@ A range view is still useful, but it should be derived, not the primary model.
 * Visitors, Pattern Matching, and the Missing Syntax
 *** Visitor as Manual Recursion Control
 - Visitor centralizes recursion, but at the cost of ceremony and indirection.
-- Every new operation requires another visitor type or lambda nest.
+- Each new operation typically requires another visitor type or nested lambda structure.
 - The control flow is explicit, but often noisy.
 
 #+begin_notes
@@ -193,7 +193,7 @@ I only need the intuition here, not full categorical development.
 *** Catamorphisms as a Principled Fold
 - Catamorphism: apply the algebra recursively until the structure is collapsed.
 - In C++, this corresponds to a disciplined fold over a recursive representation.
-- You get reuse without hardcoding each algorithm into the node type.
+- This yields reuse without hardcoding each algorithm into the node type.
 
 #+begin_notes
 Foldable is the operational entry point for this in everyday code.
@@ -259,7 +259,7 @@ Callers can supply a custom instance to change behavior for a specific call site
 #+end_notes
 
 *** Implementors: One Hook, Many Derived Operations
-- Implement one minimal hook per concept; all derived operations come for free.
+- Implement one minimal hook per concept; all derived operations are provided automatically.
 - Foldable: implement ~fold_map~ → counting, folding, predicates, collection.
 - Applicative: implement ~pure~ + ~apply~ → ~invoke~ and five more operations.
 - Traversable: implement ~traverse~ → ~for_each~, ~sequence~, and override variants.
@@ -282,7 +282,7 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 *** Functor Interface
 - Minimal hook: ~fmap(F, container)~ — apply a pure function inside a context.
 - Derived: ~replace(container, value)~ — overwrite all elements with a constant.
-- Instances provided: ~std::optional~, ~beman::optional~, ~std::vector~.
+- Instances: ~std::optional~, ~beman::optional~, ~std::vector~.
 - Lookup: ~smd::functor_typeclass<std::optional<int>>~.
 
 #+begin_notes
@@ -639,7 +639,7 @@ If the measure is a monoid, split/search become compositional [cite:@hinze2006fi
 
 *** Annotations as Summaries
 - Each node caches a measure of its subtree.
-- Measures are domain-specific: size, min priority, span, or cost.
+- Measures are domain-specific: size, minimum priority, span, or cost.
 - Updating structure updates summaries locally.
 
 #+begin_notes
@@ -647,7 +647,7 @@ The data structure stays the same while behavior changes with the monoid.
 #+end_notes
 
 *** Search and Split Driven by Measures
-- Design: each node carries a cumulative measure; split navigates by predicate on that measure.
+- Each node carries a cumulative measure; split navigates by predicate on that measure.
 - Predicate-based core split navigates tree structure in O(log n).
 - ~split_at_index()~ uses the structural path for count-measure trees; non-count measures fall back to flatten/rebuild.
 
@@ -674,8 +674,8 @@ Wrapper operations (random-access, priority queue, rope) use split + concat dire
 
 *** One Structure, Many Interpretations
 - Change the monoid, change the interpretation.
-- Same implementation can model sequence, priority queue, or rope.
-- Reuse is semantic, not just syntactic.
+- The same implementation can model sequence, priority queue, or rope.
+- Reuse is semantic, not merely syntactic.
 
 #+begin_notes
 This is the strongest argument for measured trees in a standard library context.
