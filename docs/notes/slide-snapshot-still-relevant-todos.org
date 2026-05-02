@@ -45,20 +45,35 @@ Evidence:
 - [trees/src/smd/tree/finger_tree_interval_index.hpp](trees/src/smd/tree/finger_tree_interval_index.hpp#L105)
 - [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp#L57)
 
-* TODO Improve wrapper implementations to exploit measures more directly
+* DONE Improve wrapper implementations to exploit measures more directly
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       wrapper-impl-measure-exploitation
 :AREA:     tree/wrappers
 :PRIORITY: B
 :END:
-- [ ] Reduce or eliminate full flatten/rebuild in random access where possible.
-- [ ] Reduce post-split flatten scans in interval index queries.
-- [ ] Investigate non-rebuild path for priority queue min/max removals with duplicate-safe semantics.
-- [ ] Add regression tests that lock in both correctness and expected complexity direction.
+- [x] Reduce or eliminate full flatten/rebuild in random access where possible.
+- [x] Reduce post-split flatten scans in interval index queries.
+- [x] Investigate non-rebuild path for priority queue min/max removals with duplicate-safe semantics.
+- [x] Add regression tests that lock in both correctness and expected complexity direction.
 
-Primary files:
+Resolution: ~FingerTreeRandomAccess~ ~at~, ~insert~, ~erase~, ~update~ rewritten to use structural
+~split()~ / ~split_at()~ with predicate ~prefix > index~ — O(log n) instead of O(n).  ~split_at_index()~
+in ~finger_tree.hpp~ gained an ~if constexpr~ branch: when ~TAG_TYPE = std::size_t~, it delegates
+to ~split_at()~ (no flatten); non-size_t tags retain the flatten fallback.
+
+~FingerTreeIntervalIndex~ was already O(log n + k) optimal: structural ~split_at()~ prunes the
+tree, and the remaining ~flatten()~ is an unavoidable secondary value-filter.  No code change needed.
+
+~FingerTreePriorityQueue~ pop remains O(n) flatten-rebuild: ~MinTag~/~MaxTag~ accumulate the running
+min/max, not element count, so the non-dominant tree cannot be navigated by position without a
+combined measure type (a more invasive change).  Comments updated to explain the gap precisely.
+
+215/215 tests pass.
+
+Evidence:
 - [trees/src/smd/tree/finger_tree_random_access.hpp](trees/src/smd/tree/finger_tree_random_access.hpp)
-- [trees/src/smd/tree/finger_tree_interval_index.hpp](trees/src/smd/tree/finger_tree_interval_index.hpp)
+- [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp)
 - [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp)
 
 * DONE Remove or justify unused representational scaffolding in core finger tree header
