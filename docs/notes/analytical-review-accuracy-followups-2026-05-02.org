@@ -1,0 +1,74 @@
+#+title: Analytical Review Accuracy Follow-ups
+#+author: GitHub Copilot
+#+date: 2026-05-02
+#+startup: overview
+#+startup: logdone
+
+* TODO Update Analytical Review to match current code state
+:PROPERTIES:
+:ID:       analytical-review-accuracy-2026-05-02
+:AREA:     docs/review
+:PRIORITY: A
+:SOURCE:   Analytical Review of Algorithms for Trees.md
+:END:
+
+Context:
+- This checklist captures deltas between claims in the analytical review and the
+  current implementation under trees/src/smd/.
+
+** TODO Correct stale complexity claims for random-access wrapper
+- [ ] Replace statements marking random-access wrapper operations as currently O(n).
+- [ ] Reflect current behavior in =FingerTreeRandomAccess=:
+  - =at(index)= uses =split(...)= and returns pivot (no flatten in current path).
+  - =insert/erase/update= use split + concat paths.
+- [ ] Validate wording against =trees/src/smd/tree/finger_tree_random_access.hpp=.
+
+** TODO Correct stale split/search characterization
+- [ ] Remove claim that split/search paths are broadly linear-time in current code.
+- [ ] Clarify current split behavior in =FingerTree=:
+  - predicate-based =split/split_at= is structural.
+  - =split_at_index= fast path is now constrained to count semantics:
+    =Tag == std::size_t && MeasurePolicy == UnitMeasure<T, Tag>=.
+  - non-count measures (including weighted =std::size_t=) still use flatten/rebuild fallback for index semantics.
+- [ ] Validate wording against =trees/src/smd/tree/finger_tree.hpp=.
+
+** TODO Keep and tighten the per-type Traversable accuracy note
+- [ ] Retain statement that wrappers do not literally share one Traversable impl.
+- [ ] Use precise wording: behavior is parallel/similar, but code is specialized per type.
+- [ ] Validate against:
+  - =trees/src/smd/tree/finger_tree_random_access.hpp=
+  - =trees/src/smd/tree/finger_tree_priority_queue.hpp=
+  - =trees/src/smd/tree/finger_tree_rope.hpp=
+
+** TODO Update priority-queue implementation-status wording
+- [ ] Remove stale implication that pop paths are rebuild/flatten based.
+- [ ] Reflect current code: =pop_min/pop_max= split structurally and rebuild via concat.
+- [ ] Keep complexity claims scoped to current implementation comments unless benchmarked.
+
+** TODO Keep caveats where still valid
+- [ ] Keep caveat that rope APIs are byte-oriented (=std::string::size()=), not grapheme-aware.
+- [ ] Keep caveat that export/citation fidelity should be validated against canonical source artifacts.
+
+** TODO Clean citation artifacts in the review document
+- [ ] Remove/replace malformed inline citation markers like =turnXXsearchY=.
+- [ ] Replace with stable bibliography entries or explicit URLs.
+- [ ] Ensure claims about C++ feature status are versioned:
+  - explicit object parameter / deducing this: C++23 feature.
+  - pattern matching: proposal-stage, not standardized yet.
+
+** TODO Add a short “verified against code snapshot” section
+- [ ] Add verification date and commit hash (if available) used for claim-checking.
+- [ ] Distinguish clearly between:
+  - theory/literature truths,
+  - target design goals,
+  - currently implemented behavior.
+
+* TODO Optional QA pass for the review note itself
+:PROPERTIES:
+:ID:       analytical-review-qa-pass
+:AREA:     docs/review
+:PRIORITY: B
+:END:
+- [ ] Run a final pass for phrasing that may overstate certainty when no benchmark or CI evidence is cited.
+- [ ] Ensure all complexity statements are tagged as one of: implemented, target, or literature.
+- [ ] Ensure each “inaccurate” judgment includes a concrete code location.

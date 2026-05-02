@@ -242,6 +242,64 @@ Acceptance checks:
   tested.
 - [ ] Slides updated to reflect chosen framing.
 
+* TODO Toolchain policy: default to gcc-16 minimum; no system compilers
+:PROPERTIES:
+:ID:       toolchain-default-gcc16
+:AREA:     build/toolchain
+:PRIORITY: A
+:SOURCE:   mainline review follow-up (2026-05-02)
+:END:
+
+Rationale:
+- Current default path can select host/system compilers that do not support the
+  language features used in this codebase.
+- Practical minimum for this project is =gcc-16= (or explicit modern clang),
+  not generic system gcc.
+
+Target:
+- Set default toolchain selection to =gcc-16= in the primary build entrypoint
+
+  (Makefile workflow) so plain =make= uses a supported compiler.
+- Treat unsupported system compilers as opt-in only (explicit override), not
+  default behavior.
+- Keep a clear error/help message for users without =gcc-16= installed,
+  including an explicit fallback command using clang.
+
+Acceptance checks:
+- [ ] Running =make test= without explicit =TOOLCHAIN= uses =gcc-16=.
+- [ ] Running =make presentation= without explicit =TOOLCHAIN= does not pick an
+  unsupported system compiler.
+- [ ] Build docs/README/notes mention that system compilers are not default-
+  supported and document supported toolchains.
+- [ ] Worker agent provides a short validation log for default and override
+  cases (=gcc-16= default, =clang= override).
+
+* TODO Current-state audit follow-ups (2026-05-02)
+:PROPERTIES:
+:ID:       current-state-audit-2026-05-02
+:AREA:     tree/review
+:PRIORITY: A
+:SOURCE:   current-state-audit-2026-05-02.md
+:END:
+
+- [ ] Fix =split_at_index()= semantic guard in [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp) so the fast path is not selected solely by =Tag == std::size_t=.
+- [ ] Add regression test in [trees/src/smd/tree/finger_tree.t.cpp](trees/src/smd/tree/finger_tree.t.cpp):
+  =TEST_CASE("FingerTreeTest - SplitAtIndexWithWeightedSize_t")=
+  that verifies index-based split behavior for weighted =std::size_t= measures.
+- [ ] Decide implementation strategy for the fix:
+  1. conservative: always flatten-and-rebuild for =split_at_index()=, or
+  2. constrained fast path: require explicit count-semantics marker/concept.
+- [ ] Add explanatory comment near =split_at_index()= documenting why the semantic guard exists.
+
+- [x] Delete orphan dead test file [trees/tests/ziplist.t.cpp](trees/tests/ziplist.t.cpp).
+- [ ] Confirm ziplist coverage still runs from [trees/src/smd/ziplist/CMakeLists.txt](trees/src/smd/ziplist/CMakeLists.txt) via normal test pipeline.
+
+- [ ] Audit formatter config to ensure vendored code is excluded (at least [trees/vendor/catch2/](trees/vendor/catch2/)).
+- [ ] Decide whether to revert current vendor formatting churn to preserve clean upstream subtree sync.
+- [ ] Document vendor-formatting policy in contributor docs and/or pre-commit config.
+
+- [ ] Optional: add an inline note in [trees/src/smd/typeclass/traversable.t.cpp](trees/src/smd/typeclass/traversable.t.cpp) clarifying alternate-core =using Impl::...= expectations in test helpers.
+
 * TODO Delivery checklist
 :PROPERTIES:
 :ID:       delivery-checklist
