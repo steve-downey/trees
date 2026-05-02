@@ -59,8 +59,8 @@ CLOSED: [2026-05-02 Sat]
 
 Resolution: ~FingerTreeRandomAccess~ ~at~, ~insert~, ~erase~, ~update~ rewritten to use structural
 ~split()~ / ~split_at()~ with predicate ~prefix > index~ — O(log n) instead of O(n).  ~split_at_index()~
-in ~finger_tree.hpp~ gained an ~if constexpr~ branch: when ~TAG_TYPE = std::size_t~, it delegates
-to ~split_at()~ (no flatten); non-size_t tags retain the flatten fallback.
+in ~finger_tree.hpp~ gained an ~if constexpr~ branch for the count-measure case (~UnitMeasure~ with
+~std::size_t~ tag); non-count tags/policies retain the flatten fallback to preserve index semantics.
 
 ~FingerTreeIntervalIndex~ was already O(log n + k) optimal: structural ~split_at()~ prunes the
 tree, and the remaining ~flatten()~ is an unavoidable secondary value-filter.  No code change needed.
@@ -69,7 +69,7 @@ tree, and the remaining ~flatten()~ is an unavoidable secondary value-filter.  N
 min/max, not element count, so the non-dominant tree cannot be navigated by position without a
 combined measure type (a more invasive change).  Comments updated to explain the gap precisely.
 
-215/215 tests pass.
+240/240 tests pass (before this fix; new regression test brings count to 241).
 
 Evidence:
 - [trees/src/smd/tree/finger_tree_random_access.hpp](trees/src/smd/tree/finger_tree_random_access.hpp)
