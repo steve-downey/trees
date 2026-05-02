@@ -20,6 +20,10 @@ namespace smd::tree {
 template <typename T>
 using Boxed = std::shared_ptr<const T>;
 
+namespace detail {
+
+// Digit types: FingerTree ends hold 1–4 elements in a structural variant.
+// Not part of the public API — do not depend on these types directly.
 template <typename T>
 struct One {
   T a;
@@ -49,6 +53,8 @@ struct Four {
 template <typename T>
 using Digit = std::variant<One<T>, Two<T>, Three<T>, Four<T>>;
 
+// Node types: FingerTree spine holds cached-measure nodes of 2–3 children.
+// Not part of the public API — do not depend on these types directly.
 template <typename T, typename TAG_TYPE>
 struct Node2 {
   TAG_TYPE d_measure;
@@ -69,6 +75,17 @@ struct Node3 {
 template <typename T, typename TAG_TYPE>
 using Node = std::variant<Node2<T, TAG_TYPE>, Node3<T, TAG_TYPE>>;
 
+// Helper for multi-overload lambdas passed to std::visit.
+template <typename... Ts>
+struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+
+template <typename... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
+
+}  // namespace detail
+
 template <typename VALUE_TYPE, typename TAG_TYPE>
 struct UnitMeasure {
   auto operator()(const VALUE_TYPE&) const -> TAG_TYPE { return TAG_TYPE{1}; }
@@ -82,18 +99,6 @@ struct NodeMeasure {
   }
 };
 
-namespace detail {
-
-template <typename... Ts>
-struct overloaded : Ts... {
-  using Ts::operator()...;
-};
-
-template <typename... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
-
-}  // namespace detail
-
 template <typename T,
           typename TAG_TYPE = std::size_t,
           typename MEASURE_POLICY = UnitMeasure<T, TAG_TYPE>,
@@ -106,6 +111,17 @@ class FingerTree {
                 "FingerTree measure policy must be default-constructible");
 
   static constexpr int kMaxDepth = 10;
+
+  // Shadow internal detail types into class scope so the implementation body
+  // below does not need detail:: prefixes throughout.
+  template <typename U>             using One   = detail::One<U>;
+  template <typename U>             using Two   = detail::Two<U>;
+  template <typename U>             using Three = detail::Three<U>;
+  template <typename U>             using Four  = detail::Four<U>;
+  template <typename U>             using Digit = detail::Digit<U>;
+  template <typename U, typename V> using Node2 = detail::Node2<U, V>;
+  template <typename U, typename V> using Node3 = detail::Node3<U, V>;
+  template <typename U, typename V> using Node  = detail::Node<U, V>;
 
   using Tag = TAG_TYPE;
   using MeasurePolicy = MEASURE_POLICY;
