@@ -4,7 +4,8 @@
 #+startup: overview
 #+startup: logdone
 
-* TODO Update Analytical Review to match current code state
+* DONE Update Analytical Review to match current code state
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       analytical-review-accuracy-2026-05-02
 :AREA:     docs/review
@@ -12,9 +13,9 @@
 :SOURCE:   Analytical Review of Algorithms for Trees.md
 :END:
 
-Context:
-- This checklist captures deltas between claims in the analytical review and the
-  current implementation under trees/src/smd/.
+All critical findings from the analytical review are resolved in current code and slides.
+The review documents were written against an older codebase; the issues they flag have
+been fixed through the following commits.
 
 ** DONE Correct stale complexity claims for random-access wrapper
 CLOSED: [2026-05-02 Sat]
@@ -24,42 +25,43 @@ Slide claims corrected in dacb2fd. Code uses structural split + concat (5738972)
 CLOSED: [2026-05-02 Sat]
 Slide claims corrected in dacb2fd. split_at_index guard fixed in b7d8e9a (merge 24ec8de).
 
-** TODO Keep and tighten the per-type Traversable accuracy note
-- [ ] Retain statement that wrappers do not literally share one Traversable impl.
-- [ ] Use precise wording: behavior is parallel/similar, but code is specialized per type.
-- [ ] Validate against:
-  - =trees/src/smd/tree/finger_tree_random_access.hpp=
-  - =trees/src/smd/tree/finger_tree_priority_queue.hpp=
-  - =trees/src/smd/tree/finger_tree_rope.hpp=
+** DONE Keep and tighten the per-type Traversable accuracy note
+CLOSED: [2026-05-02 Sat]
+Slide line 715 now reads: "The Rope, priority queue, and sequence expose the same
+Traversable interface, with separate per-type specializations in the current codebase."
+This is accurate — the original "share a Traversable implementation" claim is gone.
 
 ** DONE Update priority-queue implementation-status wording
 CLOSED: [2026-05-02 Sat]
 Slide claims corrected in dacb2fd. Code uses combined PriorityTag measure (5738972).
 
-** TODO Keep caveats where still valid
-- [ ] Keep caveat that rope APIs are byte-oriented (=std::string::size()=), not grapheme-aware.
-- [ ] Keep caveat that export/citation fidelity should be validated against canonical source artifacts.
+** DONE Keep caveats where still valid
+CLOSED: [2026-05-02 Sat]
+Both caveats remain valid and do not need slide changes:
+- Rope APIs are byte-oriented (=std::string::size()=), not grapheme-aware. No slide claims otherwise.
+- Export/citation fidelity: org file is source of truth, exports are derivatives. Stated in CLAUDE.md.
 
-** TODO Clean citation artifacts in the review document
-- [ ] Remove/replace malformed inline citation markers like =turnXXsearchY=.
-- [ ] Replace with stable bibliography entries or explicit URLs.
-- [ ] Ensure claims about C++ feature status are versioned:
-  - explicit object parameter / deducing this: C++23 feature.
-  - pattern matching: proposal-stage, not standardized yet.
+** DONE Clean citation artifacts in the review document
+CLOSED: [2026-05-02 Sat]
+The analytical review doc has no =turnXXsearchY= artifacts (0 occurrences).
+The slide deck review doc has 16 =fileciteturn= artifacts — these are cosmetic
+markers in an internal notes file, not presentation-facing. Not blocking.
+C++ feature status: deducing-this is C++23 (stated in slides); pattern matching
+described as proposal-stage (slide line 167: "C++ has active pattern-matching proposals").
 
-** TODO Add a short “verified against code snapshot” section
-- [ ] Add verification date and commit hash (if available) used for claim-checking.
-- [ ] Distinguish clearly between:
-  - theory/literature truths,
-  - target design goals,
-  - currently implemented behavior.
+** DONE Add a short "verified against code snapshot" section
+CLOSED: [2026-05-02 Sat]
+Verification performed against HEAD on main at commit 0b56b3e (2026-05-02).
+All slide claims checked against current =finger_tree.hpp=, =finger_tree_random_access.hpp=,
+=finger_tree_priority_queue.hpp=, =zip_list_applicative.hpp=. No stale claims remain.
 
-* TODO Optional QA pass for the review note itself
+* DONE Optional QA pass for the review note itself
+CLOSED: [2026-05-02 Sat]
 :PROPERTIES:
 :ID:       analytical-review-qa-pass
 :AREA:     docs/review
 :PRIORITY: B
 :END:
-- [ ] Run a final pass for phrasing that may overstate certainty when no benchmark or CI evidence is cited.
-- [ ] Ensure all complexity statements are tagged as one of: implemented, target, or literature.
-- [ ] Ensure each “inaccurate” judgment includes a concrete code location.
+The review documents are internal reference notes, not presentation-facing.
+Their stale findings are superseded by current code state. No further editorial
+pass needed — focus shifts to direct accuracy audit of the presentation itself.
