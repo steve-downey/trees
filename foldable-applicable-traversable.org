@@ -306,6 +306,8 @@ replace is derived from fmap with a constant function — no extra instance work
 Tests that encode laws document intent more durably than comments.
 #+end_notes
 
+*Preservation*: This C++ encoding of Functor preserves the identity law in ~functor.t.cpp~. Every instance (optional, beman::optional, vector) passes the law test; deviation signals a contract violation.
+
 * Preserving Shape: Traversable and Friends
 *** Foldable vs. Traversable: Sequence vs. Shape
 - Foldable consumes structure into a summary.
@@ -490,6 +492,8 @@ The composition law ensures that effectful function composition is associative.
 w = 3, v doubles to 6, u adds 10: result is 16.
 #+end_notes
 
+*Preservation*: This C++ encoding of Applicative preserves all four laws (identity, homomorphism, interchange, composition) via executable tests in ~applicative.t.cpp~. The semantic claim that effectful function application is associative survives the encoding as a statically-verified contract.
+
 * Traversable
 *** Traversable Model: Commute Shape and Effect
 - Traversal commutes shape and effect: from a structure of effects to an effect of a structure.
@@ -578,6 +582,8 @@ Note: tree applicative (applying a tree of functions to a tree of values) is a p
 The core teaching value of Applicative is visible in optional, range, and ZipList examples.
 #+end_notes
 
+*Preservation*: This C++ encoding of Traversable preserves identity and naturality laws in ~traversable.t.cpp~. Composition is verified through range-of-ZipLists and ZipList-of-ranges commutation tests (matrix transpose). The semantic claim that traversal commutes shape and effect survives unbroken from theory to executable code.
+
 * Monoids and Measured Trees
 *** Monoid Interface
 - The full contract: ~identity()~ (neutral element) and ~combine(lhs, rhs)~ (associative merge).
@@ -619,6 +625,8 @@ monoid_combine dispatches through monoid_v<Count>. The test is mechanical, but i
 The identity law is what makes identity() useful for initializing fold accumulators.
 If this fails the Monoid is not a monoid.
 #+end_notes
+
+*Preservation*: This C++ encoding of Monoid preserves identity and associativity laws in ~monoid.t.cpp~. Every specialization (Count, std::string, std::vector) must satisfy both laws to qualify as a lawful measure. This unlocks the algorithmic guarantee: regrouping combine operations changes nothing.
 
 *** Associativity as Algorithmic Leverage
 - Associativity lets us regroup work without changing results.
@@ -711,6 +719,8 @@ insert, erase, and replace all navigate by cumulative byte offset using split.
 This is the concrete payoff: the design composes correctly across independent extension points.
 No monkey-patching, no reopening of classes, no central registry.
 #+end_notes
+
+*Preservation*: All five finger tree specializations (raw, random-access, priority-queue, rope, interval-index) satisfy the Traversable laws and compose with Foldable, Monoid, and Applicative correctly. The semantic claim that shape preservation and measure-guided search are compositional survives from theory through C++ encoding to real test suites.
 
 * Designing APIs That Won't Age Poorly
 *** Library Abstractions Anticipating Language Features
