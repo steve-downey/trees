@@ -102,6 +102,7 @@ struct Applicative : protected Impl {
     "No applicative_typeclass<T> specialization found. "
     "Specialize smd::applicative_typeclass<T> for your type T "
     "and provide pure(...) and apply(...) operations.");
+  // Alternate-core: pure + apply are the primitives; invoke and all others derive from them.
   using Impl::apply;
   using Impl::pure;
 

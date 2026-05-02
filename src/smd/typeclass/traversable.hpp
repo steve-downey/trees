@@ -29,6 +29,8 @@ struct Traversable : protected Impl {
     requires { typename Impl::element_type; },
     "Traversable Impl must declare 'using element_type = T;' "
     "so that sequence() and traverse_with() can deduce the element type.");
+  // Alternate-core: Impl::traverse is the primitive; sequence is derived from it.
+  // A sequence-primitive Impl would shadow sequence instead.
   using Impl::traverse;
   using element_type = typename Impl::element_type;
 

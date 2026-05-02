@@ -224,6 +224,8 @@ struct Foldable : protected Impl {
     "No foldable_typeclass<T> specialization found. "
     "Specialize smd::foldable_typeclass<T> for your type T "
     "and provide a fold_map(F, T) operation.");
+  // Alternate-core: Impl::fold_map is the primitive; all other operations derive from it.
+  // A fold_right-primitive Impl would shadow fold_right instead.
   using Impl::fold_map;
 
   // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2
