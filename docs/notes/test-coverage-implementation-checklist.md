@@ -1,8 +1,8 @@
 # Test Coverage Implementation Checklist
 
-**Date Started:** [YYYY-MM-DD]  
-**Secondary Programmer:** [Name]  
-**Reviewer:** [Name]  
+**Date Started:** [YYYY-MM-DD]
+**Secondary Programmer:** [Name]
+**Reviewer:** [Name]
 
 Use this checklist to track progress through the 5-phase implementation plan.
 
@@ -31,7 +31,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
 - [ ] `src/smd/typeclass/traversable.t.cpp` — Add 2nd include
 - [ ] `src/smd/typeclass/typeclass_base.t.cpp` — Add 2nd include
 
-**Validation:** `make test` (should pass 170+ tests)  
+**Validation:** `make test` (should pass 170+ tests)
 **Commit when done:** "test: retrofit typeclass tests with double-include"
 
 ### 2.2 Ranges Tests (4 files)
@@ -41,7 +41,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
 - [ ] `src/smd/ranges/range_functor.t.cpp` — Add 2nd include
 - [ ] `src/smd/ranges/range_traversable.t.cpp` — Add 2nd include
 
-**Validation:** `make test`  
+**Validation:** `make test`
 **Commit when done:** "test: retrofit ranges tests with double-include"
 
 ### 2.3 Binary Tree Tests (3 files)
@@ -50,7 +50,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
 - [ ] `src/smd/tree/binary_tree_foldable.t.cpp` — Add 2nd include
 - [ ] `src/smd/tree/binary_tree_traversable.t.cpp` — Add 2nd include
 
-**Validation:** `make test`  
+**Validation:** `make test`
 **Commit when done:** "test: retrofit binary_tree tests with double-include"
 
 ### 2.4 Finger Tree Tests (5 files)
@@ -61,7 +61,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
 - [ ] `src/smd/tree/finger_tree_random_access.t.cpp` — Add 2nd include
 - [ ] `src/smd/tree/finger_tree_rope.t.cpp` — Add 2nd include
 
-**Validation:** `make test`  
+**Validation:** `make test`
 **Commit when done:** "test: retrofit finger_tree tests with double-include"
 
 ### 2.5 Fix Tree Tests (3 files)
@@ -70,7 +70,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
 - [ ] `src/smd/tree/fix_tree_foldable.t.cpp` — Add 2nd include
 - [ ] `src/smd/tree/fix_tree_traversable.t.cpp` — Add 2nd include
 
-**Validation:** `make test`  
+**Validation:** `make test`
 **Commit when done:** "test: retrofit fix_tree tests with double-include"
 
 ### 2.6 Fringe Tree Tests (3 files)
@@ -79,7 +79,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
 - [ ] `src/smd/tree/fringe_tree_applicative.t.cpp` — Add 2nd include
 - [ ] `src/smd/tree/fringe_tree_traversable.t.cpp` — Add 2nd include
 
-**Validation:** `make test`  
+**Validation:** `make test`
 **Commit when done:** "test: retrofit fringe_tree tests with double-include"
 
 ### 2.7 Typeclass Examples & ZipList (2 files)
@@ -87,11 +87,11 @@ Use this checklist to track progress through the 5-phase implementation plan.
 - [ ] `src/smd/typeclass/examples/examples.t.cpp` — Add 2nd include
 - [ ] `src/smd/ziplist/zip_list_applicative.t.cpp` — Add 2nd include
 
-**Validation:** `make test`  
+**Validation:** `make test`
 **Commit when done:** "test: retrofit examples and ziplist tests with double-include"
 
-**Phase 2 Subtotal:** 28 files retrofitted  
-**Estimated Time:** 15 hours  
+**Phase 2 Subtotal:** 28 files retrofitted
+**Estimated Time:** 15 hours
 **Overall Progress:** 50%
 
 ---
@@ -135,7 +135,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
   - Validation: `ctest -R zip_list`
   - Commit: "test: add zip_list test file"
 
-**Subtotal:** 5 files, ~450–560 lines  
+**Subtotal:** 5 files, ~450–560 lines
 **Estimated Time:** 4–5 hours
 
 ### 3.2 MEDIUM PRIORITY Typeclass Wrappers (4 files)
@@ -168,11 +168,11 @@ Use this checklist to track progress through the 5-phase implementation plan.
   - Validation: `ctest -R fringe_tree_foldable`
   - Commit: "test: add fringe_tree_foldable test file"
 
-**Subtotal:** 4 files, ~300–380 lines  
+**Subtotal:** 4 files, ~300–380 lines
 **Estimated Time:** 3–4 hours
 
-**Phase 3 Total:** 9 files, ~750–940 lines  
-**Estimated Time:** 7–9 hours  
+**Phase 3 Total:** 9 files, ~750–940 lines
+**Estimated Time:** 7–9 hours
 **Overall Progress:** 85%
 
 ---
@@ -211,7 +211,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
   - [ ] No regression in overall coverage
   - [ ] HTML report generated
 
-**Phase 4 Estimated Time:** 2 hours  
+**Phase 4 Estimated Time:** 2 hours
 **Overall Progress:** 90%
 
 ---
@@ -244,7 +244,7 @@ Use this checklist to track progress through the 5-phase implementation plan.
 - [ ] Merge with `--no-ff`: `git merge --no-ff <branch-name>`
 - [ ] Verify merge commit is on main
 
-**Phase 5 Estimated Time:** 1 hour  
+**Phase 5 Estimated Time:** 1 hour
 **Overall Progress:** 100%
 
 ---
@@ -253,12 +253,12 @@ Use this checklist to track progress through the 5-phase implementation plan.
 
 | Phase | Task | Estimated | Actual | Status |
 |-------|------|-----------|--------|--------|
-| 1 | Documentation | 1 h | ✅ | ✅ COMPLETE |
-| 2 | Retrofit 28 files | 15 h | | ⏳ Pending |
-| 3 | Create 9 new files | 7–9 h | | ⏳ Pending |
-| 4 | Validation | 2 h | | ⏳ Pending |
-| 5 | Review & Merge | 1 h | | ⏳ Pending |
-| **TOTAL** | | **26–28 h** | | **Awaiting implementation** |
+| 1 | Documentation | 1 h | ✅ | ✅ COMPLETE — 2c9329f |
+| 2 | Retrofit 28 files | 15 h | ✅ | ✅ COMPLETE — 39effee (merge e39870e) |
+| 3 | Create 9 new files | 7–9 h | ✅ | ✅ COMPLETE — 3c77dda (merge e39870e). Note: fix_tree → fixpoint_tree; memoized_thunk → smd/thunk |
+| 4 | Validation | 2 h | ✅ | ✅ 241/241 tests pass |
+| 5 | Review & Merge | 1 h | ✅ | ✅ Merged to main |
+| **TOTAL** | | **26–28 h** | | **✅ COMPLETE** |
 
 ---
 

@@ -180,7 +180,7 @@ CLOSED: [2026-05-02 Sat]
 - [x] Ziplist coverage confirmed via =make test= (241/241).
 
 Remaining minor items (not blocking):
-- [ ] Audit formatter config to exclude vendor/ from formatting.
+- [x] Audit formatter config to exclude vendor/ from formatting: 14a77cd (merge via main).
 - [ ] Optional: alternate-core =using Impl::...= inline note in test helpers.
 
 * DONE Delivery checklist

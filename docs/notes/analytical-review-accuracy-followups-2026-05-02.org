@@ -16,21 +16,13 @@ Context:
 - This checklist captures deltas between claims in the analytical review and the
   current implementation under trees/src/smd/.
 
-** TODO Correct stale complexity claims for random-access wrapper
-- [ ] Replace statements marking random-access wrapper operations as currently O(n).
-- [ ] Reflect current behavior in =FingerTreeRandomAccess=:
-  - =at(index)= uses =split(...)= and returns pivot (no flatten in current path).
-  - =insert/erase/update= use split + concat paths.
-- [ ] Validate wording against =trees/src/smd/tree/finger_tree_random_access.hpp=.
+** DONE Correct stale complexity claims for random-access wrapper
+CLOSED: [2026-05-02 Sat]
+Slide claims corrected in dacb2fd. Code uses structural split + concat (5738972).
 
-** TODO Correct stale split/search characterization
-- [ ] Remove claim that split/search paths are broadly linear-time in current code.
-- [ ] Clarify current split behavior in =FingerTree=:
-  - predicate-based =split/split_at= is structural.
-  - =split_at_index= fast path is now constrained to count semantics:
-    =Tag == std::size_t && MeasurePolicy == UnitMeasure<T, Tag>=.
-  - non-count measures (including weighted =std::size_t=) still use flatten/rebuild fallback for index semantics.
-- [ ] Validate wording against =trees/src/smd/tree/finger_tree.hpp=.
+** DONE Correct stale split/search characterization
+CLOSED: [2026-05-02 Sat]
+Slide claims corrected in dacb2fd. split_at_index guard fixed in b7d8e9a (merge 24ec8de).
 
 ** TODO Keep and tighten the per-type Traversable accuracy note
 - [ ] Retain statement that wrappers do not literally share one Traversable impl.
@@ -40,10 +32,9 @@ Context:
   - =trees/src/smd/tree/finger_tree_priority_queue.hpp=
   - =trees/src/smd/tree/finger_tree_rope.hpp=
 
-** TODO Update priority-queue implementation-status wording
-- [ ] Remove stale implication that pop paths are rebuild/flatten based.
-- [ ] Reflect current code: =pop_min/pop_max= split structurally and rebuild via concat.
-- [ ] Keep complexity claims scoped to current implementation comments unless benchmarked.
+** DONE Update priority-queue implementation-status wording
+CLOSED: [2026-05-02 Sat]
+Slide claims corrected in dacb2fd. Code uses combined PriorityTag measure (5738972).
 
 ** TODO Keep caveats where still valid
 - [ ] Keep caveat that rope APIs are byte-oriented (=std::string::size()=), not grapheme-aware.
