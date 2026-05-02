@@ -1092,14 +1092,20 @@ class FingerTree {
     if (index >= breadth()) {
       return SplitAt{*this, empty()};
     }
-    auto vec = flatten();
-    auto clamped = index > vec.size() ? vec.size() : index;
-    std::vector<T> lv(vec.begin(),
-      vec.begin() + static_cast<std::ptrdiff_t>(clamped));
-    std::vector<T> rv(
-      vec.begin() + static_cast<std::ptrdiff_t>(clamped), vec.end());
-    return SplitAt{from_sequence(std::move(lv)),
-                   from_sequence(std::move(rv))};
+    if constexpr (std::is_same_v<Tag, std::size_t>) {
+      // Prefix measure = running element count; navigate structurally, no flatten.
+      return split_at([index](std::size_t prefix) { return prefix > index; });
+    } else {
+      // Non-size_t tags don't accumulate position; fall back to flatten-and-rebuild.
+      auto vec = flatten();
+      auto clamped = index > vec.size() ? vec.size() : index;
+      std::vector<T> lv(vec.begin(),
+        vec.begin() + static_cast<std::ptrdiff_t>(clamped));
+      std::vector<T> rv(
+        vec.begin() + static_cast<std::ptrdiff_t>(clamped), vec.end());
+      return SplitAt{from_sequence(std::move(lv)),
+                     from_sequence(std::move(rv))};
+    }
   }
 
   auto split_at_measure(const Tag& threshold) const -> SplitAt
