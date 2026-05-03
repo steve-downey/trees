@@ -1,5 +1,5 @@
 #include <smd/tree/finger_tree_priority_queue.hpp>
-#include <smd/tree/finger_tree_priority_queue.hpp>  // Re-inclusion check
+#include <smd/tree/finger_tree_priority_queue.hpp> // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -7,8 +7,7 @@
 #include <set>
 #include <vector>
 
-TEST_CASE("FingerTreePriorityQueueTest - WrapperOperations")
-{
+TEST_CASE("FingerTreePriorityQueueTest - WrapperOperations") {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
     // a4d7f1c6-3b9e-4a2d-f8c4-6e5b1d9c3a07
@@ -32,26 +31,23 @@ TEST_CASE("FingerTreePriorityQueueTest - WrapperOperations")
     CHECK(*max_pop->second.max() == 7);
 }
 
-TEST_CASE("FingerTreePriorityQueueTest - FoldableTypeclass")
-{
+TEST_CASE("FingerTreePriorityQueueTest - FoldableTypeclass") {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
     auto q = Queue::from_values({5, 2, 8, 2, 7});
-    const auto& foldable = smd::foldable_typeclass<Queue>;
+    const auto &foldable = smd::foldable_typeclass<Queue>;
 
     CHECK(foldable.fold_map([](int value) { return value; }, q) == 24);
     CHECK(foldable.length(q) == 5U);
 }
 
-TEST_CASE("FingerTreePriorityQueueTest - TraversableTypeclass")
-{
+TEST_CASE("FingerTreePriorityQueueTest - TraversableTypeclass") {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
     auto q = Queue::from_values({5, 2, 8});
 
     auto success = smd::traverse(
-      [](int value) -> std::optional<int> { return value * 10; },
-      q);
+        [](int value) -> std::optional<int> { return value * 10; }, q);
     REQUIRE(success.has_value());
     CHECK(success->to_vector() == (std::vector<int>{50, 20, 80}));
     REQUIRE(success->min().has_value());
@@ -60,18 +56,17 @@ TEST_CASE("FingerTreePriorityQueueTest - TraversableTypeclass")
     CHECK(*success->max() == 80);
 
     auto failure = smd::traverse(
-      [](int value) -> std::optional<int> {
-          if (value == 8) {
-              return std::nullopt;
-          }
-          return value;
-      },
-      q);
+        [](int value) -> std::optional<int> {
+            if (value == 8) {
+                return std::nullopt;
+            }
+            return value;
+        },
+        q);
     CHECK_FALSE(failure.has_value());
 }
 
-TEST_CASE("FingerTreePriorityQueueTest - RepeatedPushPopMatchesMultiset")
-{
+TEST_CASE("FingerTreePriorityQueueTest - RepeatedPushPopMatchesMultiset") {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
     auto q = Queue::from_values({5, 2, 8, 2, 7, 1, 9, 1});
@@ -118,8 +113,7 @@ TEST_CASE("FingerTreePriorityQueueTest - RepeatedPushPopMatchesMultiset")
     CHECK(actual == expected);
 }
 
-TEST_CASE("FingerTreePriorityQueueTest - PopMinWithDuplicates")
-{
+TEST_CASE("FingerTreePriorityQueueTest - PopMinWithDuplicates") {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
     auto q = Queue::from_values({5, 2, 8, 2, 7});
@@ -147,8 +141,7 @@ TEST_CASE("FingerTreePriorityQueueTest - PopMinWithDuplicates")
     CHECK(*q3.max() == 8);
 }
 
-TEST_CASE("FingerTreePriorityQueueTest - PopMaxWithDuplicates")
-{
+TEST_CASE("FingerTreePriorityQueueTest - PopMaxWithDuplicates") {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
     auto q = Queue::from_values({5, 8, 2, 8, 7});

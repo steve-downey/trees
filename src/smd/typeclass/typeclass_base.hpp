@@ -24,23 +24,24 @@ template <class T, class = void>
 struct applicative_value;
 
 template <class T>
-struct applicative_value<T, std::void_t<typename remove_cvref_t<T>::value_type> > {
-	using type = typename remove_cvref_t<T>::value_type;
+struct applicative_value<T,
+                         std::void_t<typename remove_cvref_t<T>::value_type>> {
+    using type = typename remove_cvref_t<T>::value_type;
 };
 
 template <class T>
 struct applicative_value<std::optional<T>, void> {
-	using type = T;
+    using type = T;
 };
 
 template <class T>
 struct applicative_value<beman::optional::optional<T>, void> {
-	using type = T;
+    using type = T;
 };
 
 template <class T>
-using applicative_value_t = typename applicative_value<remove_cvref_t<T> >::type;
+using applicative_value_t = typename applicative_value<remove_cvref_t<T>>::type;
 
-}  // close namespace smd
+} // namespace smd
 
-#endif  // INCLUDED_SMD_TYPECLASS_TYPECLASS_BASE
+#endif // INCLUDED_SMD_TYPECLASS_TYPECLASS_BASE

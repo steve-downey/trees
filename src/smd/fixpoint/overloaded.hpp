@@ -13,6 +13,6 @@ struct overloaded : Ts... {
 template <typename... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
-}  // close namespace smd::fixpoint
+} // namespace smd::fixpoint
 
 #endif

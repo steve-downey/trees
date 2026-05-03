@@ -13,17 +13,15 @@ struct Fix {
 };
 
 template <template <typename> class F>
-constexpr auto wrap(F<Fix<F>> layer) -> Fix<F>
-{
+constexpr auto wrap(F<Fix<F>> layer) -> Fix<F> {
     return Fix<F>{std::move(layer)};
 }
 
 template <template <typename> class F>
-constexpr auto unwrap(const Fix<F>& fixed) -> const F<Fix<F>>&
-{
+constexpr auto unwrap(const Fix<F> &fixed) -> const F<Fix<F>> & {
     return fixed.inner;
 }
 
-}  // close namespace smd::fixpoint
+} // namespace smd::fixpoint
 
 #endif

@@ -7,22 +7,19 @@
 
 namespace smd::fixpoint {
 
-template <typename Result,
-          template <typename> class F,
-          typename Algebra,
+template <typename Result, template <typename> class F, typename Algebra,
           typename FMap>
-auto cata(const Algebra& algebra, const FMap& fmap_fn, const Fix<F>& tree)
-    -> Result
-{
-    const auto& layer = unwrap(tree);
+auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
+    -> Result {
+    const auto &layer = unwrap(tree);
     auto evaluated = fmap_fn(
-        [&](const Fix<F>& child) -> Result {
+        [&](const Fix<F> &child) -> Result {
             return cata<Result>(algebra, fmap_fn, child);
         },
         layer);
     return algebra(evaluated);
 }
 
-}  // close namespace smd::fixpoint
+} // namespace smd::fixpoint
 
 #endif

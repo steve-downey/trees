@@ -1,10 +1,10 @@
 #include <smd/ziplist/zip_list_applicative.hpp>
 #include <smd/ziplist/zip_list_applicative.hpp> // Re-inclusion check
 
+#include <catch2/catch_test_macros.hpp>
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/test/test_support.hpp>
 #include <smd/ziplist/zip_list.hpp>
-#include <catch2/catch_test_macros.hpp>
 
 #include <functional>
 #include <vector>

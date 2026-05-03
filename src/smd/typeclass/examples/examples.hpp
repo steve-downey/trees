@@ -21,6 +21,6 @@ auto bad_applicative_example() -> std::size_t;
 auto explicit_object_lookup_example() -> std::optional<int>;
 auto nttp_object_lookup_example() -> std::optional<int>;
 
-}  // close namespace smd::typeclass::examples
+} // namespace smd::typeclass::examples
 
-#endif  // INCLUDED_SMD_TYPECLASS_EXAMPLES_EXAMPLES
+#endif // INCLUDED_SMD_TYPECLASS_EXAMPLES_EXAMPLES

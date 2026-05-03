@@ -1,7 +1,7 @@
-#include <smd/tree/finger_tree.hpp>
-#include <smd/tree/finger_tree.hpp>  // Re-inclusion check
-#include <smd/tree/finger_tree_foldable.hpp>
 #include <smd/thunk/memoize.hpp>
+#include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree.hpp> // Re-inclusion check
+#include <smd/tree/finger_tree_foldable.hpp>
 #include <smd/tree/finger_tree_traversable.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -13,8 +13,7 @@
 
 namespace {
 
-auto ceil_log2(std::size_t n) -> std::size_t
-{
+auto ceil_log2(std::size_t n) -> std::size_t {
     if (n <= 1U) {
         return 0U;
     }
@@ -31,21 +30,19 @@ auto ceil_log2(std::size_t n) -> std::size_t
 struct Weighted {
     std::size_t d_total;
 
-    friend bool operator==(const Weighted&, const Weighted&) = default;
-    friend bool operator>=(const Weighted& lhs, const Weighted& rhs)
-    {
+    friend bool operator==(const Weighted &, const Weighted &) = default;
+    friend bool operator>=(const Weighted &lhs, const Weighted &rhs) {
         return lhs.d_total >= rhs.d_total;
     }
 };
 
 struct WeightedMeasure {
-    auto operator()(int value) const -> Weighted
-    {
+    auto operator()(int value) const -> Weighted {
         return Weighted{static_cast<std::size_t>(value * 10)};
     }
 };
 
-}  // namespace
+} // namespace
 
 namespace smd::typeclass {
 
@@ -53,17 +50,15 @@ template <>
 struct Monoid<Weighted> {
     constexpr auto identity() const -> Weighted { return Weighted{0U}; }
 
-    constexpr auto combine(const Weighted& lhs, const Weighted& rhs) const
-        -> Weighted
-    {
+    constexpr auto combine(const Weighted &lhs, const Weighted &rhs) const
+        -> Weighted {
         return Weighted{lhs.d_total + rhs.d_total};
     }
 };
 
-}  // namespace smd::typeclass
+} // namespace smd::typeclass
 
-TEST_CASE("FingerTreeTest - EmptyLeafAndPredicates")
-{
+TEST_CASE("FingerTreeTest - EmptyLeafAndPredicates") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto empty = Tree::empty();
@@ -86,11 +81,9 @@ TEST_CASE("FingerTreeTest - EmptyLeafAndPredicates")
     CHECK(single.flatten() == (std::vector<int>{42}));
 }
 
-TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkForcesOnce")
-{
+TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkForcesOnce") {
     std::atomic<int> evaluations{0};
-    auto delayed = smd::thunk::memoize([
-        &evaluations]() {
+    auto delayed = smd::thunk::memoize([&evaluations]() {
         evaluations.fetch_add(1, std::memory_order_relaxed);
         return 42;
     });
@@ -100,11 +93,9 @@ TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkForcesOnce")
     CHECK(evaluations.load(std::memory_order_relaxed) == 1);
 }
 
-TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkSharesAcrossCopies")
-{
+TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkSharesAcrossCopies") {
     std::atomic<int> evaluations{0};
-    auto delayed = smd::thunk::memoize([
-        &evaluations]() {
+    auto delayed = smd::thunk::memoize([&evaluations]() {
         evaluations.fetch_add(1, std::memory_order_relaxed);
         return 7;
     });
@@ -115,12 +106,11 @@ TEST_CASE("FingerTreeStrictnessTest - MemoizedThunkSharesAcrossCopies")
     CHECK(evaluations.load(std::memory_order_relaxed) == 1);
 }
 
-TEST_CASE("FingerTreeStrictnessTest - MeasuredThunkExposesCachedMeasureWithoutForce")
-{
+TEST_CASE("FingerTreeStrictnessTest - "
+          "MeasuredThunkExposesCachedMeasureWithoutForce") {
     std::atomic<int> evaluations{0};
-    auto delayed = smd::thunk::measured_memoize(
-        std::size_t{99},
-        [&evaluations]() {
+    auto delayed =
+        smd::thunk::measured_memoize(std::size_t{99}, [&evaluations]() {
             evaluations.fetch_add(1, std::memory_order_relaxed);
             return 123;
         });
@@ -132,8 +122,7 @@ TEST_CASE("FingerTreeStrictnessTest - MeasuredThunkExposesCachedMeasureWithoutFo
     CHECK(evaluations.load(std::memory_order_relaxed) == 1);
 }
 
-TEST_CASE("FingerTreeTest - FromSequenceConsSnocAndMemberAppend")
-{
+TEST_CASE("FingerTreeTest - FromSequenceConsSnocAndMemberAppend") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto from = Tree::from_sequence({1, 2, 3});
@@ -149,8 +138,7 @@ TEST_CASE("FingerTreeTest - FromSequenceConsSnocAndMemberAppend")
     CHECK(appended_member.flatten() == (std::vector<int>{1, 2, 3, 4, 5}));
 }
 
-TEST_CASE("FingerTreeTest - SingletonViewsAndEmptyTailInit")
-{
+TEST_CASE("FingerTreeTest - SingletonViewsAndEmptyTailInit") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto single = Tree::leaf(7);
@@ -169,13 +157,11 @@ TEST_CASE("FingerTreeTest - SingletonViewsAndEmptyTailInit")
     CHECK(empty.init().is_empty());
 }
 
-TEST_CASE("FingerTreeTest - BasicMeasureDepthFlatten")
-{
+TEST_CASE("FingerTreeTest - BasicMeasureDepthFlatten") {
     using Tree = smd::tree::FingerTree<int>;
 
-    auto tree = Tree::branch(
-        Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-        Tree::leaf(3));
+    auto tree =
+        Tree::branch(Tree::branch(Tree::leaf(1), Tree::leaf(2)), Tree::leaf(3));
 
     CHECK(tree.measure() == 3U);
     CHECK(tree.breadth() == 3U);
@@ -183,13 +169,11 @@ TEST_CASE("FingerTreeTest - BasicMeasureDepthFlatten")
     CHECK(tree.flatten() == (std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("FingerTreeTest - ViewsAndListOps")
-{
+TEST_CASE("FingerTreeTest - ViewsAndListOps") {
     using Tree = smd::tree::FingerTree<int>;
 
-    auto tree = Tree::branch(
-        Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-        Tree::leaf(3));
+    auto tree =
+        Tree::branch(Tree::branch(Tree::leaf(1), Tree::leaf(2)), Tree::leaf(3));
 
     auto left_view = tree.view_l();
     REQUIRE(left_view.has_value());
@@ -207,8 +191,7 @@ TEST_CASE("FingerTreeTest - ViewsAndListOps")
     CHECK(tree.init().flatten() == (std::vector<int>{1, 2}));
 }
 
-TEST_CASE("FingerTreeTest - PrependAppendConcat")
-{
+TEST_CASE("FingerTreeTest - PrependAppendConcat") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(2));
@@ -223,8 +206,7 @@ TEST_CASE("FingerTreeTest - PrependAppendConcat")
     CHECK(concatenated.flatten() == (std::vector<int>{1, 2, 1, 2}));
 }
 
-TEST_CASE("FingerTreeTest - MonoidTaggedMeasure")
-{
+TEST_CASE("FingerTreeTest - MonoidTaggedMeasure") {
     using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
 
     auto tree = Tree::from_sequence({1, 2, 3});
@@ -237,8 +219,7 @@ TEST_CASE("FingerTreeTest - MonoidTaggedMeasure")
     CHECK(concatenated.measure() == Weighted{110U});
 }
 
-TEST_CASE("FingerTreeTest - MeasureGuidedSearchAndSplit")
-{
+TEST_CASE("FingerTreeTest - MeasureGuidedSearchAndSplit") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
@@ -253,21 +234,24 @@ TEST_CASE("FingerTreeTest - MeasureGuidedSearchAndSplit")
     CHECK(split->d_pivot == 3);
     CHECK(split->d_right.flatten() == (std::vector<int>{4, 5}));
 
-    CHECK_FALSE(tree.search([](std::size_t prefix) { return prefix >= 6U; }).has_value());
-    CHECK_FALSE(tree.split([](std::size_t prefix) { return prefix >= 6U; }).has_value());
+    CHECK_FALSE(tree.search([](std::size_t prefix) { return prefix >= 6U; })
+                    .has_value());
+    CHECK_FALSE(tree.split([](std::size_t prefix) { return prefix >= 6U; })
+                    .has_value());
 }
 
-TEST_CASE("FingerTreeTest - MeasureGuidedSearchAndSplitWithCustomTag")
-{
+TEST_CASE("FingerTreeTest - MeasureGuidedSearchAndSplitWithCustomTag") {
     using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4});
 
-    auto found = tree.search([](Weighted prefix) { return prefix.d_total >= 35U; });
+    auto found =
+        tree.search([](Weighted prefix) { return prefix.d_total >= 35U; });
     REQUIRE(found.has_value());
     CHECK(*found == 3);
 
-    auto split = tree.split([](Weighted prefix) { return prefix.d_total >= 35U; });
+    auto split =
+        tree.split([](Weighted prefix) { return prefix.d_total >= 35U; });
     REQUIRE(split.has_value());
     CHECK(split->d_left.flatten() == (std::vector<int>{1, 2}));
     CHECK(split->d_left.measure() == Weighted{30U});
@@ -276,17 +260,18 @@ TEST_CASE("FingerTreeTest - MeasureGuidedSearchAndSplitWithCustomTag")
     CHECK(split->d_right.measure() == Weighted{40U});
 }
 
-TEST_CASE("FingerTreeTest - SplitAtCountBoundary")
-{
+TEST_CASE("FingerTreeTest - SplitAtCountBoundary") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
 
-    auto at_three = tree.split_at([](std::size_t prefix) { return prefix >= 3U; });
+    auto at_three =
+        tree.split_at([](std::size_t prefix) { return prefix >= 3U; });
     CHECK(at_three.d_left.flatten() == (std::vector<int>{1, 2}));
     CHECK(at_three.d_right.flatten() == (std::vector<int>{3, 4, 5}));
 
-    auto at_one = tree.split_at([](std::size_t prefix) { return prefix >= 1U; });
+    auto at_one =
+        tree.split_at([](std::size_t prefix) { return prefix >= 1U; });
     CHECK(at_one.d_left.is_empty());
     CHECK(at_one.d_right.flatten() == (std::vector<int>{1, 2, 3, 4, 5}));
 
@@ -295,21 +280,20 @@ TEST_CASE("FingerTreeTest - SplitAtCountBoundary")
     CHECK(none.d_right.is_empty());
 }
 
-TEST_CASE("FingerTreeTest - SplitAtWeightedBoundary")
-{
+TEST_CASE("FingerTreeTest - SplitAtWeightedBoundary") {
     using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4});
 
-    auto split = tree.split_at([](Weighted prefix) { return prefix.d_total >= 35U; });
+    auto split =
+        tree.split_at([](Weighted prefix) { return prefix.d_total >= 35U; });
     CHECK(split.d_left.flatten() == (std::vector<int>{1, 2}));
     CHECK(split.d_left.measure() == Weighted{30U});
     CHECK(split.d_right.flatten() == (std::vector<int>{3, 4}));
     CHECK(split.d_right.measure() == Weighted{70U});
 }
 
-TEST_CASE("FingerTreeTest - SplitAtIndexConvenience")
-{
+TEST_CASE("FingerTreeTest - SplitAtIndexConvenience") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
@@ -327,17 +311,19 @@ TEST_CASE("FingerTreeTest - SplitAtIndexConvenience")
     CHECK(beyond.d_right.is_empty());
 }
 
-TEST_CASE("FingerTreeTest - SplitAtIndexUsesElementIndexForWeightedSizeTMeasure")
-{
+TEST_CASE(
+    "FingerTreeTest - SplitAtIndexUsesElementIndexForWeightedSizeTMeasure") {
     // WeightedSizeMeasure: Tag = std::size_t but NOT UnitMeasure.
-    // split_at_index must still split by element position, not accumulated weight.
+    // split_at_index must still split by element position, not accumulated
+    // weight.
     struct WeightedSizeMeasure {
         auto operator()(int value) const -> std::size_t {
             return static_cast<std::size_t>(value * 10);
         }
     };
 
-    using WeightedTree = smd::tree::FingerTree<int, std::size_t, WeightedSizeMeasure>;
+    using WeightedTree =
+        smd::tree::FingerTree<int, std::size_t, WeightedSizeMeasure>;
 
     auto tree = WeightedTree::from_sequence({1, 2, 3, 4});
 
@@ -346,8 +332,7 @@ TEST_CASE("FingerTreeTest - SplitAtIndexUsesElementIndexForWeightedSizeTMeasure"
     CHECK(split.d_right.flatten() == (std::vector<int>{3, 4}));
 }
 
-TEST_CASE("FingerTreeTest - SplitAtMeasureConvenience")
-{
+TEST_CASE("FingerTreeTest - SplitAtMeasureConvenience") {
     using CountTree = smd::tree::FingerTree<int>;
 
     auto count_tree = CountTree::from_sequence({1, 2, 3, 4, 5});
@@ -363,8 +348,7 @@ TEST_CASE("FingerTreeTest - SplitAtMeasureConvenience")
     CHECK(weighted_split.d_right.flatten() == (std::vector<int>{3, 4}));
 }
 
-TEST_CASE("FingerTreePersistenceTest - SharedVersionsSurviveAppendAndPops")
-{
+TEST_CASE("FingerTreePersistenceTest - SharedVersionsSurviveAppendAndPops") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto base = Tree::from_sequence({1, 2, 3, 4});
@@ -383,17 +367,18 @@ TEST_CASE("FingerTreePersistenceTest - SharedVersionsSurviveAppendAndPops")
     CHECK(base.flatten() == (std::vector<int>{1, 2, 3, 4}));
 }
 
-TEST_CASE("FingerTreePersistenceTest - SharedVersionsSurviveSearchAndSplit")
-{
+TEST_CASE("FingerTreePersistenceTest - SharedVersionsSurviveSearchAndSplit") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto base = Tree::from_sequence({1, 2, 3, 4, 5, 6});
     auto appended = base.append(Tree::from_sequence({7, 8, 9}));
-    auto split = appended.split([](std::size_t prefix) { return prefix >= 7U; });
+    auto split =
+        appended.split([](std::size_t prefix) { return prefix >= 7U; });
     REQUIRE(split.has_value());
 
     auto count_split = appended.split_at_index(4U);
-    auto found = appended.search([](std::size_t prefix) { return prefix >= 8U; });
+    auto found =
+        appended.search([](std::size_t prefix) { return prefix >= 8U; });
 
     REQUIRE(found.has_value());
     CHECK(*found == 8);
@@ -404,11 +389,11 @@ TEST_CASE("FingerTreePersistenceTest - SharedVersionsSurviveSearchAndSplit")
     CHECK(count_split.d_right.flatten() == (std::vector<int>{5, 6, 7, 8, 9}));
 
     CHECK(base.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6}));
-    CHECK(base.search([](std::size_t prefix) { return prefix >= 4U; }) == std::optional<int>{4});
+    CHECK(base.search([](std::size_t prefix) { return prefix >= 4U; }) ==
+          std::optional<int>{4});
 }
 
-TEST_CASE("FingerTreePersistenceTest - WeightedSharedVersionsKeepMeasures")
-{
+TEST_CASE("FingerTreePersistenceTest - WeightedSharedVersionsKeepMeasures") {
     using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
 
     auto base = Tree::from_sequence({1, 2, 3});
@@ -427,8 +412,7 @@ TEST_CASE("FingerTreePersistenceTest - WeightedSharedVersionsKeepMeasures")
     CHECK(base.flatten() == (std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("FingerTreePersistenceTest - RepeatedSplitPopAcrossSharedVersions")
-{
+TEST_CASE("FingerTreePersistenceTest - RepeatedSplitPopAcrossSharedVersions") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto base = Tree::from_sequence({1, 2, 3, 4, 5, 6, 7, 8});
@@ -468,8 +452,7 @@ TEST_CASE("FingerTreePersistenceTest - RepeatedSplitPopAcrossSharedVersions")
     }
 }
 
-TEST_CASE("FingerTreeTest - DepthRemainsLogarithmic")
-{
+TEST_CASE("FingerTreeTest - DepthRemainsLogarithmic") {
     using Tree = smd::tree::FingerTree<int>;
     constexpr std::size_t kSize = 1024U;
 
@@ -488,25 +471,22 @@ TEST_CASE("FingerTreeTest - DepthRemainsLogarithmic")
     CHECK(by_append.depth() <= bound);
 }
 
-TEST_CASE("FingerTreeFoldableTest - FoldMapAndDerivedOperations")
-{
+TEST_CASE("FingerTreeFoldableTest - FoldMapAndDerivedOperations") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4});
-    const auto& foldable = smd::foldable_typeclass<Tree>;
+    const auto &foldable = smd::foldable_typeclass<Tree>;
 
     CHECK(foldable.length(tree) == 4U);
     CHECK(foldable.fold_map([](int x) { return x; }, tree) == 10);
     CHECK(foldable.to_vector(tree) == (std::vector<int>{1, 2, 3, 4}));
 
-    const auto left = foldable.fold_left(tree, 0, [](int acc, int x) {
-        return acc * 10 + x;
-    });
+    const auto left = foldable.fold_left(
+        tree, 0, [](int acc, int x) { return acc * 10 + x; });
     CHECK(left == 1234);
 }
 
-TEST_CASE("FingerTreeTraversableTest - TraverseOptionalSuccess")
-{
+TEST_CASE("FingerTreeTraversableTest - TraverseOptionalSuccess") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3});
@@ -521,8 +501,7 @@ TEST_CASE("FingerTreeTraversableTest - TraverseOptionalSuccess")
     CHECK(traversed->flatten() == (std::vector<int>{10, 20, 30}));
 }
 
-TEST_CASE("FingerTreeTraversableTest - TraverseOptionalFailure")
-{
+TEST_CASE("FingerTreeTraversableTest - TraverseOptionalFailure") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, -2, 3});
@@ -536,8 +515,7 @@ TEST_CASE("FingerTreeTraversableTest - TraverseOptionalFailure")
     CHECK_FALSE(traversed.has_value());
 }
 
-TEST_CASE("FingerTreeTest - FourDigitOverflowOnCons")
-{
+TEST_CASE("FingerTreeTest - FourDigitOverflowOnCons") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
@@ -562,8 +540,7 @@ TEST_CASE("FingerTreeTest - FourDigitOverflowOnCons")
     CHECK(t9.depth() >= 2U);
 }
 
-TEST_CASE("FingerTreeTest - FourDigitOverflowOnSnoc")
-{
+TEST_CASE("FingerTreeTest - FourDigitOverflowOnSnoc") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4, 5});
@@ -580,8 +557,7 @@ TEST_CASE("FingerTreeTest - FourDigitOverflowOnSnoc")
     CHECK(t10.last() == 10);
 }
 
-TEST_CASE("FingerTreeTest - NodeMeasureCachingWithWeightedSplit")
-{
+TEST_CASE("FingerTreeTest - NodeMeasureCachingWithWeightedSplit") {
     using Tree = smd::tree::FingerTree<int, Weighted, WeightedMeasure>;
 
     auto tree = Tree::empty();
@@ -604,11 +580,10 @@ TEST_CASE("FingerTreeTest - NodeMeasureCachingWithWeightedSplit")
     CHECK(split->d_left.breadth() + 1U + split->d_right.breadth() == 20U);
 }
 
-TEST_CASE("FingerTreeTest - NodesFromPackingViaConcat")
-{
+TEST_CASE("FingerTreeTest - NodesFromPackingViaConcat") {
     using Tree = smd::tree::FingerTree<int>;
 
-    auto left  = Tree::from_sequence({1, 2, 3, 4});
+    auto left = Tree::from_sequence({1, 2, 3, 4});
     auto right = Tree::from_sequence({5, 6, 7, 8});
     auto cat = Tree::concat(left, right);
     CHECK(cat.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8}));
@@ -616,7 +591,8 @@ TEST_CASE("FingerTreeTest - NodesFromPackingViaConcat")
     CHECK(cat.measure() == 8U);
 
     auto cat3 = Tree::concat(cat, Tree::from_sequence({9, 10, 11}));
-    CHECK(cat3.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    CHECK(cat3.flatten() ==
+          (std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
     CHECK(cat3.breadth() == 11U);
 
     auto split = cat3.split([](std::size_t p) { return p >= 6U; });
@@ -626,8 +602,7 @@ TEST_CASE("FingerTreeTest - NodesFromPackingViaConcat")
     CHECK(split->d_right.flatten() == (std::vector<int>{7, 8, 9, 10, 11}));
 }
 
-TEST_CASE("FingerTreeTest - SpineBorrowingViewL")
-{
+TEST_CASE("FingerTreeTest - SpineBorrowingViewL") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
@@ -642,8 +617,7 @@ TEST_CASE("FingerTreeTest - SpineBorrowingViewL")
     CHECK(collected == (std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
 }
 
-TEST_CASE("FingerTreeTest - SpineBorrowingViewR")
-{
+TEST_CASE("FingerTreeTest - SpineBorrowingViewR") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
@@ -658,8 +632,7 @@ TEST_CASE("FingerTreeTest - SpineBorrowingViewR")
     CHECK(collected == (std::vector<int>{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}));
 }
 
-TEST_CASE("FingerTreeTest - LargeTreeSplitAndConcat")
-{
+TEST_CASE("FingerTreeTest - LargeTreeSplitAndConcat") {
     using Tree = smd::tree::FingerTree<int>;
     constexpr std::size_t kN = 256U;
 
@@ -692,8 +665,7 @@ TEST_CASE("FingerTreeTest - LargeTreeSplitAndConcat")
     CHECK(*found == 299);
 }
 
-TEST_CASE("FingerTreeTest - ConcatEdgeCases")
-{
+TEST_CASE("FingerTreeTest - ConcatEdgeCases") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto empty = Tree::empty();
@@ -704,13 +676,15 @@ TEST_CASE("FingerTreeTest - ConcatEdgeCases")
     CHECK(Tree::concat(empty, single).flatten() == (std::vector<int>{42}));
     CHECK(Tree::concat(single, empty).flatten() == (std::vector<int>{42}));
     CHECK(Tree::concat(single, single).flatten() == (std::vector<int>{42, 42}));
-    CHECK(Tree::concat(single, multi).flatten() == (std::vector<int>{42, 1, 2, 3}));
-    CHECK(Tree::concat(multi, single).flatten() == (std::vector<int>{1, 2, 3, 42}));
-    CHECK(Tree::concat(multi, multi).flatten() == (std::vector<int>{1, 2, 3, 1, 2, 3}));
+    CHECK(Tree::concat(single, multi).flatten() ==
+          (std::vector<int>{42, 1, 2, 3}));
+    CHECK(Tree::concat(multi, single).flatten() ==
+          (std::vector<int>{1, 2, 3, 42}));
+    CHECK(Tree::concat(multi, multi).flatten() ==
+          (std::vector<int>{1, 2, 3, 1, 2, 3}));
 }
 
-TEST_CASE("FingerTreeTest - RepeatedTailDrainsTree")
-{
+TEST_CASE("FingerTreeTest - RepeatedTailDrainsTree") {
     using Tree = smd::tree::FingerTree<int>;
 
     auto tree = Tree::from_sequence({1, 2, 3, 4, 5, 6, 7, 8});

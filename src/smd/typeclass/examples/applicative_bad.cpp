@@ -8,16 +8,14 @@
 namespace smd::typeclass::examples {
 
 template <class LEFT, class RIGHT>
-auto cartesian_product(const smd::tree::FringeTree<LEFT>&,
-                       const smd::tree::FringeTree<RIGHT>&)
-    -> smd::tree::FringeTree<std::pair<LEFT, RIGHT> >
-{
-    using PairTree = smd::tree::FringeTree<std::pair<LEFT, RIGHT> >;
+auto cartesian_product(const smd::tree::FringeTree<LEFT> &,
+                       const smd::tree::FringeTree<RIGHT> &)
+    -> smd::tree::FringeTree<std::pair<LEFT, RIGHT>> {
+    using PairTree = smd::tree::FringeTree<std::pair<LEFT, RIGHT>>;
     return PairTree::leaf(std::pair<LEFT, RIGHT>{});
 }
 
-auto bad_applicative_example() -> std::size_t
-{
+auto bad_applicative_example() -> std::size_t {
     using IntTree = smd::tree::FringeTree<int>;
     auto tx = IntTree::branch(IntTree::leaf(1), IntTree::leaf(2));
     auto ty = IntTree::leaf(3);
@@ -30,4 +28,4 @@ auto bad_applicative_example() -> std::size_t
     return bad.is_leaf() ? 1U : 0U;
 }
 
-}  // close namespace smd::typeclass::examples
+} // namespace smd::typeclass::examples

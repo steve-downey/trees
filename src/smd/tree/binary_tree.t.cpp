@@ -2,20 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <smd/tree/binary_tree.hpp>
-#include <smd/tree/binary_tree.hpp>  // Re-inclusion check
+#include <smd/tree/binary_tree.hpp> // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("BinaryTreeTest - LeafConstruction")
-{
+TEST_CASE("BinaryTreeTest - LeafConstruction") {
     auto t = smd::tree::BinaryTree<int>::leaf(42);
     CHECK(t.value() == 42);
     CHECK_FALSE(t.has_left());
     CHECK_FALSE(t.has_right());
 }
 
-TEST_CASE("BinaryTreeTest - NodeConstruction")
-{
+TEST_CASE("BinaryTreeTest - NodeConstruction") {
     using Tree = smd::tree::BinaryTree<int>;
     auto t = Tree::node(1, Tree::leaf(2), Tree::leaf(3));
     CHECK(t.value() == 1);
@@ -25,11 +23,9 @@ TEST_CASE("BinaryTreeTest - NodeConstruction")
     CHECK(t.right().value() == 3);
 }
 
-TEST_CASE("BinaryTreeTest - DeepTree")
-{
+TEST_CASE("BinaryTreeTest - DeepTree") {
     using Tree = smd::tree::BinaryTree<int>;
-    auto t = Tree::node(1,
-                        Tree::node(2, Tree::leaf(4), Tree::leaf(5)),
+    auto t = Tree::node(1, Tree::node(2, Tree::leaf(4), Tree::leaf(5)),
                         Tree::leaf(3));
     CHECK(t.value() == 1);
     CHECK(t.left().value() == 2);

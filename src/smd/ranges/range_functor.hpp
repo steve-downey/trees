@@ -14,24 +14,22 @@ namespace smd {
 template <class VIEW>
 struct ListRangeFunctorImpl {
     template <class FUNCTION>
-    auto fmap(this auto&&,
-              FUNCTION&& function,
-              const smd::ranges::list_range<VIEW>& values)
-    {
+    auto fmap(this auto &&, FUNCTION &&function,
+              const smd::ranges::list_range<VIEW> &values) {
         return smd::ranges::all(
             values | std::views::transform(std::forward<FUNCTION>(function)));
     }
 };
 
 template <class VIEW>
-struct ListRangeFunctorMap : Functor<ListRangeFunctorImpl<VIEW> > {
+struct ListRangeFunctorMap : Functor<ListRangeFunctorImpl<VIEW>> {
     using ListRangeFunctorImpl<VIEW>::fmap;
 };
 
 template <class VIEW>
-inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW> > =
+inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeFunctorMap<VIEW>{};
 
-}  // close namespace smd
+} // namespace smd
 
 #endif
