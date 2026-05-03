@@ -1,0 +1,337 @@
+\documentclass[a4paper,10pt,oneside,openany,final,article]{memoir}
+\input{common}
+\settocdepth{chapter}
+\usepackage{minted}
+\usepackage{fontspec}
+
+\begin{document}
+\title{Optimize for std::optional in range adaptors}
+\author{
+  Steve Downey \small<\href{mailto:sdowney@gmail.com}{sdowney@gmail.com}> \\
+  Tomasz Kamiński \small<\href{mailto:tomaszkam@gmail.com}{tomaszkam@gmail.com}> \\
+}
+\date{} %unused. Type date explicitly below.
+\maketitle
+
+\begin{flushright}
+  \begin{tabular}{ll}
+    Document \#: & P3913R1 \\
+    Date: & \today \\
+    Project: & Programming Language C++ \\
+    Audience: & LWG
+  \end{tabular}
+\end{flushright}
+
+\begin{abstract}
+From PL-011 22.5 [optional] Optimize for std::optional in range adaptors
+
+The range support was added to the optional, making it usable with range adaptors defined in std::views, however, we have not updated the views specification to handle it optimally when possible. This leads to unnecessary template instantiations.
+
+\end{abstract}
+
+\tableofcontents*
+
+\chapter{Motivation}
+The range support was added to the optional, making it usable with range adaptors defined in std::views, however, we have not updated the views specification to handle it optimally when possible. This leads to unnecessary template instantiations.
+
+Proposed change:
+
+Add a special case to recognize optional for adaptors:
+
+\begin{itemize}
+\item
+views::as_const: should return optional or optional<const U\&> (if T is U\&)
+\item
+views::take(opt, n): empty optional if n is equal to zero, opt otherwise
+\item
+views::drop(opt, n): empty optional if n greater than zero, opt otherwise
+\item
+views::reverse: input unchanged
+\end{itemize}
+
+\chapter{Design}
+
+
+\section{views::as_const}
+
+Return \tcode{optional}.
+
+In contrast to \tcode{optional<const T\&>}, \tcode{optional<const T>} is not a view, because it is not assignable. In consequence it should not be returned from \tcode{views::as_const} for \tcode{optional<T>}.
+\section{views::take(opt, n)}
+
+Empty \tcode{optional} if \tcode{n} is equal to zero, \tcode{optional} otherwise.
+
+\section{views::drop(opt, n)}
+
+Empty \tcode{optional} if \tcode{n} greater than zero, \tcode{optional} otherwise.
+
+\section{views::reverse}
+
+Input is returned unchanged.
+
+\chapter{Wording}
+The proposed changes are relative to the current working draft \cite{N5014}.
+
+
+\begin{wording}
+\rSec1[ranges.general]{General}
+
+\rSec2[range.take]{Take view}
+
+\rSec3[range.take.overview]{Overview}
+
+\pnum
+\tcode{take_view} produces a view of the first $N$ elements
+from another view, or all the elements if the adapted
+view contains fewer than $N$.
+
+\pnum
+\indexlibrarymember{take}{views}%
+The name \tcode{views::take} denotes a
+range adaptor object\iref{range.adaptor.object}.
+Let \tcode{E} and \tcode{F} be expressions,
+let \tcode{T} be \tcode{remove_cvref_t<decltype((E))>}, and
+let \tcode{D} be \tcode{range_difference_t<decltype((E))>}.
+If \tcode{decltype((F))} does not model
+\tcode{\libconcept{convertible_to}<D>},
+\tcode{views::take(E, F)} is ill-formed.
+Otherwise, the expression \tcode{views::take(E, F)}
+is expression-equivalent to:
+
+\begin{itemize}
+\item
+If \tcode{T} is a specialization
+of \tcode{empty_view}\iref{range.empty.view},
+then \tcode{((void)F, \placeholdernc{decay-copy}(E))},
+except that the evaluations of \tcode{E} and \tcode{F}
+are indeterminately sequenced.
+\begin{addedblock}
+\item
+Otherwise, if \tcode{T} is a specialization of \tcode{optional} and \tcode{T} models \tcode{view}, then \tcode{(static_cast<D>(F) == D() ?  ((void)E, T()) : \placeholdernc{decay-copy}(E))}.
+\end{addedblock}
+\item
+Otherwise, if \tcode{T} models
+\libconcept{random_access_range} and \libconcept{sized_range}
+and is a specialization of
+\tcode{span}\iref{views.span},
+\tcode{basic_string_view}\iref{string.view}, or
+\tcode{subrange}\iref{range.subrange},
+then
+\tcode{U(ranges::begin(E),
+ranges::be\-gin(E) + std::min<D>(ranges::distance(E), F))},
+except that \tcode{E} is evaluated only once,
+where \tcode{U} is a type determined as follows:
+
+\begin{itemize}
+\item if \tcode{T} is a specialization of \tcode{span},
+then \tcode{U} is \tcode{span<typename T::element_type>};
+\item otherwise, if \tcode{T} is a specialization of \tcode{basic_string_view},
+then \tcode{U} is \tcode{T};
+\item otherwise, \tcode{T} is a specialization of \tcode{subrange}, and
+\tcode{U} is \tcode{subrange<iterator_t<T>>};
+\end{itemize}
+
+\item
+otherwise, if \tcode{T} is
+a specialization of \tcode{iota_view}\iref{range.iota.view}
+that models \libconcept{random_access_range} and \libconcept{sized_range},
+then
+\tcode{iota_view(*ranges::begin(E),
+*(ranges::begin(E) + std::\linebreak{}min<D>(ranges::distance(E), F)))},
+except that \tcode{E} is evaluated only once.
+
+\item
+Otherwise, if \tcode{T} is
+a specialization of \tcode{repeat_view}\iref{range.repeat.view}:
+\begin{itemize}
+\item
+if \tcode{T} models \libconcept{sized_range},
+then
+\begin{codeblock}
+views::repeat(*E.@\exposid{value_}@, std::min<D>(ranges::distance(E), F))
+\end{codeblock}
+except that \tcode{E} is evaluated only once;
+\item
+otherwise, \tcode{views::repeat(*E.\exposid{value_}, static_cast<D>(F))}.
+\end{itemize}
+
+\item
+Otherwise, \tcode{take_view(E, F)}.
+\end{itemize}
+
+\rSec2[range.drop]{Drop view}
+
+\rSec3[range.drop.overview]{Overview}
+
+\pnum
+\tcode{drop_view} produces a view
+excluding the first $N$ elements from another view, or
+an empty range if the adapted view contains fewer than $N$ elements.
+
+\pnum
+\indexlibrarymember{drop}{views}%
+The name \tcode{views::drop} denotes
+a range adaptor object\iref{range.adaptor.object}.
+Let \tcode{E} and \tcode{F} be expressions,
+let \tcode{T} be \tcode{remove_cvref_t<decltype((E))>}, and
+let \tcode{D} be \tcode{range_difference_t<decltype((E))>}.
+If \tcode{decltype((F))} does not model
+\tcode{\libconcept{convertible_to}<D>},
+\tcode{views::drop(E, F)} is ill-formed.
+Otherwise, the expression \tcode{views::drop(E, F)}
+is expression-equivalent to:
+
+\begin{itemize}
+\item
+If \tcode{T} is a specialization of
+\tcode{empty_view}\iref{range.empty.view},
+then \tcode{((void)F, \placeholdernc{decay-copy}(E))},
+except that the evaluations of \tcode{E} and \tcode{F}
+are indeterminately sequenced.
+\begin{addedblock}
+\item
+Otherwise, if \tcode{T} is a specialization of \tcode{optional} and \tcode{T} models \tcode{view}, then \tcode{(static_cast<D>(F) == D() ? \placeholdernc{decay-copy}(E) : ((void)E, T()))}.
+\end{addedblock}
+\item
+Otherwise, if \tcode{T} models
+\libconcept{random_access_range} and \libconcept{sized_range}
+and is
+\begin{itemize}
+\item a specialization of \tcode{span}\iref{views.span},
+\item a specialization of \tcode{basic_string_view}\iref{string.view},
+\item a specialization of \tcode{iota_view}\iref{range.iota.view}, or
+\item a specialization of \tcode{subrange}\iref{range.subrange}
+where \tcode{T::\exposid{StoreSize}} is \tcode{false},
+\end{itemize}
+then \tcode{U(ranges::begin(E) + std::min<D>(ranges::distance(E), F), ranges::end(E))},
+except that \tcode{E} is evaluated only once,
+where \tcode{U} is \tcode{span<typename T::element_type>}
+if \tcode{T} is a specialization of \tcode{span} and \tcode{T} otherwise.
+
+\item
+Otherwise,
+if \tcode{T} is
+a specialization of \tcode{subrange}
+that models \libconcept{random_access_range} and \libconcept{sized_range},
+then
+\tcode{T(ranges::begin(E) + std::min<D>(ranges::distance(E), F), ranges::\linebreak{}end(E),
+\exposid{to-unsigned-like}(ranges::distance(E) -
+std::min<D>(ranges::distance(E), F)))},
+except that \tcode{E} and \tcode{F} are each evaluated only once.
+
+\item
+Otherwise, if \tcode{T} is
+a specialization of \tcode{repeat_view}\iref{range.repeat.view}:
+\begin{itemize}
+\item
+if \tcode{T} models \libconcept{sized_range},
+then
+\begin{codeblock}
+views::repeat(*E.@\exposid{value_}@, ranges::distance(E) - std::min<D>(ranges::distance(E), F))
+\end{codeblock}
+except that \tcode{E} is evaluated only once;
+\item
+otherwise, \tcode{((void)F, \placeholdernc{decay-copy}(E))},
+except that the evaluations of \tcode{E} and \tcode{F} are indeterminately sequenced.
+\end{itemize}
+
+\item
+Otherwise, \tcode{drop_view(E, F)}.
+\end{itemize}
+
+\rSec2[range.as.const]{As const view}
+
+\rSec3[range.as.const.overview]{Overview}
+
+\pnum
+\tcode{as_const_view} presents a view of an underlying sequence as constant.
+That is, the elements of an \tcode{as_const_view} cannot be modified.
+
+\pnum
+The name \tcode{views::as_const} denotes
+a range adaptor object\iref{range.adaptor.object}.
+Let \tcode{E} be an expression,
+let \tcode{T} be \tcode{decltype((E))}, and
+let \tcode{U} be \tcode{remove_cvref_t<T>}.
+The expression \tcode{views::as_const(E)} is expression-equivalent to:
+\begin{itemize}
+\item
+If \tcode{views::all_t<T>} models \libconcept{constant_range},
+then \tcode{views::all(E)}.
+\item
+Otherwise,
+if \tcode{U} denotes \tcode{empty_view<X>}
+for some type \tcode{X}, then \tcode{auto(views::empty<const X>)}.
+\begin{addedblock}
+\item
+Otherwise, if \tcode{U} denotes \tcode{optional<X\&>} for some type \tcode{X}, then \tcode{optional<const X\&>(E)}.
+\end{addedblock}
+\item
+Otherwise,
+if \tcode{U} denotes \tcode{span<X, Extent>}
+for some type \tcode{X} and some extent \tcode{Extent},
+then \tcode{span<const X, Extent>(E)}.
+\item
+Otherwise,
+if \tcode{U} denotes \tcode{ref_view<X>} for some type \tcode{X} and
+\tcode{const X} models \libconcept{constant_range},
+then \tcode{ref_view(static_cast<const X\&>(E.base()))}.
+\item
+Otherwise,
+if \tcode{E} is an lvalue,
+\tcode{const U} models \libconcept{constant_range}, and
+\tcode{U} does not model \libconcept{view},
+then \tcode{ref_view(static_cast<const U\&>(E))}.
+\item
+Otherwise, \tcode{as_const_view(E)}.
+\end{itemize}
+
+\rSec2[range.reverse]{Reverse view}
+
+\rSec3[range.reverse.overview]{Overview}
+
+\pnum
+\tcode{reverse_view} takes a bidirectional view and produces
+another view that iterates the same elements in reverse order.
+
+\pnum
+\indexlibrarymember{reverse}{views}%
+The name \tcode{views::reverse} denotes a
+range adaptor object\iref{range.adaptor.object}.
+Given a subexpression \tcode{E}, the expression
+\tcode{views::reverse(E)} is expression-equivalent to:
+\begin{itemize}
+\item
+  If the type of \tcode{E} is
+  a (possibly cv-qualified) specialization of \tcode{reverse_view},
+  then \tcode{E.base()}.
+\begin{addedblock}
+\item
+  Otherwise, if \tcode{E} is specialization of \tcode{optional} and \tcode{E} models \tcode{view}, then \tcode{\placeholdernc{decay-copy}(E)}.
+\end{addedblock}
+\item
+  Otherwise, if the type of \tcode{E} is \cv{} \tcode{subrange<reverse_iterator<I>, reverse_iterator<I>, K>}
+  for some iterator type \tcode{I} and
+  value \tcode{K} of type \tcode{subrange_kind},
+  \begin{itemize}
+  \item
+    if \tcode{K} is \tcode{subrange_kind::sized}, then
+\tcode{subrange<I, I, K>(E.end().base(), E.begin().base(), E.size())};
+  \item
+    otherwise, \tcode{subrange<I, I, K>(E.end().base(), E.begin().base())}.
+  \end{itemize}
+  However, in either case \tcode{E} is evaluated only once.
+\item
+  Otherwise, \tcode{reverse_view\{E\}}.
+\end{itemize}
+
+
+\end{wording}
+
+
+\renewcommand{\bibname}{References}
+\bibliographystyle{abstract}
+\bibliography{wg21,mybiblio}
+
+
+\end{document}
