@@ -20,3 +20,4 @@ uv.lock
 !foldable-applicable-traversable.html
 !foldable-applicable-traversable-slides.html
 /docs/html/
+recc-scan-deps.d/
