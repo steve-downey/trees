@@ -1,8 +1,8 @@
 #include <smd/typeclass/traversable.hpp>
 #include <smd/typeclass/traversable.hpp> // Re-inclusion check
 
-#include <smd/typeclass/test/test_support.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <smd/typeclass/test/test_support.hpp>
 
 #include <beman/optional/optional.hpp>
 
@@ -271,7 +271,8 @@ struct NullOptImpl {
     }
 };
 
-// Alternate-core: both pure and apply are primitives here (symmetric Applicative).
+// Alternate-core: both pure and apply are primitives here (symmetric
+// Applicative).
 struct NullOptMap : smd::Applicative<NullOptImpl> {
     using NullOptImpl::apply;
     using NullOptImpl::pure;

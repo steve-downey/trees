@@ -1,5 +1,5 @@
 #include <smd/tree/binary_tree.hpp>
-#include <smd/tree/binary_tree.hpp>  // Re-inclusion check
+#include <smd/tree/binary_tree.hpp> // Re-inclusion check
 #include <smd/tree/binary_tree_traversable.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -9,42 +9,37 @@
 namespace {
 
 struct PositiveTimesTen {
-    auto operator()(int x) const -> std::optional<int>
-    {
+    auto operator()(int x) const -> std::optional<int> {
         return x > 0 ? std::optional<int>{x * 10} : std::optional<int>{};
     }
 };
 
 struct TimesTen {
-    auto operator()(int x) const -> std::optional<int>
-    {
+    auto operator()(int x) const -> std::optional<int> {
         return std::optional<int>{x * 10};
     }
 };
 
 struct PlusOne {
-    auto operator()(int x) const -> std::optional<int>
-    {
+    auto operator()(int x) const -> std::optional<int> {
         return std::optional<int>{x + 1};
     }
 };
 
 struct NonNegativeIdentity {
-    auto operator()(int x) const -> std::optional<int>
-    {
+    auto operator()(int x) const -> std::optional<int> {
         return x >= 0 ? std::optional<int>{x} : std::optional<int>{};
     }
 };
 
-}  // namespace
+} // namespace
 
-TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalPreservesShape")
-{
+TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalPreservesShape") {
     using Tree = smd::tree::BinaryTree<int>;
-    auto tree = Tree::from_children_ptrs(
-        2,
-        Tree::make_ptr(Tree::leaf(1)),
-        Tree::make_ptr(Tree::from_children_ptrs(3, {}, Tree::make_ptr(Tree::leaf(4)))));
+    auto tree =
+        Tree::from_children_ptrs(2, Tree::make_ptr(Tree::leaf(1)),
+                                 Tree::make_ptr(Tree::from_children_ptrs(
+                                     3, {}, Tree::make_ptr(Tree::leaf(4)))));
 
     auto traversed = smd::traverse(PositiveTimesTen{}, tree);
 
@@ -59,13 +54,10 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalPreservesShape")
     CHECK(traversed->right().right().value() == 40);
 }
 
-TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalDoesNotDuplicateRootEffect")
-{
+TEST_CASE(
+    "BinaryTreeTraversableTest - TraverseOptionalDoesNotDuplicateRootEffect") {
     using Tree = smd::tree::BinaryTree<int>;
-    auto tree = Tree::from_children_ptrs(
-        2,
-        {},
-        Tree::make_ptr(Tree::leaf(5)));
+    auto tree = Tree::from_children_ptrs(2, {}, Tree::make_ptr(Tree::leaf(5)));
 
     int invocations = 0;
     auto traversed = smd::traverse(
@@ -83,8 +75,7 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalDoesNotDuplicateRootEffec
     CHECK(traversed->right().value() == 50);
 }
 
-TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeaf")
-{
+TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeaf") {
     using Tree = smd::tree::BinaryTree<int>;
     auto tree = Tree::leaf(9);
 
@@ -96,13 +87,9 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeaf")
     CHECK_FALSE(traversed->has_right());
 }
 
-TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeftOnly")
-{
+TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeftOnly") {
     using Tree = smd::tree::BinaryTree<int>;
-    auto tree = Tree::from_children_ptrs(
-        2,
-        Tree::make_ptr(Tree::leaf(3)),
-        {});
+    auto tree = Tree::from_children_ptrs(2, Tree::make_ptr(Tree::leaf(3)), {});
 
     auto traversed = smd::traverse(TimesTen{}, tree);
 
@@ -113,13 +100,9 @@ TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalLeftOnly")
     CHECK(traversed->left().value() == 30);
 }
 
-TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalFailure")
-{
+TEST_CASE("BinaryTreeTraversableTest - TraverseOptionalFailure") {
     using Tree = smd::tree::BinaryTree<int>;
-    auto tree = Tree::from_children_ptrs(
-        2,
-        Tree::make_ptr(Tree::leaf(-1)),
-        {});
+    auto tree = Tree::from_children_ptrs(2, Tree::make_ptr(Tree::leaf(-1)), {});
 
     auto traversed = smd::traverse(NonNegativeIdentity{}, tree);
 

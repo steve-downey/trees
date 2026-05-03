@@ -1,10 +1,9 @@
 #include <smd/typeclass/examples/examples.hpp>
-#include <smd/typeclass/examples/examples.hpp>  // Re-inclusion check
+#include <smd/typeclass/examples/examples.hpp> // Re-inclusion check
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("TypeclassExamples - SlideExamplesRemainExecutable")
-{
+TEST_CASE("TypeclassExamples - SlideExamplesRemainExecutable") {
     using namespace smd::typeclass::examples;
 
     CHECK(generic_length_example() == 3U);

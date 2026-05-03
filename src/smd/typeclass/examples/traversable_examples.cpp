@@ -15,11 +15,10 @@ namespace smd::typeclass::examples {
 
 using smd::tree::add_expr;
 using smd::tree::const_expr;
-using smd::tree::Expr;
 using smd::tree::eval;
+using smd::tree::Expr;
 
-auto traversable_relabel_example() -> beman::optional::optional<std::size_t>
-{
+auto traversable_relabel_example() -> beman::optional::optional<std::size_t> {
     using Fringe = smd::tree::FringeTree<int>;
     auto tree = Fringe::branch(Fringe::leaf(1), Fringe::leaf(2));
 
@@ -37,15 +36,15 @@ auto traversable_relabel_example() -> beman::optional::optional<std::size_t>
         return {};
     }
 
-    const auto& foldable = smd::foldable_typeclass<Fringe>;
+    const auto &foldable = smd::foldable_typeclass<Fringe>;
     return foldable.length(*relabelled);
 }
 
-auto traversable_preserves_shape_example() -> bool
-{
-    // (1 + (2 + 3)) — traverse maps each constant, rebuilding the same Expr shape.
-    auto tree = add_expr(const_expr(1.0),
-                         add_expr(const_expr(2.0), const_expr(3.0)));
+auto traversable_preserves_shape_example() -> bool {
+    // (1 + (2 + 3)) — traverse maps each constant, rebuilding the same Expr
+    // shape.
+    auto tree =
+        add_expr(const_expr(1.0), add_expr(const_expr(2.0), const_expr(3.0)));
 
     using beman::optional::optional;
 
@@ -63,4 +62,4 @@ auto traversable_preserves_shape_example() -> bool
     return eval(*mapped) == 36.0;
 }
 
-}  // close namespace smd::typeclass::examples
+} // namespace smd::typeclass::examples

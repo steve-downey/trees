@@ -11,11 +11,10 @@ template <typename A>
 using Box = std::shared_ptr<A>;
 
 template <typename A, typename... Args>
-auto make_box(Args&&... args) -> Box<A>
-{
+auto make_box(Args &&...args) -> Box<A> {
     return std::make_shared<A>(std::forward<Args>(args)...);
 }
 
-}  // close namespace smd::fixpoint
+} // namespace smd::fixpoint
 
 #endif

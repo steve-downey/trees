@@ -1,5 +1,5 @@
 #include <smd/tree/fringe_tree.hpp>
-#include <smd/tree/fringe_tree.hpp>  // Re-inclusion check
+#include <smd/tree/fringe_tree.hpp> // Re-inclusion check
 #include <smd/tree/fringe_tree_foldable.hpp>
 #include <smd/typeclass/foldable.hpp>
 
@@ -7,8 +7,7 @@
 
 #include <vector>
 
-TEST_CASE("FringeTreeTest - EmptyLeafAndPredicates")
-{
+TEST_CASE("FringeTreeTest - EmptyLeafAndPredicates") {
     using Tree = smd::tree::FringeTree<int>;
 
     auto empty = Tree::empty();
@@ -31,8 +30,7 @@ TEST_CASE("FringeTreeTest - EmptyLeafAndPredicates")
     CHECK(single.flatten() == (std::vector<int>{42}));
 }
 
-TEST_CASE("FringeTreeTest - BranchLeftRightAndMemberStyleOperations")
-{
+TEST_CASE("FringeTreeTest - BranchLeftRightAndMemberStyleOperations") {
     using Tree = smd::tree::FringeTree<int>;
 
     auto left = Tree::branch(Tree::leaf(1), Tree::leaf(2));
@@ -53,8 +51,7 @@ TEST_CASE("FringeTreeTest - BranchLeftRightAndMemberStyleOperations")
     CHECK(concatenated.flatten() == (std::vector<int>{1, 2, 3, 4}));
 }
 
-TEST_CASE("FringeTreeTest - SingletonViewsAndEmptyTailInit")
-{
+TEST_CASE("FringeTreeTest - SingletonViewsAndEmptyTailInit") {
     using Tree = smd::tree::FringeTree<int>;
 
     auto single = Tree::leaf(7);
@@ -73,13 +70,11 @@ TEST_CASE("FringeTreeTest - SingletonViewsAndEmptyTailInit")
     CHECK(empty.init().is_empty());
 }
 
-TEST_CASE("FringeTreeTest - BasicMeasureDepthFlatten")
-{
+TEST_CASE("FringeTreeTest - BasicMeasureDepthFlatten") {
     using Tree = smd::tree::FringeTree<int>;
 
-    auto tree = Tree::branch(
-        Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-        Tree::leaf(3));
+    auto tree =
+        Tree::branch(Tree::branch(Tree::leaf(1), Tree::leaf(2)), Tree::leaf(3));
 
     CHECK(tree.measure() == 3U);
     CHECK(tree.breadth() == 3U);
@@ -87,13 +82,11 @@ TEST_CASE("FringeTreeTest - BasicMeasureDepthFlatten")
     CHECK(tree.flatten() == (std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("FringeTreeTest - ViewsAndListOps")
-{
+TEST_CASE("FringeTreeTest - ViewsAndListOps") {
     using Tree = smd::tree::FringeTree<int>;
 
-    auto tree = Tree::branch(
-        Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-        Tree::leaf(3));
+    auto tree =
+        Tree::branch(Tree::branch(Tree::leaf(1), Tree::leaf(2)), Tree::leaf(3));
 
     auto left_view = tree.view_l();
     REQUIRE(left_view.has_value());
@@ -111,8 +104,7 @@ TEST_CASE("FringeTreeTest - ViewsAndListOps")
     CHECK(tree.init().flatten() == (std::vector<int>{1, 2}));
 }
 
-TEST_CASE("FringeTreeTest - PrependAppendConcat")
-{
+TEST_CASE("FringeTreeTest - PrependAppendConcat") {
     using Tree = smd::tree::FringeTree<int>;
 
     auto tree = Tree::branch(Tree::leaf(1), Tree::leaf(2));
@@ -127,15 +119,13 @@ TEST_CASE("FringeTreeTest - PrependAppendConcat")
     CHECK(concatenated.flatten() == (std::vector<int>{1, 2, 1, 2}));
 }
 
-TEST_CASE("FringeTreeTest - FoldableIntegration")
-{
+TEST_CASE("FringeTreeTest - FoldableIntegration") {
     using Tree = smd::tree::FringeTree<int>;
 
-    auto tree = Tree::branch(
-        Tree::branch(Tree::leaf(1), Tree::leaf(2)),
-        Tree::leaf(3));
+    auto tree =
+        Tree::branch(Tree::branch(Tree::leaf(1), Tree::leaf(2)), Tree::leaf(3));
 
-    const auto& foldable = smd::foldable_typeclass<Tree>;
+    const auto &foldable = smd::foldable_typeclass<Tree>;
     CHECK(foldable.length(tree) == 3U);
     CHECK(foldable.fold_map([](int x) { return x; }, tree) == 6);
     CHECK(foldable.to_vector(tree) == (std::vector<int>{1, 2, 3}));

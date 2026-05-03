@@ -6,24 +6,20 @@
 
 namespace smd::typeclass::examples {
 
-auto applicative_invoke_example() -> beman::optional::optional<int>
-{
+auto applicative_invoke_example() -> beman::optional::optional<int> {
     using beman::optional::optional;
-    const auto& applicative = smd::applicative_typeclass<optional<int> >;
+    const auto &applicative = smd::applicative_typeclass<optional<int>>;
 
     optional<int> ax = 1;
     optional<int> ay = 2;
     optional<int> az = 3;
 
     // 3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11
-    auto sum = applicative.invoke(
-        [](int a, int b, int c) { return a + b + c; },
-        ax,
-        ay,
-        az);
+    auto sum = applicative.invoke([](int a, int b, int c) { return a + b + c; },
+                                  ax, ay, az);
     // 3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end
 
     return sum;
 }
 
-}  // close namespace smd::typeclass::examples
+} // namespace smd::typeclass::examples
