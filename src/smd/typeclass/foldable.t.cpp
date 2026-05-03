@@ -170,3 +170,103 @@ TEST_CASE("FoldableTypeclassTest - AllOfAndFindFirstEdgeCases")
     auto found_large = foldable.find_first(mixed, [](int x) { return x > 100; });
     CHECK_FALSE(found_large.has_value());
 }
+
+// -- Alternate core: fold_right as primitive --
+
+namespace {
+
+// A Foldable instance where fold_right is the primitive, not fold_map.
+// Demonstrates the alternate-core pattern: same Sequence type, different core.
+template <class VALUE_TYPE>
+struct RightFoldSequenceImpl {
+    using element_type = VALUE_TYPE;
+
+    template <class STATE, class F>
+    auto fold_right(this auto&&,
+                    const smd::typeclass::test::Sequence<VALUE_TYPE>& seq,
+                    STATE initial,
+                    F&& step)
+    {
+        auto acc = std::move(initial);
+        for (auto it = seq.values.rbegin(); it != seq.values.rend(); ++it) {
+            acc = std::invoke(step, *it, std::move(acc));
+        }
+        return acc;
+    }
+};
+
+// Alternate-core: using Impl::fold_right selects fold_right as primitive.
+// The base Foldable<Impl> derives fold_map from fold_right automatically.
+template <class VALUE_TYPE>
+struct RightFoldSequenceMap : smd::Foldable<RightFoldSequenceImpl<VALUE_TYPE>> {
+    using RightFoldSequenceImpl<VALUE_TYPE>::fold_right;
+};
+
+template <class VALUE_TYPE>
+constexpr auto right_fold_sequence_map = RightFoldSequenceMap<VALUE_TYPE>{};
+
+}  // namespace
+
+TEST_CASE("FoldableAlternateCore - FoldRightPrimitiveDerivesFoldMap")
+{
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto seq = Sequence{{1, 2, 3}};
+    const auto& foldable = right_fold_sequence_map<int>;
+
+    const auto sum = foldable.fold_map([](int x) { return x; }, seq);
+    CHECK(sum == 6);
+}
+
+TEST_CASE("FoldableAlternateCore - FoldRightPrimitiveDerivesLength")
+{
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto seq = Sequence{{1, 2, 3}};
+    const auto& foldable = right_fold_sequence_map<int>;
+
+    CHECK(foldable.length(seq) == 3U);
+}
+
+TEST_CASE("FoldableAlternateCore - FoldRightPrimitiveDerivesToVector")
+{
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto seq = Sequence{{1, 2, 3}};
+    const auto& foldable = right_fold_sequence_map<int>;
+
+    CHECK(foldable.to_vector(seq) == (std::vector<int>{1, 2, 3}));
+}
+
+TEST_CASE("FoldableAlternateCore - FoldRightPrimitiveDerivesFoldLeft")
+{
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto seq = Sequence{{1, 2, 3}};
+    const auto& foldable = right_fold_sequence_map<int>;
+
+    const auto result = foldable.fold_left(
+        seq, 0, [](int acc, int x) { return acc * 10 + x; });
+    CHECK(result == 123);
+}
+
+TEST_CASE("FoldableAlternateCore - FoldRightPrimitiveDerivesPredicates")
+{
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto seq = Sequence{{1, 2, 3}};
+    const auto& foldable = right_fold_sequence_map<int>;
+
+    CHECK(foldable.any_of(seq, [](int x) { return x == 2; }));
+    CHECK(foldable.all_of(seq, [](int x) { return x > 0; }));
+    CHECK_FALSE(foldable.empty(seq));
+}
+
+TEST_CASE("FoldableAlternateCore - MatchesFoldMapPrimitiveResults")
+{
+    using Sequence = smd::typeclass::test::Sequence<int>;
+    auto seq = Sequence{{4, 1, 7, 2}};
+
+    const auto& fold_map_foldable = smd::foldable_typeclass<Sequence>;
+    const auto& fold_right_foldable = right_fold_sequence_map<int>;
+
+    CHECK(fold_map_foldable.length(seq) == fold_right_foldable.length(seq));
+    CHECK(fold_map_foldable.to_vector(seq) == fold_right_foldable.to_vector(seq));
+    CHECK(fold_map_foldable.fold_map([](int x) { return x; }, seq)
+          == fold_right_foldable.fold_map([](int x) { return x; }, seq));
+}

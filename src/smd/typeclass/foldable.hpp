@@ -223,10 +223,28 @@ struct Foldable : protected Impl {
     !std::is_same_v<Impl, std::false_type>,
     "No foldable_typeclass<T> specialization found. "
     "Specialize smd::foldable_typeclass<T> for your type T "
-    "and provide a fold_map(F, T) operation.");
-  // Alternate-core: Impl::fold_map is the primitive; all other operations derive from it.
-  // A fold_right-primitive Impl would shadow fold_right instead.
-  using Impl::fold_map;
+    "and provide fold_map(F, T) or fold_right(T, STATE, F) + element_type.");
+  // Alternate-core: Impl provides either fold_map or fold_right as primitive.
+  // The Map class's using-declaration selects which; the base derives the other.
+  // Haskell equivalent: {-# MINIMAL foldMap | foldr #-}
+
+  // Derived fold_map from fold_right. Active when a fold_right-primitive Impl's
+  // using-declaration shadows the base's derived fold_right with the real one.
+  // Requires element_type to deduce the monoid result type.
+  // foldMap f = foldr (\x acc -> f x <> acc) mempty
+  template <class F, class T>
+  auto fold_map(this auto&& self, F&& function, T&& value)
+    requires requires { typename Impl::element_type; }
+  {
+    using Result = remove_cvref_t<
+      std::invoke_result_t<F, const typename Impl::element_type&>>;
+    return self.fold_right(
+      std::forward<T>(value),
+      monoid_identity<Result>(),
+      [&function](const auto& elem, Result acc) {
+        return monoid_combine(std::invoke(function, elem), std::move(acc));
+      });
+  }
 
   // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2
 
