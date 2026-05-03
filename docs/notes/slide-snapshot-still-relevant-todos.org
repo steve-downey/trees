@@ -1,0 +1,122 @@
+#+title: Still-Relevant Tasks from Slide Snapshot Review
+#+author: GitHub Copilot
+#+date: 2026-05-01
+#+startup: overview
+#+startup: logdone
+
+* Context
+This task list captures only items from the prior snapshot review that still appear relevant in the current repository state.
+
+* DONE Fix slide/code mismatch on core split/search behavior
+CLOSED: [2026-05-01 Thu]
+:PROPERTIES:
+:ID:       slide-core-split-search-mismatch
+:AREA:     slides/finger-tree
+:PRIORITY: A
+:END:
+- [x] Update the slide statement that currently says split scans a flattened sequence.
+- [x] Align wording with current core implementation behavior in [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp).
+- [x] Re-check nearby notes so asymptotic claims remain internally consistent.
+
+Fixed: Line 643 updated to distinguish predicate-based core split (structural, tree-navigating) from
+index-based wrapper path (~split_at_index~, flatten-and-rebuild O(n)). Notes block expanded to make
+the distinction explicit. Lines 655-657/663 updated to match.
+
+Evidence:
+- [trees/foldable-applicable-traversable.org](trees/foldable-applicable-traversable.org#L643)
+
+* DONE Clarify wrapper complexity contract (prototype vs optimized)
+CLOSED: [2026-05-01 Thu]
+:PROPERTIES:
+:ID:       wrapper-complexity-clarification
+:AREA:     slides+docs/wrappers
+:PRIORITY: A
+:END:
+- [x] Add explicit caveat in slides/notes that several wrapper operations still materialize/rebuild.
+- [x] For each wrapper section, state present complexity and intended target complexity separately.
+- [x] Ensure claims do not imply optimized measured pruning where code is currently flatten-based.
+
+Fixed: Random-access notes now state push_front/push_back O(1), insert/erase/at O(n) pending optimization.
+Priority-queue notes now state push O(1), pop_min/pop_max O(n) pending optimization.
+
+Evidence:
+- [trees/src/smd/tree/finger_tree_random_access.hpp](trees/src/smd/tree/finger_tree_random_access.hpp#L53)
+- [trees/src/smd/tree/finger_tree_interval_index.hpp](trees/src/smd/tree/finger_tree_interval_index.hpp#L82)
+- [trees/src/smd/tree/finger_tree_interval_index.hpp](trees/src/smd/tree/finger_tree_interval_index.hpp#L105)
+- [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp#L57)
+
+* DONE Improve wrapper implementations to exploit measures more directly
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       wrapper-impl-measure-exploitation
+:AREA:     tree/wrappers
+:PRIORITY: B
+:END:
+- [x] Reduce or eliminate full flatten/rebuild in random access where possible.
+- [x] Reduce post-split flatten scans in interval index queries.
+- [x] Investigate non-rebuild path for priority queue min/max removals with duplicate-safe semantics.
+- [x] Add regression tests that lock in both correctness and expected complexity direction.
+
+Resolution: ~FingerTreeRandomAccess~ ~at~, ~insert~, ~erase~, ~update~ rewritten to use structural
+~split()~ / ~split_at()~ with predicate ~prefix > index~ — O(log n) instead of O(n).  ~split_at_index()~
+in ~finger_tree.hpp~ gained an ~if constexpr~ branch for the count-measure case (~UnitMeasure~ with
+~std::size_t~ tag); non-count tags/policies retain the flatten fallback to preserve index semantics.
+
+~FingerTreeIntervalIndex~ was already O(log n + k) optimal: structural ~split_at()~ prunes the
+tree, and the remaining ~flatten()~ is an unavoidable secondary value-filter.  No code change needed.
+
+~FingerTreePriorityQueue~ pop remains O(n) flatten-rebuild: ~MinTag~/~MaxTag~ accumulate the running
+min/max, not element count, so the non-dominant tree cannot be navigated by position without a
+combined measure type (a more invasive change).  Comments updated to explain the gap precisely.
+
+240/240 tests pass (before this fix; new regression test brings count to 241).
+
+Evidence:
+- [trees/src/smd/tree/finger_tree_random_access.hpp](trees/src/smd/tree/finger_tree_random_access.hpp)
+- [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp)
+- [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp)
+
+* DONE Remove or justify unused representational scaffolding in core finger tree header
+CLOSED: [2026-05-02 Fri]
+:PROPERTIES:
+:ID:       core-fingertree-scaffolding-cleanup
+:AREA:     tree/core
+:PRIORITY: B
+:END:
+- [x] Audit whether One/Two/Three/Digit/Node2/Node3/Node aliases are intentionally retained for upcoming refactor.
+- [x] If not used, remove dead declarations to reduce reader confusion.
+- [x] If retained intentionally, add a short comment documenting purpose and roadmap.
+
+Resolution: types ARE used (internal implementation of FingerTree digits and spine nodes)
+but were incorrectly at public namespace scope (smd::tree::One, etc.).
+Moved to smd::tree::detail with comments. Private template type aliases inside FingerTree
+shadow the detail:: names so the class body needed zero changes. 215/215 tests pass.
+
+Evidence:
+- [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp#L25)
+- [trees/src/smd/tree/finger_tree.hpp](trees/src/smd/tree/finger_tree.hpp#L59)
+
+* DONE Do not carry forward outdated ZipList lawfulness concern
+CLOSED: [2026-05-01 Fri]
+:PROPERTIES:
+:ID:       ziplist-outdated-item
+:AREA:     ziplist
+:END:
+- Confirmed current pure semantics are repeat-style and current tests include identity/interchange/composition coverage.
+
+Evidence:
+- [trees/src/smd/ziplist/zip_list_applicative.hpp](trees/src/smd/ziplist/zip_list_applicative.hpp#L55)
+- [trees/src/smd/ziplist/zip_list_applicative.t.cpp](trees/src/smd/ziplist/zip_list_applicative.t.cpp#L47)
+- [trees/src/smd/ziplist/zip_list_applicative.t.cpp](trees/src/smd/ziplist/zip_list_applicative.t.cpp#L102)
+- [trees/src/smd/ziplist/zip_list_applicative.t.cpp](trees/src/smd/ziplist/zip_list_applicative.t.cpp#L123)
+
+* DONE Do not carry forward old bibliography-placeholder concern without new evidence
+CLOSED: [2026-05-01 Fri]
+:PROPERTIES:
+:ID:       bibliography-outdated-item
+:AREA:     slides/bibliography
+:END:
+- No current CITE_PLACEHOLDER markers found in the org source during this check.
+
+Evidence:
+- [trees/foldable-applicable-traversable.org](trees/foldable-applicable-traversable.org)

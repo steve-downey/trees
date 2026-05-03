@@ -1,0 +1,113 @@
+// src/smd/typeclass/monoid.hpp                                       -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_MONOID
+#define INCLUDED_SMD_TYPECLASS_MONOID
+
+#include <smd/typeclass/typeclass_base.hpp>
+
+#include <cstddef>
+#include <string>
+#include <utility>
+#include <vector>
+
+namespace smd::typeclass {
+
+// Monoid pattern invariants:
+// - Monoid<T> is the customization point; specialize identity/combine together.
+// - monoid_v<T> is the canonical lookup object used by generic algorithms.
+// - identity and combine must stay coherent for a single associative law
+// domain.
+// - Prefer adding new Monoid<T> specializations over ad hoc free functions.
+
+template <class VALUE_TYPE>
+struct Monoid;
+
+template <class VALUE_TYPE>
+inline constexpr Monoid<VALUE_TYPE> monoid_v = Monoid<VALUE_TYPE>{};
+
+struct Count {
+    std::size_t d_value;
+
+    friend constexpr bool operator==(const Count &lhs,
+                                     const Count &rhs) = default;
+};
+
+// c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06
+template <>
+struct Monoid<Count> {
+    constexpr auto identity() const -> Count { return Count{0}; }
+
+    constexpr auto combine(const Count &lhs, const Count &rhs) const -> Count {
+        return Count{lhs.d_value + rhs.d_value};
+    }
+};
+// c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06 end
+
+template <>
+struct Monoid<int> {
+    constexpr auto identity() const -> int { return 0; }
+
+    constexpr auto combine(int lhs, int rhs) const -> int { return lhs + rhs; }
+};
+
+template <>
+struct Monoid<long> {
+    constexpr auto identity() const -> long { return 0L; }
+
+    constexpr auto combine(long lhs, long rhs) const -> long {
+        return lhs + rhs;
+    }
+};
+
+template <>
+struct Monoid<std::size_t> {
+    constexpr auto identity() const -> std::size_t { return 0U; }
+
+    constexpr auto combine(std::size_t lhs, std::size_t rhs) const
+        -> std::size_t {
+        return lhs + rhs;
+    }
+};
+
+template <>
+struct Monoid<std::string> {
+    auto identity() const -> std::string { return {}; }
+
+    auto combine(const std::string &lhs, const std::string &rhs) const
+        -> std::string {
+        return lhs + rhs;
+    }
+};
+
+template <class VALUE_TYPE>
+struct Monoid<std::vector<VALUE_TYPE>> {
+    auto identity() const -> std::vector<VALUE_TYPE> { return {}; }
+
+    auto combine(std::vector<VALUE_TYPE> lhs,
+                 const std::vector<VALUE_TYPE> &rhs) const
+        -> std::vector<VALUE_TYPE> {
+        lhs.insert(lhs.end(), rhs.begin(), rhs.end());
+        return lhs;
+    }
+};
+
+} // namespace smd::typeclass
+
+namespace smd {
+
+// b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02
+template <class VALUE_TYPE>
+auto monoid_identity() -> VALUE_TYPE {
+    return typeclass::monoid_v<VALUE_TYPE>.identity();
+}
+
+template <class VALUE_TYPE>
+auto monoid_combine(const VALUE_TYPE &lhs, const VALUE_TYPE &rhs)
+    -> VALUE_TYPE {
+    return typeclass::monoid_v<VALUE_TYPE>.combine(lhs, rhs);
+}
+// b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02 end
+
+} // namespace smd
+
+#endif // INCLUDED_SMD_TYPECLASS_MONOID

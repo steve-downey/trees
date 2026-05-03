@@ -1,0 +1,45 @@
+%% Cross reference
+\renewcommand{\xref}{\textsc{See also:}\xspace}
+\renewcommand{\tref}[1]{}
+\renewcommand{\iref}[1]{}
+\renewcommand{\indexhdr}[1]{}
+
+\usepackage{amssymb,graphicx,stackengine,xcolor}
+\protected\def\ucr{\scalebox{1}{\stackinset{c}{}{c}{-.2pt}{%
+      \textcolor{white}{\sffamily\bfseries\small ?}}{%
+      \rotatebox{45}{$\blacksquare$}}}}
+
+\newenvironment{wording}{
+  \chapterstyle{cppstd}
+  \newcounter{scratchChapter}\setcounter{scratchChapter}{\value{chapter}}
+  \settocdepth{part}
+  \renewcommand\thesection{\ucr.\arabic{section}}
+  \renewcommand\thesubsection{\makebox{$\ucr$}.\makebox{$\ucr$}.\arabic{subsection}}
+} {
+  \setcounter{chapter}{\value{scratchChapter}}
+  \settocdepth{section}
+
+}
+
+\newenvironment{addedcode}
+{
+\color{addclr}
+\begin{codeblock}
+}
+{
+\end{codeblock}
+\color{black}
+}
+
+\newenvironment{removedcode}
+{
+\color{remclr}
+\begin{codeblock}
+}
+{
+\end{codeblock}
+\color{black}
+}
+
+\newcommand{\todo}[1]{}
+\renewcommand{\todo}[1]{{\color{red} TODO: {#1}}}

@@ -1,0 +1,151 @@
+#+TITLE: Trees Active Source Index
+#+AUTHOR: Generated
+#+OPTIONS: toc:2 num:nil
+
+* Overview
+This index transcludes active files under =trees/src= that are explicitly listed in CMake =target_sources()= entries.
+It excludes =deadcode= and =smd/conceptmap=.
+
+* Active Source Files
+
+** examples/cpo_example.cpp
+#+transclude: [[file:../src/examples/cpo_example.cpp]] :src cpp
+
+** examples/main.cpp
+#+transclude: [[file:../src/examples/main.cpp]] :src cpp
+
+** examples/map_example.cpp
+#+transclude: [[file:../src/examples/map_example.cpp]] :src cpp
+
+** smd/ranges/range_applicative.hpp
+#+transclude: [[file:../src/smd/ranges/range_applicative.hpp]] :src cpp
+
+** smd/ranges/range_foldable.hpp
+#+transclude: [[file:../src/smd/ranges/range_foldable.hpp]] :src cpp
+
+** smd/ranges/range_functor.hpp
+#+transclude: [[file:../src/smd/ranges/range_functor.hpp]] :src cpp
+
+** smd/ranges/range_list.hpp
+#+transclude: [[file:../src/smd/ranges/range_list.hpp]] :src cpp
+
+** smd/ranges/range_traversable.hpp
+#+transclude: [[file:../src/smd/ranges/range_traversable.hpp]] :src cpp
+
+** smd/thunk/delay.hpp
+#+transclude: [[file:../src/smd/thunk/delay.hpp]] :src cpp
+
+** smd/thunk/memoize.hpp
+#+transclude: [[file:../src/smd/thunk/memoize.hpp]] :src cpp
+
+** smd/tree/binary_tree_applicative.hpp
+#+transclude: [[file:../src/smd/tree/binary_tree_applicative.hpp]] :src cpp
+
+** smd/tree/binary_tree_foldable.hpp
+#+transclude: [[file:../src/smd/tree/binary_tree_foldable.hpp]] :src cpp
+
+** smd/tree/binary_tree.hpp
+#+transclude: [[file:../src/smd/tree/binary_tree.hpp]] :src cpp
+
+** smd/tree/binary_tree_traversable.hpp
+#+transclude: [[file:../src/smd/tree/binary_tree_traversable.hpp]] :src cpp
+
+** smd/tree/finger_tree_foldable.hpp
+#+transclude: [[file:../src/smd/tree/finger_tree_foldable.hpp]] :src cpp
+
+** smd/tree/finger_tree.hpp
+#+transclude: [[file:../src/smd/tree/finger_tree.hpp]] :src cpp
+
+** smd/tree/finger_tree_interval_index.hpp
+#+transclude: [[file:../src/smd/tree/finger_tree_interval_index.hpp]] :src cpp
+
+** smd/tree/finger_tree_priority_queue.hpp
+#+transclude: [[file:../src/smd/tree/finger_tree_priority_queue.hpp]] :src cpp
+
+** smd/tree/finger_tree_random_access.hpp
+#+transclude: [[file:../src/smd/tree/finger_tree_random_access.hpp]] :src cpp
+
+** smd/tree/finger_tree_rope.hpp
+#+transclude: [[file:../src/smd/tree/finger_tree_rope.hpp]] :src cpp
+
+** smd/tree/finger_tree_traversable.hpp
+#+transclude: [[file:../src/smd/tree/finger_tree_traversable.hpp]] :src cpp
+
+** smd/tree/finger_tree_wrappers.hpp
+#+transclude: [[file:../src/smd/tree/finger_tree_wrappers.hpp]] :src cpp
+
+** smd/tree/fix_tree_applicative.hpp
+#+transclude: [[file:../src/smd/tree/fix_tree_applicative.hpp]] :src cpp
+
+** smd/tree/fix_tree_foldable.hpp
+#+transclude: [[file:../src/smd/tree/fix_tree_foldable.hpp]] :src cpp
+
+** smd/tree/fix_tree.hpp
+#+transclude: [[file:../src/smd/tree/fix_tree.hpp]] :src cpp
+
+** smd/tree/fix_tree_traversable.hpp
+#+transclude: [[file:../src/smd/tree/fix_tree_traversable.hpp]] :src cpp
+
+** smd/tree/fringe_tree_applicative.hpp
+#+transclude: [[file:../src/smd/tree/fringe_tree_applicative.hpp]] :src cpp
+
+** smd/tree/fringe_tree_foldable.hpp
+#+transclude: [[file:../src/smd/tree/fringe_tree_foldable.hpp]] :src cpp
+
+** smd/tree/fringe_tree.hpp
+#+transclude: [[file:../src/smd/tree/fringe_tree.hpp]] :src cpp
+
+** smd/tree/fringe_tree_traversable.hpp
+#+transclude: [[file:../src/smd/tree/fringe_tree_traversable.hpp]] :src cpp
+
+** smd/tree/memoized_thunk.hpp
+#+transclude: [[file:../src/smd/tree/memoized_thunk.hpp]] :src cpp
+
+** smd/typeclass/applicative.hpp
+#+transclude: [[file:../src/smd/typeclass/applicative.hpp]] :src cpp
+
+** smd/typeclass/examples/applicative_bad.cpp
+#+transclude: [[file:../src/smd/typeclass/examples/applicative_bad.cpp]] :src cpp
+
+** smd/typeclass/examples/applicative_examples.cpp
+#+transclude: [[file:../src/smd/typeclass/examples/applicative_examples.cpp]] :src cpp
+
+** smd/typeclass/examples/foldable_examples.cpp
+#+transclude: [[file:../src/smd/typeclass/examples/foldable_examples.cpp]] :src cpp
+
+** smd/typeclass/examples/lookup_modes_examples.cpp
+#+transclude: [[file:../src/smd/typeclass/examples/lookup_modes_examples.cpp]] :src cpp
+
+** smd/typeclass/examples/traversable_examples.cpp
+#+transclude: [[file:../src/smd/typeclass/examples/traversable_examples.cpp]] :src cpp
+
+** smd/typeclass/foldable.hpp
+#+transclude: [[file:../src/smd/typeclass/foldable.hpp]] :src cpp
+
+** smd/typeclass/functor.hpp
+#+transclude: [[file:../src/smd/typeclass/functor.hpp]] :src cpp
+
+** smd/typeclass/monoid.hpp
+#+transclude: [[file:../src/smd/typeclass/monoid.hpp]] :src cpp
+
+** smd/typeclass/traversable.hpp
+#+transclude: [[file:../src/smd/typeclass/traversable.hpp]] :src cpp
+
+** smd/typeclass/typeclass_base.hpp
+#+transclude: [[file:../src/smd/typeclass/typeclass_base.hpp]] :src cpp
+
+** smd/ziplist/zip_list_applicative.hpp
+#+transclude: [[file:../src/smd/ziplist/zip_list_applicative.hpp]] :src cpp
+
+** smd/ziplist/zip_list.hpp
+#+transclude: [[file:../src/smd/ziplist/zip_list.hpp]] :src cpp
+
+* Regeneration
+Run from repository root to regenerate this file:
+
+#+name: regenerate-index-org
+#+begin_src bash :results output verbatim
+set -euo pipefail
+repo_root="$(git rev-parse --show-toplevel)"
+make -C "$repo_root/trees" docs-index
+#+end_src

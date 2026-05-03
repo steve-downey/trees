@@ -1,2 +1,6 @@
-add_subdirectory(example)
-add_subdirectory(conceptmap)
+add_subdirectory(thunk)
+add_subdirectory(typeclass)
+add_subdirectory(fixpoint)
+add_subdirectory(tree)
+add_subdirectory(ziplist)
+add_subdirectory(ranges)

@@ -1,38 +1,24 @@
 include(GNUInstallDirs)
 
-add_executable(hello)
-# Add example source file.
-target_sources(hello PRIVATE hello.cpp)
-
-# Link example with the library.
-target_link_libraries(hello PRIVATE example.name)
-
-install(
-  TARGETS hello
-  COMPONENT example.name.examples
-  DESTINATION ${CMAKE_INSTALL_BINDIR}
-  EXCLUDE_FROM_ALL
-)
-
-add_executable(main)
-
-target_sources(main PRIVATE main.cpp)
-
-target_link_libraries(main concept_map)
-
 add_executable(map_example "")
 
 target_sources(map_example PRIVATE map_example.cpp)
 
-target_link_libraries(map_example)
+target_link_libraries(map_example PRIVATE concept_map)
 
 add_executable(cpo_example "")
 
 target_sources(cpo_example PRIVATE cpo_example.cpp)
 
-target_link_libraries(cpo_example)
+target_link_libraries(cpo_example PRIVATE concept_map)
+
+add_executable(fixpoint_tree_example "")
+
+target_sources(fixpoint_tree_example PRIVATE fixpoint_tree_example.cpp)
+
+target_compile_features(fixpoint_tree_example PRIVATE cxx_std_23)
 
 install(
-    TARGETS main map_example cpo_example
+    TARGETS map_example cpo_example fixpoint_tree_example
     DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

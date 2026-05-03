@@ -1,0 +1,208 @@
+#+title: Main Review Follow-up Tasks
+#+author: GitHub Copilot
+#+date: 2026-05-01
+#+startup: overview
+#+startup: logdone
+
+* DONE Remove lazy/debug queue paths from public API
+:PROPERTIES:
+:ID:       ftpq-remove-debug-api
+:AREA:     tree/priority-queue
+:PRIORITY: A
+:END:
+- [x] Remove public methods intended only for diagnostics from [trees/src/smd/tree/finger_tree_priority_queue.hpp](trees/src/smd/tree/finger_tree_priority_queue.hpp):
+  - [x] pop_min_lazy
+  - [x] pop_max_lazy
+  - [x] debug_pop_min_split_min_only
+  - [x] debug_pop_min_rebuild_max_only
+  - [x] debug_pop_min_lazy_components_only
+  - [x] debug_construct_lazy_min_result
+- [x] Keep stable behavior via rebuild-based pop_min/pop_max only.
+- [x] Ensure no downstream call sites rely on removed methods.
+Commit: 0fe7d0c — 172/172 pass.
+
+* DONE Make lazy-removal regressions part of default test coverage
+:PROPERTIES:
+:ID:       ftpq-promote-regression-tests
+:AREA:     tree/tests
+:PRIORITY: A
+:END:
+- [x] Move at least one representative duplicate/min/max regression from hidden tags to default test set.
+- [x] Keep narrowly diagnostic reproducer tests hidden if needed, but ensure correctness path is always exercised in CI.
+- [x] Verify by running default ctest pipeline through make TOOLCHAIN=clang test.
+Commit: 0fe7d0c — PopMinWithDuplicates and PopMaxWithDuplicates added to default coverage.
+
+* DONE Clean up unused variable warnings introduced in Traversable updates
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       traversable-warning-cleanup
+:AREA:     typeclass/traversable
+:PRIORITY: B
+:END:
+Commit: 3c77dda (Phase 3 new test files + unused-variable warning cleanup).
+Unused traversable map bindings removed from traversable.t.cpp, traversable_examples.cpp,
+binary_tree_traversable.t.cpp, fix_tree_traversable.t.cpp, fringe_tree_traversable.t.cpp,
+range_traversable.t.cpp. Merge: e39870e.
+
+* DONE Confirm Traversable explicit-applicative protocol invariants remain enforced
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       traversable-protocol-guardrails
+:AREA:     typeclass/traversable
+:PRIORITY: B
+:END:
+Commit: e76fdaf (Add guard test: traverse_with must honor explicit applicative override).
+Merge: c03d189. Test verifies that =traverse_with= with a custom applicative instance
+propagates through recursive traversal rather than re-looking up =applicative_typeclass=.
+
+* DONE Optional: tighten queue header API hygiene
+:PROPERTIES:
+:ID:       ftpq-header-hygiene
+:AREA:     tree/priority-queue
+:PRIORITY: C
+:END:
+- [x] Re-check include list order and minimality after lazy/debug path removal.
+- [x] Verify comments describe supported behavior only (no stale experimental notes).
+Commit: 5dd9d72 — removed 5 unused includes; added O(n) rebuild comment to pop_min/pop_max.
+
+* DONE FingerTreeRandomAccess — O(log n) at() and update()
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       random-access-at-o-log-n
+:AREA:     tree/random-access
+:PRIORITY: A
+:END:
+
+Code commit: 5738972. Merge: 2178468. Slide claims corrected: dacb2fd.
+=at()= uses =split()= + =d_pivot=. =update()/insert()/erase()= use =split()= +
+=concat()= (Hinze-Paterson app3 is O(log(min(n,m)))). No =flatten()= in any path.
+
+* DONE FingerTreePriorityQueue — O(log n) pop_min / pop_max
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       priority-queue-pop-o-log-n
+:AREA:     tree/priority-queue
+:PRIORITY: A
+:END:
+
+Code commit: 5738972. Merge: 2178468. Slide claims corrected: dacb2fd.
+Combined =PriorityTag<T>= measure (single tree, not dual MinTree/MaxTree).
+=pop_min()/pop_max()= use measure-guided =split()= O(log n) + =concat()= O(log(min(n,m))).
+
+* DONE FingerTreeIntervalIndex — avoid intermediate vector in queries
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       interval-index-query-fold
+:AREA:     tree/interval-index
+:PRIORITY: C
+:END:
+Commit: d4b7e14 (Add FingerTree::for_each; eliminate flatten() from fold_map and queries).
+Merge: a4d9f5a. =for_each= traverses elements in order without allocating an intermediate
+vector. Fold_map and interval-index queries now use =for_each= instead of =flatten()=.
+
+* DONE Reviewer Three: Typeclass concept guards
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       typeclass-concept-guards
+:AREA:     typeclass/applicative
+:PRIORITY: B
+:SOURCE:   reviewer-three.org § Architecture & Typeclass Emulation
+:END:
+Commit: 5738972 (B-priority fixes: O(log n) operations, single-tree priority queue, concept guards).
+Merge: 2178468. Added =static_assert= guards in =Applicative<Impl>=, =Foldable<Impl>=,
+and =Traversable<Impl>= to check that Impl provides required operations.
+Traversable also checks =element_type= exists.
+
+* DONE Reviewer Three: Remove stale memoized_thunk include from finger_tree.hpp
+:PROPERTIES:
+:ID:       stale-memoized-thunk-include
+:AREA:     tree/finger-tree
+:PRIORITY: C
+:SOURCE:   reviewer-three.org § 2-3 Finger Tree (stale review note)
+:END:
+
+The reviewer's finger-tree section describes the old vtable/=SuspendedSegment=
+implementation (now removed in commit 0468f16). =finger_tree.hpp= carried a
+stale =#include <smd/tree/memoized_thunk.hpp>= — removed in this session.
+
+The memoized_thunk component has been resurrected as a proper library:
+- =smd/thunk/delay.hpp= — =smd::thunk::delay()= lazy closure combinator
+- =smd/thunk/memoize.hpp= — =smd::thunk::memoize()=, =erased_thunk=,
+  =measured_memoize()= with thread-safety caveat from reviewer
+- =smd/tree/memoized_thunk.hpp= — forwarding header; aliases old names in
+  =smd::tree::detail= for backward compat
+
+Thread-safety note from reviewer now documented in =memoize.hpp= header comment.
+The concern (non-atomic variant mutation shared via shared_ptr) applies to
+=smd::thunk::memoize()=. Tracked as TODO below if thread safety is needed.
+
+* DONE Reviewer Three: FixTree is not a true fixed-point combinator
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       fix-tree-true-fixed-point
+:AREA:     tree/fix-tree
+:PRIORITY: C
+:SOURCE:   reviewer-three.org § Recursion Schemes & Fix Trees
+:END:
+Option 1 implemented: true =Fix<F>=, generic =cata=, and =ExprF= as example instance.
+Commit: 9d269c9 (feat: add fixpoint tree infrastructure). Merge: 3912cd8.
+Slides updated: bb85ac9 (slides: replace FixTree with fixpoint Expr tree). Merge: e4e2357.
+Old =FixTree= concrete tree retained for existing typeclass instances; slides now
+use the =Fix<ExprF>= expression tree for the recursion-scheme demonstration.
+
+* DONE Toolchain policy: default to clang; no system compilers
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       toolchain-default-gcc16
+:AREA:     build/toolchain
+:PRIORITY: A
+:SOURCE:   mainline review follow-up (2026-05-02)
+:END:
+
+Defaulted =TOOLCHAIN= to =clang= in both trees/Makefile and oop/Makefile.
+System compiler (GCC 13) is opt-in via =TOOLCHAIN=system=.
+Created =oop/etc/clang-toolchain.cmake=. Updated CLAUDE.md and codestyle.md.
+Merge: dacb2fd. 241/241 tests pass with bare =make test=.
+
+* DONE Current-state audit follow-ups (2026-05-02)
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       current-state-audit-2026-05-02
+:AREA:     tree/review
+:PRIORITY: A
+:SOURCE:   current-state-audit-2026-05-02.md
+:END:
+
+- [x] Fix =split_at_index()= semantic guard: b7d8e9a. Merge: 24ec8de.
+- [x] Regression test =SplitAtIndexUsesElementIndexForWeightedSizeTMeasure=: b7d8e9a.
+- [x] Strategy: constrained fast path (=UnitMeasure<T, Tag>=). Comment in b7d8e9a.
+- [x] Delete orphan =tests/ziplist.t.cpp=: 94a92de.
+- [x] Ziplist coverage confirmed via =make test= (241/241).
+
+Remaining minor items (not blocking):
+- [x] Audit formatter config to exclude vendor/ from formatting: 14a77cd (merge via main).
+- [x] Alternate-core =using Impl::...= comments in base classes and test helpers: cf80468 (merge 1dba611).
+
+* DONE Feynman accuracy audit: verify all slide claims against code
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       feynman-accuracy-audit
+:AREA:     slides
+:PRIORITY: A
+:END:
+Systematic audit of 10 factual claims in the presentation against source code.
+Two fixes:
+1. Applicative "five more operations" undercounted (actually 8+) — now lists key ops explicitly.
+2. "fold can only produce a flat result" imprecise — changed to "fold discards the original branching shape."
+Remaining 8 claims verified accurate.
+Commit: cc2e01c. Merge: bc04fc0. 241/241 tests pass.
+
+* DONE Delivery checklist
+CLOSED: [2026-05-02 Sat]
+:PROPERTIES:
+:ID:       delivery-checklist
+:AREA:     workflow
+:PRIORITY: B
+:END:
+Standard workflow followed for all merged items: worktree branch, green tests, =--no-ff= merge.
+This meta-task is satisfied by the individual item merges above.
