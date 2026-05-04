@@ -10,6 +10,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <iomanip>
+#include <sstream>
 #include <string>
 
 using smd::tree::add_expr;
@@ -79,15 +81,16 @@ TEST_CASE("FixpointTree - CustomPrettyPrintAlgebra") {
     using smd::fixpoint::cata;
     using smd::fixpoint::overloaded;
 
-    auto print_algebra = [](const ExprF<std::string> &expr) -> std::string {
+    auto format_constant = [](double value) -> std::string {
+        std::ostringstream stream;
+        stream << std::fixed << std::setprecision(1) << value;
+        return stream.str();
+    };
+
+    auto print_algebra = [format_constant](const ExprF<std::string> &expr) -> std::string {
         return std::visit(overloaded{
-                              [](const ExprConst<std::string> &c) {
-                                  auto s = std::to_string(c.value);
-                                  while (s.back() == '0' &&
-                                         s[s.size() - 2] != '.') {
-                                      s.pop_back();
-                                  }
-                                  return s;
+                              [format_constant](const ExprConst<std::string> &c) {
+                                  return format_constant(c.value);
                               },
                               [](const ExprAdd<std::string> &a) {
                                   return "(" + *a.left + " + " + *a.right + ")";
