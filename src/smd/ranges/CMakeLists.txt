@@ -1,10 +1,8 @@
-include(GNUInstallDirs)
+# trees/src/smd/ranges/CMakeLists.txt                           -*-CMake-*-
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_library(smd_ranges INTERFACE)
-
-target_sources(
-    smd_ranges
-    PUBLIC FILE_SET smd_ranges_headers TYPE HEADERS FILES
+target_sources(smd.ranges
+    PUBLIC FILE_SET smd_ranges_headers FILES
         range_list.hpp
         range_functor.hpp
         range_applicative.hpp
@@ -12,14 +10,7 @@ target_sources(
         range_traversable.hpp
 )
 
-target_link_libraries(smd_ranges INTERFACE smd_typeclass)
-
-install(
-    TARGETS smd_ranges
-    FILE_SET smd_ranges_headers
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/smd/ranges
-        COMPONENT smd_ranges_development
-)
+install(TARGETS smd.ranges FILE_SET smd_ranges_headers)
 
 if(TREE_ENABLE_TESTING)
     add_executable(smd_ranges_tests
@@ -30,14 +21,9 @@ if(TREE_ENABLE_TESTING)
         range_traversable.t.cpp
     )
 
-    target_include_directories(smd_ranges_tests
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/../..
-    )
-
     target_link_libraries(smd_ranges_tests
         PRIVATE
-            smd_ranges
+            smd::ranges
             Catch2::Catch2WithMain
     )
 

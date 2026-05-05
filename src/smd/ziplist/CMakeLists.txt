@@ -1,22 +1,13 @@
-include(GNUInstallDirs)
+# trees/src/smd/ziplist/CMakeLists.txt                          -*-CMake-*-
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_library(smd_ziplist INTERFACE)
-
-target_sources(
-    smd_ziplist
-    PUBLIC FILE_SET smd_ziplist_headers TYPE HEADERS FILES
+target_sources(smd.ziplist
+    PUBLIC FILE_SET smd_ziplist_headers FILES
         zip_list.hpp
         zip_list_applicative.hpp
 )
 
-target_link_libraries(smd_ziplist INTERFACE smd_typeclass)
-
-install(
-    TARGETS smd_ziplist
-    FILE_SET smd_ziplist_headers
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/smd/ziplist
-        COMPONENT smd_ziplist_development
-)
+install(TARGETS smd.ziplist FILE_SET smd_ziplist_headers)
 
 if(TREE_ENABLE_TESTING)
     add_executable(smd_ziplist_tests
@@ -24,14 +15,9 @@ if(TREE_ENABLE_TESTING)
         zip_list_applicative.t.cpp
     )
 
-    target_include_directories(smd_ziplist_tests
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/../..
-    )
-
     target_link_libraries(smd_ziplist_tests
         PRIVATE
-            smd_ziplist
+            smd::ziplist
             Catch2::Catch2WithMain
     )
 

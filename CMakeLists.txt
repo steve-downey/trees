@@ -40,22 +40,8 @@ endif()
 set(OPTIONAL_ENABLE_TESTING OFF)
 add_subdirectory(vendor/optional EXCLUDE_FROM_ALL)
 
-# find_package(
-#     beman.optional
-#     REQUIRED
-#     PATHS ${OPTIONAL_INSTALL_DIR}
-#     NO_DEFAULT_PATH
-# )
+include(GNUInstallDirs)
 
-# Create the library target and named header set for beman_optional
-add_library(concept_map INTERFACE)
-target_sources(
-    concept_map
-    PUBLIC FILE_SET concept_map_headers TYPE HEADERS BASE_DIRS src
-)
-target_compile_features(concept_map INTERFACE cxx_std_23)
-
-# add_subdirectory(extern)
 add_subdirectory(src)
 
 # Keep presentation snippets in the regular build so transcluded slide code
@@ -68,8 +54,6 @@ if(TARGET smd_typeclass_slide_examples)
         add_dependencies(slide_snippets_check smd_typeclass_slide_examples_tests)
     endif()
 endif()
-
-include(GNUInstallDirs)
 
 # Coverage
 configure_file("cmake/gcovr.cfg.in" gcovr.cfg @ONLY)
