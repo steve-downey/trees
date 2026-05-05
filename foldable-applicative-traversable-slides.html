@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Generated on 2026-05-05 Tue 10:31 -->
+<!-- Generated on 2026-05-05 Tue 14:06 -->
 <meta charset="utf-8"/>
 <title>Algorithms for Trees: Foldable, Applicative, Traversable</title>
 <meta name="author" content="Steve Downey"/>
@@ -6279,8 +6279,8 @@ img.footerlogo
 <p>
 </section>
 <section>
-<section id="slide-org5c479eb">
-<h2 id="org5c479eb">Colophon</h2>
+<section id="slide-org59d4cd2">
+<h2 id="org59d4cd2">Colophon</h2>
 <ul>
 <li>Slideware: <a href="https://revealjs.com/">reveal.js</a></li>
 <li>Slide Preparation: <a href="https://gitlab.com/oer/org-re-reveal">org-re-reveal</a></li>
@@ -6334,8 +6334,8 @@ Try to present working code, even in slideware.
 </section>
 </section>
 <section>
-<section id="slide-org36162b5">
-<h2 id="org36162b5">Algorithms for Trees</h2>
+<section id="slide-orgd2d366d">
+<h2 id="orgd2d366d">Algorithms for Trees</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -6361,8 +6361,8 @@ Agenda slide. Name the three ideas once, then move.
 </section>
 </section>
 <section>
-<section id="slide-org705731b">
-<h3 id="org705731b">Abstract</h3>
+<section id="slide-org56d195a">
+<h3 id="org56d195a">Abstract</h3>
 <aside class="notes">
 <p>
 Clock:
@@ -6388,8 +6388,8 @@ One-slide thesis: trees carry shape, and these abstractions let me keep it.
 </section>
 </section>
 <section>
-<section id="slide-orga1f49e4">
-<h3 id="orga1f49e4">Foldable</h3>
+<section id="slide-org78539f4">
+<h3 id="org78539f4">Foldable</h3>
 <aside class="notes">
 <p>
 Clock:
@@ -6414,8 +6414,8 @@ Summary only. Collapse to a result without flattening first.
 </section>
 </section>
 <section>
-<section id="slide-orga0f0470">
-<h3 id="orga0f0470">Applicative</h3>
+<section id="slide-org2befded">
+<h3 id="org2befded">Applicative</h3>
 <aside class="notes">
 <p>
 Clock:
@@ -6440,8 +6440,8 @@ Independent effects, not sequencing.
 </section>
 </section>
 <section>
-<section id="slide-org9936b07">
-<h3 id="org9936b07">Traversable</h3>
+<section id="slide-org1ab00e4">
+<h3 id="org1ab00e4">Traversable</h3>
 <aside class="notes">
 <p>
 Clock:
@@ -6466,8 +6466,8 @@ This is the headliner: a tree stays a tree.
 </section>
 </section>
 <section>
-<section id="slide-orgce0a957">
-<h3 id="orgce0a957">Not Monadic</h3>
+<section id="slide-org467e96c">
+<h3 id="org467e96c">Not Monadic</h3>
 <aside class="notes">
 <p>
 Clock:
@@ -6492,8 +6492,8 @@ Scope control. Monad is important, but not needed for this story.
 </section>
 </section>
 <section>
-<section id="slide-org208d779">
-<h2 id="org208d779">Ranges Flatten the World</h2>
+<section id="slide-org9872b6b">
+<h2 id="org9872b6b">Ranges Flatten the World</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -6512,8 +6512,8 @@ Section marker. Move straight into the first concrete claim.
 </section>
 </section>
 <section>
-<section id="slide-orga6e3511">
-<h4 id="orga6e3511">Linearization as a Design Assumption</h4>
+<section id="slide-org3a6a868">
+<h4 id="org3a6a868">Linearization as a Design Assumption</h4>
 <ul>
 <li>Ranges are a great default when the structure is inherently sequential.</li>
 <li>Many generic algorithms quietly assume that flattening first is semantically neutral.</li>
@@ -6542,8 +6542,8 @@ The rest of the talk is about keeping structure when structure carries meaning.
 </section>
 </section>
 <section>
-<section id="slide-orgf51d7c1">
-<h4 id="orgf51d7c1">Where Structure Carries Meaning</h4>
+<section id="slide-orgbd38633">
+<h4 id="orgbd38633">Where Structure Carries Meaning</h4>
 <ul>
 <li>Search paths, balancing, and decomposition points are part of the meaning.</li>
 <li>The same inorder sequence can come from many different trees.</li>
@@ -6561,8 +6561,8 @@ If I preserve shape, I get better split, search, and relabel APIs.
 </section>
 </section>
 <section>
-<section id="slide-orgc747f27">
-<h4 id="orgc747f27">Trees That Are Not Sequences</h4>
+<section id="slide-orgf997bbc">
+<h4 id="orgf997bbc">Trees That Are Not Sequences</h4>
 <ul>
 <li>Expression trees: hierarchy controls precedence and rewrite legality.</li>
 <li>Syntax trees: children have roles, not just positions.</li>
@@ -6579,8 +6579,8 @@ A range view is still useful, but it should be derived, not the primary model.
 </section>
 </section>
 <section>
-<section id="slide-orgd7216ce">
-<h2 id="orgd7216ce">Visitors, Pattern Matching, and the Missing Syntax</h2>
+<section id="slide-orgf41a947">
+<h2 id="orgf41a947">Visitors, Pattern Matching, and the Missing Syntax</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -6599,8 +6599,8 @@ Bridge from the problem to the interface story.
 </section>
 </section>
 <section>
-<section id="slide-orgea2dda1">
-<h4 id="orgea2dda1">Visitor as Manual Recursion Control</h4>
+<section id="slide-org2854c63">
+<h4 id="org2854c63">Visitor as Manual Recursion Control</h4>
 <ul>
 <li>Visitor centralizes recursion, but at the cost of ceremony and indirection.</li>
 <li>Each new operation typically requires another visitor type or nested lambda structure.</li>
@@ -6627,8 +6627,8 @@ It is just too low-level and too ceremonial for this kind of everyday algebraic 
 </section>
 </section>
 <section>
-<section id="slide-orgcd81701">
-<h4 id="orgcd81701">Pattern Matching as the Intended Interface</h4>
+<section id="slide-org04d4b0b">
+<h4 id="org04d4b0b">Pattern Matching as the Intended Interface</h4>
 <ul>
 <li>Pattern matching expresses what cases exist directly.</li>
 <li>C++ has active pattern-matching proposals, but no standardized feature yet.</li>
@@ -6646,8 +6646,8 @@ It is to land on APIs that migrate cleanly when the language catches up.
 </section>
 </section>
 <section>
-<section id="slide-org0ff5d0c">
-<h4 id="org0ff5d0c">Designing Today for Tomorrow's Syntax</h4>
+<section id="slide-org6e9ec66">
+<h4 id="org6e9ec66">Designing Today for Tomorrow's Syntax</h4>
 <ul>
 <li>Keep recursion control in library algorithms, not business code.</li>
 <li>Expose a small vocabulary: <code>fold_map</code>, <code>invoke</code>, <code>traverse</code>.</li>
@@ -6664,8 +6664,8 @@ This is about migration-friendly design, not speculative syntax tricks.
 </section>
 </section>
 <section>
-<section id="slide-org6efae16">
-<h2 id="org6efae16">Recursion Schemes You Can Actually Use</h2>
+<section id="slide-org1194f02">
+<h2 id="org1194f02">Recursion Schemes You Can Actually Use</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -6684,8 +6684,8 @@ Bridge slide. Recursion control moves into reusable library structure.
 </section>
 </section>
 <section>
-<section id="slide-org32a546b">
-<h4 id="org32a546b">F-Algebras: How to Collapse One Layer</h4>
+<section id="slide-orgfce4a66">
+<h4 id="orgfce4a66">F-Algebras: How to Collapse One Layer</h4>
 <ul>
 <li>Think of an algebra as consuming one layer and summarizing it.</li>
 <li>The recursion pattern stays fixed while business logic changes.</li>
@@ -6713,8 +6713,8 @@ I do not need a semester of category theory.
 </section>
 </section>
 <section>
-<section id="slide-orgcbaf6f0">
-<h4 id="orgcbaf6f0">Catamorphisms as a Principled Fold</h4>
+<section id="slide-org96cf7b2">
+<h4 id="org96cf7b2">Catamorphisms as a Principled Fold</h4>
 <ul>
 <li>Catamorphism: apply the algebra recursively until the structure is collapsed.</li>
 <li>In C++, this corresponds to a disciplined fold over a recursive representation.</li>
@@ -6729,7 +6729,7 @@ Foldable is the operational entry point for this in everyday code.
 
 </aside>
 <ul class="org-ul">
-<li><a id="org34bcacf"></a>Fixpoint Expression Tree: eval_algebra and cata<br />
+<li><a id="org1e91a59"></a>Fixpoint Expression Tree: eval_algebra and cata<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">inline</span> <span class="org-keyword">auto</span> <span class="org-function-name">eval_algebra</span>(<span class="org-keyword">const</span> <span class="org-type">ExprF</span>&lt;<span class="org-type">double</span>&gt; &amp;<span class="org-variable-name">expr</span>) -&gt; <span class="org-type">double</span> {
@@ -6763,8 +6763,8 @@ That separation is the point.
 </section>
 </section>
 <section>
-<section id="slide-orgee1c815">
-<h4 id="orgee1c815">Separating Recursion from Business Logic</h4>
+<section id="slide-org9cfc206">
+<h4 id="org9cfc206">Separating Recursion from Business Logic</h4>
 <ul>
 <li>Business logic should answer how to combine results, not how to recurse.</li>
 <li>This yields smaller tests and more reusable algorithms.</li>
@@ -6781,8 +6781,8 @@ Once recursion is abstracted away, the laws read like executable documentation.
 </section>
 </section>
 <section>
-<section id="slide-org52f5e7a">
-<h2 id="org52f5e7a">The Typeclass Object Pattern</h2>
+<section id="slide-orgab8dd13">
+<h2 id="orgab8dd13">The Typeclass Object Pattern</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -6801,8 +6801,8 @@ Section marker. This is the implementation spine of the talk.
 </section>
 </section>
 <section>
-<section id="slide-org3d07c1d">
-<h4 id="org3d07c1d">Typeclass Lookup: One Object Per Concept</h4>
+<section id="slide-orga3c525d">
+<h4 id="orga3c525d">Typeclass Lookup: One Object Per Concept</h4>
 <ul>
 <li>Each concept has a variable template: <code>foldable_typeclass&lt;T&gt;</code>, <code>applicative_typeclass&lt;T&gt;</code>, <code>traversable_typeclass&lt;T&gt;</code>.</li>
 <li>The looked-up object provides all operations for that concept on <code>T</code>.</li>
@@ -6838,7 +6838,7 @@ The typeclass layer is plumbing; the user-facing API is porcelain.
 
 </aside>
 <ul class="org-ul">
-<li><a id="org51b9a45"></a>Specializing the Variable Template<br />
+<li><a id="org5e2501c"></a>Specializing the Variable Template<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">template</span> &lt;&gt;
@@ -6859,8 +6859,8 @@ The specialization can live next to the type or in any adapter header.
 </section>
 </section>
 <section>
-<section id="slide-orgc241486">
-<h4 id="orgc241486">Three Lookup Modes</h4>
+<section id="slide-orgf9e29fc">
+<h4 id="orgf9e29fc">Three Lookup Modes</h4>
 <ul>
 <li>Implicit: <code>const auto&amp; f = smd::foldable_typeclass&lt;Tree&gt;;</code> then call <code>f.method(...)</code></li>
 <li>Explicit object argument: pass a custom instance directly — local policy override.</li>
@@ -6880,8 +6880,8 @@ That matters once you start parameterizing policy.
 </section>
 </section>
 <section>
-<section id="slide-org82bb8f0">
-<h4 id="org82bb8f0">NTTP Pinning Example</h4>
+<section id="slide-orge7050ff">
+<h4 id="orge7050ff">NTTP Pinning Example</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">template</span> &lt;<span class="org-keyword">class</span> <span class="org-type">STRUCTURE</span>,
@@ -6902,8 +6902,8 @@ Callers can supply a custom instance to change behavior for a specific call site
 </section>
 </section>
 <section>
-<section id="slide-org8ff75c0">
-<h4 id="org8ff75c0">Implementers: One Hook, Many Derived Operations</h4>
+<section id="slide-orgbe581f7">
+<h4 id="orgbe581f7">Implementers: One Hook, Many Derived Operations</h4>
 <ul>
 <li>Implement one minimal hook per concept; all derived operations are provided automatically.</li>
 <li>Foldable: implement <code>fold_map</code> → counting, folding, predicates, collection.</li>
@@ -6923,8 +6923,8 @@ That is the trade I want.
 </section>
 </section>
 <section>
-<section id="slide-orgdd675d5">
-<h4 id="orgdd675d5">CRTP and Deducing This</h4>
+<section id="slide-org3652ecf">
+<h4 id="org3652ecf">CRTP and Deducing This</h4>
 <ul>
 <li>Each concept wrapper is a CRTP base (<code>Foldable&lt;Impl&gt;</code>, <code>Applicative&lt;Impl&gt;</code>, <code>Traversable&lt;Impl&gt;</code>).</li>
 <li><code>this auto&amp;&amp; self</code> (C++23 explicit object parameter) preserves value category and constness through all wrapper calls.</li>
@@ -6942,8 +6942,8 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 </section>
 </section>
 <section>
-<section id="slide-org97111b1">
-<h2 id="org97111b1">Functor: The Foundation</h2>
+<section id="slide-org773deed">
+<h2 id="org773deed">Functor: The Foundation</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -6962,8 +6962,8 @@ Short bridge. Functor is the base layer, not the destination.
 </section>
 </section>
 <section>
-<section id="slide-org58816bc">
-<h4 id="org58816bc">Functor Interface</h4>
+<section id="slide-org81a9aef">
+<h4 id="org81a9aef">Functor Interface</h4>
 <ul>
 <li>Minimal hook: <code>fmap(F, container)</code> — apply a pure function inside a context.</li>
 <li>Derived: <code>replace(container, value)</code> — overwrite all elements with a constant.</li>
@@ -6990,8 +6990,8 @@ Functor is the base on which Applicative and Traversable are built.
 </section>
 </section>
 <section>
-<section id="slide-org39d7a3a">
-<h4 id="org39d7a3a">Functor: Derived replace</h4>
+<section id="slide-org594a2df">
+<h4 id="org594a2df">Functor: Derived replace</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">template</span> &lt;<span class="org-keyword">class</span> <span class="org-type">T</span>, <span class="org-keyword">class</span> <span class="org-type">U</span>&gt;
@@ -7012,8 +7012,8 @@ replace is derived from fmap with a constant function — no extra instance work
 </section>
 </section>
 <section>
-<section id="slide-org3440ab4">
-<h4 id="org3440ab4">Functor Identity Law in Tests</h4>
+<section id="slide-orgfa3b5b6">
+<h4 id="orgfa3b5b6">Functor Identity Law in Tests</h4>
 <ul>
 <li>fmap(id, x) == x for every instance and every shape.</li>
 
@@ -7039,8 +7039,8 @@ Tests that encode laws document intent more durably than comments.
 </section>
 </section>
 <section>
-<section id="slide-org8455015">
-<h2 id="org8455015">Preserving Shape: Traversable and Friends</h2>
+<section id="slide-orgd451b89">
+<h2 id="orgd451b89">Preserving Shape: Traversable and Friends</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -7059,8 +7059,8 @@ Section marker. This is where fold versus traverse becomes concrete.
 </section>
 </section>
 <section>
-<section id="slide-org30c780f">
-<h4 id="org30c780f">Foldable vs. Traversable: Sequence vs. Shape</h4>
+<section id="slide-orgf4bc0a3">
+<h4 id="orgf4bc0a3">Foldable vs. Traversable: Sequence vs. Shape</h4>
 <ul>
 <li>Foldable consumes structure into a summary.</li>
 <li>Traversable maps with effects while rebuilding the same outer shape.</li>
@@ -7089,8 +7089,8 @@ Then I can come back and make that formal.
 </section>
 </section>
 <section>
-<section id="slide-org147a2ae">
-<h4 id="org147a2ae">Crisp Contrast: Flatten vs. Preserve Shape</h4>
+<section id="slide-orge8e9787">
+<h4 id="orge8e9787">Crisp Contrast: Flatten vs. Preserve Shape</h4>
 <aside class="notes">
 <p>
 Clock:
@@ -7112,7 +7112,7 @@ Set up the before/after contrast, then let the code do the work.
 
 </ul>
 <ul class="org-ul">
-<li><a id="org00f8d57"></a>Foldable Flattens and Loses Shape Identity<br />
+<li><a id="orgf88445c"></a>Foldable Flattens and Loses Shape Identity<br />
 <aside class="notes">
 <p>
 Clock:
@@ -7135,7 +7135,7 @@ Stress same flat result, different original shape.
 </pre>
 </div>
 </li>
-<li><a id="orgf1cb057"></a>Traversable Maps While Preserving Shape<br />
+<li><a id="org5dbc985"></a>Traversable Maps While Preserving Shape<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">mapped</span> = <span class="org-constant">smd</span>::traverse(
@@ -7157,8 +7157,8 @@ Traversable keeps the tree skeleton and only transforms payloads.
 </section>
 </section>
 <section>
-<section id="slide-orge503f8a">
-<h4 id="orge503f8a">Same Algorithm, Three Tree Representations</h4>
+<section id="slide-org28caa43">
+<h4 id="org28caa43">Same Algorithm, Three Tree Representations</h4>
 <ul>
 <li>Fixpoint tree and shared_ptr binary tree can share the same Foldable call shape.</li>
 <li>The representation changes; the typeclass API and algorithm intent stay the same.</li>
@@ -7174,7 +7174,7 @@ I write the algorithm against the interface once, not once per tree type.
 
 </aside>
 <ul class="org-ul">
-<li><a id="org8d626e0"></a>Fixpoint Tree<br />
+<li><a id="orgd5ea722"></a>Fixpoint Tree<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">n</span> = foldable.length(tree);
@@ -7188,7 +7188,7 @@ Expr (Fix&lt;ExprF&gt;). length dispatches through foldable_typeclass&lt;Expr&gt
 
 </aside>
 </li>
-<li><a id="orgdbe311c"></a>shared_ptr Binary Tree<br />
+<li><a id="org55a3442"></a>shared_ptr Binary Tree<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">n</span> = foldable.length(tree);
@@ -7202,7 +7202,7 @@ BinaryTree&lt;int&gt;. Different type, different fold_map implementation — sam
 
 </aside>
 </li>
-<li><a id="org51c4754"></a>FringeTree (Simplified FingerTree)<br />
+<li><a id="orga20db40"></a>FringeTree (Simplified FingerTree)<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">n</span> = foldable.length(tree);
@@ -7216,7 +7216,7 @@ FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third repres
 
 </aside>
 </li>
-<li><a id="org6a82060"></a>FringeTree: Traversable Also Preserves Shape<br />
+<li><a id="org1cc17d3"></a>FringeTree: Traversable Also Preserves Shape<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">using</span> <span class="org-constant">beman</span>::<span class="org-constant">optional</span>::optional;
@@ -7241,8 +7241,8 @@ The variant structure (Empty | Leaf | Branch) is intact; only the leaf values ch
 </section>
 </section>
 <section>
-<section id="slide-orge1f7282">
-<h2 id="orge1f7282">Foldable</h2>
+<section id="slide-orgd124640">
+<h2 id="orgd124640">Foldable</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -7261,8 +7261,8 @@ Section marker. Now formalize the collapse story.
 </section>
 </section>
 <section>
-<section id="slide-orgf6600fa">
-<h4 id="orgf6600fa">Monoid: The Glue fold_map Needs</h4>
+<section id="slide-orgab5d2c7">
+<h4 id="orgab5d2c7">Monoid: The Glue fold_map Needs</h4>
 <ul>
 <li><code>fold_map</code> maps each element to some type, then folds the results into one.</li>
 <li>That result type must support two operations: a neutral starting value and an associative merge.</li>
@@ -7290,8 +7290,8 @@ I will come back to the full story later.
 </section>
 </section>
 <section>
-<section id="slide-org12f1be9">
-<h4 id="org12f1be9">Foldable API: One Hook, Derived from fold_map</h4>
+<section id="slide-org1a17e2e">
+<h4 id="org1a17e2e">Foldable API: One Hook, Derived from fold_map</h4>
 <aside class="notes">
 <p>
 Clock:
@@ -7314,7 +7314,7 @@ One primitive, many derived operations.
 
 </ul>
 <ul class="org-ul">
-<li><a id="org0a26f13"></a>fold_map → length<br />
+<li><a id="org876b04b"></a>fold_map → length<br />
 <aside class="notes">
 <p>
 Clock:
@@ -7342,7 +7342,7 @@ Smallest derived example. Count by mapping each element to one.
 </pre>
 </div>
 </li>
-<li><a id="org3fcba10"></a>fold_map → to_vector<br />
+<li><a id="orgd55dd18"></a>fold_map → to_vector<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">template</span> &lt;<span class="org-keyword">class</span> <span class="org-type">T</span>&gt;
@@ -7369,8 +7369,8 @@ fold_left and fold_right use a function-composition monoid internally.
 </section>
 </section>
 <section>
-<section id="slide-org44c3018">
-<h4 id="org44c3018">Foldable Proof: Tests as Examples</h4>
+<section id="slide-orgffd7a5a">
+<h4 id="orgffd7a5a">Foldable Proof: Tests as Examples</h4>
 <ul>
 <li>Derived operations are verified directly against concrete inputs.</li>
 
@@ -7398,8 +7398,8 @@ If that order changes, this test fails.
 </section>
 </section>
 <section>
-<section id="slide-org8a69b90">
-<h2 id="org8a69b90">Applicative</h2>
+<section id="slide-org5b785d4">
+<h2 id="org5b785d4">Applicative</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -7418,8 +7418,8 @@ Section marker. Shift from summaries to effectful application.
 </section>
 </section>
 <section>
-<section id="slide-org96eaa97">
-<h4 id="org96eaa97">Applicative Model: Pure Function over Effectful Arguments</h4>
+<section id="slide-orgf39f106">
+<h4 id="orgf39f106">Applicative Model: Pure Function over Effectful Arguments</h4>
 <ul>
 <li>Applicative captures applying a pure function to independent effectful arguments.</li>
 <li>Minimal hooks: <code>pure</code> (lift a value) and <code>apply</code> (apply a contextual function).</li>
@@ -7449,8 +7449,8 @@ invoke is the spelling I actually want people to use in C++.
 </section>
 </section>
 <section>
-<section id="slide-org6c6105a">
-<h4 id="org6c6105a">Applicative in Use</h4>
+<section id="slide-orgb848507">
+<h4 id="orgb848507">Applicative in Use</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">sum</span> = applicative.invoke([](<span class="org-type">int</span> <span class="org-variable-name">a</span>, <span class="org-type">int</span> <span class="org-variable-name">b</span>, <span class="org-type">int</span> <span class="org-variable-name">c</span>) { <span class="org-keyword">return</span> a + b + c; },
@@ -7468,8 +7468,8 @@ If any one is absent, the whole computation short-circuits.
 </section>
 </section>
 <section>
-<section id="slide-org232ab12">
-<h4 id="org232ab12">Applicative: invoke in Tests</h4>
+<section id="slide-org6922f2f">
+<h4 id="org6922f2f">Applicative: invoke in Tests</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-constant">std</span>::<span class="org-type">optional</span>&lt;<span class="org-type">int</span>&gt; <span class="org-variable-name">ax</span>{10};
@@ -7492,8 +7492,8 @@ invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
 </section>
 </section>
 <section>
-<section id="slide-org9abecf1">
-<h4 id="org9abecf1">Applicative: Short-Circuit on Absent</h4>
+<section id="slide-org1c0293d">
+<h4 id="org1c0293d">Applicative: Short-Circuit on Absent</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-constant">std</span>::<span class="org-type">optional</span>&lt;<span class="org-type">int</span>&gt; <span class="org-variable-name">ax</span>{1};
@@ -7514,8 +7514,8 @@ This is the core contract of optional-as-applicative.
 </section>
 </section>
 <section>
-<section id="slide-org4358f0a">
-<h4 id="org4358f0a">Applicative: invoke via Terminating Partial Application</h4>
+<section id="slide-orga249f7f">
+<h4 id="orga249f7f">Applicative: invoke via Terminating Partial Application</h4>
 <ul>
 <li><code>invoke</code> is derived: <code>pure(partial(f))</code> lifts f; each <code>apply</code> peels off one contextual argument.</li>
 <li>Implementations provide only <code>pure</code> + <code>apply</code>; <code>invoke</code> can be overridden for custom semantics.</li>
@@ -7544,8 +7544,8 @@ This avoids std::bind complexity and gives one story for arbitrary arity.
 </section>
 </section>
 <section>
-<section id="slide-orgabded41">
-<h4 id="orgabded41">Applicative Law: Interchange</h4>
+<section id="slide-org415f464">
+<h4 id="org415f464">Applicative Law: Interchange</h4>
 <ul>
 <li>Interchange: <code>ap(u, pure(y)) == ap(pure(λf. f(y)), u)</code></li>
 <li>Applying a contextual function to a pure value is symmetric.</li>
@@ -7576,8 +7576,8 @@ It tells you how a pure value and a contextual function are allowed to meet.
 </section>
 </section>
 <section>
-<section id="slide-org8086085">
-<h4 id="org8086085">Applicative Law: Composition</h4>
+<section id="slide-org533e3ed">
+<h4 id="org533e3ed">Applicative Law: Composition</h4>
 <ul>
 <li>Composition: <code>ap(invoke(compose, u, v), w) == ap(u, ap(v, w))</code></li>
 <li>Composing effectful functions then applying equals sequencing the applications.</li>
@@ -7611,8 +7611,8 @@ Here the numbers make that concrete: 3, then 6, then 16.
 </section>
 </section>
 <section>
-<section id="slide-orgbd28238">
-<h2 id="orgbd28238">Traversable</h2>
+<section id="slide-org533b9dd">
+<h2 id="org533b9dd">Traversable</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -7631,8 +7631,8 @@ Section marker. This is the payoff abstraction.
 </section>
 </section>
 <section>
-<section id="slide-orgd33ded9">
-<h4 id="orgd33ded9">Traversable Model: Commute Shape and Effect</h4>
+<section id="slide-orgb66ad3b">
+<h4 id="orgb66ad3b">Traversable Model: Commute Shape and Effect</h4>
 <aside class="notes">
 <p>
 Clock:
@@ -7658,8 +7658,8 @@ Give the one-line slogan before the examples.
 </section>
 </section>
 <section>
-<section id="slide-orgfcec923">
-<h4 id="orgfcec923">Traversable in Use: Success</h4>
+<section id="slide-orgcdf5aa1">
+<h4 id="orgcdf5aa1">Traversable in Use: Success</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">values</span> = <span class="org-constant">smd</span>::<span class="org-constant">ranges</span>::from_vector(<span class="org-constant">std</span>::<span class="org-type">vector</span>&lt;<span class="org-type">int</span>&gt;{1, 2, 3});
@@ -7694,8 +7694,8 @@ Every element transforms successfully. The optional wrapping is removed and a ne
 </section>
 </section>
 <section>
-<section id="slide-orgc07ebe2">
-<h4 id="orgc07ebe2">Traversable in Use: Failure Propagates</h4>
+<section id="slide-orgf56ba6b">
+<h4 id="orgf56ba6b">Traversable in Use: Failure Propagates</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">values</span> = <span class="org-constant">smd</span>::<span class="org-constant">ranges</span>::from_vector(<span class="org-constant">std</span>::<span class="org-type">vector</span>&lt;<span class="org-type">int</span>&gt;{1, -2, 3});
@@ -7721,8 +7721,8 @@ This is the short-circuit behavior that distinguishes traverse from map.
 </section>
 </section>
 <section>
-<section id="slide-org1d8a5dc">
-<h4 id="org1d8a5dc">Traversable API: sequence</h4>
+<section id="slide-org8e07eb7">
+<h4 id="org8e07eb7">Traversable API: sequence</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">template</span> &lt;<span class="org-keyword">class</span> <span class="org-type">T</span>&gt;
@@ -7747,8 +7747,8 @@ Also derived: for_each, which is traverse with its arguments flipped (container 
 </section>
 </section>
 <section>
-<section id="slide-orga2c3519">
-<h4 id="orga2c3519">Traversable Proof: sequence in Tests</h4>
+<section id="slide-orgc87e58a">
+<h4 id="orgc87e58a">Traversable Proof: sequence in Tests</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">using</span> <span class="org-type">IdentityOpt</span> = <span class="org-constant">smd</span>::<span class="org-constant">typeclass</span>::<span class="org-constant">test</span>::<span class="org-type">Identity</span>&lt;<span class="org-constant">std</span>::<span class="org-type">optional</span>&lt;<span class="org-type">int</span>&gt;&gt;;
@@ -7771,8 +7771,8 @@ The shape is preserved; the effect wraps the whole result.
 </section>
 </section>
 <section>
-<section id="slide-org8d548a3">
-<h4 id="org8d548a3">Traversable Law: Naturality</h4>
+<section id="slide-org159bb8d">
+<h4 id="org159bb8d">Traversable Law: Naturality</h4>
 <ul>
 <li>If you have a function that converts between applicatives and respects <code>pure</code> and <code>ap</code>, traversal commutes through it.</li>
 <li>Concretely: converting <code>optional&lt;B&gt;</code> → <code>beman::optional&lt;B&gt;</code> after traversal gives the same result as composing the conversion into <code>f</code> before traversal.</li>
@@ -7801,8 +7801,8 @@ That is what this test is checking.
 </section>
 </section>
 <section>
-<section id="slide-org17369f5">
-<h4 id="org17369f5">Traversable Commute: Range and ZipList</h4>
+<section id="slide-org3e6ab65">
+<h4 id="org3e6ab65">Traversable Commute: Range and ZipList</h4>
 <aside class="notes">
 <p>
 Clock:
@@ -7824,7 +7824,7 @@ Use the transpose picture; do not get lost in the mechanics.
 
 </ul>
 <ul class="org-ul">
-<li><a id="orgb2cf0d1"></a>Range of ZipLists → ZipList of Ranges<br />
+<li><a id="org5b99e45"></a>Range of ZipLists → ZipList of Ranges<br />
 <aside class="notes">
 <p>
 Clock:
@@ -7850,7 +7850,7 @@ CHECK(collect(sequenced.data[1]) == (<span class="org-constant">std</span>::<spa
 </pre>
 </div>
 </li>
-<li><a id="org599a469"></a>ZipList of Vectors → Vector of ZipLists (matrix transpose)<br />
+<li><a id="orgf51a6f2"></a>ZipList of Vectors → Vector of ZipLists (matrix transpose)<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-constant">smd</span>::<span class="org-type">zip_list</span>&lt;<span class="org-constant">std</span>::<span class="org-type">vector</span>&lt;<span class="org-type">int</span>&gt;&gt; <span class="org-variable-name">zip_of_vectors</span>{
@@ -7879,8 +7879,8 @@ The law intuition is: preserve shape, preserve evaluation order discipline.
 </section>
 </section>
 <section>
-<section id="slide-orge42cf4b">
-<h4 id="orge42cf4b">Laws That Keep This Honest</h4>
+<section id="slide-orgb942685">
+<h4 id="orgb942685">Laws That Keep This Honest</h4>
 <ul>
 <li>Applicative: identity, homomorphism, interchange, composition — all automated.</li>
 <li>Traversable: identity, naturality, composition — all automated.</li>
@@ -7900,8 +7900,8 @@ The clean teaching examples are optional, range, and ZipList.
 </section>
 </section>
 <section>
-<section id="slide-orgd560d8f">
-<h2 id="orgd560d8f">Monoids and Measured Trees</h2>
+<section id="slide-orga891253">
+<h2 id="orga891253">Monoids and Measured Trees</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -7920,8 +7920,8 @@ Section marker. Now the algebra becomes data-structure leverage.
 </section>
 </section>
 <section>
-<section id="slide-org9de58b6">
-<h4 id="org9de58b6">Monoid Interface</h4>
+<section id="slide-orgc32db15">
+<h4 id="orgc32db15">Monoid Interface</h4>
 <aside class="notes">
 <p>
 Clock:
@@ -7947,8 +7947,8 @@ Say the contract once: identity plus associative combine.
 </section>
 </section>
 <section>
-<section id="slide-org045d5f5">
-<h4 id="org045d5f5">Monoid: Count Specialization</h4>
+<section id="slide-org8440e2c">
+<h4 id="org8440e2c">Monoid: Count Specialization</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">template</span> &lt;&gt;
@@ -7981,8 +7981,8 @@ identity is 0; combine is addition — the simplest possible monoid.
 </section>
 </section>
 <section>
-<section id="slide-orga585443">
-<h4 id="orga585443">Monoid: Generic Helpers</h4>
+<section id="slide-org82216f6">
+<h4 id="org82216f6">Monoid: Generic Helpers</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">template</span> &lt;<span class="org-keyword">class</span> <span class="org-type">VALUE_TYPE</span>&gt;
@@ -8008,8 +8008,8 @@ These are the call shapes used by fold_map and all derived Foldable operations.
 </section>
 </section>
 <section>
-<section id="slide-orgdcf7f39">
-<h4 id="orgdcf7f39">Monoid in Tests</h4>
+<section id="slide-org631ab45">
+<h4 id="org631ab45">Monoid in Tests</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">const</span> <span class="org-constant">smd</span>::<span class="org-constant">typeclass</span>::<span class="org-type">Count</span> <span class="org-variable-name">one</span>{1};
@@ -8029,8 +8029,8 @@ monoid_combine dispatches through monoid_v&lt;Count&gt;. The test is mechanical,
 </section>
 </section>
 <section>
-<section id="slide-org4ddc2b9">
-<h4 id="org4ddc2b9">Monoid Identity Law in Tests</h4>
+<section id="slide-org5e85280">
+<h4 id="org5e85280">Monoid Identity Law in Tests</h4>
 <div class="org-src-container">
 
 <pre class="src src-cpp">{
@@ -8051,8 +8051,8 @@ If this fails the Monoid is not a monoid.
 </section>
 </section>
 <section>
-<section id="slide-orgf08dfac">
-<h4 id="orgf08dfac">Associativity as Algorithmic Leverage</h4>
+<section id="slide-org971cfe2">
+<h4 id="org971cfe2">Associativity as Algorithmic Leverage</h4>
 <ul>
 <li>Associativity lets us regroup work without changing results.</li>
 <li>Measured trees exploit this to maintain summaries incrementally.</li>
@@ -8070,8 +8070,8 @@ If the measure is a monoid, split and search become compositional (Ralf Hinze an
 </section>
 </section>
 <section>
-<section id="slide-org802ecc2">
-<h4 id="org802ecc2">Annotations as Summaries</h4>
+<section id="slide-org12fac11">
+<h4 id="org12fac11">Annotations as Summaries</h4>
 <ul>
 <li>Each node caches a measure of its subtree.</li>
 <li>Measures are domain-specific: size, minimum priority, span, or cost.</li>
@@ -8088,8 +8088,8 @@ The data structure stays the same while behavior changes with the monoid.
 </section>
 </section>
 <section>
-<section id="slide-org79e35f9">
-<h4 id="org79e35f9">Search and Split Driven by Measures</h4>
+<section id="slide-org4205e52">
+<h4 id="org4205e52">Search and Split Driven by Measures</h4>
 <ul>
 <li>Each node carries a cumulative measure; split navigates by predicate on that measure.</li>
 <li>Predicate-based core split navigates tree structure in O(log n).</li>
@@ -8110,8 +8110,8 @@ The wrapper operations build on that split-plus-concat story.
 </section>
 </section>
 <section>
-<section id="slide-orgd691a56">
-<h2 id="orgd691a56">Finger Trees as a Case Study</h2>
+<section id="slide-org8fd603e">
+<h2 id="org8fd603e">Finger Trees as a Case Study</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -8130,8 +8130,8 @@ Section marker. This is the concrete proof-of-concept data structure.
 </section>
 </section>
 <section>
-<section id="slide-orgd0e45ed">
-<h4 id="orgd0e45ed">Persistent Concatenation and Splitting</h4>
+<section id="slide-org023a99f">
+<h4 id="org023a99f">Persistent Concatenation and Splitting</h4>
 <ul>
 <li>Persistent concatenation in O(log(min(n,m))).</li>
 <li>Predicate-based split navigates tree structure in O(log n); wrapper operations use split + concat.</li>
@@ -8160,8 +8160,8 @@ Wrapper operations (random-access, priority queue, rope) use split + concat dire
 </section>
 </section>
 <section>
-<section id="slide-orgc420ff9">
-<h4 id="orgc420ff9">One Structure, Many Interpretations</h4>
+<section id="slide-orgd0fdd06">
+<h4 id="orgd0fdd06">One Structure, Many Interpretations</h4>
 <ul>
 <li>Change the monoid, change the interpretation.</li>
 <li>The same implementation can model sequence, priority queue, or rope.</li>
@@ -8177,7 +8177,7 @@ One structure, different meanings, without rewriting the whole implementation.
 
 </aside>
 <ul class="org-ul">
-<li><a id="orga5d93c4"></a>Sequence: O(log n) Random Access<br />
+<li><a id="org72ed3e2"></a>Sequence: O(log n) Random Access<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">using</span> <span class="org-type">Seq</span> = <span class="org-constant">smd</span>::<span class="org-constant">tree</span>::<span class="org-type">FingerTreeRandomAccess</span>&lt;<span class="org-type">int</span>&gt;;
@@ -8202,7 +8202,7 @@ at/insert/erase/update use structural split O(log n) + concat O(log(min(n,m))).
 
 </aside>
 </li>
-<li><a id="org3faa2a4"></a>Priority Queue: Min and Max in One Structure<br />
+<li><a id="org8490e91"></a>Priority Queue: Min and Max in One Structure<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">q</span> = <span class="org-constant">Queue</span>::from_values({5, 2, 8, 2, 7});
@@ -8222,7 +8222,7 @@ push is O(1) amortized; pop_min/pop_max use measure-guided split O(log n) + conc
 
 </aside>
 </li>
-<li><a id="org192c435"></a>Rope: Character Buffer with Efficient Editing<br />
+<li><a id="org8b923ba"></a>Rope: Character Buffer with Efficient Editing<br />
 <div class="org-src-container">
 
 <pre class="src src-cpp"><span class="org-keyword">auto</span> <span class="org-variable-name">rope</span> = <span class="org-constant">Rope</span>::from_text(<span class="org-string">"abCDxy"</span>, 2)
@@ -8247,8 +8247,8 @@ insert, erase, and replace all navigate by cumulative byte offset using split.
 </section>
 </section>
 <section>
-<section id="slide-org7b7ed8a">
-<h4 id="org7b7ed8a">Why This Belongs in Modern C++</h4>
+<section id="slide-orga49cb46">
+<h4 id="orga49cb46">Why This Belongs in Modern C++</h4>
 <ul>
 <li>Adding Traversable to an existing type requires no modification to the type itself — one specialization in a header.</li>
 <li>The Rope, priority queue, and sequence expose the same Traversable interface, with separate per-type specializations in the current codebase.</li>
@@ -8267,8 +8267,8 @@ No monkey-patching, no reopening classes, no central registry.
 </section>
 </section>
 <section>
-<section id="slide-org234d888">
-<h2 id="org234d888">Tree Core API</h2>
+<section id="slide-org18c1974">
+<h2 id="org18c1974">Tree Core API</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -8287,8 +8287,8 @@ Section marker. Move from implementation to standard-library surface area.
 </section>
 </section>
 <section>
-<section id="slide-org00d38eb">
-<h4 id="org00d38eb">What a <code>std::tree</code> Should Provide</h4>
+<section id="slide-orgadfc690">
+<h4 id="orgadfc690">What a <code>std::tree</code> Should Provide</h4>
 <ul>
 <li>Containers have a standard vocabulary: <code>empty()</code>, <code>size()</code>, <code>front()</code>, <code>push_back()</code>, <code>begin()</code>.</li>
 <li>Trees need an equivalent: construction, decomposition, persistent updates, bulk traversal.</li>
@@ -8317,8 +8317,8 @@ All operations are functional — they return new trees, leaving the original un
 </section>
 </section>
 <section>
-<section id="slide-org83d8690">
-<h4 id="org83d8690">Construction and Queries</h4>
+<section id="slide-org815f47d">
+<h4 id="org815f47d">Construction and Queries</h4>
 <table>
 
 
@@ -8385,8 +8385,8 @@ All operations are functional — they return new trees, leaving the original un
 </section>
 </section>
 <section>
-<section id="slide-org8a841ab">
-<h4 id="org8a841ab">Views and Persistent Updates</h4>
+<section id="slide-org4d4ea93">
+<h4 id="org4d4ea93">Views and Persistent Updates</h4>
 <table>
 
 
@@ -8484,8 +8484,8 @@ All updates return new trees — structural sharing makes this efficient.
 </section>
 </section>
 <section>
-<section id="slide-org867f290">
-<h4 id="org867f290">Traversable Fills the Gaps</h4>
+<section id="slide-orgaeb2136">
+<h4 id="orgaeb2136">Traversable Fills the Gaps</h4>
 <ul>
 <li>Foldable gives <code>fold_map</code>, <code>length</code>, <code>to_vector</code>, <code>any_of</code>, <code>all_of</code>, <code>fold_left</code>, <code>fold_right</code> — derived from one hook.</li>
 <li>Traversable gives <code>traverse</code>, <code>sequence</code> — shape-preserving traversal with effects.</li>
@@ -8506,8 +8506,8 @@ the typeclass layer is for generic algorithms that work across all tree shapes.
 </section>
 </section>
 <section>
-<section id="slide-org0a47de4">
-<h2 id="org0a47de4">Cross-Language Name Mapping</h2>
+<section id="slide-org025654f">
+<h2 id="org025654f">Cross-Language Name Mapping</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -8526,8 +8526,8 @@ Short comparison section. Trim here before trimming questions.
 </section>
 </section>
 <section>
-<section id="slide-orgb6c071d">
-<h4 id="orgb6c071d">Functor</h4>
+<section id="slide-org2fcb722">
+<h4 id="org2fcb722">Functor</h4>
 <table>
 
 
@@ -8590,8 +8590,8 @@ Cats and PureScript prefer <code>map</code>; C++ reserves <code>map</code> for t
 </section>
 </section>
 <section>
-<section id="slide-org6096032">
-<h4 id="org6096032">Foldable</h4>
+<section id="slide-orgae89157">
+<h4 id="orgae89157">Foldable</h4>
 <table>
 
 
@@ -8720,8 +8720,8 @@ This library defaults to <code>fold_map</code> as the primitive; the alternate-c
 </section>
 </section>
 <section>
-<section id="slide-org48c18b0">
-<h4 id="org48c18b0">Applicative</h4>
+<section id="slide-org2f18f6a">
+<h4 id="org2f18f6a">Applicative</h4>
 <table>
 
 
@@ -8842,8 +8842,8 @@ This library defaults to <code>pure + apply</code>; the alternate-core pattern s
 </section>
 </section>
 <section>
-<section id="slide-orga46e82e">
-<h4 id="orga46e82e">Traversable</h4>
+<section id="slide-org7911301">
+<h4 id="org7911301">Traversable</h4>
 <table>
 
 
@@ -8926,8 +8926,8 @@ This library defaults to <code>traverse</code>; the alternate-core pattern suppo
 </section>
 </section>
 <section>
-<section id="slide-org474c4f1">
-<h4 id="org474c4f1">Monoid</h4>
+<section id="slide-org6a204bc">
+<h4 id="org6a204bc">Monoid</h4>
 <table>
 
 
@@ -8982,8 +8982,8 @@ Haskell and PureScript separate Semigroup (<code>&lt;&gt;</code>) from Monoid (<
 </section>
 </section>
 <section>
-<section id="slide-orge6b8193">
-<h4 id="orge6b8193">Alternate Cores: Why This Matters</h4>
+<section id="slide-org5713e7c">
+<h4 id="org5713e7c">Alternate Cores: Why This Matters</h4>
 <ul>
 <li>Haskell's <code>{-# MINIMAL foldMap | foldr #-}</code> pragma lets instances choose which operation to provide.</li>
 <li>This C++ library supports the same idea via <code>using Impl::primitive;</code> in the Map class.</li>
@@ -9003,8 +9003,8 @@ The <code>using Impl::traverse;</code> declarations are how that choice is made.
 </section>
 </section>
 <section>
-<section id="slide-org9309d84">
-<h2 id="org9309d84">Designing APIs That Won't Age Poorly</h2>
+<section id="slide-org51804e4">
+<h2 id="org51804e4">Designing APIs That Won't Age Poorly</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -9023,8 +9023,8 @@ Final synthesis before Q&amp;A.
 </section>
 </section>
 <section>
-<section id="slide-org46c20fe">
-<h4 id="org46c20fe">Library Abstractions Anticipating Language Features</h4>
+<section id="slide-org3cdea18">
+<h4 id="org3cdea18">Library Abstractions Anticipating Language Features</h4>
 <ul>
 <li>Favor explicit, composable operations over magical overload sets.</li>
 <li>Keep extension points separate from core type definitions.</li>
@@ -9051,8 +9051,8 @@ It should not need to be replaced.
 </section>
 </section>
 <section>
-<section id="slide-org663c8f0">
-<h4 id="org663c8f0">Avoiding the <code>std::bind</code> vs. Lambda Overlap</h4>
+<section id="slide-org1db8261">
+<h4 id="org1db8261">Avoiding the <code>std::bind</code> vs. Lambda Overlap</h4>
 <ul>
 <li>Avoid parallel abstractions that solve the same use case differently.</li>
 <li>Choose one clear good path per concept.</li>
@@ -9070,8 +9070,8 @@ One good path beats three almost-equivalent ones.
 </section>
 </section>
 <section>
-<section id="slide-orgd61bd76">
-<h4 id="orgd61bd76">Keeping the Good Path Obvious</h4>
+<section id="slide-org3e74e38">
+<h4 id="org3e74e38">Keeping the Good Path Obvious</h4>
 <ul>
 <li>Make lawful defaults easy and alternative policies explicit.</li>
 <li>Keep naming consistent across concepts.</li>
@@ -9089,15 +9089,15 @@ They say what the interface is allowed to mean.
 </section>
 </section>
 <section>
-<section id="slide-org064419e">
-<h2 id="org064419e">One more thing</h2>
-<div class="outline-text-2" id="text-org064419e">
+<section id="slide-orgb72aeca">
+<h2 id="orgb72aeca">One more thing</h2>
+<div class="outline-text-2" id="text-orgb72aeca">
 </div>
 </section>
 </section>
 <section>
-<section id="slide-orga17f85c">
-<h4 id="orga17f85c">Monad: When the Next Step Depends on the Previous Result</h4>
+<section id="slide-org252104a">
+<h4 id="org252104a">Monad: When the Next Step Depends on the Previous Result</h4>
 <ul>
 <li>Applicative covers independent effects; Monad adds <i>dependent</i> sequencing.</li>
 <li>Minimal hook: <code>bind</code> — the result of one computation determines the next.</li>
@@ -9119,8 +9119,8 @@ The Monad instance for <code>optional</code> is exactly <code>and_then</code> fr
 </section>
 </section>
 <section>
-<section id="slide-orgc857556">
-<h2 id="orgc857556">Questions?</h2>
+<section id="slide-org541c3de">
+<h2 id="org541c3de">Questions?</h2>
 <dl>
 <dt class="fragment appear">A Question</dt><dd class="fragment appear">is where YOU want more information from ME.</dd>
 <dt class="fragment appear">A Question</dt><dd class="fragment appear">goes up at the end.</dd>
@@ -9151,8 +9151,8 @@ I want to discuss this all with everyone, and you know where to find me.
 </section>
 </section>
 <section>
-<section id="slide-org4d821f0">
-<h2 id="org4d821f0">Comments?</h2>
+<section id="slide-org5ebe254">
+<h2 id="org5ebe254">Comments?</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -9170,8 +9170,8 @@ Overflow slide for hallway-track discussion, not scheduled time.
 </section>
 </section>
 <section>
-<section id="slide-orgaa3b063">
-<h2 id="orgaa3b063">Thank You!</h2>
+<section id="slide-org16413a7">
+<h2 id="org16413a7">Thank You!</h2>
 <aside class="notes">
 <p>
 Clock:
@@ -9189,8 +9189,8 @@ End cleanly and invite follow-up offline.
 </section>
 </section>
 <section>
-<section id="slide-orgd828c9c" data-visibility="hidden">
-<h2 id="orgd828c9c">Bibliography</h2>
+<section id="slide-org16382d4" data-visibility="hidden">
+<h2 id="org16382d4">Bibliography</h2>
 <aside class="notes">
 <p>
 Hidden bibliography slide.
@@ -9227,13 +9227,20 @@ Ralf Hinze and Ross Paterson (2006). <i>Finger Trees: A Simple General-Purpose D
         bottom: 0%;
         left: 0%;
         font-size: 0.3em;
+        height: 50px;
+        width: 300px;
+    }
+    #footer-left img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
     }
 </style>
 
 <!-- 2. Create hidden header/footer <div> -->
 <div id="hidden" style="display:none;">
 <div id="header">
-<div id="footer-left">© 2025 Bloomberg Finance L.P. All rights reserved.</div>
+<div id="footer-left">© 2026 Bloomberg Finance L.P. All rights reserved.</div>
 </div>
 </div>
 
