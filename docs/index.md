@@ -1,65 +1,66 @@
-- [Overview](#org3f9d46d)
-- [Active Source Files](#orgf78b776)
-  - [smd/fixpoint/box.hpp](#org6c3f30e)
-  - [smd/fixpoint/cata.hpp](#org128e41c)
-  - [smd/fixpoint/fix.hpp](#org3a3dab5)
-  - [smd/fixpoint/overloaded.hpp](#org1364dcf)
-  - [smd/ranges/range<sub>applicative.hpp</sub>](#org5a8ac15)
-  - [smd/ranges/range<sub>foldable.hpp</sub>](#org35e4360)
-  - [smd/ranges/range<sub>functor.hpp</sub>](#org5b1fde0)
-  - [smd/ranges/range<sub>list.hpp</sub>](#org311af23)
-  - [smd/ranges/range<sub>traversable.hpp</sub>](#orgb9a084c)
-  - [smd/thunk/delay.hpp](#orgc98271f)
-  - [smd/thunk/memoize.hpp](#orgad75a1f)
-  - [smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>](#org59c4322)
-  - [smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>](#org713c69b)
-  - [smd/tree/binary<sub>tree.hpp</sub>](#orgcb06092)
-  - [smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>](#org343ced4)
-  - [smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>](#org7359ef9)
-  - [smd/tree/finger<sub>tree.hpp</sub>](#org0861395)
-  - [smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>](#org59cbbd9)
-  - [smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>](#org175b0de)
-  - [smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>](#orgf8164e2)
-  - [smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>](#org6da068c)
-  - [smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>](#org4bfde74)
-  - [smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>](#orgee24a65)
-  - [smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>](#org9e598be)
-  - [smd/tree/fixpoint<sub>tree.hpp</sub>](#org1e04f6e)
-  - [smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>](#org0833dd3)
-  - [smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>](#org83fb6cd)
-  - [smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>](#org1a71149)
-  - [smd/tree/fringe<sub>tree.hpp</sub>](#org70f5ce5)
-  - [smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>](#org458ba7c)
-  - [smd/typeclass/applicative.hpp](#org83b0451)
-  - [smd/typeclass/examples/applicative<sub>bad.cpp</sub>](#orgacce532)
-  - [smd/typeclass/examples/applicative<sub>examples.cpp</sub>](#org1dcdb18)
-  - [smd/typeclass/examples/foldable<sub>examples.cpp</sub>](#org8ec35cb)
-  - [smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>](#orgf28ffba)
-  - [smd/typeclass/examples/traversable<sub>examples.cpp</sub>](#org01f20d0)
-  - [smd/typeclass/foldable.hpp](#orge67bf6d)
-  - [smd/typeclass/functor.hpp](#org72daf56)
-  - [smd/typeclass/monoid.hpp](#org831331a)
-  - [smd/typeclass/traversable.hpp](#org362e529)
-  - [smd/typeclass/typeclass<sub>base.hpp</sub>](#org4de4927)
-  - [smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>](#org0c37e62)
-  - [smd/ziplist/zip<sub>list.hpp</sub>](#org111989b)
-- [Regeneration](#orgf90bfae)
+- [Overview](#org30b6eec)
+- [Active Source Files](#org26391ff)
+  - [smd/fixpoint/box.hpp](#orgfa9d347)
+  - [smd/fixpoint/cata.hpp](#orgafcdd6b)
+  - [smd/fixpoint/fix.hpp](#orgc3f5325)
+  - [smd/fixpoint/overloaded.hpp](#org930866f)
+  - [smd/ranges/range<sub>applicative.hpp</sub>](#org5c03b5b)
+  - [smd/ranges/range<sub>foldable.hpp</sub>](#org24b940d)
+  - [smd/ranges/range<sub>functor.hpp</sub>](#org4a32f38)
+  - [smd/ranges/range<sub>list.hpp</sub>](#orgf06187b)
+  - [smd/ranges/range<sub>traversable.hpp</sub>](#orgd1c6da3)
+  - [smd/thunk/delay.hpp](#org3b906bc)
+  - [smd/thunk/memoize.hpp](#org2ed4b55)
+  - [smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>](#orga41780f)
+  - [smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>](#org507ae1a)
+  - [smd/tree/binary<sub>tree.hpp</sub>](#org282f538)
+  - [smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>](#org1187267)
+  - [smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>](#org3d065a6)
+  - [smd/tree/finger<sub>tree.hpp</sub>](#orga1985c6)
+  - [smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>](#org12e02e6)
+  - [smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>](#org735c515)
+  - [smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>](#org2f32282)
+  - [smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>](#org34c74bb)
+  - [smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>](#org64249fc)
+  - [smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>](#orgdf75425)
+  - [smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>](#org4fdac81)
+  - [smd/tree/fixpoint<sub>tree.hpp</sub>](#orge3f65bb)
+  - [smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>](#orge36d0ba)
+  - [smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>](#org8e28346)
+  - [smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>](#org11e742b)
+  - [smd/tree/fringe<sub>tree.hpp</sub>](#org2ce1667)
+  - [smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>](#orgf2cefa6)
+  - [smd/typeclass/applicative.hpp](#orgf1b97b3)
+  - [smd/typeclass/examples/applicative<sub>bad.cpp</sub>](#org67a2120)
+  - [smd/typeclass/examples/applicative<sub>examples.cpp</sub>](#org828bdd3)
+  - [smd/typeclass/examples/foldable<sub>examples.cpp</sub>](#org72c4664)
+  - [smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>](#org6caa059)
+  - [smd/typeclass/examples/traversable<sub>examples.cpp</sub>](#org351749a)
+  - [smd/typeclass/foldable.hpp](#orgd4d05a4)
+  - [smd/typeclass/functor.hpp](#org4101196)
+  - [smd/typeclass/monad.hpp](#org7d3fe2b)
+  - [smd/typeclass/monoid.hpp](#orgc1cb996)
+  - [smd/typeclass/traversable.hpp](#orgb0e197e)
+  - [smd/typeclass/typeclass<sub>base.hpp</sub>](#org345a49c)
+  - [smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>](#org5a97263)
+  - [smd/ziplist/zip<sub>list.hpp</sub>](#org6c08deb)
+- [Regeneration](#org22fc184)
 
 
 
-<a id="org3f9d46d"></a>
+<a id="org30b6eec"></a>
 
 # Overview
 
 This index transcludes active files under `trees/src` that are explicitly listed in CMake `target_sources()` entries. It excludes `deadcode` and `smd/conceptmap`.
 
 
-<a id="orgf78b776"></a>
+<a id="org26391ff"></a>
 
 # Active Source Files
 
 
-<a id="org6c3f30e"></a>
+<a id="orgfa9d347"></a>
 
 ## smd/fixpoint/box.hpp
 
@@ -87,7 +88,7 @@ auto make_box(Args &&...args) -> Box<A> {
 ```
 
 
-<a id="org128e41c"></a>
+<a id="orgafcdd6b"></a>
 
 ## smd/fixpoint/cata.hpp
 
@@ -120,7 +121,7 @@ auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
 ```
 
 
-<a id="org3a3dab5"></a>
+<a id="orgc3f5325"></a>
 
 ## smd/fixpoint/fix.hpp
 
@@ -155,7 +156,7 @@ constexpr auto unwrap(const Fix<F> &fixed) -> const F<Fix<F>> & {
 ```
 
 
-<a id="org1364dcf"></a>
+<a id="org930866f"></a>
 
 ## smd/fixpoint/overloaded.hpp
 
@@ -181,7 +182,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 ```
 
 
-<a id="org5a8ac15"></a>
+<a id="org5c03b5b"></a>
 
 ## smd/ranges/range<sub>applicative.hpp</sub>
 
@@ -252,7 +253,7 @@ inline constexpr auto applicative_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="org35e4360"></a>
+<a id="org24b940d"></a>
 
 ## smd/ranges/range<sub>foldable.hpp</sub>
 
@@ -367,7 +368,7 @@ inline constexpr auto foldable_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="org5b1fde0"></a>
+<a id="org4a32f38"></a>
 
 ## smd/ranges/range<sub>functor.hpp</sub>
 
@@ -410,7 +411,7 @@ inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="org311af23"></a>
+<a id="orgf06187b"></a>
 
 ## smd/ranges/range<sub>list.hpp</sub>
 
@@ -511,7 +512,7 @@ auto from_vector(std::vector<VALUE> values) {
 ```
 
 
-<a id="orgb9a084c"></a>
+<a id="orgd1c6da3"></a>
 
 ## smd/ranges/range<sub>traversable.hpp</sub>
 
@@ -604,7 +605,7 @@ inline constexpr auto traversable_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="orgc98271f"></a>
+<a id="org3b906bc"></a>
 
 ## smd/thunk/delay.hpp
 
@@ -646,7 +647,7 @@ auto delay(Callable &&c, Args &&...args) {
 ```
 
 
-<a id="orgad75a1f"></a>
+<a id="org2ed4b55"></a>
 
 ## smd/thunk/memoize.hpp
 
@@ -768,7 +769,7 @@ auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
 ```
 
 
-<a id="org59c4322"></a>
+<a id="orga41780f"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>
 
@@ -865,7 +866,7 @@ inline constexpr auto applicative_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="org713c69b"></a>
+<a id="org507ae1a"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -922,7 +923,7 @@ inline constexpr auto foldable_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="orgcb06092"></a>
+<a id="org282f538"></a>
 
 ## smd/tree/binary<sub>tree.hpp</sub>
 
@@ -1007,7 +1008,7 @@ class BinaryTree {
 ```
 
 
-<a id="org343ced4"></a>
+<a id="org1187267"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -1131,7 +1132,7 @@ inline constexpr auto traversable_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="org7359ef9"></a>
+<a id="org3d065a6"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -1185,7 +1186,7 @@ inline constexpr auto
 ```
 
 
-<a id="org0861395"></a>
+<a id="orga1985c6"></a>
 
 ## smd/tree/finger<sub>tree.hpp</sub>
 
@@ -2398,7 +2399,7 @@ class FingerTree {
 ```
 
 
-<a id="org59cbbd9"></a>
+<a id="org12e02e6"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>
 
@@ -2612,7 +2613,7 @@ inline constexpr auto
 ```
 
 
-<a id="org175b0de"></a>
+<a id="org735c515"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>
 
@@ -2880,7 +2881,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgf8164e2"></a>
+<a id="org2f32282"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>
 
@@ -3068,7 +3069,7 @@ inline constexpr auto
 ```
 
 
-<a id="org6da068c"></a>
+<a id="org34c74bb"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>
 
@@ -3274,7 +3275,7 @@ inline constexpr auto traversable_typeclass<smd::tree::FingerTreeRope> =
 ```
 
 
-<a id="org4bfde74"></a>
+<a id="org64249fc"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -3358,7 +3359,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgee24a65"></a>
+<a id="orgdf75425"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>
 
@@ -3377,7 +3378,7 @@ inline constexpr auto
 ```
 
 
-<a id="org9e598be"></a>
+<a id="org4fdac81"></a>
 
 ## smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -3448,7 +3449,7 @@ inline constexpr auto foldable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =
 ```
 
 
-<a id="org1e04f6e"></a>
+<a id="orge3f65bb"></a>
 
 ## smd/tree/fixpoint<sub>tree.hpp</sub>
 
@@ -3554,7 +3555,7 @@ inline auto eval(const Expr &expr) -> double {
 ```
 
 
-<a id="org0833dd3"></a>
+<a id="orge36d0ba"></a>
 
 ## smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -3632,7 +3633,7 @@ inline constexpr auto
 ```
 
 
-<a id="org83fb6cd"></a>
+<a id="org8e28346"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>
 
@@ -3707,7 +3708,7 @@ inline constexpr auto applicative_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="org1a71149"></a>
+<a id="org11e742b"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -3764,7 +3765,7 @@ inline constexpr auto foldable_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="org70f5ce5"></a>
+<a id="org2ce1667"></a>
 
 ## smd/tree/fringe<sub>tree.hpp</sub>
 
@@ -3883,6 +3884,19 @@ class FringeTree {
         return l;
     }
 
+    template <typename F>
+    void for_each(F &&callback) const {
+        if (is_empty()) {
+            return;
+        }
+        if (is_leaf()) {
+            callback(value());
+            return;
+        }
+        left().for_each(callback);
+        right().for_each(callback);
+    }
+
     static auto concat(const FringeTree &left_tree,
                        const FringeTree &right_tree) -> FringeTree {
         if (left_tree.is_empty()) {
@@ -3900,6 +3914,26 @@ class FringeTree {
 
     static auto append(const FringeTree &tree, T value) -> FringeTree {
         return concat(tree, leaf(std::move(value)));
+    }
+
+    auto cons(T x) const -> FringeTree {
+        return concat(leaf(std::move(x)), *this);
+    }
+
+    auto snoc(T x) const -> FringeTree {
+        return concat(*this, leaf(std::move(x)));
+    }
+
+    auto append(const FringeTree &other) const -> FringeTree {
+        return concat(*this, other);
+    }
+
+    static auto from_sequence(std::vector<T> values) -> FringeTree {
+        auto result = empty();
+        for (auto &v : values) {
+            result = result.snoc(std::move(v));
+        }
+        return result;
     }
 
     auto view_l() const -> std::optional<View> {
@@ -3971,7 +4005,7 @@ class FringeTree {
 ```
 
 
-<a id="org458ba7c"></a>
+<a id="orgf2cefa6"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -4044,7 +4078,7 @@ inline constexpr auto traversable_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="org83b0451"></a>
+<a id="orgf1b97b3"></a>
 
 ## smd/typeclass/applicative.hpp
 
@@ -4396,7 +4430,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgacce532"></a>
+<a id="org67a2120"></a>
 
 ## smd/typeclass/examples/applicative<sub>bad.cpp</sub>
 
@@ -4435,7 +4469,7 @@ auto bad_applicative_example() -> std::size_t {
 ```
 
 
-<a id="org1dcdb18"></a>
+<a id="org828bdd3"></a>
 
 ## smd/typeclass/examples/applicative<sub>examples.cpp</sub>
 
@@ -4468,7 +4502,7 @@ auto applicative_invoke_example() -> beman::optional::optional<int> {
 ```
 
 
-<a id="org8ec35cb"></a>
+<a id="org72c4664"></a>
 
 ## smd/typeclass/examples/foldable<sub>examples.cpp</sub>
 
@@ -4553,7 +4587,7 @@ auto foldable_flattens_shape_example() -> bool {
 ```
 
 
-<a id="orgf28ffba"></a>
+<a id="org6caa059"></a>
 
 ## smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>
 
@@ -4604,7 +4638,7 @@ auto nttp_object_lookup_example() -> std::optional<int> {
 ```
 
 
-<a id="org01f20d0"></a>
+<a id="org351749a"></a>
 
 ## smd/typeclass/examples/traversable<sub>examples.cpp</sub>
 
@@ -4677,7 +4711,7 @@ auto traversable_preserves_shape_example() -> bool {
 ```
 
 
-<a id="orge67bf6d"></a>
+<a id="orgd4d05a4"></a>
 
 ## smd/typeclass/foldable.hpp
 
@@ -5045,7 +5079,7 @@ inline constexpr auto foldable_typeclass = std::false_type{};
 ```
 
 
-<a id="org72daf56"></a>
+<a id="org4101196"></a>
 
 ## smd/typeclass/functor.hpp
 
@@ -5178,7 +5212,191 @@ inline constexpr auto functor_typeclass<std::vector<VALUE_TYPE>> =
 ```
 
 
-<a id="org831331a"></a>
+<a id="org7d3fe2b"></a>
+
+## smd/typeclass/monad.hpp
+
+```cpp
+// src/smd/typeclass/monad.hpp                                       -*-C++-*-
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+#ifndef INCLUDED_SMD_TYPECLASS_MONAD
+#define INCLUDED_SMD_TYPECLASS_MONAD
+
+#include <smd/typeclass/applicative.hpp>
+#include <smd/typeclass/typeclass_base.hpp>
+
+#include <beman/optional/optional.hpp>
+
+#include <concepts>
+#include <functional>
+#include <optional>
+#include <type_traits>
+#include <utility>
+
+namespace smd {
+
+// Monad<Impl>
+//
+// Minimal hooks: pure + bind.
+// Derived: apply (synthesized from bind + pure), join, kleisli, bind_with.
+//
+// Monad does not inherit from Applicative. The Impl delegates pure to an
+// applicative typeclass object when one exists, or defines it directly when
+// none is available. The base class synthesizes apply from bind + pure, so
+// a Monad instance provides Applicative-equivalent operations automatically.
+template <class Impl>
+struct Monad : protected Impl {
+    static_assert(!std::is_same_v<Impl, std::false_type>,
+                  "No monad_typeclass<T> specialization found. "
+                  "Specialize smd::monad_typeclass<T> for your type T "
+                  "and provide pure(...) and bind(...) operations.");
+
+    using Impl::bind;
+    using Impl::pure;
+
+    // apply: synthesized from bind + pure.
+    // ap mf mx = mf >>= \f -> mx >>= \a -> pure (f a)
+    template <class MF, class MA>
+    auto apply(this auto &&self, MF &&mf, MA &&ma) {
+        return self.bind(
+            std::forward<MF>(mf),
+            [&self, &ma](auto &&f) {
+                return self.bind(
+                    ma,
+                    [&self, &f](auto &&a) {
+                        return self.pure(
+                            std::invoke(std::forward<decltype(f)>(f),
+                                        std::forward<decltype(a)>(a)));
+                    });
+            });
+    }
+
+    // join: flatten nested monad.
+    // join mma = mma >>= id
+    template <class MMA>
+    auto join(this auto &&self, MMA &&mma) {
+        return self.bind(
+            std::forward<MMA>(mma),
+            [](auto &&inner) { return inner; });
+    }
+
+    // kleisli: forward Kleisli composition (>=>).
+    // (f >=> g) a = f a >>= g
+    template <class F, class G>
+    auto kleisli(this auto &&self, F f, G g) {
+        return [&self, f = std::move(f), g = std::move(g)](auto &&a) {
+            return self.bind(
+                f(std::forward<decltype(a)>(a)), g);
+        };
+    }
+
+    // bind_with: explicit monad object override.
+    template <class MONAD_MAP, class MA, class F>
+    auto bind_with(this auto &&, const MONAD_MAP &monad_map,
+                   MA &&ma, F &&f) {
+        return monad_map.bind(std::forward<MA>(ma), std::forward<F>(f));
+    }
+};
+
+template <class T>
+inline constexpr auto monad_typeclass = std::false_type{};
+
+// -- std::optional monad instance --
+// Delegates pure to the existing applicative_typeclass.
+
+template <class VALUE_TYPE>
+struct OptionalMonadImpl {
+    using element_type = VALUE_TYPE;
+
+    template <class VALUE>
+    auto pure(this auto &&, VALUE &&value)
+        -> std::optional<remove_cvref_t<VALUE>> {
+        return applicative_typeclass<std::optional<VALUE_TYPE>>
+            .pure(std::forward<VALUE>(value));
+    }
+
+    template <class A, class F>
+    auto bind(this auto &&, const std::optional<A> &ma, F &&f) {
+        using Result =
+            remove_cvref_t<std::invoke_result_t<F, const A &>>;
+        if (!ma)
+            return Result{};
+        return Result{std::invoke(std::forward<F>(f), *ma)};
+    }
+};
+
+template <class VALUE_TYPE>
+struct OptionalMonadMap : Monad<OptionalMonadImpl<VALUE_TYPE>> {
+    using OptionalMonadImpl<VALUE_TYPE>::bind;
+    using OptionalMonadImpl<VALUE_TYPE>::pure;
+};
+
+template <class VALUE_TYPE>
+inline constexpr auto monad_typeclass<std::optional<VALUE_TYPE>> =
+    OptionalMonadMap<VALUE_TYPE>{};
+
+// -- beman::optional monad instance --
+
+template <class VALUE_TYPE>
+    requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
+                           std::optional<VALUE_TYPE>>)
+struct BemanOptionalMonadImpl {
+    using element_type = VALUE_TYPE;
+
+    template <class VALUE>
+    auto pure(this auto &&, VALUE &&value)
+        -> beman::optional::optional<remove_cvref_t<VALUE>> {
+        return applicative_typeclass<beman::optional::optional<VALUE_TYPE>>
+            .pure(std::forward<VALUE>(value));
+    }
+
+    template <class A, class F>
+    auto bind(this auto &&, const beman::optional::optional<A> &ma, F &&f) {
+        using Result =
+            remove_cvref_t<std::invoke_result_t<F, const A &>>;
+        if (!ma)
+            return Result{};
+        return Result{std::invoke(std::forward<F>(f), *ma)};
+    }
+};
+
+template <class VALUE_TYPE>
+    requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
+                           std::optional<VALUE_TYPE>>)
+struct BemanOptionalMonadMap
+    : Monad<BemanOptionalMonadImpl<VALUE_TYPE>> {
+    using BemanOptionalMonadImpl<VALUE_TYPE>::bind;
+    using BemanOptionalMonadImpl<VALUE_TYPE>::pure;
+};
+
+template <class VALUE_TYPE>
+    requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
+                           std::optional<VALUE_TYPE>>)
+inline constexpr auto
+    monad_typeclass<beman::optional::optional<VALUE_TYPE>> =
+        BemanOptionalMonadMap<VALUE_TYPE>{};
+
+// -- Free-function API --
+
+template <class MA, class F>
+auto mbind(MA &&ma, F &&f) {
+    const auto &map = monad_typeclass<remove_cvref_t<MA>>;
+    return map.bind(std::forward<MA>(ma), std::forward<F>(f));
+}
+
+template <class MMA>
+auto join(MMA &&mma) {
+    const auto &map = monad_typeclass<remove_cvref_t<MMA>>;
+    return map.join(std::forward<MMA>(mma));
+}
+
+} // namespace smd
+
+#endif
+```
+
+
+<a id="orgc1cb996"></a>
 
 ## smd/typeclass/monoid.hpp
 
@@ -5299,7 +5517,7 @@ auto monoid_combine(const VALUE_TYPE &lhs, const VALUE_TYPE &rhs)
 ```
 
 
-<a id="org362e529"></a>
+<a id="orgb0e197e"></a>
 
 ## smd/typeclass/traversable.hpp
 
@@ -5414,7 +5632,7 @@ auto traverse(F &&function, T &&value) {
 ```
 
 
-<a id="org4de4927"></a>
+<a id="org345a49c"></a>
 
 ## smd/typeclass/typeclass<sub>base.hpp</sub>
 
@@ -5469,7 +5687,7 @@ using applicative_value_t = typename applicative_value<remove_cvref_t<T>>::type;
 ```
 
 
-<a id="org0c37e62"></a>
+<a id="org5a97263"></a>
 
 ## smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>
 
@@ -5604,7 +5822,7 @@ inline constexpr auto applicative_typeclass<zip_list<T>> =
 ```
 
 
-<a id="org111989b"></a>
+<a id="org6c08deb"></a>
 
 ## smd/ziplist/zip<sub>list.hpp</sub>
 
@@ -5653,7 +5871,7 @@ struct zip_list {
 ```
 
 
-<a id="orgf90bfae"></a>
+<a id="org22fc184"></a>
 
 # Regeneration
 
