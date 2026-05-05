@@ -247,6 +247,8 @@ C++ standard preference. Prefer C++23 for new code. Use C++26 where project poli
 target_compile_features(acme.net.socket PUBLIC cxx_std_23)
 # Raise to cxx_std_26 when policy and toolchain permit it.
 ```
+Compiler warning policy. Maintained C++ code should be warning-free under the repository's target compiler toolchain, which is currently clang. In practice this repository enables warning sets such as `-Wall` and `-Wextra`, and warnings should be treated as defects to fix rather than background noise. The policy is attention to warnings, not blanket `-Werror`: the build does not need to promote every warning to an error for the rule to apply.
+
 No `using namespace` in headers. Never write `using namespace` in a public header. Headers are interface surfaces, not convenience zones. Leaking namespaces through headers damages locality and predictability. [Google-Headers]. citeturn10search2
 Bad:
 ```cpp
@@ -464,6 +466,7 @@ Put non-public textual internals in `detail/`.
 In CMake, use targets, file sets, local file lists, `find_package`, and install targets rather than loose files.
 Run `make lint` before CI-facing changes when pre-commit is available; otherwise use `make lint-local`.
 Let checked-in `.clang-format` files define C and C++ layout; do not hand-format against conflicting local preferences.
+Keep maintained C++ code warning-free under the target clang toolchain even though the repository does not globally enforce `-Werror`.
 For non-trivial changes: create a git worktree (default) or feature branch, commit when tests pass, merge to main with `--no-ff`.
 Explicit assumptions
 Topic	Default status
@@ -472,6 +475,7 @@ Namespace root	no specific constraint
 License identifier	no specific constraint
 Test framework	repository-established: Catch2
 Formatter and lint toolchain	repository-established: `clang-format`, `gersemi`, `markdownlint`, `codespell`, `shellcheck`, `checkmake`, `mbake validate`, and `gitleaks`
+Primary warning-clean compiler	repository-established: clang
 Module adoption	no specific constraint
 Shared vs static library default	no specific constraint
 Export namespace	no specific constraint
