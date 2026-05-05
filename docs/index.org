@@ -8,15 +8,6 @@ It excludes =deadcode= and =smd/conceptmap=.
 
 * Active Source Files
 
-** examples/cpo_example.cpp
-#+transclude: [[file:../src/examples/cpo_example.cpp]] :src cpp
-
-** examples/fixpoint_tree_example.cpp
-#+transclude: [[file:../src/examples/fixpoint_tree_example.cpp]] :src cpp
-
-** examples/map_example.cpp
-#+transclude: [[file:../src/examples/map_example.cpp]] :src cpp
-
 ** smd/fixpoint/box.hpp
 #+transclude: [[file:../src/smd/fixpoint/box.hpp]] :src cpp
 
