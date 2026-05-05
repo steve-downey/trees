@@ -257,6 +257,13 @@ Once recursion is abstracted away, the laws read like executable documentation.
 #+begin_notes
 This is the same basic impulse as concept maps.
 The difference is that this version is smaller and works with today's language.
+
+This also splits the naming bikeshed in two.
+We argue once about typeclass operation names (~fold_map~, ~traverse~, ~invoke~) —
+and it is OK that they are all terrible, because they name abstract generic operations.
+Particular types and templates can use good, domain-specific names:
+~push_back~, ~pop_min~, ~insert~, ~to_string~.
+The typeclass layer is plumbing; the user-facing API is porcelain.
 #+end_notes
 
 **** Specializing the Variable Template
