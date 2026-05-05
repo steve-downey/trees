@@ -385,7 +385,7 @@ target_link_libraries(acme.net.socket.test
     acme.net.socket
 )
 ```
-Assumption: test framework has no specific constraint. `GTest` above is illustrative.
+Repository note: this repository uses Catch2. `GTest` above is illustrative of the `find_package()` rule, not a directive to switch frameworks.
 Avoid single-use variables. Do not create a variable only to hold a file list that is used once. Write the list directly in `target_sources()`. Less indirection means less noise and fewer bad patches. [Beman-Standard]. citeturn15search0
 Good:
 ```cmake
@@ -409,9 +409,9 @@ install(TARGETS acme.net.socket
   FILE_SET HEADERS
 )
 ```
-Minimum CMake version guidance. Use CMake 3.24+ as the practical minimum for this style unless a repository already standardizes on something newer. That is the floor that comfortably supports the intended file-set and interface-verification workflow. [CMake-MinimumRequired; CMake-VerifyVariable]. citeturn11search6turn11search0
+Minimum CMake version guidance. This repository standardizes on CMake 4.0..4.2. If this house style is reused elsewhere, CMake 3.24+ is the practical floor that comfortably supports the intended file-set and interface-verification workflow, but local repository policy wins when it is stricter. [CMake-MinimumRequired; CMake-VerifyVariable]. citeturn11search6turn11search0
 ```cmake
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 4.0..4.2)
 project(acme LANGUAGES CXX)
 ```
 Interface-header verification. Turn on interface-header verification in project-owned builds and CI. If a header is public, it must behave like a real interface and compile on its own. That is the test. [CMake-VerifyHeaders; CMake-VerifyVariable]. citeturn11search4turn11search0
@@ -429,6 +429,23 @@ flowchart LR
     G --> H[exported package target]
 ```
 Operational Checklist and Assumptions
+
+Repository-established lint workflow
+
+This repository does have specific lint and formatting constraints. Use `make lint` for the pre-commit-driven path used by CI. Use `make lint-local` for the equivalent local path when pre-commit hook environment bootstrap is unavailable or undesirable.
+
+The configured toolchain is:
+
+- `clang-format` for C and C++ source files, using the repository's checked-in `.clang-format` files as the formatting authority.
+- `gersemi` for CMake formatting and lint-style normalization.
+- `markdownlint` for hand-maintained Markdown, with `MD013` disabled globally and an additional GitHub-focused relaxed rule set for the local `trees` Markdown pass.
+- `codespell` for prose and source spelling, with repository-local ignore lists and excludes for vendored, copied, or generated material.
+- `shellcheck` for shell scripts.
+- `checkmake` and `mbake validate` for Makefile validation.
+- `gitleaks` for secret scanning. In the local path, scan the working tree contents rather than repository history.
+
+Exclusion policy is also part of the rule set: vendored, generated, copied reference material, exported HTML, and selected slide-generated Markdown are intentionally excluded from lint where cleanup would create noise without improving maintained source.
+
 Compact checklist
 Use the merged `src/` layout for new components.
 Keep the header, implementation, and test together in one component directory.
@@ -445,20 +462,22 @@ Use hidden friends only for tight customization points.
 Never write `using namespace` in a public header.
 Put non-public textual internals in `detail/`.
 In CMake, use targets, file sets, local file lists, `find_package`, and install targets rather than loose files.
+Run `make lint` before CI-facing changes when pre-commit is available; otherwise use `make lint-local`.
+Let checked-in `.clang-format` files define C and C++ layout; do not hand-format against conflicting local preferences.
 For non-trivial changes: create a git worktree (default) or feature branch, commit when tests pass, merge to main with `--no-ff`.
 Explicit assumptions
 Topic	Default status
 Project name	no specific constraint
 Namespace root	no specific constraint
 License identifier	no specific constraint
-Test framework	no specific constraint
-Formatter	no specific constraint
+Test framework	repository-established: Catch2
+Formatter and lint toolchain	repository-established: `clang-format`, `gersemi`, `markdownlint`, `codespell`, `shellcheck`, `checkmake`, `mbake validate`, and `gitleaks`
 Module adoption	no specific constraint
 Shared vs static library default	no specific constraint
 Export namespace	no specific constraint
 Where a repository already establishes any of those choices, keep the local choice and apply the rest of this house style around it.
 Agentic Instructions
-The following rules are imperative for automated agents (Claude Code, CI bots, or any tool acting on behalf of a developer). They supplement the house style above and are not optional.
+The following rules are imperative for automated agents, CI bots, or any tool acting on behalf of a developer. They supplement the house style above and are not optional.
 
 Before starting non-trivial work, create a git worktree:
 ```bash
@@ -466,22 +485,17 @@ git worktree add ../<branch-name> -b <branch-name>
 ```
 Work exclusively inside that worktree. Do not modify files in the main working tree while a worktree is active. The worktree name should be a short, descriptive, kebab-case summary of the task (e.g. `fix-traversable-lookup`, `add-rope-foldable`).
 
-Commit when and only when all tests pass:
+Commit when and only when the relevant validation passes:
 ```bash
-make test   # must show 241/241 (or current total) passed, 0 failed
+make test
 git commit -m "<imperative subject>" ...
 ```
-Do not commit with failing tests. Do not commit partial work as a stepping stone unless explicitly instructed.
+Use the narrowest validating target that matches the change. For behavioral changes, run `make test` or the relevant project test target. For lint or documentation changes, run the relevant lint target such as `make lint` or `make lint-local`. Do not commit with failing validation. Do not commit partial work as a stepping stone unless explicitly instructed.
 
 Merge to main with a merge commit. Never fast-forward:
 ```bash
 git -C <repo-root> checkout main
 git -C <repo-root> merge --no-ff <branch-name>
-```
-
-Add a Co-Authored-By trailer to every commit and merge message:
-```
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```
 
 Do not push to the remote unless the user explicitly requests it.
