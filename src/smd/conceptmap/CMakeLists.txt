@@ -1,44 +1,23 @@
-include(GNUInstallDirs)
+# trees/src/smd/conceptmap/CMakeLists.txt                       -*-CMake-*-
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-target_sources(
-    concept_map
-    PUBLIC FILE_SET concept_map_headers TYPE HEADERS FILES monoid.h functor.h foldable.h
+target_sources(smd.conceptmap
+    PUBLIC FILE_SET smd_conceptmap_headers FILES
+    functor.h
 )
 
-install(
-    TARGETS concept_map
-    FILE_SET concept_map_headers
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-        COMPONENT concept_map_development
-)
+install(TARGETS smd.conceptmap FILE_SET smd_conceptmap_headers)
 
-install(
-    TARGETS concept_map
-    EXPORT concept_map_export
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    FILE_SET concept_map_headers
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-        COMPONENT concept_map_development
-)
+if(TREE_ENABLE_TESTING)
+    add_executable(smd_conceptmap_tests monoid.t.cpp)
 
-# install(
-#   EXPORT concept_map_export
-#   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/smd/
-#   NAMESPACE SMD::ConceptMap::
-#   FILE concept_map.cmake
-#   EXPORT_LINK_INTERFACE_LIBRARIES
-#   COMPONENT concept_map_development
-# )
+    target_link_libraries(smd_conceptmap_tests
+        PRIVATE
+            smd::conceptmap
+            Catch2::Catch2WithMain
+    )
 
-## Tests
-add_executable(monoid_test "")
+    target_compile_features(smd_conceptmap_tests PRIVATE cxx_std_23)
 
-target_sources(monoid_test PRIVATE monoid.t.cpp functor.t.cpp foldable.t.cpp)
-
-target_link_libraries(monoid_test concept_map)
-target_link_libraries(monoid_test GTest::gtest)
-target_link_libraries(monoid_test GTest::gtest_main)
-target_link_libraries(monoid_test beman::optional)
-
-include(GoogleTest)
-gtest_discover_tests(monoid_test)
+    catch_discover_tests(smd_conceptmap_tests)
+endif()

@@ -1,13 +1,8 @@
-include(GNUInstallDirs)
+# trees/src/smd/tree/CMakeLists.txt                             -*-CMake-*-
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_library(smd_tree INTERFACE)
-
-# Add public headers as a file set
-target_sources(
-    smd_tree
-    PUBLIC FILE_SET smd_tree_headers TYPE HEADERS
-    BASE_DIRS ../../
-  FILES
+target_sources(smd.tree
+    PUBLIC FILE_SET smd_tree_headers FILES
     binary_tree.hpp
     binary_tree_foldable.hpp
     binary_tree_applicative.hpp
@@ -29,16 +24,7 @@ target_sources(
     fixpoint_tree_traversable.hpp
 )
 
-# Link with typeclass dependency
-target_link_libraries(smd_tree INTERFACE smd_typeclass smd_fixpoint)
-
-# Installation configuration
-install(
-    TARGETS smd_tree
-    FILE_SET smd_tree_headers
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/smd/tree
-        COMPONENT smd_tree_development
-)
+install(TARGETS smd.tree FILE_SET smd_tree_headers)
 
 if(TREE_ENABLE_TESTING)
     add_executable(smd_tree_tests
@@ -63,14 +49,9 @@ if(TREE_ENABLE_TESTING)
       fringe_tree_traversable.t.cpp
     )
 
-    # target_include_directories(smd_tree_tests
-    #     PRIVATE
-    #         ${CMAKE_CURRENT_SOURCE_DIR}/../..
-    # )
-
     target_link_libraries(smd_tree_tests
         PRIVATE
-            smd_tree
+            smd::tree
             Catch2::Catch2WithMain
     )
 

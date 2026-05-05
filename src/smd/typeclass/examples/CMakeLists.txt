@@ -1,3 +1,6 @@
+# trees/src/smd/typeclass/examples/CMakeLists.txt               -*-CMake-*-
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 add_library(smd_typeclass_slide_examples OBJECT)
 
 target_sources(smd_typeclass_slide_examples
@@ -9,14 +12,10 @@ target_sources(smd_typeclass_slide_examples
         traversable_examples.cpp
 )
 
-target_include_directories(smd_typeclass_slide_examples
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../..
-)
-
 target_link_libraries(smd_typeclass_slide_examples
     PUBLIC
-        smd_typeclass
+        smd::typeclass
+        smd::tree
 )
 
 target_compile_features(smd_typeclass_slide_examples PUBLIC cxx_std_23)
@@ -24,15 +23,10 @@ target_compile_features(smd_typeclass_slide_examples PUBLIC cxx_std_23)
 if(TREE_ENABLE_TESTING)
     add_executable(smd_typeclass_slide_examples_tests examples.t.cpp)
 
-    target_include_directories(smd_typeclass_slide_examples_tests
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../..
-    )
-
     target_link_libraries(smd_typeclass_slide_examples_tests
         PRIVATE
             smd_typeclass_slide_examples
-            smd_typeclass
+            smd::typeclass
             Catch2::Catch2WithMain
     )
 
