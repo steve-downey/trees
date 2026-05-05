@@ -122,6 +122,9 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/typeclass/functor.hpp
 #+transclude: [[file:../src/smd/typeclass/functor.hpp]] :src cpp
 
+** smd/typeclass/monad.hpp
+#+transclude: [[file:../src/smd/typeclass/monad.hpp]] :src cpp
+
 ** smd/typeclass/monoid.hpp
 #+transclude: [[file:../src/smd/typeclass/monoid.hpp]] :src cpp
 
