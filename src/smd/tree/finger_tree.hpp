@@ -822,8 +822,9 @@ class FingerTree {
                 auto node_prefix =
                     tag_combine(vl, spine_split->d_left.measure());
 
-                auto nd = node_to_digit(spine_split->d_pivot);
-                auto node_split = split_digit(predicate, node_prefix, nd);
+                auto node_digit = node_to_digit(spine_split->d_pivot);
+                auto node_split =
+                    split_digit(predicate, node_prefix, node_digit);
                 if (!node_split.has_value())
                     return std::nullopt;
 

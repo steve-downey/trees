@@ -87,19 +87,21 @@ TEST_CASE("FixpointTree - CustomPrettyPrintAlgebra") {
         return stream.str();
     };
 
-    auto print_algebra = [format_constant](const ExprF<std::string> &expr) -> std::string {
-        return std::visit(overloaded{
-                              [format_constant](const ExprConst<std::string> &c) {
-                                  return format_constant(c.value);
-                              },
-                              [](const ExprAdd<std::string> &a) {
-                                  return "(" + *a.left + " + " + *a.right + ")";
-                              },
-                              [](const ExprMul<std::string> &m) {
-                                  return "(" + *m.left + " * " + *m.right + ")";
-                              },
-                          },
-                          expr);
+    auto print_algebra =
+        [format_constant](const ExprF<std::string> &expr) -> std::string {
+        return std::visit(
+            overloaded{
+                [format_constant](const ExprConst<std::string> &c) {
+                    return format_constant(c.value);
+                },
+                [](const ExprAdd<std::string> &a) {
+                    return "(" + *a.left + " + " + *a.right + ")";
+                },
+                [](const ExprMul<std::string> &m) {
+                    return "(" + *m.left + " * " + *m.right + ")";
+                },
+            },
+            expr);
     };
 
     auto e =

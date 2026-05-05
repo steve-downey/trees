@@ -1,0 +1,3 @@
+definitions:
+  - infra/cmake
+  - vendor/catch2/extras/Catch.cmake

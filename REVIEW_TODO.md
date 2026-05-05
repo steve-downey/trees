@@ -20,7 +20,7 @@ Source: deep research audit follow-up list.
   - Acceptance: core traversable semantics documented; materialization via flatten(), reconstruction via from_sequence().
   - References: aa41fb89
 - [x] Separate raw core vs wrappers
-  - Acceptance: wrapper-specific Foldable/Traversable impls extracted to dedicated files (*_foldable.hpp, *_traversable.hpp); clear separation between core and wrapper layers.
+  - Acceptance: wrapper-specific Foldable/Traversable impls extracted to dedicated files (`*_foldable.hpp`, `*_traversable.hpp`); clear separation between core and wrapper layers.
   - References: aa41fb89
 - [x] Optimize priority queue pop paths
   - Acceptance: dual-tree pop operations use synchronized splits instead of flatten-rebuild; O(n log n) → O(log n).

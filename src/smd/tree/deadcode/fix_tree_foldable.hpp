@@ -16,8 +16,7 @@ struct FixTreeFoldableImpl {
 
     // a3f7b2e1-9c4d-4f8a-b6e3-2d5c8a1f4b07
     template <class F>
-    auto fold_map(this auto&& self, F&& f, const smd::tree::FixTree<T>& t)
-    {
+    auto fold_map(this auto &&self, F &&f, const smd::tree::FixTree<T> &t) {
         if (t.is_leaf()) {
             return std::invoke(f, t.value());
         }
@@ -32,16 +31,16 @@ struct FixTreeFoldableImpl {
 };
 
 template <class T>
-struct FixTreeFoldableMap : Foldable<FixTreeFoldableImpl<T> > {
+struct FixTreeFoldableMap : Foldable<FixTreeFoldableImpl<T>> {
     using FixTreeFoldableImpl<T>::fold_map;
 };
 
 // d6e2b9f4-1a7c-4b3e-8f5d-3c9a2e7b6f08
 template <class T>
-inline constexpr auto foldable_typeclass<smd::tree::FixTree<T> > =
+inline constexpr auto foldable_typeclass<smd::tree::FixTree<T>> =
     FixTreeFoldableMap<T>{};
 // d6e2b9f4-1a7c-4b3e-8f5d-3c9a2e7b6f08 end
 
-}  // close namespace smd
+} // namespace smd
 
 #endif
