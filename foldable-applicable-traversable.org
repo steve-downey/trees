@@ -82,16 +82,38 @@
 #+REVEAL_VERSION: 6
 #+reveal_defaulttiming: 60
 
-#+REVEAL_HLEVEL: 1
+#+REVEAL_HLEVEL: 6
 #+REVEAL_EXPORT_NOTES_TO_PDF: separate-page
 #+REVEAL_DEFAULT_FRAG_STYLE: (appear)
+#+REVEAL_SLIDE_LEVEL: 6
 
 #+OPTIONS: reveal_single_file:t
 
 #+CITE_EXPORT: basic
 #+BIBLIOGRAPHY: ./docs/references.bib
 
+#+OPTIONS: toc:nil num:nil
+
+* Colophon
+
+- Slideware: [[https://revealjs.com/][reveal.js]]
+- Slide Preperation: [[https://gitlab.com/oer/org-re-reveal][org-re-reveal]]
+- Fonts: [[https://www.brailleinstitute.org/freefont/][Atkinson Hyperlegible]] Next and Mono
+- Color Themes: [[https://github.com/protesilaos/modus-themes][Modus]] Vivendi and Operandi Tinted
+
+Intended to conform to [[https://www.w3.org/WAI/WCAG2AAA-Conformance][Web Content Accessibility Guidelines Level AAA]]
+
+#+REVEAL_HTML: <a Href="https://www.w3.org/WAI/WCAG2AAA-Conformance" title="Explanation of WCAG 2 Level AAA conformance">  <img height="32" width="88"       src="https://www.w3.org/WAI/WCAG22/wcag2.2AAA-blue" alt="Level AAA conformance, W3C WAI Web Content Accessibility Guidelines 2.2"></a>
+
+#+begin_notes
+Please try to be considerate when making presentations. Accessibility helps everyone.
+
+Try to present working  code, even in slideware.
+
+#+end_notes
+
 * Algorithms for Trees
+#+ATTR_REVEAL: :frag (appear)
 - Foldable.
 - Applicative.
 - Traversable.
@@ -201,7 +223,7 @@ Foldable is the operational entry point for this in everyday code.
 
 **** Fixpoint Expression Tree: eval_algebra and cata
 
-#+transclude: [[file:src/smd/tree/fixpoint_tree.hpp::e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04]] :lines 2- :src cpp :end "e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04 end"
+#+transclude: [[file:src/smd/tree/fixpoint_tree.hpp::e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04]]  :lines 2- :src cpp :end "e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04 end"
 
 #+begin_notes
 eval_algebra consumes one fully-evaluated layer: constants return their value,
@@ -231,7 +253,7 @@ This replaces concept maps from C++0x with a simpler, working mechanism.
 
 **** Specializing the Variable Template
 
-#+transclude: [[file:src/smd/tree/fixpoint_tree_foldable.hpp::c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83]] :lines 2- :src cpp :end "c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83 end"
+#+transclude: [[file:src/smd/tree/fixpoint_tree_foldable.hpp::c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83]]  :lines 2- :src cpp :end "c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83 end"
 
 #+begin_notes
 Three lines of opt-in. No registry, no inheritance, no base class modification.
@@ -251,7 +273,7 @@ It proves that a generic helper's lookup is stable even when callers pass differ
 
 *** NTTP Pinning Example
 
-#+transclude: [[file:src/smd/typeclass/foldable.t.cpp::a7c3e1f5-8d4b-4a2c-9e7f-3b5d1c8a4e06]] :lines 2- :src cpp :end "a7c3e1f5-8d4b-4a2c-9e7f-3b5d1c8a4e06 end"
+#+transclude: [[file:src/smd/typeclass/foldable.t.cpp::a7c3e1f5-8d4b-4a2c-9e7f-3b5d1c8a4e06]]  :lines 2- :src cpp :end "a7c3e1f5-8d4b-4a2c-9e7f-3b5d1c8a4e06 end"
 
 #+begin_notes
 The FOLDABLE parameter defaults to the variable template lookup.
@@ -291,7 +313,7 @@ Functor is the base on which Applicative and Traversable are built.
 
 *** Functor: Derived replace
 
-#+transclude: [[file:src/smd/typeclass/functor.hpp::e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02]] :lines 2- :src cpp :end "e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02 end"
+#+transclude: [[file:src/smd/typeclass/functor.hpp::e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02]]  :lines 2- :src cpp :end "e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02 end"
 
 #+begin_notes
 replace is derived from fmap with a constant function — no extra instance work required.
@@ -300,7 +322,7 @@ replace is derived from fmap with a constant function — no extra instance work
 *** Functor Identity Law in Tests
 - fmap(id, x) == x for every instance and every shape.
 
-#+transclude: [[file:src/smd/typeclass/functor.t.cpp::d8b6e1f2-7a3c-4d5e-b2a8-3f4c1d9e5b65]] :lines 2- :src cpp :end "d8b6e1f2-7a3c-4d5e-b2a8-3f4c1d9e5b65 end"
+#+transclude: [[file:src/smd/typeclass/functor.t.cpp::d8b6e1f2-7a3c-4d5e-b2a8-3f4c1d9e5b65]]  :lines 2- :src cpp :end "d8b6e1f2-7a3c-4d5e-b2a8-3f4c1d9e5b65 end"
 
 #+begin_notes
 Tests that encode laws document intent more durably than comments.
@@ -326,11 +348,11 @@ Formal treatment of each typeclass follows in the next three sections.
 
 **** Foldable Flattens and Loses Shape Identity
 
-#+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::b1fd4b92-b060-4c47-8c08-97328ec02329]] :lines 2- :src cpp :end "b1fd4b92-b060-4c47-8c08-97328ec02329 end"
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::b1fd4b92-b060-4c47-8c08-97328ec02329]]  :lines 2- :src cpp :end "b1fd4b92-b060-4c47-8c08-97328ec02329 end"
 
 **** Traversable Maps While Preserving Shape
 
-#+transclude:  [[file:src/smd/typeclass/examples/traversable_examples.cpp::d804ec63-77d1-4fa0-99a6-9effce6f741b]] :lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
+#+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::d804ec63-77d1-4fa0-99a6-9effce6f741b]]  :lines 2- :src cpp :end "d804ec63-77d1-4fa0-99a6-9effce6f741b end"
 
 
 #+begin_notes
@@ -349,7 +371,7 @@ This is the key payoff of typeclass lookup: the algorithm is written once agains
 
 **** Fixpoint Tree
 
-#+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]] :lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa]]  :lines 2- :src cpp :end "9a1c4e2b-2c7e-4b1a-9f55-8b6a4d2e91aa end"
 
 #+begin_notes
 Expr (Fix<ExprF>). length dispatches through foldable_typeclass<Expr>; counts leaf constants.
@@ -357,7 +379,7 @@ Expr (Fix<ExprF>). length dispatches through foldable_typeclass<Expr>; counts le
 
 **** shared_ptr Binary Tree
 
-#+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4]] :lines 2- :src cpp :end "53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end"
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4]]  :lines 2- :src cpp :end "53b9f5b4-3b3a-4e18-9b3c-07b7e2c980f4 end"
 
 #+begin_notes
 BinaryTree<int>. Different type, different fold_map implementation — same call site.
@@ -365,7 +387,7 @@ BinaryTree<int>. Different type, different fold_map implementation — same call
 
 **** FringeTree (Simplified FingerTree)
 
-#+transclude:  [[file:src/smd/typeclass/examples/foldable_examples.cpp::7c2f11d9-ef09-45e2-80da-9229f3c8d82c]] :lines 2- :src cpp :end "7c2f11d9-ef09-45e2-80da-9229f3c8d82c end"
+#+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::7c2f11d9-ef09-45e2-80da-9229f3c8d82c]]  :lines 2- :src cpp :end "7c2f11d9-ef09-45e2-80da-9229f3c8d82c end"
 
 #+begin_notes
 FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third representation.
@@ -373,7 +395,7 @@ FringeTree: a variant-based tree (Empty | Leaf | Branch). Same API, third repres
 
 **** FringeTree: Traversable Also Preserves Shape
 
-#+transclude:  [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]] :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
+#+transclude: [[file:src/smd/typeclass/examples/traversable_examples.cpp::5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2]]  :lines 2- :src cpp :end "5c6b2d3e-7a44-4c8a-9c31-3d1e2a9b77c2 end"
 
 #+begin_notes
 The same FringeTree that folded to {1,2,3} under Foldable now maps values and comes back as a FringeTree.
@@ -398,11 +420,11 @@ Full treatment — specialization, law tests, measured trees, finger tree polici
 
 **** fold_map → length
 
-#+transclude: [[file:src/smd/typeclass/foldable.hpp::c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08]] :lines 2- :src cpp :end "c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08 end"
+#+transclude: [[file:src/smd/typeclass/foldable.hpp::c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08]]  :lines 2- :src cpp :end "c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08 end"
 
 **** fold_map → to_vector
 
-#+transclude: [[file:src/smd/typeclass/foldable.hpp::a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09]] :lines 2- :src cpp :end "a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09 end"
+#+transclude: [[file:src/smd/typeclass/foldable.hpp::a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09]]  :lines 2- :src cpp :end "a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09 end"
 
 #+begin_notes
 Every derived operation is implemented by specializing what fold_map collects.
@@ -412,7 +434,7 @@ fold_left and fold_right use a function-composition monoid internally.
 *** Foldable Proof: Tests as Examples
 - Derived operations are verified directly against concrete inputs.
 
-#+transclude: [[file:src/smd/typeclass/foldable.t.cpp::a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46]] :lines 2- :src cpp :end "a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46 end"
+#+transclude: [[file:src/smd/typeclass/foldable.t.cpp::a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46]]  :lines 2- :src cpp :end "a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46 end"
 
 #+begin_notes
 The test encodes a semantic claim: to_vector of {1,2,3} is exactly {1,2,3}.
@@ -433,7 +455,7 @@ apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] fo
 
 *** Applicative in Use
 
-#+transclude:  [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]] :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
+#+transclude: [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]]  :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
 
 #+begin_notes
 Three independent optional arguments. If any is absent the whole computation short-circuits.
@@ -441,7 +463,7 @@ Three independent optional arguments. If any is absent the whole computation sho
 
 *** Applicative: invoke in Tests
 
-#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::f6c2b5e1-9a3d-4f8c-b2e6-1d9c5b3f7a02]] :lines 2- :src cpp :end "f6c2b5e1-9a3d-4f8c-b2e6-1d9c5b3f7a02 end"
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::f6c2b5e1-9a3d-4f8c-b2e6-1d9c5b3f7a02]]  :lines 2- :src cpp :end "f6c2b5e1-9a3d-4f8c-b2e6-1d9c5b3f7a02 end"
 
 #+begin_notes
 invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
@@ -449,7 +471,7 @@ invoke works the same at arity 2, 3, or more — no per-call-site plumbing.
 
 *** Applicative: Short-Circuit on Absent
 
-#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::b4a8c2f7-6d3e-4c1b-9f5a-7e2d4b8a6c09]] :lines 2- :src cpp :end "b4a8c2f7-6d3e-4c1b-9f5a-7e2d4b8a6c09 end"
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::b4a8c2f7-6d3e-4c1b-9f5a-7e2d4b8a6c09]]  :lines 2- :src cpp :end "b4a8c2f7-6d3e-4c1b-9f5a-7e2d4b8a6c09 end"
 
 #+begin_notes
 ax is present; ay is absent. invoke short-circuits: f is never called.
@@ -460,7 +482,7 @@ This is the core contract of optional-as-applicative.
 - ~invoke~ is derived: ~pure(partial(f))~ lifts f; each ~apply~ peels off one contextual argument.
 - Implementations provide only ~pure~ + ~apply~; ~invoke~ can be overridden for custom semantics.
 
-#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48]] :lines 2- :src cpp :end "c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48 end"
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48]]  :lines 2- :src cpp :end "c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48 end"
 
 #+begin_notes
 make_terminating_partial wraps f; each call either invokes f if all args are present or returns a new partial.
@@ -473,7 +495,7 @@ Also derived from pure + apply: map, lift, ap, zip_with, discard_first, discard_
 - Interchange: ~ap(u, pure(y)) == ap(pure(λf. f(y)), u)~
 - Applying a contextual function to a pure value is symmetric.
 
-#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15]] :lines 2- :src cpp :end "b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15 end"
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15]]  :lines 2- :src cpp :end "b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15 end"
 
 #+begin_notes
 The interchange law is the trickiest to build intuition for.
@@ -485,7 +507,7 @@ It constrains how pure values interact with contextual functions.
 - Composition: ~ap(invoke(compose, u, v), w) == ap(u, ap(v, w))~
 - Composing effectful functions then applying equals sequencing the applications.
 
-#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02]] :lines 2- :src cpp :end "e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02 end"
+#+transclude: [[file:src/smd/typeclass/applicative.t.cpp::e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02]]  :lines 2- :src cpp :end "e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02 end"
 
 #+begin_notes
 The composition law ensures that effectful function composition is associative.
@@ -503,7 +525,7 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 
 *** Traversable in Use: Success
 
-#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02]] :lines 2- :src cpp :end "c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02 end"
+#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02]]  :lines 2- :src cpp :end "c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02 end"
 
 #+begin_notes
 Every element transforms successfully. The optional wrapping is removed and a new range is returned.
@@ -511,7 +533,7 @@ Every element transforms successfully. The optional wrapping is removed and a ne
 
 *** Traversable in Use: Failure Propagates
 
-#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::e9b1d4f2-7c3a-4e8b-f6c2-5d1a9e3b7f04]] :lines 2- :src cpp :end "e9b1d4f2-7c3a-4e8b-f6c2-5d1a9e3b7f04 end"
+#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::e9b1d4f2-7c3a-4e8b-f6c2-5d1a9e3b7f04]]  :lines 2- :src cpp :end "e9b1d4f2-7c3a-4e8b-f6c2-5d1a9e3b7f04 end"
 
 #+begin_notes
 One absent result poisons the whole traversal. No partial range is returned.
@@ -520,7 +542,7 @@ This is the short-circuit behavior that distinguishes traverse from map.
 
 *** Traversable API: sequence
 
-#+transclude: [[file:src/smd/typeclass/traversable.hpp::c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79]] :lines 2- :src cpp :end "c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79 end"
+#+transclude: [[file:src/smd/typeclass/traversable.hpp::c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79]]  :lines 2- :src cpp :end "c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79 end"
 
 #+begin_notes
 sequence commutes a container of effects into an effect of a container.
@@ -530,7 +552,7 @@ Also derived: for_each, which is traverse with its arguments flipped (container 
 
 *** Traversable Proof: sequence in Tests
 
-#+transclude: [[file:src/smd/typeclass/traversable.t.cpp::e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28]] :lines 2- :src cpp :end "e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28 end"
+#+transclude: [[file:src/smd/typeclass/traversable.t.cpp::e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28]]  :lines 2- :src cpp :end "e7b4a1f9-3c8d-4e2a-b5f7-1d9c3e5a7b28 end"
 
 #+begin_notes
 sequence converts Identity<optional<int>> into optional<Identity<int>>.
@@ -542,7 +564,7 @@ The shape is preserved; the effect wraps the whole result.
 - If you have a function that converts between applicatives and respects ~pure~ and ~ap~, traversal commutes through it.
 - Concretely: converting ~optional<B>~ → ~beman::optional<B>~ after traversal gives the same result as composing the conversion into ~f~ before traversal.
 
-#+transclude: [[file:src/smd/typeclass/traversable.t.cpp::a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43]] :lines 2- :src cpp :end "a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43 end"
+#+transclude: [[file:src/smd/typeclass/traversable.t.cpp::a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43]]  :lines 2- :src cpp :end "a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43 end"
 
 #+begin_notes
 Formal law: for an applicative morphism φ (commutes with pure and ap), φ(traverse f t) == traverse (φ∘f) t.
@@ -557,11 +579,11 @@ Both sides produce beman::optional<Identity<int>>{Identity{6}}.
 
 **** Range of ZipLists → ZipList of Ranges
 
-#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48]] :lines 2- :src cpp :end "d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48 end"
+#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48]]  :lines 2- :src cpp :end "d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48 end"
 
 **** ZipList of Vectors → Vector of ZipLists (matrix transpose)
 
-#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::4be89584-35cc-4933-b3de-6d524d54371d]] :lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
+#+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::4be89584-35cc-4933-b3de-6d524d54371d]]  :lines 2- :src cpp :end "4be89584-35cc-4933-b3de-6d524d54371d end"
 
 
 #+begin_notes
@@ -593,7 +615,7 @@ The core teaching value of Applicative is visible in optional, range, and ZipLis
 
 *** Monoid: Count Specialization
 
-#+transclude: [[file:src/smd/typeclass/monoid.hpp::c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06]] :lines 2- :src cpp :end "c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06 end"
+#+transclude: [[file:src/smd/typeclass/monoid.hpp::c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06]]  :lines 2- :src cpp :end "c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06 end"
 
 #+begin_notes
 Count is the canonical monoid for counting elements.
@@ -602,7 +624,7 @@ identity is 0; combine is addition — the simplest possible monoid.
 
 *** Monoid: Generic Helpers
 
-#+transclude: [[file:src/smd/typeclass/monoid.hpp::b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02]] :lines 2- :src cpp :end "b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02 end"
+#+transclude: [[file:src/smd/typeclass/monoid.hpp::b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02]]  :lines 2- :src cpp :end "b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02 end"
 
 #+begin_notes
 monoid_v<T> is the canonical lookup object; monoid_combine and monoid_identity are free-function helpers.
@@ -611,7 +633,7 @@ These are the call shapes used by fold_map and all derived Foldable operations.
 
 *** Monoid in Tests
 
-#+transclude: [[file:src/smd/typeclass/monoid.t.cpp::a1d6e3f7-3c2b-4a8e-b4f1-7c5d3a9e6b84]] :lines 2- :src cpp :end "a1d6e3f7-3c2b-4a8e-b4f1-7c5d3a9e6b84 end"
+#+transclude: [[file:src/smd/typeclass/monoid.t.cpp::a1d6e3f7-3c2b-4a8e-b4f1-7c5d3a9e6b84]]  :lines 2- :src cpp :end "a1d6e3f7-3c2b-4a8e-b4f1-7c5d3a9e6b84 end"
 
 #+begin_notes
 monoid_combine dispatches through monoid_v<Count>. The test is mechanical, but it pins the specialization.
@@ -619,7 +641,7 @@ monoid_combine dispatches through monoid_v<Count>. The test is mechanical, but i
 
 *** Monoid Identity Law in Tests
 
-#+transclude: [[file:src/smd/typeclass/monoid.t.cpp::f3b4e6a2-1c7d-4e5b-8a3f-2d9c5b8e3f36]] :lines 2- :src cpp :end "f3b4e6a2-1c7d-4e5b-8a3f-2d9c5b8e3f36 end"
+#+transclude: [[file:src/smd/typeclass/monoid.t.cpp::f3b4e6a2-1c7d-4e5b-8a3f-2d9c5b8e3f36]]  :lines 2- :src cpp :end "f3b4e6a2-1c7d-4e5b-8a3f-2d9c5b8e3f36 end"
 
 #+begin_notes
 The identity law is what makes identity() useful for initializing fold accumulators.
@@ -683,7 +705,7 @@ This is the strongest argument for measured trees in a standard library context.
 
 **** Sequence: O(log n) Random Access
 
-#+transclude: [[file:src/smd/tree/finger_tree_random_access.t.cpp::f2a6c9b3-8d1e-4f7a-c5b9-4e2d7a3c6f01]] :lines 2- :src cpp :end "f2a6c9b3-8d1e-4f7a-c5b9-4e2d7a3c6f01 end"
+#+transclude: [[file:src/smd/tree/finger_tree_random_access.t.cpp::f2a6c9b3-8d1e-4f7a-c5b9-4e2d7a3c6f01]]  :lines 2- :src cpp :end "f2a6c9b3-8d1e-4f7a-c5b9-4e2d7a3c6f01 end"
 
 #+begin_notes
 Monoid: size. The measure at each node is the count of elements below it.
@@ -693,7 +715,7 @@ at/insert/erase/update use structural split O(log n) + concat O(log(min(n,m))).
 
 **** Priority Queue: Min and Max in One Structure
 
-#+transclude: [[file:src/smd/tree/finger_tree_priority_queue.t.cpp::a4d7f1c6-3b9e-4a2d-f8c4-6e5b1d9c3a07]] :lines 2- :src cpp :end "a4d7f1c6-3b9e-4a2d-f8c4-6e5b1d9c3a07 end"
+#+transclude: [[file:src/smd/tree/finger_tree_priority_queue.t.cpp::a4d7f1c6-3b9e-4a2d-f8c4-6e5b1d9c3a07]]  :lines 2- :src cpp :end "a4d7f1c6-3b9e-4a2d-f8c4-6e5b1d9c3a07 end"
 
 #+begin_notes
 One FingerTree with a combined PriorityTag measure tracking both min and max simultaneously.
@@ -703,7 +725,7 @@ push is O(1) amortized; pop_min/pop_max use measure-guided split O(log n) + conc
 
 **** Rope: Character Buffer with Efficient Editing
 
-#+transclude: [[file:src/smd/tree/finger_tree_rope.t.cpp::c8e3b5f9-2a7d-4c1e-b9f3-5a4d2b8c7e06]] :lines 2- :src cpp :end "c8e3b5f9-2a7d-4c1e-b9f3-5a4d2b8c7e06 end"
+#+transclude: [[file:src/smd/tree/finger_tree_rope.t.cpp::c8e3b5f9-2a7d-4c1e-b9f3-5a4d2b8c7e06]]  :lines 2- :src cpp :end "c8e3b5f9-2a7d-4c1e-b9f3-5a4d2b8c7e06 end"
 
 #+begin_notes
 Monoid: byte-length. The measure at each node is the byte count of its chunk subtree.
@@ -845,7 +867,7 @@ Pattern matching and richer generic facilities should refine this API, not repla
 *** Avoiding the ~std::bind~ vs. Lambda Overlap
 - Avoid parallel abstractions that solve the same use case differently.
 - Choose one clear good path per concept.
-- For Applicative, that path is ~invoke~; ~apply_pure~ remains a teaching aid.
+- For Applicative, that path is ~invoke~.
 
 #+begin_notes
 The goal is reducing cognitive branching in generic code.
@@ -860,6 +882,30 @@ The goal is reducing cognitive branching in generic code.
 The best API docs in this space are tests that encode the laws.
 #+end_notes
 
+* Questions?
+#+ATTR_REVEAL: :frag (appear)
+- A Question :: is where YOU want more information from ME.
+- A Question ::  goes up at the end.
+
+
+#+begin_quote
+"More of a comment than a question ..." hold them for a moment.
+I want to discuss this all with everyone, and you know where to find me.
+#+end_quote
+Questions?
+
+* Comments?
+
+* Thank You!
+
+* Bibliography
+   :PROPERTIES:
+   :reveal_extra_attr: data-visibility="hidden"
+   :END:
+
+#+CITE_EXPORT: csl chicago-author-date.csl
+#+print_bibliography:
+
 # Local Variables:
-# org-html-htmlize-output-type: inline-css
+# org-html-htmlize-output-type: css
 # End:

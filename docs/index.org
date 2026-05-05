@@ -11,11 +11,23 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** examples/cpo_example.cpp
 #+transclude: [[file:../src/examples/cpo_example.cpp]] :src cpp
 
-** examples/main.cpp
-#+transclude: [[file:../src/examples/main.cpp]] :src cpp
+** examples/fixpoint_tree_example.cpp
+#+transclude: [[file:../src/examples/fixpoint_tree_example.cpp]] :src cpp
 
 ** examples/map_example.cpp
 #+transclude: [[file:../src/examples/map_example.cpp]] :src cpp
+
+** smd/fixpoint/box.hpp
+#+transclude: [[file:../src/smd/fixpoint/box.hpp]] :src cpp
+
+** smd/fixpoint/cata.hpp
+#+transclude: [[file:../src/smd/fixpoint/cata.hpp]] :src cpp
+
+** smd/fixpoint/fix.hpp
+#+transclude: [[file:../src/smd/fixpoint/fix.hpp]] :src cpp
+
+** smd/fixpoint/overloaded.hpp
+#+transclude: [[file:../src/smd/fixpoint/overloaded.hpp]] :src cpp
 
 ** smd/ranges/range_applicative.hpp
 #+transclude: [[file:../src/smd/ranges/range_applicative.hpp]] :src cpp
@@ -74,17 +86,14 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/tree/finger_tree_wrappers.hpp
 #+transclude: [[file:../src/smd/tree/finger_tree_wrappers.hpp]] :src cpp
 
-** smd/tree/fix_tree_applicative.hpp
-#+transclude: [[file:../src/smd/tree/fix_tree_applicative.hpp]] :src cpp
+** smd/tree/fixpoint_tree_foldable.hpp
+#+transclude: [[file:../src/smd/tree/fixpoint_tree_foldable.hpp]] :src cpp
 
-** smd/tree/fix_tree_foldable.hpp
-#+transclude: [[file:../src/smd/tree/fix_tree_foldable.hpp]] :src cpp
+** smd/tree/fixpoint_tree.hpp
+#+transclude: [[file:../src/smd/tree/fixpoint_tree.hpp]] :src cpp
 
-** smd/tree/fix_tree.hpp
-#+transclude: [[file:../src/smd/tree/fix_tree.hpp]] :src cpp
-
-** smd/tree/fix_tree_traversable.hpp
-#+transclude: [[file:../src/smd/tree/fix_tree_traversable.hpp]] :src cpp
+** smd/tree/fixpoint_tree_traversable.hpp
+#+transclude: [[file:../src/smd/tree/fixpoint_tree_traversable.hpp]] :src cpp
 
 ** smd/tree/fringe_tree_applicative.hpp
 #+transclude: [[file:../src/smd/tree/fringe_tree_applicative.hpp]] :src cpp
@@ -97,9 +106,6 @@ It excludes =deadcode= and =smd/conceptmap=.
 
 ** smd/tree/fringe_tree_traversable.hpp
 #+transclude: [[file:../src/smd/tree/fringe_tree_traversable.hpp]] :src cpp
-
-** smd/tree/memoized_thunk.hpp
-#+transclude: [[file:../src/smd/tree/memoized_thunk.hpp]] :src cpp
 
 ** smd/typeclass/applicative.hpp
 #+transclude: [[file:../src/smd/typeclass/applicative.hpp]] :src cpp
