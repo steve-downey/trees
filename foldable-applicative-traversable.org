@@ -129,6 +129,14 @@ Try to present working code, even in slideware.
 #+end_notes
 
 * Algorithms for Trees
+#+begin_notes
+Clock:
+- about ~00:04~
+- keep: 15s
+
+Agenda slide. Name the three ideas once, then move.
+#+end_notes
+
 #+ATTR_REVEAL: :frag (appear)
 - Foldable.
 - Applicative.
@@ -136,32 +144,75 @@ Try to present working code, even in slideware.
 
 ** Abstract
 
+#+begin_notes
+Clock:
+- about ~00:05~
+
+One-slide thesis: trees carry shape, and these abstractions let me keep it.
+#+end_notes
+
 - Functor and Monad patterns have proven themselves in practice; Foldable, Applicative, and Traversable are the next step.
 - Trees and structured data can lose important information when flattened to a sequence.
 - Monoid underpins efficient tree algorithms; the three typeclasses compose on top of it.
 - This talk sketches one route to a standard-library ~fingertree~ API.
 
 ** Foldable
+#+begin_notes
+Clock:
+- about ~00:05~
+
+Summary only. Collapse to a result without flattening first.
+#+end_notes
+
 - Opt-in hook: ~fold_map~ — provides the algorithmic power of ~std::ranges~.
 - Decouples algorithm from representation.
 - No flattening required.
 
 ** Applicative
+#+begin_notes
+Clock:
+- about ~00:06~
+
+Independent effects, not sequencing.
+#+end_notes
+
 - Apply a pure function to independent effectful arguments.
 - Two hooks: ~pure~ (lift) and ~apply~ (contextual application). ~invoke~ is the C++ user API.
 - Less machinery than Monad when the effects are independent.
 
 ** Traversable
+#+begin_notes
+Clock:
+- about ~00:06~
+
+This is the headliner: a tree stays a tree.
+#+end_notes
+
 - Generalizes Foldable: maps with effects while rebuilding the container shape.
 - A tree stays a tree; a fold discards the original branching shape.
 - Commutes containers: a range of effects becomes an effect of a range.
 
 ** Not Monadic
+#+begin_notes
+Clock:
+- about ~00:06~
+
+Scope control. Monad is important, but not needed for this story.
+#+end_notes
+
 - This talk stops short of Monad deliberately.
 - Monad adds sequencing and dependency between effects; most tree operations do not need this overhead.
 - Applicative covers the independent-effect cases where the whole structure is known upfront.
 
 * Ranges Flatten the World
+#+begin_notes
+Clock:
+- about ~00:07~
+- keep: 10s
+
+Section marker. Move straight into the first concrete claim.
+#+end_notes
+
 *** Linearization as a Design Assumption
 - Ranges are a great default when the structure is inherently sequential.
 - Many generic algorithms quietly assume that flattening first is semantically neutral.
@@ -198,6 +249,14 @@ A range view is still useful, but it should be derived, not the primary model.
 #+end_notes
 
 * Visitors, Pattern Matching, and the Missing Syntax
+#+begin_notes
+Clock:
+- about ~00:13~
+- keep: 10s
+
+Bridge from the problem to the interface story.
+#+end_notes
+
 *** Visitor as Manual Recursion Control
 - Visitor centralizes recursion, but at the cost of ceremony and indirection.
 - Each new operation typically requires another visitor type or nested lambda structure.
@@ -232,6 +291,14 @@ This is about migration-friendly design, not speculative syntax tricks.
 #+end_notes
 
 * Recursion Schemes You Can Actually Use
+#+begin_notes
+Clock:
+- about ~00:18~
+- keep: 10s
+
+Bridge slide. Recursion control moves into reusable library structure.
+#+end_notes
+
 *** F-Algebras: How to Collapse One Layer
 - Think of an algebra as consuming one layer and summarizing it.
 - The recursion pattern stays fixed while business logic changes.
@@ -278,6 +345,14 @@ Once recursion is abstracted away, the laws read like executable documentation.
 #+end_notes
 
 * The Typeclass Object Pattern
+#+begin_notes
+Clock:
+- about ~00:25~
+- keep: 10s
+
+Section marker. This is the implementation spine of the talk.
+#+end_notes
+
 *** Typeclass Lookup: One Object Per Concept
 - Each concept has a variable template: ~foldable_typeclass<T>~, ~applicative_typeclass<T>~, ~traversable_typeclass<T>~.
 - The looked-up object provides all operations for that concept on ~T~.
@@ -347,6 +422,14 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 #+end_notes
 
 * Functor: The Foundation
+#+begin_notes
+Clock:
+- about ~00:34~
+- keep: 10s
+
+Short bridge. Functor is the base layer, not the destination.
+#+end_notes
+
 *** Functor Interface
 - Minimal hook: ~fmap(F, container)~ — apply a pure function inside a context.
 - Derived: ~replace(container, value)~ — overwrite all elements with a constant.
@@ -379,6 +462,14 @@ Tests that encode laws document intent more durably than comments.
 #+end_notes
 
 * Preserving Shape: Traversable and Friends
+#+begin_notes
+Clock:
+- about ~00:37~
+- keep: 10s
+
+Section marker. This is where fold versus traverse becomes concrete.
+#+end_notes
+
 *** Foldable vs. Traversable: Sequence vs. Shape
 - Foldable consumes structure into a summary.
 - Traversable maps with effects while rebuilding the same outer shape.
@@ -396,10 +487,24 @@ Then I can come back and make that formal.
 #+end_notes
 
 *** Crisp Contrast: Flatten vs. Preserve Shape
+#+begin_notes
+Clock:
+- about ~00:40~
+
+Set up the before/after contrast, then let the code do the work.
+#+end_notes
+
 - Two differently shaped trees can flatten to the same sequence under Foldable.
 - Traversable can map values and keep the original branching shape.
 
 **** Foldable Flattens and Loses Shape Identity
+
+#+begin_notes
+Clock:
+- about ~00:41~
+
+Stress same flat result, different original shape.
+#+end_notes
 
 #+transclude: [[file:src/smd/typeclass/examples/foldable_examples.cpp::b1fd4b92-b060-4c47-8c08-97328ec02329]]  :lines 2- :src cpp :end "b1fd4b92-b060-4c47-8c08-97328ec02329 end"
 
@@ -457,6 +562,14 @@ The variant structure (Empty | Leaf | Branch) is intact; only the leaf values ch
 #+end_notes
 
 * Foldable
+#+begin_notes
+Clock:
+- about ~00:45~
+- keep: 10s
+
+Section marker. Now formalize the collapse story.
+#+end_notes
+
 *** Monoid: The Glue fold_map Needs
 - ~fold_map~ maps each element to some type, then folds the results into one.
 - That result type must support two operations: a neutral starting value and an associative merge.
@@ -473,11 +586,25 @@ I will come back to the full story later.
 #+end_notes
 
 *** Foldable API: One Hook, Derived from fold_map
+#+begin_notes
+Clock:
+- about ~00:47~
+
+One primitive, many derived operations.
+#+end_notes
+
 - Minimal hook: ~fold_map(F, container)~ — apply F to each element, combine results.
 - Derived: counting, folding left/right, collecting, predicates — all from one hook.
 - No traversal order is mandated; the instance chooses and must be consistent.
 
 **** fold_map → length
+
+#+begin_notes
+Clock:
+- about ~00:48~
+
+Smallest derived example. Count by mapping each element to one.
+#+end_notes
 
 #+transclude: [[file:src/smd/typeclass/foldable.hpp::c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08]]  :lines 2- :src cpp :end "c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08 end"
 
@@ -502,6 +629,14 @@ If that order changes, this test fails.
 #+end_notes
 
 * Applicative
+#+begin_notes
+Clock:
+- about ~00:50~
+- keep: 10s
+
+Section marker. Shift from summaries to effectful application.
+#+end_notes
+
 *** Applicative Model: Pure Function over Effectful Arguments
 - Applicative captures applying a pure function to independent effectful arguments.
 - Minimal hooks: ~pure~ (lift a value) and ~apply~ (apply a contextual function).
@@ -583,7 +718,22 @@ Here the numbers make that concrete: 3, then 6, then 16.
 #+end_notes
 
 * Traversable
+#+begin_notes
+Clock:
+- about ~00:58~
+- keep: 10s
+
+Section marker. This is the payoff abstraction.
+#+end_notes
+
 *** Traversable Model: Commute Shape and Effect
+#+begin_notes
+Clock:
+- about ~00:58~
+
+Give the one-line slogan before the examples.
+#+end_notes
+
 - Traversal commutes shape and effect: from a structure of effects to an effect of a structure.
 - This gives a generic path from many small checks to one checked result.
 - Traversable strictly generalizes Foldable: it can rebuild the container, not just collapse it [cite:@gibbons2006iterator].
@@ -645,10 +795,24 @@ That is what this test is checking.
 #+end_notes
 
 *** Traversable Commute: Range and ZipList
+#+begin_notes
+Clock:
+- about ~01:04~
+
+Use the transpose picture; do not get lost in the mechanics.
+#+end_notes
+
 - Traversable commutes a range of ZipLists into a ZipList of ranges.
 - The inverse matrix view (ZipList of vectors to vector of ZipLists) is also tested.
 
 **** Range of ZipLists → ZipList of Ranges
+
+#+begin_notes
+Clock:
+- about ~01:04~
+
+Range outside, ZipList inside; after commute, ZipList outside.
+#+end_notes
 
 #+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48]]  :lines 2- :src cpp :end "d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48 end"
 
@@ -676,7 +840,22 @@ The clean teaching examples are optional, range, and ZipList.
 #+end_notes
 
 * Monoids and Measured Trees
+#+begin_notes
+Clock:
+- about ~01:06~
+- keep: 10s
+
+Section marker. Now the algebra becomes data-structure leverage.
+#+end_notes
+
 *** Monoid Interface
+#+begin_notes
+Clock:
+- about ~01:06~
+
+Say the contract once: identity plus associative combine.
+#+end_notes
+
 - The full contract: ~identity()~ (neutral element) and ~combine(lhs, rhs)~ (associative merge).
 - Associativity: ~combine(combine(a,b),c) == combine(a,combine(b,c))~ — regrouping changes nothing.
 - Left and right identity: ~combine(identity(), x) == x == combine(x, identity())~.
@@ -754,6 +933,14 @@ The wrapper operations build on that split-plus-concat story.
 #+end_notes
 
 * Finger Trees as a Case Study
+#+begin_notes
+Clock:
+- about ~01:11~
+- keep: 10s
+
+Section marker. This is the concrete proof-of-concept data structure.
+#+end_notes
+
 *** Persistent Concatenation and Splitting
 - Persistent concatenation in O(log(min(n,m))).
 - Predicate-based split navigates tree structure in O(log n); wrapper operations use split + concat.
@@ -821,6 +1008,14 @@ No monkey-patching, no reopening classes, no central registry.
 #+end_notes
 
 * Tree Core API
+#+begin_notes
+Clock:
+- about ~01:15~
+- keep: 10s
+
+Section marker. Move from implementation to standard-library surface area.
+#+end_notes
+
 
 *** What a ~std::tree~ Should Provide
 - Containers have a standard vocabulary: ~empty()~, ~size()~, ~front()~, ~push_back()~, ~begin()~.
@@ -890,6 +1085,14 @@ the typeclass layer is for generic algorithms that work across all tree shapes.
 #+end_notes
 
 * Cross-Language Name Mapping
+#+begin_notes
+Clock:
+- about ~01:19~
+- keep: 10s
+
+Short comparison section. Trim here before trimming questions.
+#+end_notes
+
 
 *** Functor
 
@@ -1005,6 +1208,14 @@ The ~using Impl::traverse;~ declarations are how that choice is made.
 #+end_notes
 
 * Designing APIs That Won't Age Poorly
+#+begin_notes
+Clock:
+- about ~01:21~
+- keep: 10s
+
+Final synthesis before Q&A.
+#+end_notes
+
 *** Library Abstractions Anticipating Language Features
 - Favor explicit, composable operations over magical overload sets.
 - Keep extension points separate from core type definitions.
@@ -1059,13 +1270,29 @@ I want to discuss this all with everyone, and you know where to find me.
 #+end_quote
 
 * Comments?
+#+begin_notes
+Clock:
+- after ~01:30~ if used
+
+Overflow slide for hallway-track discussion, not scheduled time.
+#+end_notes
 
 * Thank You!
+#+begin_notes
+Clock:
+- after ~01:30~ if used
+
+End cleanly and invite follow-up offline.
+#+end_notes
 
 * Bibliography
    :PROPERTIES:
    :reveal_extra_attr: data-visibility="hidden"
    :END:
+
+#+begin_notes
+Hidden bibliography slide.
+#+end_notes
 
 #+CITE_EXPORT: csl chicago-author-date.csl
 #+print_bibliography:
