@@ -112,6 +112,19 @@ class FringeTree {
         return l;
     }
 
+    template <typename F>
+    void for_each(F &&callback) const {
+        if (is_empty()) {
+            return;
+        }
+        if (is_leaf()) {
+            callback(value());
+            return;
+        }
+        left().for_each(callback);
+        right().for_each(callback);
+    }
+
     static auto concat(const FringeTree &left_tree,
                        const FringeTree &right_tree) -> FringeTree {
         if (left_tree.is_empty()) {
@@ -129,6 +142,26 @@ class FringeTree {
 
     static auto append(const FringeTree &tree, T value) -> FringeTree {
         return concat(tree, leaf(std::move(value)));
+    }
+
+    auto cons(T x) const -> FringeTree {
+        return concat(leaf(std::move(x)), *this);
+    }
+
+    auto snoc(T x) const -> FringeTree {
+        return concat(*this, leaf(std::move(x)));
+    }
+
+    auto append(const FringeTree &other) const -> FringeTree {
+        return concat(*this, other);
+    }
+
+    static auto from_sequence(std::vector<T> values) -> FringeTree {
+        auto result = empty();
+        for (auto &v : values) {
+            result = result.snoc(std::move(v));
+        }
+        return result;
     }
 
     auto view_l() const -> std::optional<View> {
