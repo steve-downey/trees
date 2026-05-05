@@ -97,7 +97,7 @@
 * Colophon
 
 - Slideware: [[https://revealjs.com/][reveal.js]]
-- Slide Preperation: [[https://gitlab.com/oer/org-re-reveal][org-re-reveal]]
+- Slide Preparation: [[https://gitlab.com/oer/org-re-reveal][org-re-reveal]]
 - Fonts: [[https://www.brailleinstitute.org/freefont/][Atkinson Hyperlegible]] Next and Mono
 - Color Themes: [[https://github.com/protesilaos/modus-themes][Modus]] Vivendi and Operandi Tinted
 
@@ -132,7 +132,7 @@ Try to present working  code, even in slideware.
 
 ** Applicative
 - Apply a pure function to independent effectful arguments.
-- Two hooks: ~pure~ (lift) and ~apply~ (sequence). ~invoke~ is the C++ user API.
+- Two hooks: ~pure~ (lift) and ~apply~ (apply contextual function). ~invoke~ is the C++ user API.
 - Less sequencing machinery than monad for independent effects.
 
 ** Traversable
@@ -360,7 +360,7 @@ Foldable can collapse two different shapes to the same flat view.
 Traversable keeps the tree skeleton and only transforms payloads.
 #+end_notes
 
-*** Same Algorithm, Two Tree Representations
+*** Same Algorithm, Three Tree Representations
 - Fixpoint tree and shared_ptr binary tree can share the same Foldable call shape.
 - The representation changes; the typeclass API and algorithm intent stay the same.
 
@@ -520,7 +520,7 @@ w = 3, v doubles to 6, u adds 10: result is 16.
 *** Traversable Model: Commute Shape and Effect
 - Traversal commutes shape and effect: from a structure of effects to an effect of a structure.
 - This gives a generic path from many small checks to one checked result.
-- Traversable strictly generalizes Foldable: it can rebuild the container, not just collapse it.
+- Traversable strictly generalizes Foldable: it can rebuild the container, not just collapse it [cite:@gibbons2006iterator].
 - Use this to model validation, partial relabeling, and structured transformations.
 
 *** Traversable in Use: Success
@@ -684,7 +684,7 @@ Wrapper operations (random-access at/insert/erase/update, priority-queue pop) us
 
 * Finger Trees as a Case Study
 *** Persistent Concatenation and Splitting
-- Persistent, persistence-friendly concatenation in O(log(min(n,m))).
+- Persistent concatenation in O(log(min(n,m))).
 - Predicate-based split navigates tree structure in O(log n); wrapper operations use split + concat.
 - The API composes naturally with foldable/traversable abstractions.
 

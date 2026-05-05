@@ -495,9 +495,9 @@ clean: clean-org-html
 .PHONY: presentation
 presentation: docs-refresh
 presentation: test
-presentation: foldable-applicable-traversable.html
-presentation: foldable-applicable-traversable-slides.html
-presentation: foldable-applicable-traversable.md
+presentation: foldable-applicative-traversable.html
+presentation: foldable-applicative-traversable-slides.html
+presentation: foldable-applicative-traversable.md
 
 .PHONY: elpa
 elpa:
