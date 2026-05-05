@@ -12,6 +12,7 @@ target_sources(
                 foldable.hpp
                 applicative.hpp
                 traversable.hpp
+                monad.hpp
 )
 
 install(TARGETS smd.typeclass FILE_SET smd_typeclass_headers)
@@ -27,6 +28,7 @@ if(TREE_ENABLE_TESTING)
         applicative.t.cpp
         foldable.t.cpp
         traversable.t.cpp
+        monad.t.cpp
     )
 
     target_link_libraries(

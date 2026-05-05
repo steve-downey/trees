@@ -1250,6 +1250,21 @@ The best documentation here is still the tests.
 They say what the interface is allowed to mean.
 #+end_notes
 
+* One more thing
+*** Monad: When the Next Step Depends on the Previous Result
+- Applicative covers independent effects; Monad adds /dependent/ sequencing.
+- Minimal hook: ~bind~ — the result of one computation determines the next.
+- Derived ~apply~ from ~bind + pure~ — every Monad is an Applicative.
+- The typeclass pattern extends naturally: one hook, many derived operations.
+
+#+begin_notes
+Bonus slide.
+This is not part of the talk's thesis — the talk deliberately stops at Applicative.
+But the pattern extends to Monad without design changes: delegation to the
+applicative typeclass object, synthesized ~apply~ from ~bind + pure~, law tests.
+The Monad instance for ~optional~ is exactly ~and_then~ from C++23.
+#+end_notes
+
 * Questions?
 #+ATTR_REVEAL: :frag (appear)
 - A Question :: is where YOU want more information from ME.
