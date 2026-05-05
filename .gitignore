@@ -17,7 +17,7 @@ uv.lock
 *.html
 # Keep canonical talk deliverables in git because exports are not byte-stable
 # across toolchain versions and these files are consumed by different audiences.
-!foldable-applicable-traversable.html
-!foldable-applicable-traversable-slides.html
+!foldable-applicative-traversable.html
+!foldable-applicative-traversable-slides.html
 /docs/html/
 recc-scan-deps.d/
