@@ -97,7 +97,7 @@
 * Colophon
 
 - Slideware: [[https://revealjs.com/][reveal.js]]
-- Slide Preperation: [[https://gitlab.com/oer/org-re-reveal][org-re-reveal]]
+- Slide Preparation: [[https://gitlab.com/oer/org-re-reveal][org-re-reveal]]
 - Fonts: [[https://www.brailleinstitute.org/freefont/][Atkinson Hyperlegible]] Next and Mono
 - Color Themes: [[https://github.com/protesilaos/modus-themes][Modus]] Vivendi and Operandi Tinted
 
@@ -108,7 +108,7 @@ Intended to conform to [[https://www.w3.org/WAI/WCAG2AAA-Conformance][Web Conten
 #+begin_notes
 Please try to be considerate when making presentations. Accessibility helps everyone.
 
-Try to present working  code, even in slideware.
+Try to present working code, even in slideware.
 
 #+end_notes
 
@@ -120,10 +120,10 @@ Try to present working  code, even in slideware.
 
 ** Abstract
 
-- Functor and monad patterns have proven themselves in practice; Foldable, Applicative, and Traversable are the next step.
+- Functor and Monad patterns have proven themselves in practice; Foldable, Applicative, and Traversable are the next step.
 - Trees and structured data can lose important information when flattened to a sequence.
 - Monoid underpins efficient tree algorithms; the three typeclasses compose on top of it.
-- This talk illustrates one approach to designing a standard library ~fingertree~ API.
+- This talk sketches one route to a standard-library ~fingertree~ API.
 
 ** Foldable
 - Opt-in hook: ~fold_map~ — provides the algorithmic power of ~std::ranges~.
@@ -132,8 +132,8 @@ Try to present working  code, even in slideware.
 
 ** Applicative
 - Apply a pure function to independent effectful arguments.
-- Two hooks: ~pure~ (lift) and ~apply~ (sequence). ~invoke~ is the C++ user API.
-- Less sequencing machinery than monad for independent effects.
+- Two hooks: ~pure~ (lift) and ~apply~ (contextual application). ~invoke~ is the C++ user API.
+- Less machinery than Monad when the effects are independent.
 
 ** Traversable
 - Generalizes Foldable: maps with effects while rebuilding the container shape.
@@ -152,8 +152,9 @@ Try to present working  code, even in slideware.
 - For trees, flattening throws away parent/child relationships and subtree boundaries.
 
 #+begin_notes
-This is the setup: flattening is a design choice, not a law of nature.
-The talk is about recovering algorithms that preserve structure when structure matters.
+This is the setup.
+Flattening is a design choice, not a law of nature.
+The rest of the talk is about keeping structure when structure carries meaning.
 #+end_notes
 
 *** Where Structure Carries Meaning
@@ -162,7 +163,8 @@ The talk is about recovering algorithms that preserve structure when structure m
 - If we flatten too early, we lose algorithmic leverage.
 
 #+begin_notes
-The argument is practical: preserving shape enables better APIs for split/search/relabel.
+The point here is practical, not philosophical.
+If I preserve shape, I get better split, search, and relabel APIs.
 #+end_notes
 
 *** Trees That Are Not Sequences
@@ -181,7 +183,8 @@ A range view is still useful, but it should be derived, not the primary model.
 - The control flow is explicit, but often noisy.
 
 #+begin_notes
-Visitor is not wrong; it is just too low-level for everyday algebraic operations.
+Visitor is not wrong.
+It is just too low-level and too ceremonial for this kind of everyday algebraic work.
 #+end_notes
 
 *** Pattern Matching as the Intended Interface
@@ -190,7 +193,8 @@ Visitor is not wrong; it is just too low-level for everyday algebraic operations
 - Typeclass-style APIs can encode the same intent with today's language.
 
 #+begin_notes
-Design now so the API maps naturally to future language features.
+The design goal is not to predict syntax.
+It is to land on APIs that migrate cleanly when the language catches up.
 #+end_notes
 
 *** Designing Today for Tomorrow's Syntax
@@ -199,7 +203,7 @@ Design now so the API maps naturally to future language features.
 - Make call sites read like intent, not machinery.
 
 #+begin_notes
-The point is migration-friendly design, not speculative syntax tricks.
+This is about migration-friendly design, not speculative syntax tricks.
 #+end_notes
 
 * Recursion Schemes You Can Actually Use
@@ -209,7 +213,8 @@ The point is migration-friendly design, not speculative syntax tricks.
 - This separation makes tree algorithms easier to reason about.
 
 #+begin_notes
-I only need the intuition here, not full categorical development.
+I only need the operational intuition here.
+I do not need a semester of category theory.
 #+end_notes
 
 *** Catamorphisms as a Principled Fold
@@ -226,9 +231,11 @@ Foldable is the operational entry point for this in everyday code.
 #+transclude: [[file:src/smd/tree/fixpoint_tree.hpp::e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04]]  :lines 2- :src cpp :end "e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04 end"
 
 #+begin_notes
-eval_algebra consumes one fully-evaluated layer: constants return their value,
-binary nodes combine the already-folded children.  cata supplies the recursion.
-Separating the algebra from the recursion is the whole point.
+eval_algebra consumes one already-processed layer.
+Constants return their value.
+Binary nodes combine the folded children.
+cata supplies the recursion.
+That separation is the point.
 #+end_notes
 
 *** Separating Recursion from Business Logic
@@ -237,7 +244,7 @@ Separating the algebra from the recursion is the whole point.
 - It also creates a natural place to enforce laws.
 
 #+begin_notes
-When recursion is abstracted, law tests become executable documentation.
+Once recursion is abstracted away, the laws read like executable documentation.
 #+end_notes
 
 * The Typeclass Object Pattern
@@ -248,7 +255,8 @@ When recursion is abstracted, law tests become executable documentation.
 - Instances are open-world: add one close to the type, not in a central registry.
 
 #+begin_notes
-This replaces concept maps from C++0x with a simpler, working mechanism.
+This is the same basic impulse as concept maps.
+The difference is that this version is smaller and works with today's language.
 #+end_notes
 
 **** Specializing the Variable Template
@@ -256,7 +264,7 @@ This replaces concept maps from C++0x with a simpler, working mechanism.
 #+transclude: [[file:src/smd/tree/fixpoint_tree_foldable.hpp::c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83]]  :lines 2- :src cpp :end "c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83 end"
 
 #+begin_notes
-Three lines of opt-in. No registry, no inheritance, no base class modification.
+Three lines of opt-in. No registry, no inheritance, no base-class modification.
 The specialization can live next to the type or in any adapter header.
 #+end_notes
 
@@ -267,8 +275,9 @@ The specialization can live next to the type or in any adapter header.
 - All three produce the same dispatch; the choice is about stability and explicitness.
 
 #+begin_notes
-NTTP pinning is demonstrated in conceptmap functor tests (testP, testP2).
-It proves that a generic helper's lookup is stable even when callers pass different instances.
+The interesting part is not the syntax.
+The interesting part is that lookup is stable inside a generic helper.
+That matters once you start parameterizing policy.
 #+end_notes
 
 *** NTTP Pinning Example
@@ -287,7 +296,9 @@ Callers can supply a custom instance to change behavior for a specific call site
 - Traversable: implement ~traverse~ → ~for_each~, ~sequence~, and override variants.
 
 #+begin_notes
-The implementor surface is small; the user-facing surface is rich.
+Small implementor surface.
+Larger user surface.
+That is the trade I want.
 #+end_notes
 
 *** CRTP and Deducing This
@@ -328,8 +339,6 @@ replace is derived from fmap with a constant function — no extra instance work
 Tests that encode laws document intent more durably than comments.
 #+end_notes
 
-*Preservation*: This C++ encoding of Functor preserves the identity law in ~functor.t.cpp~. Every instance (optional, beman::optional, vector) passes the law test; deviation signals a contract violation.
-
 * Preserving Shape: Traversable and Friends
 *** Foldable vs. Traversable: Sequence vs. Shape
 - Foldable consumes structure into a summary.
@@ -337,9 +346,10 @@ Tests that encode laws document intent more durably than comments.
 - For trees, this is the difference between counting nodes and relabeling them in place.
 
 #+begin_notes
-This section shows concrete code now, before the formal typeclass introductions.
-The goal is to build intuition: Foldable = collapse to value, Traversable = transform in place.
-Formal treatment of each typeclass follows in the next three sections.
+I want the intuition first.
+Foldable collapses.
+Traversable transforms in place.
+Then I can come back and make that formal.
 #+end_notes
 
 *** Crisp Contrast: Flatten vs. Preserve Shape
@@ -365,8 +375,9 @@ Traversable keeps the tree skeleton and only transforms payloads.
 - The representation changes; the typeclass API and algorithm intent stay the same.
 
 #+begin_notes
-The call site reads identically across all three representations.
-This is the key payoff of typeclass lookup: the algorithm is written once against an interface, not once per type.
+The call site stays the same across all three representations.
+That is the payoff.
+I write the algorithm against the interface once, not once per tree type.
 #+end_notes
 
 **** Fixpoint Tree
@@ -409,8 +420,8 @@ The variant structure (Empty | Leaf | Branch) is intact; only the leaf values ch
 - In other words: a Monoid. Counting uses ~Count{0}~ + addition. Collecting uses ~vector{}~ + append.
 
 #+begin_notes
-This is a brief primer so the fold_map code makes sense immediately.
-Full treatment — specialization, law tests, measured trees, finger tree policies — is in "Monoids and Measured Trees".
+This is just enough Monoid to make fold_map make sense.
+I will come back to the full story later.
 #+end_notes
 
 *** Foldable API: One Hook, Derived from fold_map
@@ -437,8 +448,9 @@ fold_left and fold_right use a function-composition monoid internally.
 #+transclude: [[file:src/smd/typeclass/foldable.t.cpp::a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46]]  :lines 2- :src cpp :end "a3d5c9e1-6b2f-4a4d-c8e3-5b1d3a7f2c46 end"
 
 #+begin_notes
-The test encodes a semantic claim: to_vector of {1,2,3} is exactly {1,2,3}.
-That claim would catch a traversal-order regression.
+This is not a toy check.
+It pins down traversal order.
+If that order changes, this test fails.
 #+end_notes
 
 * Applicative
@@ -446,11 +458,12 @@ That claim would catch a traversal-order regression.
 - Applicative captures applying a pure function to independent effectful arguments.
 - Minimal hooks: ~pure~ (lift a value) and ~apply~ (apply a contextual function).
 - User API: ~invoke~ — matches the mental model of ~std::invoke~ over effectful values.
-- Less sequencing machinery than monadic formulations for independent effects.
+- Less machinery than monadic formulations when the effects are independent.
 
 #+begin_notes
-McBride's "applicative style" paper is the primary reference [cite:@mcbride2008applicative].
-apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] for Haskell audiences; invoke is the preferred C++ spelling.
+McBride and Paterson are the reference here [cite:@mcbride2008applicative].
+apply_pure is just a teaching alias.
+invoke is the spelling I actually want people to use in C++.
 #+end_notes
 
 *** Applicative in Use
@@ -458,7 +471,8 @@ apply_pure is a teaching alias that retains FP bracket notation [| f a b c |] fo
 #+transclude: [[file:src/smd/typeclass/examples/applicative_examples.cpp::3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11]]  :lines 2- :src cpp :end "3f0c8d0e-9a6b-4a3e-9c2a-0c1e9c3d4f11 end"
 
 #+begin_notes
-Three independent optional arguments. If any is absent the whole computation short-circuits.
+Three independent optional arguments.
+If any one is absent, the whole computation short-circuits.
 #+end_notes
 
 *** Applicative: invoke in Tests
@@ -485,9 +499,9 @@ This is the core contract of optional-as-applicative.
 #+transclude: [[file:src/smd/typeclass/applicative.t.cpp::c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48]]  :lines 2- :src cpp :end "c9f3b1a7-4e8d-4c2a-b6f1-7d3e9c5b2a48 end"
 
 #+begin_notes
-make_terminating_partial wraps f; each call either invokes f if all args are present or returns a new partial.
-This avoids std::bind complexity while handling arbitrary arity uniformly.
-Also derived from pure + apply: map, lift, ap, zip_with, discard_first, discard_second, invoke_with.
+make_terminating_partial wraps the function.
+Each apply either calls it or returns the next partial.
+This avoids std::bind complexity and gives one story for arbitrary arity.
 #+end_notes
 
 *** Applicative Law: Interchange
@@ -498,8 +512,8 @@ Also derived from pure + apply: map, lift, ap, zip_with, discard_first, discard_
 #+transclude: [[file:src/smd/typeclass/applicative.t.cpp::b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15]]  :lines 2- :src cpp :end "b8e3d6a1-2c5f-4b7e-a2d8-7f6c2b3e5d15 end"
 
 #+begin_notes
-The interchange law is the trickiest to build intuition for.
-It constrains how pure values interact with contextual functions.
+Interchange is usually the law that needs the most explanation.
+It tells you how a pure value and a contextual function are allowed to meet.
 #+end_notes
 
 *** Applicative Law: Composition
@@ -510,17 +524,16 @@ It constrains how pure values interact with contextual functions.
 #+transclude: [[file:src/smd/typeclass/applicative.t.cpp::e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02]]  :lines 2- :src cpp :end "e2c7f5b3-4a1d-4e8c-b3f5-9d6a5c2e3b02 end"
 
 #+begin_notes
-The composition law ensures that effectful function composition is associative.
-w = 3, v doubles to 6, u adds 10: result is 16.
+Composition is the payoff law.
+It says I can compose in the effectful world without changing the result.
+Here the numbers make that concrete: 3, then 6, then 16.
 #+end_notes
-
-*Preservation*: This C++ encoding of Applicative preserves all four laws (identity, homomorphism, interchange, composition) via executable tests in ~applicative.t.cpp~. The semantic claim that effectful function application is associative survives the encoding as a statically-verified contract.
 
 * Traversable
 *** Traversable Model: Commute Shape and Effect
 - Traversal commutes shape and effect: from a structure of effects to an effect of a structure.
 - This gives a generic path from many small checks to one checked result.
-- Traversable strictly generalizes Foldable: it can rebuild the container, not just collapse it.
+- Traversable is the stronger tool here: it can rebuild the container, not just collapse it.
 - Use this to model validation, partial relabeling, and structured transformations.
 
 *** Traversable in Use: Success
@@ -567,10 +580,10 @@ The shape is preserved; the effect wraps the whole result.
 #+transclude: [[file:src/smd/typeclass/traversable.t.cpp::a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43]]  :lines 2- :src cpp :end "a9e4c2f1-7d6b-4a3c-e5b2-8f3d1e9c6a43 end"
 
 #+begin_notes
-Formal law: for an applicative morphism φ (commutes with pure and ap), φ(traverse f t) == traverse (φ∘f) t.
-to_beman is the morphism: converts std::optional<Identity<int>> to beman::optional<Identity<int>>.
-f_returning_beman is f with its return type changed to beman::optional — equivalent to composing to_beman with f at the value level.
-Both sides produce beman::optional<Identity<int>>{Identity{6}}.
+This is the most abstract law in the talk, so I want to narrate it slowly.
+Change applicatives after traversal, or bake that change into the function first.
+You should get the same answer either way.
+That is what this test is checking.
 #+end_notes
 
 *** Traversable Commute: Range and ZipList
@@ -587,9 +600,9 @@ Both sides produce beman::optional<Identity<int>>{Identity{6}}.
 
 
 #+begin_notes
-This helper (~to_vector_of_ziplists~) is hand-coded to illustrate the inverse transpose concept.
-The Traversable version is the range-of-ZipLists → ZipList-of-ranges test on the previous slide.
-Key law intuition: preserve shape and evaluation order discipline.
+This helper is hand-coded on purpose.
+It gives a familiar matrix-transpose picture before I point back to the generic Traversable version.
+The law intuition is: preserve shape, preserve evaluation order discipline.
 #+end_notes
 
 *** Laws That Keep This Honest
@@ -599,12 +612,10 @@ Key law intuition: preserve shape and evaluation order discipline.
 - If these fail, abstractions become accidental APIs rather than reliable interfaces.
 
 #+begin_notes
-If these fail, abstractions become accidental APIs rather than reliable interfaces.
-Note: tree applicative (applying a tree of functions to a tree of values) is a policy choice, not the core applicative story.
-The core teaching value of Applicative is visible in optional, range, and ZipList examples.
+If the laws fail, the abstraction is just an accident of naming.
+Also, tree applicative is a policy choice.
+The clean teaching examples are optional, range, and ZipList.
 #+end_notes
-
-*Preservation*: This C++ encoding of Traversable preserves identity and naturality laws in ~traversable.t.cpp~. Composition is verified through range-of-ZipLists and ZipList-of-ranges commutation tests (matrix transpose). The semantic claim that traversal commutes shape and effect survives unbroken from theory to executable code.
 
 * Monoids and Measured Trees
 *** Monoid Interface
@@ -648,15 +659,14 @@ The identity law is what makes identity() useful for initializing fold accumulat
 If this fails the Monoid is not a monoid.
 #+end_notes
 
-*Preservation*: This C++ encoding of Monoid preserves identity and associativity laws in ~monoid.t.cpp~. Every specialization (Count, std::string, std::vector) must satisfy both laws to qualify as a lawful measure. This unlocks the algorithmic guarantee: regrouping combine operations changes nothing.
-
 *** Associativity as Algorithmic Leverage
 - Associativity lets us regroup work without changing results.
 - Measured trees exploit this to maintain summaries incrementally.
 - This is the bridge from algebra to explicit performance contracts.
 
 #+begin_notes
-If the measure is a monoid, split/search become compositional [cite:@hinze2006fingertrees].
+This is where the algebra starts paying rent.
+If the measure is a monoid, split and search become compositional [cite:@hinze2006fingertrees].
 #+end_notes
 
 *** Annotations as Summaries
@@ -674,17 +684,16 @@ The data structure stays the same while behavior changes with the monoid.
 - ~split_at_index()~ uses the structural path for count-measure trees; non-count measures fall back to flatten/rebuild.
 
 #+begin_notes
-The original finger-tree paper promises amortized O(1) at the ends,
-O(log(min(n,m))) concatenation, and O(log n) split/search [cite:@hinze2006fingertrees].
-The predicate-based core split (~split()~ / ~split_at()~) navigates tree structure in O(log n).
-~split_at_index()~ uses a structural fast path when the measure is a count (UnitMeasure with size_t tag);
-non-count measures fall back to flatten/rebuild to preserve index semantics.
-Wrapper operations (random-access at/insert/erase/update, priority-queue pop) use structural split + concat and are O(log n).
+The Hinze-Paterson paper gives the headline costs [cite:@hinze2006fingertrees].
+In this implementation, the important thing to say out loud is where the structural fast paths are, and where they are not.
+The core split is structural.
+split_at_index is structural for count measures, and falls back when it has to preserve index semantics for non-count measures.
+The wrapper operations build on that split-plus-concat story.
 #+end_notes
 
 * Finger Trees as a Case Study
 *** Persistent Concatenation and Splitting
-- Persistent, persistence-friendly concatenation in O(log(min(n,m))).
+- Persistent concatenation in O(log(min(n,m))).
 - Predicate-based split navigates tree structure in O(log n); wrapper operations use split + concat.
 - The API composes naturally with foldable/traversable abstractions.
 
@@ -700,7 +709,8 @@ Wrapper operations (random-access, priority queue, rope) use split + concat dire
 - Reuse is semantic, not merely syntactic.
 
 #+begin_notes
-This is the strongest argument for measured trees in a standard library context.
+This is the standard-library argument.
+One structure, different meanings, without rewriting the whole implementation.
 #+end_notes
 
 **** Sequence: O(log n) Random Access
@@ -738,11 +748,10 @@ insert, erase, and replace all navigate by cumulative byte offset using split.
 - The abstraction is a library choice today; it maps cleanly to pattern matching and richer generic facilities when those arrive.
 
 #+begin_notes
-This is the concrete payoff: the design composes correctly across independent extension points.
-No monkey-patching, no reopening of classes, no central registry.
+This is the concrete payoff.
+Independent extension points still compose.
+No monkey-patching, no reopening classes, no central registry.
 #+end_notes
-
-*Preservation*: All five finger tree specializations (raw, random-access, priority-queue, rope, interval-index) satisfy the Traversable laws and compose with Foldable, Monoid, and Applicative correctly. The semantic claim that shape preservation and measure-guided search are compositional survives from theory through C++ encoding to real test suites.
 
 * Cross-Language Name Mapping
 
@@ -849,9 +858,9 @@ Haskell and PureScript separate Semigroup (~<>~) from Monoid (~mempty~); this li
 - The ~using~ declaration selects the core; the base class derives everything else.
 
 #+begin_notes
-This is not speculative: the alternate-core pattern is load-bearing in the current implementation.
-The ~using Impl::traverse;~ declarations in every TraversableMap class implement this selection.
-A sequence-primitive Traversable would shadow ~sequence~ instead, and the base derives ~traverse~.
+This is not decorative boilerplate.
+The alternate-core pattern is load-bearing in the implementation you just saw.
+The ~using Impl::traverse;~ declarations are how that choice is made.
 #+end_notes
 
 * Designing APIs That Won't Age Poorly
@@ -861,7 +870,8 @@ A sequence-primitive Traversable would shadow ~sequence~ instead, and the base d
 - Make future language support a simplification, not a rewrite.
 
 #+begin_notes
-Pattern matching and richer generic facilities should refine this API, not replace it.
+If the language gets better, this API should get simpler.
+It should not need to be replaced.
 #+end_notes
 
 *** Avoiding the ~std::bind~ vs. Lambda Overlap
@@ -870,7 +880,8 @@ Pattern matching and richer generic facilities should refine this API, not repla
 - For Applicative, that path is ~invoke~.
 
 #+begin_notes
-The goal is reducing cognitive branching in generic code.
+The goal is to reduce cognitive branching in generic code.
+One good path beats three almost-equivalent ones.
 #+end_notes
 
 *** Keeping the Good Path Obvious
@@ -879,20 +890,20 @@ The goal is reducing cognitive branching in generic code.
 - Back claims with executable law tests.
 
 #+begin_notes
-The best API docs in this space are tests that encode the laws.
+The best documentation here is still the tests.
+They say what the interface is allowed to mean.
 #+end_notes
 
 * Questions?
 #+ATTR_REVEAL: :frag (appear)
 - A Question :: is where YOU want more information from ME.
-- A Question ::  goes up at the end.
+- A Question :: goes up at the end.
 
 
 #+begin_quote
 "More of a comment than a question ..." hold them for a moment.
 I want to discuss this all with everyone, and you know where to find me.
 #+end_quote
-Questions?
 
 * Comments?
 
