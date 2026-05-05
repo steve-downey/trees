@@ -106,6 +106,22 @@ Intended to conform to [[https://www.w3.org/WAI/WCAG2AAA-Conformance][Web Conten
 #+REVEAL_HTML: <a Href="https://www.w3.org/WAI/WCAG2AAA-Conformance" title="Explanation of WCAG 2 Level AAA conformance">  <img height="32" width="88"       src="https://www.w3.org/WAI/WCAG22/wcag2.2AAA-blue" alt="Level AAA conformance, W3C WAI Web Content Accessibility Guidelines 2.2"></a>
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:03~ by the end of this slide.
+- Aim to hit the problem statement at ~00:07~.
+
+Quick timer guide:
+- ~00:07~ problem statement
+- ~00:18~ recursion schemes
+- ~00:34~ typeclass object pattern complete
+- ~00:45~ shape-preservation section complete
+- ~00:58~ Applicative complete
+- ~01:06~ Traversable complete
+- ~01:15~ FingerTree case study complete
+- ~01:19~ Tree Core API complete
+- ~01:22~ questions
+- ~01:30~ hard stop
+
 Please try to be considerate when making presentations. Accessibility helps everyone.
 
 Try to present working code, even in slideware.
@@ -152,6 +168,11 @@ Try to present working code, even in slideware.
 - For trees, flattening throws away parent/child relationships and subtree boundaries.
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:07~ entering this section.
+- Aim to leave it by ~00:13~.
+- If late, shorten the examples on the next two slides.
+
 This is the setup.
 Flattening is a design choice, not a law of nature.
 The rest of the talk is about keeping structure when structure carries meaning.
@@ -183,6 +204,10 @@ A range view is still useful, but it should be derived, not the primary model.
 - The control flow is explicit, but often noisy.
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:13~ entering this section.
+- Aim to reach recursion schemes by ~00:18~.
+
 Visitor is not wrong.
 It is just too low-level and too ceremonial for this kind of everyday algebraic work.
 #+end_notes
@@ -213,6 +238,11 @@ This is about migration-friendly design, not speculative syntax tricks.
 - This separation makes tree algorithms easier to reason about.
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:18~ entering this section.
+- Aim to leave it by ~00:25~.
+- Keep the algebra/cata example moving; do not let this become a category-theory detour.
+
 I only need the operational intuition here.
 I do not need a semester of category theory.
 #+end_notes
@@ -255,6 +285,11 @@ Once recursion is abstracted away, the laws read like executable documentation.
 - Instances are open-world: add one close to the type, not in a central registry.
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:25~ entering this section.
+- Aim to leave it by ~00:34~.
+- This is a core section; protect the full explanation, but trim the NTTP example if needed.
+
 This is the same basic impulse as concept maps.
 The difference is that this version is smaller and works with today's language.
 #+end_notes
@@ -319,6 +354,11 @@ CRTP supplies structure; deducing this keeps wrappers generic without losing typ
 - Lookup: ~smd::functor_typeclass<std::optional<int>>~.
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:34~ entering this section.
+- Aim to leave it by ~00:37~.
+- Treat this as foundation, not the main event.
+
 Functor is the base on which Applicative and Traversable are built.
 #+end_notes
 
@@ -346,6 +386,11 @@ Tests that encode laws document intent more durably than comments.
 - For trees, this is the difference between counting nodes and relabeling them in place.
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:37~ entering this section.
+- Aim to leave it by ~00:45~.
+- This is where the audience should feel the difference between fold and traverse.
+
 I want the intuition first.
 Foldable collapses.
 Traversable transforms in place.
@@ -420,6 +465,11 @@ The variant structure (Empty | Leaf | Branch) is intact; only the leaf values ch
 - In other words: a Monoid. Counting uses ~Count{0}~ + addition. Collecting uses ~vector{}~ + append.
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:45~ entering this section.
+- Aim to leave it by ~00:50~.
+- If behind, keep only one derived-operation example.
+
 This is just enough Monoid to make fold_map make sense.
 I will come back to the full story later.
 #+end_notes
@@ -461,6 +511,11 @@ If that order changes, this test fails.
 - Less machinery than monadic formulations when the effects are independent.
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:50~ entering this section.
+- Aim to leave it by ~00:58~.
+- Keep the law slides brisk; the goal is intuition plus one convincing test.
+
 McBride and Paterson are the reference here [cite:@mcbride2008applicative].
 apply_pure is just a teaching alias.
 invoke is the spelling I actually want people to use in C++.
@@ -541,6 +596,11 @@ Here the numbers make that concrete: 3, then 6, then 16.
 #+transclude: [[file:src/smd/ranges/range_traversable.t.cpp::c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02]]  :lines 2- :src cpp :end "c7f3a1e8-2b5d-4f9c-a4e7-1b3d6c8a5f02 end"
 
 #+begin_notes
+Clock check:
+- You should be at about ~00:58~ entering this section.
+- Aim to leave it by ~01:06~.
+- Slow down for naturality only if the room is with you; otherwise summarize the law in one sentence.
+
 Every element transforms successfully. The optional wrapping is removed and a new range is returned.
 #+end_notes
 
@@ -629,6 +689,11 @@ The clean teaching examples are optional, range, and ZipList.
 #+transclude: [[file:src/smd/typeclass/monoid.hpp::c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06]]  :lines 2- :src cpp :end "c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06 end"
 
 #+begin_notes
+Clock check:
+- You should be at about ~01:06~ entering this section.
+- Aim to leave it by ~01:11~.
+- Hit the algebra-to-performance bridge clearly, then move on.
+
 Count is the canonical monoid for counting elements.
 identity is 0; combine is addition — the simplest possible monoid.
 #+end_notes
@@ -698,6 +763,11 @@ The wrapper operations build on that split-plus-concat story.
 - The API composes naturally with foldable/traversable abstractions.
 
 #+begin_notes
+Clock check:
+- You should be at about ~01:11~ entering this section.
+- Aim to leave it by ~01:15~.
+- If you are late, do one interpretation in detail and name the others.
+
 Concatenation uses Hinze-Paterson app3: O(log(min(n,m))).
 Split navigates the tree structurally in O(log n) and returns left, pivot, right.
 Wrapper operations (random-access, priority queue, rope) use split + concat directly.
@@ -761,6 +831,11 @@ No monkey-patching, no reopening classes, no central registry.
 - FringeTree and FingerTree share this interface — differing in performance, not in surface.
 
 #+begin_notes
+Clock check:
+- You should be at about ~01:15~ entering this section.
+- Aim to leave it by ~01:19~.
+- If you are late, summarize the tables and spend the time on the direct payoff slide.
+
 This is the surface you would expect from a standard tree type.
 It parallels the container requirements tables, but for persistent tree structures.
 All operations are functional — they return new trees, leaving the original unchanged.
@@ -827,6 +902,11 @@ the typeclass layer is for generic algorithms that work across all tree shapes.
 | ~replace~  | ~(<$)~     | ~as~         | ~voidRight~ |      |
 
 #+begin_notes
+Clock check:
+- You should be at about ~01:19~ entering this section.
+- Aim to leave it by ~01:21~.
+- This is compressible; trim tables before trimming Q&A.
+
 Functor is minimal everywhere: one operation. C++ keeps the Haskell name.
 Cats and PureScript prefer ~map~; C++ reserves ~map~ for the Applicative-derived version.
 #+end_notes
@@ -934,6 +1014,10 @@ The ~using Impl::traverse;~ declarations are how that choice is made.
 - Make future language support a simplification, not a rewrite.
 
 #+begin_notes
+Clock check:
+- You should be at about ~01:21~ entering this section.
+- Leave the dedicated questions slide no later than ~01:22~.
+
 If the language gets better, this API should get simpler.
 It should not need to be replaced.
 #+end_notes
@@ -962,6 +1046,14 @@ They say what the interface is allowed to mean.
 #+ATTR_REVEAL: :frag (appear)
 - A Question :: is where YOU want more information from ME.
 - A Question :: goes up at the end.
+
+
+#+begin_notes
+Clock check:
+- Start questions at about ~01:22~.
+- Hard stop at ~01:30~.
+- If there are no questions, use the time to revisit the payoff slides: shape preservation, measured trees, and the standard-library argument.
+#+end_notes
 
 
 #+begin_quote
