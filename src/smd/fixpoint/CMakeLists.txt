@@ -1,22 +1,15 @@
-include(GNUInstallDirs)
+# trees/src/smd/fixpoint/CMakeLists.txt                         -*-CMake-*-
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_library(smd_fixpoint INTERFACE)
-
-target_sources(
-    smd_fixpoint
-    PUBLIC FILE_SET smd_fixpoint_headers TYPE HEADERS FILES
+target_sources(smd.fixpoint
+    PUBLIC FILE_SET smd_fixpoint_headers FILES
     box.hpp
     overloaded.hpp
     fix.hpp
     cata.hpp
 )
 
-install(
-    TARGETS smd_fixpoint
-    FILE_SET smd_fixpoint_headers
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/smd/fixpoint
-        COMPONENT smd_fixpoint_development
-)
+install(TARGETS smd.fixpoint FILE_SET smd_fixpoint_headers)
 
 if(TREE_ENABLE_TESTING)
     add_executable(smd_fixpoint_tests
@@ -25,14 +18,9 @@ if(TREE_ENABLE_TESTING)
         cata.t.cpp
     )
 
-    target_include_directories(smd_fixpoint_tests
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/../..
-    )
-
     target_link_libraries(smd_fixpoint_tests
         PRIVATE
-            smd_fixpoint
+            smd::fixpoint
             Catch2::Catch2WithMain
     )
 

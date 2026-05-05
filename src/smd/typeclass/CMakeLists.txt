@@ -1,18 +1,8 @@
-include(GNUInstallDirs)
+# trees/src/smd/typeclass/CMakeLists.txt                        -*-CMake-*-
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-# Design invariants for this subtree:
-# - Headers define concept APIs; map specializations provide per-type behavior.
-# - Each concept should have a matching .t.cpp test file when feasible.
-# - Tests are optional and only created when TREE_ENABLE_TESTING.
-# - Slide snippet examples stay separate under examples/ and compile independently.
-
-# Create typeclass interface library target
-add_library(smd_typeclass INTERFACE)
-
-# Add public headers as a file set
-target_sources(
-    smd_typeclass
-    PUBLIC FILE_SET smd_typeclass_headers TYPE HEADERS FILES
+target_sources(smd.typeclass
+    PUBLIC FILE_SET smd_typeclass_headers FILES
         typeclass_base.hpp
         monoid.hpp
         functor.hpp
@@ -21,18 +11,8 @@ target_sources(
         traversable.hpp
 )
 
-# Link with optional dependency
-target_link_libraries(smd_typeclass INTERFACE beman.optional)
+install(TARGETS smd.typeclass FILE_SET smd_typeclass_headers)
 
-# Installation configuration
-install(
-    TARGETS smd_typeclass
-    FILE_SET smd_typeclass_headers
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/smd/typeclass
-        COMPONENT smd_typeclass_development
-)
-
-# Add subdirectories for examples and tests
 add_subdirectory(examples)
 
 if(TREE_ENABLE_TESTING)
@@ -45,14 +25,9 @@ if(TREE_ENABLE_TESTING)
         traversable.t.cpp
     )
 
-    target_include_directories(smd_typeclass_tests
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/../..
-    )
-
     target_link_libraries(smd_typeclass_tests
         PRIVATE
-            smd_typeclass
+            smd::typeclass
             Catch2::Catch2WithMain
     )
 

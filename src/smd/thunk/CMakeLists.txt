@@ -1,20 +1,13 @@
-include(GNUInstallDirs)
+# trees/src/smd/thunk/CMakeLists.txt                            -*-CMake-*-
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_library(smd_thunk INTERFACE)
-
-target_sources(
-    smd_thunk
-    PUBLIC FILE_SET smd_thunk_headers TYPE HEADERS FILES
+target_sources(smd.thunk
+    PUBLIC FILE_SET smd_thunk_headers FILES
         delay.hpp
         memoize.hpp
 )
 
-install(
-    TARGETS smd_thunk
-    FILE_SET smd_thunk_headers
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/smd/thunk
-        COMPONENT smd_thunk_development
-)
+install(TARGETS smd.thunk FILE_SET smd_thunk_headers)
 
 if(TREE_ENABLE_TESTING)
     add_executable(smd_thunk_tests
@@ -22,14 +15,9 @@ if(TREE_ENABLE_TESTING)
         memoize.t.cpp
     )
 
-    target_include_directories(smd_thunk_tests
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/../..
-    )
-
     target_link_libraries(smd_thunk_tests
         PRIVATE
-            smd_thunk
+            smd::thunk
             Catch2::Catch2WithMain
     )
 
