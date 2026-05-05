@@ -1,316 +1,65 @@
-- [Overview](#orge0f60cc)
-- [Active Source Files](#orge6a66d0)
-  - [examples/cpo<sub>example.cpp</sub>](#org23f1e46)
-  - [examples/fixpoint<sub>tree</sub><sub>example.cpp</sub>](#org701d451)
-  - [examples/map<sub>example.cpp</sub>](#orga0f2051)
-  - [smd/fixpoint/box.hpp](#orgf0ca5d2)
-  - [smd/fixpoint/cata.hpp](#org37a3c0f)
-  - [smd/fixpoint/fix.hpp](#orgd1c93db)
-  - [smd/fixpoint/overloaded.hpp](#orgb4ef3e4)
-  - [smd/ranges/range<sub>applicative.hpp</sub>](#orgba320ce)
-  - [smd/ranges/range<sub>foldable.hpp</sub>](#orgafa5cea)
-  - [smd/ranges/range<sub>functor.hpp</sub>](#org78c583b)
-  - [smd/ranges/range<sub>list.hpp</sub>](#orgc90cde9)
-  - [smd/ranges/range<sub>traversable.hpp</sub>](#orge7ff4af)
-  - [smd/thunk/delay.hpp](#orgdd5deec)
-  - [smd/thunk/memoize.hpp](#orgc366e87)
-  - [smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>](#orgcca31dd)
-  - [smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>](#org2198e34)
-  - [smd/tree/binary<sub>tree.hpp</sub>](#org92359d0)
-  - [smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>](#org60203cc)
-  - [smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>](#org37754e6)
-  - [smd/tree/finger<sub>tree.hpp</sub>](#org856a587)
-  - [smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>](#org0d3c9f4)
-  - [smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>](#org4eea220)
-  - [smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>](#orgb94a9d0)
-  - [smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>](#org2405595)
-  - [smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>](#org1d5f48a)
-  - [smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>](#org3cd9e1c)
-  - [smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>](#org39463ab)
-  - [smd/tree/fixpoint<sub>tree.hpp</sub>](#org397cf5c)
-  - [smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>](#org220fee7)
-  - [smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>](#orga3c163a)
-  - [smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>](#org6c7ac84)
-  - [smd/tree/fringe<sub>tree.hpp</sub>](#orgae13ce5)
-  - [smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>](#orgb2da781)
-  - [smd/typeclass/applicative.hpp](#orgabdae3e)
-  - [smd/typeclass/examples/applicative<sub>bad.cpp</sub>](#org2a9847d)
-  - [smd/typeclass/examples/applicative<sub>examples.cpp</sub>](#org83a61cb)
-  - [smd/typeclass/examples/foldable<sub>examples.cpp</sub>](#org4e7c74c)
-  - [smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>](#orgac0eb7b)
-  - [smd/typeclass/examples/traversable<sub>examples.cpp</sub>](#org9940544)
-  - [smd/typeclass/foldable.hpp](#orgc95a55a)
-  - [smd/typeclass/functor.hpp](#org7d40a5c)
-  - [smd/typeclass/monoid.hpp](#orgcfa2188)
-  - [smd/typeclass/traversable.hpp](#orgcf19d89)
-  - [smd/typeclass/typeclass<sub>base.hpp</sub>](#org87f0bf9)
-  - [smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>](#org2cdb185)
-  - [smd/ziplist/zip<sub>list.hpp</sub>](#org4194d1b)
-- [Regeneration](#org02f815d)
+- [Overview](#org394690b)
+- [Active Source Files](#org2a56ee5)
+  - [smd/fixpoint/box.hpp](#orgc8973b1)
+  - [smd/fixpoint/cata.hpp](#org6d0ab80)
+  - [smd/fixpoint/fix.hpp](#orge86b21c)
+  - [smd/fixpoint/overloaded.hpp](#org5e90888)
+  - [smd/ranges/range<sub>applicative.hpp</sub>](#org8fa49c5)
+  - [smd/ranges/range<sub>foldable.hpp</sub>](#org5f433f8)
+  - [smd/ranges/range<sub>functor.hpp</sub>](#orgad6493b)
+  - [smd/ranges/range<sub>list.hpp</sub>](#org7e0438e)
+  - [smd/ranges/range<sub>traversable.hpp</sub>](#org70c202b)
+  - [smd/thunk/delay.hpp](#orgedf59e4)
+  - [smd/thunk/memoize.hpp](#org944e3ae)
+  - [smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>](#orga265e02)
+  - [smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>](#org7e9a47c)
+  - [smd/tree/binary<sub>tree.hpp</sub>](#org07d7527)
+  - [smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>](#orgd8b6607)
+  - [smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>](#orgd5f9af3)
+  - [smd/tree/finger<sub>tree.hpp</sub>](#org8fb20d0)
+  - [smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>](#org38bc699)
+  - [smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>](#orgd4475d6)
+  - [smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>](#orgd0f3b61)
+  - [smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>](#orge28bf47)
+  - [smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>](#orgb421847)
+  - [smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>](#orgf135309)
+  - [smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>](#orgcbf5132)
+  - [smd/tree/fixpoint<sub>tree.hpp</sub>](#orgca6db68)
+  - [smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>](#orgddbb3e3)
+  - [smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>](#orgb857de4)
+  - [smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>](#org08396d5)
+  - [smd/tree/fringe<sub>tree.hpp</sub>](#orgd5bbfb2)
+  - [smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>](#orgd9d4e34)
+  - [smd/typeclass/applicative.hpp](#org1c50d0c)
+  - [smd/typeclass/examples/applicative<sub>bad.cpp</sub>](#org4c1a55d)
+  - [smd/typeclass/examples/applicative<sub>examples.cpp</sub>](#orgbe62578)
+  - [smd/typeclass/examples/foldable<sub>examples.cpp</sub>](#org415fca0)
+  - [smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>](#org3987e31)
+  - [smd/typeclass/examples/traversable<sub>examples.cpp</sub>](#org423c097)
+  - [smd/typeclass/foldable.hpp](#orgab22766)
+  - [smd/typeclass/functor.hpp](#org80573f2)
+  - [smd/typeclass/monoid.hpp](#org55d57f3)
+  - [smd/typeclass/traversable.hpp](#orgeb1efa8)
+  - [smd/typeclass/typeclass<sub>base.hpp</sub>](#orgb044468)
+  - [smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>](#org557ba99)
+  - [smd/ziplist/zip<sub>list.hpp</sub>](#org7c59a3d)
+- [Regeneration](#org6b15800)
 
 
 
-<a id="orge0f60cc"></a>
+<a id="org394690b"></a>
 
 # Overview
 
 This index transcludes active files under `trees/src` that are explicitly listed in CMake `target_sources()` entries. It excludes `deadcode` and `smd/conceptmap`.
 
 
-<a id="orge6a66d0"></a>
+<a id="org2a56ee5"></a>
 
 # Active Source Files
 
 
-<a id="org23f1e46"></a>
-
-## examples/cpo<sub>example.cpp</sub>
-
-```cpp
-#include <concepts>
-#include <string>
-
-namespace N::hidden {
-template <typename T>
-concept has_eq = requires(const T &v) {
-    { eq(v, v) } -> std::same_as<bool>;
-};
-
-struct eq_fn {
-    template <has_eq T>
-    constexpr bool operator()(const T &x, const T &y) const {
-        return eq(x, y);
-    }
-};
-
-template <has_eq T>
-constexpr bool ne(const T &x, const T &y) {
-    return not eq(x, y);
-}
-
-template <typename T>
-concept has_ne = requires(const T &v) {
-    { ne(v, v) } -> std::same_as<bool>;
-};
-
-struct ne_fn {
-    template <has_ne T>
-    constexpr bool operator()(const T &x, const T &y) const {
-        return ne(x, y);
-    }
-};
-} // namespace N::hidden
-
-namespace N {
-inline namespace function_objects {
-inline constexpr hidden::eq_fn eq{};
-inline constexpr hidden::ne_fn ne{};
-} // namespace function_objects
-
-template <typename T>
-concept equality_comparable = requires(const std::remove_reference_t<T> &t) {
-    eq(t, t);
-    ne(t, t);
-};
-} // namespace N
-
-struct test {
-    std::string id;
-
-    friend bool eq(const test &t1, const test &t2) { return t1.id == t2.id; }
-};
-
-int main() {
-    static_assert(N::equality_comparable<test>);
-
-    test t1, t2;
-    return N::ne(t1, t2);
-}
-```
-
-
-<a id="org701d451"></a>
-
-## examples/fixpoint<sub>tree</sub><sub>example.cpp</sub>
-
-```cpp
-// src/examples/fixpoint_tree_example.cpp                              -*-C++-*-
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-
-#include <iostream>
-#include <memory>
-#include <variant>
-
-// Box<A>: value-semantic wrapper for recursive positions.
-// Stands in for std::indirect (C++26) until it ships.
-template <typename A>
-using Box = std::shared_ptr<A>;
-
-template <typename A, typename... Args>
-auto make_box(Args &&...args) -> Box<A> {
-    return std::make_shared<A>(std::forward<Args>(args)...);
-}
-
-// 1. The flat, non-recursive functor.  No inheritance, no CRTP.
-template <typename A>
-struct Const {
-    int val;
-};
-template <typename A>
-struct Add {
-    Box<A> left, right;
-};
-template <typename A>
-struct Mul {
-    Box<A> left, right;
-};
-
-template <typename A>
-using ExprF = std::variant<Const<A>, Add<A>, Mul<A>>;
-
-// 2. The type-level fixed-point combinator.  Pure composition (has-a).
-template <template <typename> class F>
-struct Fix {
-    F<Fix<F>> inner;
-};
-
-// 3. Zero-cost phantom operations (isorecursive boundaries)
-template <template <typename> class F>
-constexpr Fix<F> wrap(F<Fix<F>> f) {
-    return Fix<F>{std::move(f)};
-}
-
-template <template <typename> class F>
-constexpr const F<Fix<F>> &unwrap(const Fix<F> &f) {
-    return f.inner;
-}
-
-// 4. Visitor helper and fmap
-template <class... Ts>
-struct overloaded : Ts... {
-    using Ts::operator()...;
-};
-template <class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
-
-template <typename A, typename B, typename Func>
-ExprF<B> fmap(Func &&f, const ExprF<A> &fa) {
-    return std::visit(
-        overloaded{
-            [](const Const<A> &c) -> ExprF<B> { return Const<B>{c.val}; },
-            [&f](const Add<A> &a) -> ExprF<B> {
-                return Add<B>{make_box<B>(f(*a.left)),
-                              make_box<B>(f(*a.right))};
-            },
-            [&f](const Mul<A> &m) -> ExprF<B> {
-                return Mul<B>{make_box<B>(f(*m.left)),
-                              make_box<B>(f(*m.right))};
-            },
-        },
-        fa);
-}
-
-// 5. Catamorphism (cata): the universal fold for fixpoint types
-template <template <typename> class F, typename Algebra>
-auto cata(const Algebra &alg, const Fix<F> &tree)
-    -> decltype(std::visit(alg, std::declval<F<int>>())) {
-    using Carrier = decltype(std::visit(alg, std::declval<F<int>>()));
-    return std::visit(alg, fmap<Fix<F>, Carrier>(
-                               [&alg](const Fix<F> &child) -> Carrier {
-                                   return cata<F>(alg, child);
-                               },
-                               unwrap(tree)));
-}
-
-// 6. Smart constructors
-using ExprTree = Fix<ExprF>;
-
-ExprTree const_node(int v) { return wrap<ExprF>(Const<ExprTree>{v}); }
-
-ExprTree add_node(ExprTree l, ExprTree r) {
-    return wrap<ExprF>(Add<ExprTree>{make_box<ExprTree>(std::move(l)),
-                                     make_box<ExprTree>(std::move(r))});
-}
-
-ExprTree mul_node(ExprTree l, ExprTree r) {
-    return wrap<ExprF>(Mul<ExprTree>{make_box<ExprTree>(std::move(l)),
-                                     make_box<ExprTree>(std::move(r))});
-}
-
-// 7. Usage: building and evaluating
-int main() {
-    // Build the tree: (2 * 3) + 4
-    ExprTree tree =
-        add_node(mul_node(const_node(2), const_node(3)), const_node(4));
-
-    // Evaluate using a non-recursive algebra
-    auto eval_algebra = overloaded{
-        [](const Const<int> &c) { return c.val; },
-        [](const Add<int> &a) { return *a.left + *a.right; },
-        [](const Mul<int> &m) { return *m.left * *m.right; },
-    };
-
-    std::cout << "Result: " << cata<ExprF>(eval_algebra, tree) << "\n";
-    return 0;
-}
-```
-
-
-<a id="orga0f2051"></a>
-
-## examples/map<sub>example.cpp</sub>
-
-```cpp
-#include <concepts>
-#include <string>
-
-namespace N::hidden {
-template <typename T>
-concept has_eq = requires(const T &v) {
-    { operator==(v, v) } -> std::same_as<bool>;
-};
-
-inline constexpr struct partial_eq_default_t {
-    constexpr bool eq(const has_eq auto &rhs, const has_eq auto &lhs) const {
-        return (rhs == lhs);
-    }
-    constexpr bool ne(const has_eq auto &rhs, const has_eq auto &lhs) const {
-        return (lhs != rhs);
-    }
-} partial_eq_default;
-
-} // namespace N::hidden
-
-namespace N {
-
-template <class T>
-inline constexpr auto partial_eq = hidden::partial_eq_default;
-
-template <class T>
-concept partial_equality = requires(const std::remove_reference_t<T> &t) {
-    { partial_eq<T>.eq(t, t) } -> std::same_as<bool>;
-    { partial_eq<T>.ne(t, t) } -> std::same_as<bool>;
-};
-} // namespace N
-
-struct test {
-    int id{};
-
-    friend auto operator<=>(const test &, const test &) = default;
-};
-
-int main() {
-    static_assert(N::partial_equality<test>);
-
-    test t1, t2;
-    return N::partial_eq<test>.ne(t1, t2);
-}
-
-// https://compiler-explorer.com/z/48E7osfxE
-```
-
-
-<a id="orgf0ca5d2"></a>
+<a id="orgc8973b1"></a>
 
 ## smd/fixpoint/box.hpp
 
@@ -338,7 +87,7 @@ auto make_box(Args &&...args) -> Box<A> {
 ```
 
 
-<a id="org37a3c0f"></a>
+<a id="org6d0ab80"></a>
 
 ## smd/fixpoint/cata.hpp
 
@@ -371,7 +120,7 @@ auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
 ```
 
 
-<a id="orgd1c93db"></a>
+<a id="orge86b21c"></a>
 
 ## smd/fixpoint/fix.hpp
 
@@ -406,7 +155,7 @@ constexpr auto unwrap(const Fix<F> &fixed) -> const F<Fix<F>> & {
 ```
 
 
-<a id="orgb4ef3e4"></a>
+<a id="org5e90888"></a>
 
 ## smd/fixpoint/overloaded.hpp
 
@@ -432,7 +181,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 ```
 
 
-<a id="orgba320ce"></a>
+<a id="org8fa49c5"></a>
 
 ## smd/ranges/range<sub>applicative.hpp</sub>
 
@@ -503,7 +252,7 @@ inline constexpr auto applicative_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="orgafa5cea"></a>
+<a id="org5f433f8"></a>
 
 ## smd/ranges/range<sub>foldable.hpp</sub>
 
@@ -618,7 +367,7 @@ inline constexpr auto foldable_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="org78c583b"></a>
+<a id="orgad6493b"></a>
 
 ## smd/ranges/range<sub>functor.hpp</sub>
 
@@ -661,7 +410,7 @@ inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="orgc90cde9"></a>
+<a id="org7e0438e"></a>
 
 ## smd/ranges/range<sub>list.hpp</sub>
 
@@ -762,7 +511,7 @@ auto from_vector(std::vector<VALUE> values) {
 ```
 
 
-<a id="orge7ff4af"></a>
+<a id="org70c202b"></a>
 
 ## smd/ranges/range<sub>traversable.hpp</sub>
 
@@ -855,7 +604,7 @@ inline constexpr auto traversable_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="orgdd5deec"></a>
+<a id="orgedf59e4"></a>
 
 ## smd/thunk/delay.hpp
 
@@ -897,7 +646,7 @@ auto delay(Callable &&c, Args &&...args) {
 ```
 
 
-<a id="orgc366e87"></a>
+<a id="org944e3ae"></a>
 
 ## smd/thunk/memoize.hpp
 
@@ -1019,7 +768,7 @@ auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
 ```
 
 
-<a id="orgcca31dd"></a>
+<a id="orga265e02"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>
 
@@ -1116,7 +865,7 @@ inline constexpr auto applicative_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="org2198e34"></a>
+<a id="org7e9a47c"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -1173,7 +922,7 @@ inline constexpr auto foldable_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="org92359d0"></a>
+<a id="org07d7527"></a>
 
 ## smd/tree/binary<sub>tree.hpp</sub>
 
@@ -1258,7 +1007,7 @@ class BinaryTree {
 ```
 
 
-<a id="org60203cc"></a>
+<a id="orgd8b6607"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -1382,7 +1131,7 @@ inline constexpr auto traversable_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="org37754e6"></a>
+<a id="orgd5f9af3"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -1436,7 +1185,7 @@ inline constexpr auto
 ```
 
 
-<a id="org856a587"></a>
+<a id="org8fb20d0"></a>
 
 ## smd/tree/finger<sub>tree.hpp</sub>
 
@@ -2265,8 +2014,9 @@ class FingerTree {
                 auto node_prefix =
                     tag_combine(vl, spine_split->d_left.measure());
 
-                auto nd = node_to_digit(spine_split->d_pivot);
-                auto node_split = split_digit(predicate, node_prefix, nd);
+                auto node_digit = node_to_digit(spine_split->d_pivot);
+                auto node_split =
+                    split_digit(predicate, node_prefix, node_digit);
                 if (!node_split.has_value())
                     return std::nullopt;
 
@@ -2648,7 +2398,7 @@ class FingerTree {
 ```
 
 
-<a id="org0d3c9f4"></a>
+<a id="org38bc699"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>
 
@@ -2862,7 +2612,7 @@ inline constexpr auto
 ```
 
 
-<a id="org4eea220"></a>
+<a id="orgd4475d6"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>
 
@@ -3130,7 +2880,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgb94a9d0"></a>
+<a id="orgd0f3b61"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>
 
@@ -3318,7 +3068,7 @@ inline constexpr auto
 ```
 
 
-<a id="org2405595"></a>
+<a id="orge28bf47"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>
 
@@ -3524,7 +3274,7 @@ inline constexpr auto traversable_typeclass<smd::tree::FingerTreeRope> =
 ```
 
 
-<a id="org1d5f48a"></a>
+<a id="orgb421847"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -3608,7 +3358,7 @@ inline constexpr auto
 ```
 
 
-<a id="org3cd9e1c"></a>
+<a id="orgf135309"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>
 
@@ -3627,7 +3377,7 @@ inline constexpr auto
 ```
 
 
-<a id="org39463ab"></a>
+<a id="orgcbf5132"></a>
 
 ## smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -3698,7 +3448,7 @@ inline constexpr auto foldable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =
 ```
 
 
-<a id="org397cf5c"></a>
+<a id="orgca6db68"></a>
 
 ## smd/tree/fixpoint<sub>tree.hpp</sub>
 
@@ -3804,7 +3554,7 @@ inline auto eval(const Expr &expr) -> double {
 ```
 
 
-<a id="org220fee7"></a>
+<a id="orgddbb3e3"></a>
 
 ## smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -3882,7 +3632,7 @@ inline constexpr auto
 ```
 
 
-<a id="orga3c163a"></a>
+<a id="orgb857de4"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>
 
@@ -3957,7 +3707,7 @@ inline constexpr auto applicative_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="org6c7ac84"></a>
+<a id="org08396d5"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -4014,7 +3764,7 @@ inline constexpr auto foldable_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="orgae13ce5"></a>
+<a id="orgd5bbfb2"></a>
 
 ## smd/tree/fringe<sub>tree.hpp</sub>
 
@@ -4221,7 +3971,7 @@ class FringeTree {
 ```
 
 
-<a id="orgb2da781"></a>
+<a id="orgd9d4e34"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -4294,7 +4044,7 @@ inline constexpr auto traversable_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="orgabdae3e"></a>
+<a id="org1c50d0c"></a>
 
 ## smd/typeclass/applicative.hpp
 
@@ -4646,7 +4396,7 @@ inline constexpr auto
 ```
 
 
-<a id="org2a9847d"></a>
+<a id="org4c1a55d"></a>
 
 ## smd/typeclass/examples/applicative<sub>bad.cpp</sub>
 
@@ -4685,7 +4435,7 @@ auto bad_applicative_example() -> std::size_t {
 ```
 
 
-<a id="org83a61cb"></a>
+<a id="orgbe62578"></a>
 
 ## smd/typeclass/examples/applicative<sub>examples.cpp</sub>
 
@@ -4718,7 +4468,7 @@ auto applicative_invoke_example() -> beman::optional::optional<int> {
 ```
 
 
-<a id="org4e7c74c"></a>
+<a id="org415fca0"></a>
 
 ## smd/typeclass/examples/foldable<sub>examples.cpp</sub>
 
@@ -4803,7 +4553,7 @@ auto foldable_flattens_shape_example() -> bool {
 ```
 
 
-<a id="orgac0eb7b"></a>
+<a id="org3987e31"></a>
 
 ## smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>
 
@@ -4854,7 +4604,7 @@ auto nttp_object_lookup_example() -> std::optional<int> {
 ```
 
 
-<a id="org9940544"></a>
+<a id="org423c097"></a>
 
 ## smd/typeclass/examples/traversable<sub>examples.cpp</sub>
 
@@ -4927,7 +4677,7 @@ auto traversable_preserves_shape_example() -> bool {
 ```
 
 
-<a id="orgc95a55a"></a>
+<a id="orgab22766"></a>
 
 ## smd/typeclass/foldable.hpp
 
@@ -5295,7 +5045,7 @@ inline constexpr auto foldable_typeclass = std::false_type{};
 ```
 
 
-<a id="org7d40a5c"></a>
+<a id="org80573f2"></a>
 
 ## smd/typeclass/functor.hpp
 
@@ -5428,7 +5178,7 @@ inline constexpr auto functor_typeclass<std::vector<VALUE_TYPE>> =
 ```
 
 
-<a id="orgcfa2188"></a>
+<a id="org55d57f3"></a>
 
 ## smd/typeclass/monoid.hpp
 
@@ -5549,7 +5299,7 @@ auto monoid_combine(const VALUE_TYPE &lhs, const VALUE_TYPE &rhs)
 ```
 
 
-<a id="orgcf19d89"></a>
+<a id="orgeb1efa8"></a>
 
 ## smd/typeclass/traversable.hpp
 
@@ -5664,7 +5414,7 @@ auto traverse(F &&function, T &&value) {
 ```
 
 
-<a id="org87f0bf9"></a>
+<a id="orgb044468"></a>
 
 ## smd/typeclass/typeclass<sub>base.hpp</sub>
 
@@ -5719,7 +5469,7 @@ using applicative_value_t = typename applicative_value<remove_cvref_t<T>>::type;
 ```
 
 
-<a id="org2cdb185"></a>
+<a id="org557ba99"></a>
 
 ## smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>
 
@@ -5854,7 +5604,7 @@ inline constexpr auto applicative_typeclass<zip_list<T>> =
 ```
 
 
-<a id="org4194d1b"></a>
+<a id="org7c59a3d"></a>
 
 ## smd/ziplist/zip<sub>list.hpp</sub>
 
@@ -5903,7 +5653,7 @@ struct zip_list {
 ```
 
 
-<a id="org02f815d"></a>
+<a id="org6b15800"></a>
 
 # Regeneration
 
