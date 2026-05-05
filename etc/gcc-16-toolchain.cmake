@@ -16,7 +16,7 @@ set(CMAKE_EXE_LINKER_FLAGS
 )
 
 set(CMAKE_CXX_FLAGS_ASAN
-  "${CMAKE_CXX_FLAGS_ASAN} -Wno-maybe-uninitialized -ftemplate-depth=100"
+    "${CMAKE_CXX_FLAGS_ASAN} -Wno-maybe-uninitialized -ftemplate-depth=100"
     CACHE STRING
     "C++ ASAN Flags"
     FORCE

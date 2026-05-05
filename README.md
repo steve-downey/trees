@@ -43,6 +43,10 @@ Example:
 
 This package includes a tiny compatibility header at `src/beman/optional/optional.hpp` so the examples compile in isolation. In the real repo, prefer the real `beman::optional` dependency.
 
+## Lint workflow
+
+- Use `make lint` for the pre-commit-driven lint path used by CI.
+- Use `make lint-local` when you need the same checks without pre-commit hook environment downloads.
 
 ## Deck entry point
 

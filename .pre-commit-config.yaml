@@ -1,6 +1,15 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
-exclude: (?x)^( vendor/.* | infra/.* )$
+exclude: >
+  (?x)^(
+    (?:trees/)?vendor/.* |
+    (?:trees/)?infra/.* |
+    (?:trees/)?docs/reference/.* |
+    (?:trees/)?docs/live-src-main(?:-built-targets)?\.md |
+    (?:trees/)?docs/doxygen-awesome(?:-darkmode-toggle)?\.(?:css|js) |
+    (?:trees/)?[^/]+(?:-slides)?\.html |
+    (?:trees/)?foldable-applicative-traversable\.md
+  )$
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

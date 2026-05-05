@@ -8,11 +8,18 @@ set(CMAKE_EXPERIMENTAL_INSTRUMENTATION ec7aa2dc-b87f-45a3-8022-fe01c5f59984)
 # Instrumentation query
 # find_package(Python COMPONENTS Interpreter)
 cmake_instrumentation(
-  API_VERSION 1
-  DATA_VERSION 1
-  HOOKS postGenerate preBuild postBuild preCMakeBuild postCMakeBuild postCMakeInstall postCTest
-  OPTIONS trace
-  CALLBACK ${CMAKE_SOURCE_DIR}/scripts/instrument.sh
+    API_VERSION 1
+    DATA_VERSION 1
+    HOOKS
+        postGenerate
+        preBuild
+        postBuild
+        preCMakeBuild
+        postCMakeBuild
+        postCMakeInstall
+        postCTest
+    OPTIONS trace
+    CALLBACK ${CMAKE_SOURCE_DIR}/scripts/instrument.sh
 )
 
 # Includes
@@ -51,7 +58,10 @@ if(TARGET smd_typeclass_slide_examples)
     add_dependencies(slide_snippets_check smd_typeclass_slide_examples)
 
     if(TARGET smd_typeclass_slide_examples_tests)
-        add_dependencies(slide_snippets_check smd_typeclass_slide_examples_tests)
+        add_dependencies(
+            slide_snippets_check
+            smd_typeclass_slide_examples_tests
+        )
     endif()
 endif()
 

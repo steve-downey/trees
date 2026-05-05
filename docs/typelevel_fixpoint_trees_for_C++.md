@@ -1,4 +1,4 @@
-### Concise Directions for an Assistant: Implementing a C++ FixTree Adaptor
+# Concise Directions for an Assistant: Implementing a C++ FixTree Adaptor
 
 When tasked with generating a "fixtree" (an abstract syntax tree built on F-algebras) in modern C++, follow these precise architectural steps. *Note: As `std::indirect` (C++26) may be unavailable in the target compilation environment, this guide defaults to using `std::shared_ptr` to box recursive elements.*
 

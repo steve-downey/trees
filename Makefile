@@ -21,6 +21,19 @@ PYEXEC := $(UV) run python
 MARKER = .initialized.venv.stamp
 
 PRE_COMMIT := $(UV) run pre-commit
+CLANG_FORMAT_BATCH_SIZE ?= 25
+LOCAL_LINT_BATCH_SIZE ?= 25
+LOCAL_TOOLS_DIR ?= .tools
+LOCAL_BIN_DIR := $(LOCAL_TOOLS_DIR)/bin
+LOCAL_NODE_BIN_DIR := $(LOCAL_TOOLS_DIR)/node_modules/.bin
+LOCAL_MARKDOWNLINT := $(LOCAL_NODE_BIN_DIR)/markdownlint
+LOCAL_CHECKMAKE := $(LOCAL_BIN_DIR)/checkmake
+LOCAL_GITLEAKS := $(LOCAL_BIN_DIR)/gitleaks
+MARKDOWNLINT_LOCAL_BASE_ARGS := --disable MD013 --
+MARKDOWNLINT_GH_DISABLE := MD007 MD009 MD010 MD012 MD022 MD030 MD031 MD032 MD040
+MARKDOWNLINT_GH_ARGS := --disable MD013 $(MARKDOWNLINT_GH_DISABLE) --
+NPM ?= $(shell command -v npm 2> /dev/null)
+GO ?= $(shell command -v go 2> /dev/null)
 
 EMACS := $(shell command -v emacs 2> /dev/null)
 
@@ -196,12 +209,131 @@ bash zsh: ## Run bash or zsh with the venv activated
 .PHONY: lint
 lint: venv
 lint: ## Run all configured tools in pre-commit
-	$(PRE_COMMIT) run -a
+	SKIP=clang-format $(PRE_COMMIT) run -a
+	$(MAKE) clang-format-all
+
+.PHONY: clang-format-all
+clang-format-all: venv
+clang-format-all: ## Run clang-format in batches to avoid exhausting memory
+	find . \
+		\( -path './.build' -o -path './.build/*' \
+		   -o -path './.venv' -o -path './.venv/*' \
+		   -o -path './vendor' -o -path './vendor/*' \
+		   -o -path './infra' -o -path './infra/*' \) -prune -o \
+		-type f \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.cxx' \
+		   -o -name '*.h' -o -name '*.hh' -o -name '*.hpp' -o -name '*.hxx' \
+		   -o -name '*.ipp' \) \
+		-print0 \
+	| xargs -0 -r -n $(CLANG_FORMAT_BATCH_SIZE) $(PRE_COMMIT) run clang-format --files
 
 .PHONY: lint-manual
 lint-manual: venv
 lint-manual: ## Run all manual tools in pre-commit
 	$(PRE_COMMIT) run --hook-stage manual -a
+
+$(LOCAL_TOOLS_DIR):
+	mkdir -p $(LOCAL_TOOLS_DIR)
+
+$(LOCAL_BIN_DIR): | $(LOCAL_TOOLS_DIR)
+	mkdir -p $(LOCAL_BIN_DIR)
+
+$(LOCAL_MARKDOWNLINT): | $(LOCAL_TOOLS_DIR)
+	$(NPM) install --no-save --prefix $(LOCAL_TOOLS_DIR) markdownlint-cli@0.43.0
+
+$(LOCAL_CHECKMAKE): | $(LOCAL_BIN_DIR)
+	GOBIN=$(abspath $(LOCAL_BIN_DIR)) $(GO) install github.com/mrtazz/checkmake/cmd/checkmake@v0.2.2
+
+$(LOCAL_GITLEAKS): | $(LOCAL_BIN_DIR)
+	GOBIN=$(abspath $(LOCAL_BIN_DIR)) $(GO) install github.com/zricethezav/gitleaks/v8@v8.16.3
+
+.PHONY: local-lint-tools
+local-lint-tools: $(LOCAL_MARKDOWNLINT) $(LOCAL_CHECKMAKE) $(LOCAL_GITLEAKS)
+local-lint-tools: ## Install non-Python local lint tools into the project tree
+
+.PHONY: markdownlint-local
+markdownlint-local: local-lint-tools
+markdownlint-local: ## Run markdownlint on top-level hand-maintained docs
+	find . -maxdepth 1 -type f -name '*.md' \
+		! -name 'foldable-applicative-traversable.md' \
+		-print0 \
+	| xargs -0 -r $(LOCAL_MARKDOWNLINT) $(MARKDOWNLINT_LOCAL_BASE_ARGS)
+	find ./docs -maxdepth 1 -type f -name '*.md' \
+		! -name 'index.md' \
+		! -name 'codestyle.md' \
+		! -name 'live-src-main.md' \
+		! -name 'live-src-main-built-targets.md' \
+		-print0 \
+	| xargs -0 -r $(LOCAL_MARKDOWNLINT) $(MARKDOWNLINT_LOCAL_BASE_ARGS)
+
+.PHONY: markdownlint-gh
+markdownlint-gh: local-lint-tools
+markdownlint-gh: ## Run markdownlint with rules that matter for GitHub rendering
+	find . -maxdepth 1 -type f -name '*.md' \
+		! -name 'foldable-applicative-traversable.md' \
+		-print0 \
+	| xargs -0 -r $(LOCAL_MARKDOWNLINT) $(MARKDOWNLINT_GH_ARGS)
+	find ./docs -maxdepth 1 -type f -name '*.md' \
+		! -name 'index.md' \
+		! -name 'codestyle.md' \
+		! -name 'live-src-main.md' \
+		! -name 'live-src-main-built-targets.md' \
+		-print0 \
+	| xargs -0 -r $(LOCAL_MARKDOWNLINT) $(MARKDOWNLINT_GH_ARGS)
+
+.PHONY: lint-local
+lint-local: venv local-lint-tools
+lint-local: ## Run local lint tools without pre-commit environment downloads
+	$(MAKE) markdownlint-gh
+	$(UV) run codespell -I .codespell_ignore --uri-ignore-words-list '*' \
+		-S './vendor,./infra,./etc,./docs/reference,./docs/haskell,./docs/index.md,./docs/codestyle.md,./docs/live-src-main.md,./docs/live-src-main-built-targets.md,./docs/doxygen-awesome.css,./docs/doxygen-awesome-darkmode-toggle.js,./foldable-applicative-traversable.html,./foldable-applicative-traversable-slides.html,./foldable-applicative-traversable.md'
+	find . \
+		\( -path './.build' -o -path './.build/*' \
+		   -o -path './.venv' -o -path './.venv/*' \
+		   -o -path './.tools' -o -path './.tools/*' \
+		   -o -path './vendor' -o -path './vendor/*' \
+		   -o -path './infra' -o -path './infra/*' \) -prune -o \
+		-type f \( -name 'CMakeLists.txt' -o -name 'CMakeLists.txt.in' -o -name '*.cmake' -o -name '*.cmake.in' \) \
+		-print0 \
+	| xargs -0 -r -n $(LOCAL_LINT_BATCH_SIZE) $(UV) run gersemi -i
+	find . \
+		\( -path './.build' -o -path './.build/*' \
+		   -o -path './.venv' -o -path './.venv/*' \
+		   -o -path './.tools' -o -path './.tools/*' \
+		   -o -path './vendor' -o -path './vendor/*' \
+		   -o -path './infra' -o -path './infra/*' \) -prune -o \
+		-type f \( -name 'Makefile' -o -name '*.mk' \) \
+		-print0 \
+	| xargs -0 -r $(UV) run mbake validate
+	find . \
+		\( -path './.build' -o -path './.build/*' \
+		   -o -path './.venv' -o -path './.venv/*' \
+		   -o -path './.tools' -o -path './.tools/*' \
+		   -o -path './vendor' -o -path './vendor/*' \
+		   -o -path './infra' -o -path './infra/*' \) -prune -o \
+		-type f \( -name 'Makefile' -o -name '*.mk' \) \
+		-print0 \
+	| xargs -0 -r $(LOCAL_CHECKMAKE)
+	find . \
+		\( -path './.build' -o -path './.build/*' \
+		   -o -path './.venv' -o -path './.venv/*' \
+		   -o -path './.tools' -o -path './.tools/*' \
+		   -o -path './vendor' -o -path './vendor/*' \
+		   -o -path './infra' -o -path './infra/*' \) -prune -o \
+		-type f -name '*.sh' \
+		-print0 \
+	| xargs -0 -r $(UV) run shellcheck
+	$(LOCAL_GITLEAKS) detect --no-git --no-banner --redact --source .
+	find . \
+		\( -path './.build' -o -path './.build/*' \
+		   -o -path './.venv' -o -path './.venv/*' \
+		   -o -path './.tools' -o -path './.tools/*' \
+		   -o -path './vendor' -o -path './vendor/*' \
+		   -o -path './infra' -o -path './infra/*' \) -prune -o \
+		-type f \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.cxx' \
+		   -o -name '*.h' -o -name '*.hh' -o -name '*.hpp' -o -name '*.hxx' \
+		   -o -name '*.ipp' \) \
+		-print0 \
+	| xargs -0 -r -n $(CLANG_FORMAT_BATCH_SIZE) $(UV) run clang-format -i
 
 .PHONY: coverage
 coverage: ## Build and run the tests with the GCOV profile and process the results

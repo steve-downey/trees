@@ -289,14 +289,14 @@ The FOLDABLE parameter defaults to the variable template lookup.
 Callers can supply a custom instance to change behavior for a specific call site.
 #+end_notes
 
-*** Implementors: One Hook, Many Derived Operations
+*** Implementers: One Hook, Many Derived Operations
 - Implement one minimal hook per concept; all derived operations are provided automatically.
 - Foldable: implement ~fold_map~ → counting, folding, predicates, collection.
 - Applicative: implement ~pure~ + ~apply~ → ~invoke~, ~map~, ~ap~, ~zip_with~, and more.
 - Traversable: implement ~traverse~ → ~for_each~, ~sequence~, and override variants.
 
 #+begin_notes
-Small implementor surface.
+Small implementer surface.
 Larger user surface.
 That is the trade I want.
 #+end_notes

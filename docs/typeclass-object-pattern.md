@@ -58,7 +58,7 @@ The typeclass implementation object is an object and should be usable in three w
 - A generic function can bind the looked-up map object as an NTTP default and use it directly.
 
 This is not a cosmetic detail.
-It keeps instance selection explicit, testable, and overrideable while preserving static dispatch.
+It keeps instance selection explicit, testable, and overridable while preserving static dispatch.
 
 The conceptmap tests already demonstrate the NTTP style in practice:
 

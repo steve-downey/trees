@@ -165,7 +165,7 @@ If a test crashes deterministically:
    - Add assertions in suspected code paths.
    - Recompile and rerun with timeout.
 
-## Recommendations for Future Implementors
+## Recommendations for Future Implementers
 
 ### Next Steps for Lazy Removal
 
