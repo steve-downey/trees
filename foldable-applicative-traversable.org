@@ -753,6 +753,70 @@ Independent extension points still compose.
 No monkey-patching, no reopening classes, no central registry.
 #+end_notes
 
+* Tree Core API
+
+*** What a ~std::tree~ Should Provide
+- Containers have a standard vocabulary: ~empty()~, ~size()~, ~front()~, ~push_back()~, ~begin()~.
+- Trees need an equivalent: construction, decomposition, persistent updates, bulk traversal.
+- FringeTree and FingerTree share this interface — differing in performance, not in surface.
+
+#+begin_notes
+This is the surface you would expect from a standard tree type.
+It parallels the container requirements tables, but for persistent tree structures.
+All operations are functional — they return new trees, leaving the original unchanged.
+#+end_notes
+
+*** Construction and Queries
+
+| Operation          | Description                    | Container Parallel |
+|--------------------+--------------------------------+--------------------|
+| ~empty()~          | Create an empty tree           | default ctor       |
+| ~leaf(x)~          | Single-element tree            | initializer ctor   |
+| ~from_sequence(v)~ | Build from a vector            | range ctor         |
+| ~is_empty()~       | True if no elements            | ~empty()~          |
+| ~measure()~        | Aggregate metric (count, etc.) | ~size()~           |
+| ~breadth()~        | Number of leaf elements        | ~size()~           |
+
+#+begin_notes
+~measure~ generalizes ~size~ — the metric can be count, priority, or byte-length, depending on the monoid.
+~breadth~ always returns the element count regardless of measure policy.
+#+end_notes
+
+*** Views and Persistent Updates
+
+| Operation       | Description                           | Container Parallel    |
+|-----------------+---------------------------------------+-----------------------|
+| ~view_l()~      | Leftmost element + rest               | —                     |
+| ~view_r()~      | Rightmost element + rest              | —                     |
+| ~head()~        | Leftmost element                      | ~front()~             |
+| ~last()~        | Rightmost element                     | ~back()~              |
+| ~tail()~        | Drop leftmost                         | ~pop_front()~ (pure)  |
+| ~init()~        | Drop rightmost                        | ~pop_back()~ (pure)   |
+| ~cons(x)~       | Prepend element                       | ~push_front()~ (pure) |
+| ~snoc(x)~       | Append element                        | ~push_back()~ (pure)  |
+| ~append(other)~ | Concatenate two trees                 | —                     |
+| ~flatten()~     | Extract all elements as vector        | iterator + copy       |
+| ~for_each(f)~   | Visit each element without allocation | ~for_each~ algorithm  |
+
+#+begin_notes
+Views are the key novelty: ~view_l~ returns both the head and the rest in one operation.
+This is the functional equivalent of ~front()~ + ~pop_front()~, but non-destructive.
+All updates return new trees — structural sharing makes this efficient.
+#+end_notes
+
+*** Traversable Fills the Gaps
+- Foldable gives ~fold_map~, ~length~, ~to_vector~, ~any_of~, ~all_of~, ~fold_left~, ~fold_right~ — derived from one hook.
+- Traversable gives ~traverse~, ~sequence~ — shape-preserving traversal with effects.
+- These work on /any/ tree (FringeTree, FingerTree, BinaryTree, FixTree) via typeclass specialization.
+- A tree does not need the full core API to participate in generic algorithms.
+
+#+begin_notes
+A new tree type needs only a ~traverse~ implementation and an ~element_type~ declaration.
+Everything else is derived.
+The core API above is for direct tree manipulation;
+the typeclass layer is for generic algorithms that work across all tree shapes.
+#+end_notes
+
 * Cross-Language Name Mapping
 
 *** Functor
