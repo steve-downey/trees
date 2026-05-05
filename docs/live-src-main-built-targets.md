@@ -22,7 +22,7 @@ notes:
 
 # Live Source Snapshot (main, strict built-target graph)
 
-Generated from main at commit e5a625d1.
+Generated from main at commit 0222a18f.
 
 This file includes only source files explicitly listed in CMake target_sources() entries under trees/src.
 
