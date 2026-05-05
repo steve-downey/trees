@@ -25,7 +25,7 @@ notes:
 
 # Live Source Snapshot (main)
 
-Generated from main at commit 22690de.
+Generated from main at commit e4f1b2a0.
 
 Includes files under trees/src that are live in current targets and examples, excluding deadcode and smd/conceptmap.
 Canonical names below omit the leading src/ prefix.
