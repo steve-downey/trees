@@ -1,65 +1,65 @@
-- [Overview](#org394690b)
-- [Active Source Files](#org2a56ee5)
-  - [smd/fixpoint/box.hpp](#orgc8973b1)
-  - [smd/fixpoint/cata.hpp](#org6d0ab80)
-  - [smd/fixpoint/fix.hpp](#orge86b21c)
-  - [smd/fixpoint/overloaded.hpp](#org5e90888)
-  - [smd/ranges/range<sub>applicative.hpp</sub>](#org8fa49c5)
-  - [smd/ranges/range<sub>foldable.hpp</sub>](#org5f433f8)
-  - [smd/ranges/range<sub>functor.hpp</sub>](#orgad6493b)
-  - [smd/ranges/range<sub>list.hpp</sub>](#org7e0438e)
-  - [smd/ranges/range<sub>traversable.hpp</sub>](#org70c202b)
-  - [smd/thunk/delay.hpp](#orgedf59e4)
-  - [smd/thunk/memoize.hpp](#org944e3ae)
-  - [smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>](#orga265e02)
-  - [smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>](#org7e9a47c)
-  - [smd/tree/binary<sub>tree.hpp</sub>](#org07d7527)
-  - [smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>](#orgd8b6607)
-  - [smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>](#orgd5f9af3)
-  - [smd/tree/finger<sub>tree.hpp</sub>](#org8fb20d0)
-  - [smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>](#org38bc699)
-  - [smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>](#orgd4475d6)
-  - [smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>](#orgd0f3b61)
-  - [smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>](#orge28bf47)
-  - [smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>](#orgb421847)
-  - [smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>](#orgf135309)
-  - [smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>](#orgcbf5132)
-  - [smd/tree/fixpoint<sub>tree.hpp</sub>](#orgca6db68)
-  - [smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>](#orgddbb3e3)
-  - [smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>](#orgb857de4)
-  - [smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>](#org08396d5)
-  - [smd/tree/fringe<sub>tree.hpp</sub>](#orgd5bbfb2)
-  - [smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>](#orgd9d4e34)
-  - [smd/typeclass/applicative.hpp](#org1c50d0c)
-  - [smd/typeclass/examples/applicative<sub>bad.cpp</sub>](#org4c1a55d)
-  - [smd/typeclass/examples/applicative<sub>examples.cpp</sub>](#orgbe62578)
-  - [smd/typeclass/examples/foldable<sub>examples.cpp</sub>](#org415fca0)
-  - [smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>](#org3987e31)
-  - [smd/typeclass/examples/traversable<sub>examples.cpp</sub>](#org423c097)
-  - [smd/typeclass/foldable.hpp](#orgab22766)
-  - [smd/typeclass/functor.hpp](#org80573f2)
-  - [smd/typeclass/monoid.hpp](#org55d57f3)
-  - [smd/typeclass/traversable.hpp](#orgeb1efa8)
-  - [smd/typeclass/typeclass<sub>base.hpp</sub>](#orgb044468)
-  - [smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>](#org557ba99)
-  - [smd/ziplist/zip<sub>list.hpp</sub>](#org7c59a3d)
-- [Regeneration](#org6b15800)
+- [Overview](#org3f9d46d)
+- [Active Source Files](#orgf78b776)
+  - [smd/fixpoint/box.hpp](#org6c3f30e)
+  - [smd/fixpoint/cata.hpp](#org128e41c)
+  - [smd/fixpoint/fix.hpp](#org3a3dab5)
+  - [smd/fixpoint/overloaded.hpp](#org1364dcf)
+  - [smd/ranges/range<sub>applicative.hpp</sub>](#org5a8ac15)
+  - [smd/ranges/range<sub>foldable.hpp</sub>](#org35e4360)
+  - [smd/ranges/range<sub>functor.hpp</sub>](#org5b1fde0)
+  - [smd/ranges/range<sub>list.hpp</sub>](#org311af23)
+  - [smd/ranges/range<sub>traversable.hpp</sub>](#orgb9a084c)
+  - [smd/thunk/delay.hpp](#orgc98271f)
+  - [smd/thunk/memoize.hpp](#orgad75a1f)
+  - [smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>](#org59c4322)
+  - [smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>](#org713c69b)
+  - [smd/tree/binary<sub>tree.hpp</sub>](#orgcb06092)
+  - [smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>](#org343ced4)
+  - [smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>](#org7359ef9)
+  - [smd/tree/finger<sub>tree.hpp</sub>](#org0861395)
+  - [smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>](#org59cbbd9)
+  - [smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>](#org175b0de)
+  - [smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>](#orgf8164e2)
+  - [smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>](#org6da068c)
+  - [smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>](#org4bfde74)
+  - [smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>](#orgee24a65)
+  - [smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>](#org9e598be)
+  - [smd/tree/fixpoint<sub>tree.hpp</sub>](#org1e04f6e)
+  - [smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>](#org0833dd3)
+  - [smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>](#org83fb6cd)
+  - [smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>](#org1a71149)
+  - [smd/tree/fringe<sub>tree.hpp</sub>](#org70f5ce5)
+  - [smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>](#org458ba7c)
+  - [smd/typeclass/applicative.hpp](#org83b0451)
+  - [smd/typeclass/examples/applicative<sub>bad.cpp</sub>](#orgacce532)
+  - [smd/typeclass/examples/applicative<sub>examples.cpp</sub>](#org1dcdb18)
+  - [smd/typeclass/examples/foldable<sub>examples.cpp</sub>](#org8ec35cb)
+  - [smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>](#orgf28ffba)
+  - [smd/typeclass/examples/traversable<sub>examples.cpp</sub>](#org01f20d0)
+  - [smd/typeclass/foldable.hpp](#orge67bf6d)
+  - [smd/typeclass/functor.hpp](#org72daf56)
+  - [smd/typeclass/monoid.hpp](#org831331a)
+  - [smd/typeclass/traversable.hpp](#org362e529)
+  - [smd/typeclass/typeclass<sub>base.hpp</sub>](#org4de4927)
+  - [smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>](#org0c37e62)
+  - [smd/ziplist/zip<sub>list.hpp</sub>](#org111989b)
+- [Regeneration](#orgf90bfae)
 
 
 
-<a id="org394690b"></a>
+<a id="org3f9d46d"></a>
 
 # Overview
 
 This index transcludes active files under `trees/src` that are explicitly listed in CMake `target_sources()` entries. It excludes `deadcode` and `smd/conceptmap`.
 
 
-<a id="org2a56ee5"></a>
+<a id="orgf78b776"></a>
 
 # Active Source Files
 
 
-<a id="orgc8973b1"></a>
+<a id="org6c3f30e"></a>
 
 ## smd/fixpoint/box.hpp
 
@@ -87,7 +87,7 @@ auto make_box(Args &&...args) -> Box<A> {
 ```
 
 
-<a id="org6d0ab80"></a>
+<a id="org128e41c"></a>
 
 ## smd/fixpoint/cata.hpp
 
@@ -120,7 +120,7 @@ auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
 ```
 
 
-<a id="orge86b21c"></a>
+<a id="org3a3dab5"></a>
 
 ## smd/fixpoint/fix.hpp
 
@@ -155,7 +155,7 @@ constexpr auto unwrap(const Fix<F> &fixed) -> const F<Fix<F>> & {
 ```
 
 
-<a id="org5e90888"></a>
+<a id="org1364dcf"></a>
 
 ## smd/fixpoint/overloaded.hpp
 
@@ -181,7 +181,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 ```
 
 
-<a id="org8fa49c5"></a>
+<a id="org5a8ac15"></a>
 
 ## smd/ranges/range<sub>applicative.hpp</sub>
 
@@ -252,7 +252,7 @@ inline constexpr auto applicative_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="org5f433f8"></a>
+<a id="org35e4360"></a>
 
 ## smd/ranges/range<sub>foldable.hpp</sub>
 
@@ -367,7 +367,7 @@ inline constexpr auto foldable_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="orgad6493b"></a>
+<a id="org5b1fde0"></a>
 
 ## smd/ranges/range<sub>functor.hpp</sub>
 
@@ -410,7 +410,7 @@ inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="org7e0438e"></a>
+<a id="org311af23"></a>
 
 ## smd/ranges/range<sub>list.hpp</sub>
 
@@ -511,7 +511,7 @@ auto from_vector(std::vector<VALUE> values) {
 ```
 
 
-<a id="org70c202b"></a>
+<a id="orgb9a084c"></a>
 
 ## smd/ranges/range<sub>traversable.hpp</sub>
 
@@ -604,7 +604,7 @@ inline constexpr auto traversable_typeclass<smd::ranges::list_range<VIEW>> =
 ```
 
 
-<a id="orgedf59e4"></a>
+<a id="orgc98271f"></a>
 
 ## smd/thunk/delay.hpp
 
@@ -646,7 +646,7 @@ auto delay(Callable &&c, Args &&...args) {
 ```
 
 
-<a id="org944e3ae"></a>
+<a id="orgad75a1f"></a>
 
 ## smd/thunk/memoize.hpp
 
@@ -768,7 +768,7 @@ auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
 ```
 
 
-<a id="orga265e02"></a>
+<a id="org59c4322"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>applicative.hpp</sub>
 
@@ -865,7 +865,7 @@ inline constexpr auto applicative_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="org7e9a47c"></a>
+<a id="org713c69b"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -922,7 +922,7 @@ inline constexpr auto foldable_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="org07d7527"></a>
+<a id="orgcb06092"></a>
 
 ## smd/tree/binary<sub>tree.hpp</sub>
 
@@ -1007,7 +1007,7 @@ class BinaryTree {
 ```
 
 
-<a id="orgd8b6607"></a>
+<a id="org343ced4"></a>
 
 ## smd/tree/binary<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -1131,7 +1131,7 @@ inline constexpr auto traversable_typeclass<smd::tree::BinaryTree<T>> =
 ```
 
 
-<a id="orgd5f9af3"></a>
+<a id="org7359ef9"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -1185,7 +1185,7 @@ inline constexpr auto
 ```
 
 
-<a id="org8fb20d0"></a>
+<a id="org0861395"></a>
 
 ## smd/tree/finger<sub>tree.hpp</sub>
 
@@ -2398,7 +2398,7 @@ class FingerTree {
 ```
 
 
-<a id="org38bc699"></a>
+<a id="org59cbbd9"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>interval</sub><sub>index.hpp</sub>
 
@@ -2612,7 +2612,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgd4475d6"></a>
+<a id="org175b0de"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>priority</sub><sub>queue.hpp</sub>
 
@@ -2880,7 +2880,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgd0f3b61"></a>
+<a id="orgf8164e2"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>random</sub><sub>access.hpp</sub>
 
@@ -3068,7 +3068,7 @@ inline constexpr auto
 ```
 
 
-<a id="orge28bf47"></a>
+<a id="org6da068c"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>rope.hpp</sub>
 
@@ -3274,7 +3274,7 @@ inline constexpr auto traversable_typeclass<smd::tree::FingerTreeRope> =
 ```
 
 
-<a id="orgb421847"></a>
+<a id="org4bfde74"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -3358,7 +3358,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgf135309"></a>
+<a id="orgee24a65"></a>
 
 ## smd/tree/finger<sub>tree</sub><sub>wrappers.hpp</sub>
 
@@ -3377,7 +3377,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgcbf5132"></a>
+<a id="org9e598be"></a>
 
 ## smd/tree/fixpoint<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -3448,7 +3448,7 @@ inline constexpr auto foldable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =
 ```
 
 
-<a id="orgca6db68"></a>
+<a id="org1e04f6e"></a>
 
 ## smd/tree/fixpoint<sub>tree.hpp</sub>
 
@@ -3554,7 +3554,7 @@ inline auto eval(const Expr &expr) -> double {
 ```
 
 
-<a id="orgddbb3e3"></a>
+<a id="org0833dd3"></a>
 
 ## smd/tree/fixpoint<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -3632,7 +3632,7 @@ inline constexpr auto
 ```
 
 
-<a id="orgb857de4"></a>
+<a id="org83fb6cd"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>applicative.hpp</sub>
 
@@ -3707,7 +3707,7 @@ inline constexpr auto applicative_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="org08396d5"></a>
+<a id="org1a71149"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>foldable.hpp</sub>
 
@@ -3764,7 +3764,7 @@ inline constexpr auto foldable_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="orgd5bbfb2"></a>
+<a id="org70f5ce5"></a>
 
 ## smd/tree/fringe<sub>tree.hpp</sub>
 
@@ -3971,7 +3971,7 @@ class FringeTree {
 ```
 
 
-<a id="orgd9d4e34"></a>
+<a id="org458ba7c"></a>
 
 ## smd/tree/fringe<sub>tree</sub><sub>traversable.hpp</sub>
 
@@ -4044,7 +4044,7 @@ inline constexpr auto traversable_typeclass<smd::tree::FringeTree<T>> =
 ```
 
 
-<a id="org1c50d0c"></a>
+<a id="org83b0451"></a>
 
 ## smd/typeclass/applicative.hpp
 
@@ -4396,7 +4396,7 @@ inline constexpr auto
 ```
 
 
-<a id="org4c1a55d"></a>
+<a id="orgacce532"></a>
 
 ## smd/typeclass/examples/applicative<sub>bad.cpp</sub>
 
@@ -4435,7 +4435,7 @@ auto bad_applicative_example() -> std::size_t {
 ```
 
 
-<a id="orgbe62578"></a>
+<a id="org1dcdb18"></a>
 
 ## smd/typeclass/examples/applicative<sub>examples.cpp</sub>
 
@@ -4468,7 +4468,7 @@ auto applicative_invoke_example() -> beman::optional::optional<int> {
 ```
 
 
-<a id="org415fca0"></a>
+<a id="org8ec35cb"></a>
 
 ## smd/typeclass/examples/foldable<sub>examples.cpp</sub>
 
@@ -4553,7 +4553,7 @@ auto foldable_flattens_shape_example() -> bool {
 ```
 
 
-<a id="org3987e31"></a>
+<a id="orgf28ffba"></a>
 
 ## smd/typeclass/examples/lookup<sub>modes</sub><sub>examples.cpp</sub>
 
@@ -4604,7 +4604,7 @@ auto nttp_object_lookup_example() -> std::optional<int> {
 ```
 
 
-<a id="org423c097"></a>
+<a id="org01f20d0"></a>
 
 ## smd/typeclass/examples/traversable<sub>examples.cpp</sub>
 
@@ -4677,7 +4677,7 @@ auto traversable_preserves_shape_example() -> bool {
 ```
 
 
-<a id="orgab22766"></a>
+<a id="orge67bf6d"></a>
 
 ## smd/typeclass/foldable.hpp
 
@@ -5045,7 +5045,7 @@ inline constexpr auto foldable_typeclass = std::false_type{};
 ```
 
 
-<a id="org80573f2"></a>
+<a id="org72daf56"></a>
 
 ## smd/typeclass/functor.hpp
 
@@ -5178,7 +5178,7 @@ inline constexpr auto functor_typeclass<std::vector<VALUE_TYPE>> =
 ```
 
 
-<a id="org55d57f3"></a>
+<a id="org831331a"></a>
 
 ## smd/typeclass/monoid.hpp
 
@@ -5299,7 +5299,7 @@ auto monoid_combine(const VALUE_TYPE &lhs, const VALUE_TYPE &rhs)
 ```
 
 
-<a id="orgeb1efa8"></a>
+<a id="org362e529"></a>
 
 ## smd/typeclass/traversable.hpp
 
@@ -5414,7 +5414,7 @@ auto traverse(F &&function, T &&value) {
 ```
 
 
-<a id="orgb044468"></a>
+<a id="org4de4927"></a>
 
 ## smd/typeclass/typeclass<sub>base.hpp</sub>
 
@@ -5469,7 +5469,7 @@ using applicative_value_t = typename applicative_value<remove_cvref_t<T>>::type;
 ```
 
 
-<a id="org557ba99"></a>
+<a id="org0c37e62"></a>
 
 ## smd/ziplist/zip<sub>list</sub><sub>applicative.hpp</sub>
 
@@ -5604,7 +5604,7 @@ inline constexpr auto applicative_typeclass<zip_list<T>> =
 ```
 
 
-<a id="org7c59a3d"></a>
+<a id="org111989b"></a>
 
 ## smd/ziplist/zip<sub>list.hpp</sub>
 
@@ -5653,7 +5653,7 @@ struct zip_list {
 ```
 
 
-<a id="org6b15800"></a>
+<a id="orgf90bfae"></a>
 
 # Regeneration
 
