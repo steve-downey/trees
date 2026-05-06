@@ -2,44 +2,78 @@
 
 ;;; Commentary:
 ;;
-;; Injects a footer bar into every reveal.js slide via
-;; `org-re-reveal-postamble'.  The visible text is controlled by the
-;; buffer-local variable `bbg-footer-text', which should be set per
-;; deck in the org file's Local Variables block:
+;; Injects header/footer bars into every reveal.js slide via
+;; `org-re-reveal-postamble'.  Three variables control content and are
+;; set per deck via the org file's Local Variables block:
 ;;
 ;;   # Local Variables:
-;;   # bbg-footer-text: "© 2026 Steve Downey. CppNow 2026."
+;;   # bbg-footer-text:       "Steve Downey — My Talk — Conference 2026"
+;;   # bbg-footer-left-logo:  "etc/assets/TechAtBloomberg_black.png"
+;;   # bbg-footer-right-logo: "etc/assets/BBGEngineering_black.png"
 ;;   # End:
 ;;
-;; The HTML/JS injection mechanism is handled here; only the text
-;; content moves into each deck.
+;; Left side (bottom-left): optional logo image stacked above the text.
+;; Right side (bottom-right): optional logo image.
+;; The HTML/JS injection mechanism stays here; only content moves per deck.
 
 ;;; Code:
 
 (defvar bbg-footer-text ""
-  "Footer text injected into each reveal.js slide.
-Override per deck via the org file's Local Variables block.")
+  "Footer text shown bottom-left beneath the left logo.
+Set in the org file's Local Variables block.")
+
+(defvar bbg-footer-left-logo ""
+  "Path to the image shown bottom-left above `bbg-footer-text'.
+Relative to the exported HTML file.  Empty string omits the image.")
+
+(defvar bbg-footer-right-logo ""
+  "Path to the image shown bottom-right.
+Relative to the exported HTML file.  Empty string omits the image.")
+
+(defun bbg-footer--img (src alt height)
+  "Return an <img> tag for SRC at HEIGHT px, or empty string if SRC is blank."
+  (if (string-blank-p src)
+      ""
+    (format "<img src=\"%s\" alt=\"%s\" style=\"height:%dpx;width:auto;display:block;\">"
+            src alt height)))
 
 (defun bbg-footer--build-postamble ()
-  "Return postamble HTML, interpolating the current `bbg-footer-text'."
-  (format
-   "<style type=\"text/css\">
+  "Return the postamble HTML string from the current footer variables."
+  (let ((left-logo  (bbg-footer--img bbg-footer-left-logo  "" 35))
+        (right-logo (bbg-footer--img bbg-footer-right-logo "" 45)))
+    (format
+     "<style type=\"text/css\">
     #header-left  { position: absolute; top: 0%%; left: 0%%; }
     #header-right { position: absolute; top: 0%%; right: 0%%; }
-    #footer-left  {
+    #footer-left {
         position: absolute;
         bottom: 0%%;
         left: 0%%;
-        font-size: 0.3em;
-        height: 50px;
-        width: 300px;
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
     }
-    #footer-left img { width: 100%%; height: 100%%; object-fit: contain; }
+    #footer-left-text {
+        font-size: 0.3em;
+        line-height: 1;
+        white-space: nowrap;
+    }
+    #footer-right {
+        position: absolute;
+        bottom: 0%%;
+        right: 0%%;
+        padding: 4px;
+        display: flex;
+        align-items: flex-end;
+    }
 </style>
 
 <div id=\"hidden\" style=\"display:none;\">
 <div id=\"header\">
-<div id=\"footer-left\">%s</div>
+<div id=\"footer-left\">%s<div id=\"footer-left-text\">%s</div></div>
+<div id=\"footer-right\">%s</div>
 </div>
 </div>
 
@@ -54,10 +88,12 @@ if ( window.location.search.match( /print-pdf/gi ) ) {
     $('div.reveal').append(header);
 }
 </script>"
-   bbg-footer-text))
+     left-logo
+     bbg-footer-text
+     right-logo)))
 
 (defun bbg-footer--apply (&rest _)
-  "Set `org-re-reveal-postamble' from the current `bbg-footer-text'.
+  "Set `org-re-reveal-postamble' from the current footer variables.
 Called via `org-export-before-processing-hook', after local variables
 in the visiting buffer are already in effect."
   (setq-local org-re-reveal-postamble (bbg-footer--build-postamble)))

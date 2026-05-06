@@ -442,8 +442,9 @@ pre.example {
     justify-content: center;
 }
 
-/* Reserve space at the bottom of every slide for the fixed footer */
+/* Reserve space at the bottom of every slide for the fixed footer.
+   Left footer stacks logo (35px) + gap (3px) + text (~12px) + padding (8px). */
 .reveal .slides section {
-    padding-bottom: 60px;
+    padding-bottom: 65px;
     box-sizing: border-box;
 }
