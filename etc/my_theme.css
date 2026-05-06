@@ -50,17 +50,17 @@ html * {
   --r-heading1-size: 3.77em;
   --r-heading2-size: 2.11em;
   --r-heading3-size: 1.55em;
-  --r-heading4-size: 1em;
+  --r-heading4-size: 1.3em;
   --r-code-font: Atkinson Hyperlegible Mono, sans-serif;
   --r-link-color: #3548cf;
   --r-link-color-dark: #721045;
-  --r-link-color-hover: #78b9e6;
-  --r-selection-background-color: #f5d0a0;
-  --r-selection-color: #fff;
+  --r-link-color-hover: #79a8ff;    /* modus-vivendi .org-link */
+  --r-selection-background-color: #b2e4dc; /* modus-operandi .org-highlight bg */
+  --r-selection-color: #000000;            /* modus-operandi .org-highlight fg */
 }
 
 .reveal-viewport {
-  background: #fdf6e3;
+  background: #fbf7f0;              /* modus-operandi body background */
   background-color: var(--r-background-color);
 }
 
@@ -211,7 +211,7 @@ html * {
   margin: var(--r-block-margin) auto;
   padding: 5px;
   font-style: italic;
-  background: rgba(255, 255, 255, 0.05);
+  background: #efe9dd;              /* modus-operandi .org-org-block bg */
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
     border-radius: 25px;
 }
@@ -234,7 +234,8 @@ html * {
   font-size: 0.55em;
   font-family: var(--r-code-font);
   line-height: 1.2em;
-  word-wrap: break-word;
+  word-wrap: normal;
+  overflow-x: auto;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
 }
 
@@ -248,7 +249,7 @@ html * {
   display: block;
   padding: 5px;
   overflow: auto;
-  max-height: 400px;
+  max-height: 70vh;
   word-wrap: normal;
 }
 
@@ -264,6 +265,11 @@ html * {
   margin: auto;
   border-collapse: collapse;
   border-spacing: 0;
+  font-size: 0.65em;
+}
+
+.reveal table code {
+  font-size: 0.9em;
 }
 
 .reveal table th {
@@ -385,8 +391,11 @@ pre.src {
     margin: var(--r-block-margin) auto;
     padding: 15px;
     border-radius: 15px;
-    display: inline-block;
-    width: 70%
+    display: block;
+    width: fit-content;
+    min-width: 60%;
+    max-width: 95%;
+    box-sizing: border-box;
 }
 
 pre.src-cpp {
@@ -395,8 +404,11 @@ pre.src-cpp {
     margin: var(--r-block-margin) auto;
     padding: 15px;
     border-radius: 15px;
-    display: inline-block;
-    width: 70%
+    display: block;
+    width: fit-content;
+    min-width: 60%;
+    max-width: 95%;
+    box-sizing: border-box;
 }
 
 code.src.src-cpp {
@@ -405,7 +417,10 @@ code.src.src-cpp {
     margin: var(--r-block-margin) auto;
     padding: 15px;
     border-radius: 15px;
-    display: inline-block;
+    display: block;
+    width: fit-content;
+    max-width: 95%;
+    box-sizing: border-box;
 }
 
 pre.example {
@@ -414,6 +429,21 @@ pre.example {
     margin: var(--r-block-margin) auto;
     padding: 15px;
     border-radius: 15px;
-    display: inline-block;
-    width: 70%
+    display: block;
+    width: fit-content;
+    min-width: 60%;
+    max-width: 95%;
+    box-sizing: border-box;
+}
+
+/* Centre code blocks inside their org-generated wrapper div */
+.reveal .org-src-container {
+    display: flex;
+    justify-content: center;
+}
+
+/* Reserve space at the bottom of every slide for the fixed footer */
+.reveal .slides section {
+    padding-bottom: 60px;
+    box-sizing: border-box;
 }
