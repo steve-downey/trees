@@ -68,12 +68,12 @@
 #+OPTIONS: reveal_width:1600 reveal_height:900
 #+OPTIONS: ^:nil
 #+REVEAL_TRANS: fade
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../etc/modus-vivendi-tinted.css" />
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="etc/modus-vivendi-tinted.css" />
 
 #+REVEAL_PLUGINS: (math markdown notes search zoom)
-#+REVEAL_EXTRA_CSS: ../etc/modus-vivendi-tinted.css
-#+REVEAL_THEME: ../etc/my_theme.css
-#+REVEAL_EXTRA_CSS: ../etc/footer.css
+#+REVEAL_EXTRA_CSS: etc/modus-vivendi-tinted.css
+#+REVEAL_THEME: etc/my_theme.css
+#+REVEAL_EXTRA_CSS: etc/footer.css
 #+REVEAL_TITLE_SLIDE: <p>
 #+REVEAL_TITLE_SLIDE_BACKGROUND: ./title_card.png
 

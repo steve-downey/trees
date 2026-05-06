@@ -354,25 +354,25 @@ docs: ## Build the docs with Doxygen
 docs-live-src: ## Regenerate docs/live-src-main.md from HEAD (excluding deadcode/conceptmap)
 	@set -eu; \
 	repo_root="$$(git rev-parse --show-toplevel)"; \
-	out="$$repo_root/trees/docs/live-src-main.md"; \
+	out="$$repo_root/docs/live-src-main.md"; \
 	commit="$$(git rev-parse --short HEAD)"; \
 	{ \
 		printf -- '---\n'; \
 		printf 'title: Live Source Snapshot (main)\n'; \
-		printf 'summary: Point-in-time fenced dump of live trees/src C++ sources from main, excluding deadcode and smd/conceptmap.\n'; \
+		printf 'summary: Point-in-time fenced dump of live src C++ sources from main, excluding deadcode and smd/conceptmap.\n'; \
 		printf 'source_of_truth: git HEAD on branch main\n'; \
 		printf 'scope:\n'; \
 		printf '  include:\n'; \
-		printf '    - trees/src/**/*.hpp\n'; \
-		printf '    - trees/src/**/*.h\n'; \
-		printf '    - trees/src/**/*.cpp\n'; \
+		printf '    - src/**/*.hpp\n'; \
+		printf '    - src/**/*.h\n'; \
+		printf '    - src/**/*.cpp\n'; \
 		printf '  exclude:\n'; \
-		printf '    - trees/src/deadcode/**\n'; \
-		printf '    - trees/src/smd/conceptmap/**\n'; \
-		printf '    - trees/src/**/CMakeLists.txt\n'; \
+		printf '    - src/deadcode/**\n'; \
+		printf '    - src/smd/conceptmap/**\n'; \
+		printf '    - src/**/CMakeLists.txt\n'; \
 		printf 'update_policy:\n'; \
 		printf '  when_to_update:\n'; \
-		printf '    - Any time live files under trees/src are added, removed, renamed, or materially changed on main.\n'; \
+		printf '    - Any time live files under src are added, removed, renamed, or materially changed on main.\n'; \
 		printf '    - Before using this file as a review/reference baseline.\n'; \
 		printf '  how_to_update:\n'; \
 		printf '    - Regenerate from main using the command block in the "Regeneration" section below.\n'; \
@@ -383,17 +383,17 @@ docs-live-src: ## Regenerate docs/live-src-main.md from HEAD (excluding deadcode
 		printf -- '---\n\n'; \
 		printf '# Live Source Snapshot (main)\n\n'; \
 		printf 'Generated from main at commit %s.\n\n' "$$commit"; \
-		printf 'Includes files under trees/src that are live in current targets and examples, excluding deadcode and smd/conceptmap.\n'; \
+		printf 'Includes files under src that are live in current targets and examples, excluding deadcode and smd/conceptmap.\n'; \
 		printf 'Canonical names below omit the leading src/ prefix.\n\n'; \
-		git ls-tree -r --name-only HEAD trees/src \
-			| rg '^trees/src/' \
-			| rg -v '^trees/src/deadcode/' \
-			| rg -v '^trees/src/smd/conceptmap/' \
+		git ls-tree -r --name-only HEAD src \
+			| rg '^src/' \
+			| rg -v '^src/deadcode/' \
+			| rg -v '^src/smd/conceptmap/' \
 			| rg -v '/CMakeLists\.txt$$' \
 			| rg '\.(hpp|h|cpp)$$' \
 			| sort -u \
 			| while IFS= read -r f; do \
-			canon="$${f#trees/src/}"; \
+			canon="$${f#src/}"; \
 			printf '## %s\n\n' "$$canon"; \
 			printf '```cpp\n'; \
 			git show "HEAD:$$f"; \
@@ -406,11 +406,11 @@ docs-live-src: ## Regenerate docs/live-src-main.md from HEAD (excluding deadcode
 docs-live-src-strict: ## Regenerate docs/live-src-main-built-targets.md from explicit CMake target_sources()
 	@set -eu; \
 	repo_root="$$(git rev-parse --show-toplevel)"; \
-	out="$$repo_root/trees/docs/live-src-main-built-targets.md"; \
+	out="$$repo_root/docs/live-src-main-built-targets.md"; \
 	commit="$$(git rev-parse --short HEAD)"; \
 	tmp_list="$$(mktemp)"; \
 	trap 'rm -f "$$tmp_list"' EXIT; \
-	find "$$repo_root/trees/src" -name CMakeLists.txt -type f | sort | while IFS= read -r cmake; do \
+	find "$$repo_root/src" -name CMakeLists.txt -type f | sort | while IFS= read -r cmake; do \
 		dir="$$(dirname "$$cmake")"; \
 		sed -n '/target_sources(/,/)/p' "$$cmake" \
 			| sed 's/#.*$$//' \
@@ -424,7 +424,7 @@ docs-live-src-strict: ## Regenerate docs/live-src-main-built-targets.md from exp
 				printf '%s\n' "$$full"; \
 			done; \
 	done \
-		| sed "s#^$$repo_root/trees/##" \
+		| sed "s#^$$repo_root/##" \
 		| rg '^src/' \
 		| rg -v '^src/deadcode/' \
 		| rg -v '^src/smd/conceptmap/' \
@@ -433,18 +433,18 @@ docs-live-src-strict: ## Regenerate docs/live-src-main-built-targets.md from exp
 	{ \
 		printf -- '---\n'; \
 		printf 'title: Live Source Snapshot (main, strict built-target graph)\n'; \
-		printf 'summary: Point-in-time fenced dump of trees/src C++ files explicitly listed in CMake target_sources() on main.\n'; \
+		printf 'summary: Point-in-time fenced dump of src C++ files explicitly listed in CMake target_sources() on main.\n'; \
 		printf 'source_of_truth: git HEAD on branch main\n'; \
 		printf 'strictness: only explicit target_sources entries; excludes transitively included headers\n'; \
 		printf 'scope:\n'; \
 		printf '  include:\n'; \
-		printf '    - files directly named in trees/src/**/CMakeLists.txt target_sources()\n'; \
+		printf '    - files directly named in src/**/CMakeLists.txt target_sources()\n'; \
 		printf '  exclude:\n'; \
-		printf '    - trees/src/deadcode/**\n'; \
-		printf '    - trees/src/smd/conceptmap/**\n'; \
+		printf '    - src/deadcode/**\n'; \
+		printf '    - src/smd/conceptmap/**\n'; \
 		printf 'update_policy:\n'; \
 		printf '  when_to_update:\n'; \
-		printf '    - Any time target_sources lists in trees/src/**/CMakeLists.txt change.\n'; \
+		printf '    - Any time target_sources lists in src/**/CMakeLists.txt change.\n'; \
 		printf '    - Any time a listed file changes on main and this snapshot is used as a baseline.\n'; \
 		printf '  how_to_update:\n'; \
 		printf '    - Rebuild the explicit built-file manifest from CMakeLists and regenerate from git HEAD.\n'; \
@@ -454,12 +454,12 @@ docs-live-src-strict: ## Regenerate docs/live-src-main-built-targets.md from exp
 		printf -- '---\n\n'; \
 		printf '# Live Source Snapshot (main, strict built-target graph)\n\n'; \
 		printf 'Generated from main at commit %s.\n\n' "$$commit"; \
-		printf 'This file includes only source files explicitly listed in CMake target_sources() entries under trees/src.\n\n'; \
+		printf 'This file includes only source files explicitly listed in CMake target_sources() entries under src.\n\n'; \
 		while IFS= read -r f; do \
 			canon="$${f#src/}"; \
 			printf '## %s\n\n' "$$canon"; \
 			printf '```cpp\n'; \
-			git show "HEAD:trees/$$f"; \
+			git show "HEAD:$$f"; \
 			printf '\n```\n\n'; \
 		done < "$$tmp_list"; \
 	} > "$$out"; \
@@ -469,14 +469,14 @@ docs-live-src-strict: ## Regenerate docs/live-src-main-built-targets.md from exp
 docs-index: ## Regenerate docs/index.org from strict built-target snapshot
 	@set -euo pipefail; \
 	repo_root="$$(git rev-parse --show-toplevel)"; \
-	out="$$repo_root/trees/docs/index.org"; \
-	strict_snapshot="$$repo_root/trees/docs/live-src-main-built-targets.md"; \
+	out="$$repo_root/docs/index.org"; \
+	strict_snapshot="$$repo_root/docs/live-src-main-built-targets.md"; \
 	{ \
 		printf '#+TITLE: Trees Active Source Index\n'; \
 		printf '#+AUTHOR: Generated\n'; \
 		printf '#+OPTIONS: toc:2 num:nil\n\n'; \
 		printf '* Overview\n'; \
-		printf 'This index transcludes active files under =trees/src= that are explicitly listed in CMake =target_sources()= entries.\n'; \
+		printf 'This index transcludes active files under =src= that are explicitly listed in CMake =target_sources()= entries.\n'; \
 		printf 'It excludes =deadcode= and =smd/conceptmap=.\n\n'; \
 		printf '* Active Source Files\n\n'; \
 		rg '^## ' "$$strict_snapshot" | sed 's/^## //' | sort -u | while IFS= read -r rel; do \
@@ -496,7 +496,7 @@ docs-index: ## Regenerate docs/index.org from strict built-target snapshot
 		printf '#+begin_src bash :results output verbatim\n'; \
 		printf 'set -euo pipefail\n'; \
 		printf 'repo_root="$$(git rev-parse --show-toplevel)"\n'; \
-		printf 'make -C "$$repo_root/trees" docs-index\n'; \
+		printf 'make -C "$$repo_root" docs-index\n'; \
 		printf '#+end_src\n'; \
 	} > "$$out"; \
 	echo "Updated $$out"
@@ -564,7 +564,7 @@ ORGFILES := $(wildcard *.org)
 	--batch --load .emacs.d/init.el  \
 	-f package-initialize \
 	--eval "(setq enable-local-variables :all)" \
-	--load ../etc/bbg-footer.el \
+	--load etc/bbg-footer.el \
 	--visit $< \
 	--eval "(org-transclusion-mode t)" \
 	--eval "(org-export-to-file 'html \"$@\")"
@@ -578,7 +578,7 @@ ORGFILES := $(wildcard *.org)
 	$(EMACS) --init-directory=.emacs.d/ \
 	--batch --load .emacs.d/init.el  \
 	-f package-initialize \
-	--load ../etc/bbg-footer.el \
+	--load etc/bbg-footer.el \
 	--eval "(setq enable-local-variables :all)" \
 	--visit $< \
 	--eval "(org-transclusion-mode t)" \
@@ -593,7 +593,7 @@ ORGFILES := $(wildcard *.org)
 	$(EMACS) --init-directory=.emacs.d/ \
 	--batch --load .emacs.d/init.el  \
 	-f package-initialize \
-	--load ../etc/bbg-footer.el \
+	--load etc/bbg-footer.el \
 	--eval "(setq enable-local-variables :all)" \
 	--visit $< \
 	--eval "(org-transclusion-mode t)" \

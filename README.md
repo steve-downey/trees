@@ -2,7 +2,7 @@
 
 This package contains a small, compile-oriented scaffold for the talk plan around implementing `Foldable`, `Applicative`, and `Traversable` in C++ using the concept-map style.
 
-The examples are intentionally small. They are meant to be transcluded into slides, compiled as ordinary source, and replaced incrementally by the real implementation in the `cppnow26/trees` repository.
+The examples are intentionally small. They are meant to be transcluded into slides, compiled as ordinary source, and replaced incrementally by the real implementation in this repository.
 
 ## Physical design rules
 
