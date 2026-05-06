@@ -78,7 +78,7 @@
 #+REVEAL_TITLE_SLIDE_BACKGROUND: ./title_card.png
 
 # #+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
-#+REVEAL_ROOT: ../reveal.js
+#+REVEAL_ROOT: ./reveal.js
 #+REVEAL_VERSION: 6
 #+reveal_defaulttiming: 60
 
