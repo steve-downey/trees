@@ -1321,4 +1321,5 @@ Hidden bibliography slide.
 
 # Local Variables:
 # org-html-htmlize-output-type: css
+# bbg-footer-text: "Steve Downey — Algorithms for Trees — CppNow 2026"
 # End:
