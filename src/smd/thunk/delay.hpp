@@ -10,10 +10,17 @@
 
 namespace smd::thunk {
 
-// delay(callable, args...) — capture a callable and its arguments into a
-// closure that invokes them on demand.  The closure is not memoized; each
-// call re-invokes callable.  Use smd::thunk::memoize() for call-once
-// semantics.
+/**
+ * @brief Capture a callable and its arguments into a re-evaluating closure.
+ *
+ * The returned nullary callable stores @p c and @p args... by value; each
+ * invocation re-evaluates callable(args...) from scratch. For call-once
+ * (memoized) semantics use smd::thunk::memoize() instead.
+ *
+ * @param c       callable to defer
+ * @param args    arguments forwarded into the closure by value
+ * @return nullary callable that invokes c(args...) on every call
+ */
 template <typename Callable, typename... Args>
 auto delay(Callable &&c, Args &&...args) {
     using CallableT = std::remove_cvref_t<Callable>;

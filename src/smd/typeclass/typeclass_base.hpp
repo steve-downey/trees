@@ -20,6 +20,9 @@ namespace smd {
 template <class T>
 using remove_cvref_t = std::remove_cvref_t<T>;
 
+/** Trait that extracts the element type from an applicative container.
+ * Primary template uses the nested `value_type` alias when present.
+ */
 template <class T, class = void>
 struct applicative_value;
 
@@ -39,6 +42,7 @@ struct applicative_value<beman::optional::optional<T>, void> {
     using type = T;
 };
 
+/** Convenience alias for `applicative_value<T>::type`. */
 template <class T>
 using applicative_value_t = typename applicative_value<remove_cvref_t<T>>::type;
 

@@ -19,12 +19,19 @@ namespace smd::typeclass {
 // domain.
 // - Prefer adding new Monoid<T> specializations over ad hoc free functions.
 
+/** Customization point for the Monoid typeclass.
+ * Specialize this struct for type `VALUE_TYPE` and provide
+ * `identity()` and `combine(lhs, rhs)` to make that type usable
+ * wherever a Monoid is required (e.g., as the result type of fold_map).
+ */
 template <class VALUE_TYPE>
 struct Monoid;
 
+/** Canonical lookup object for Monoid<VALUE_TYPE>; used by generic algorithms. */
 template <class VALUE_TYPE>
 inline constexpr Monoid<VALUE_TYPE> monoid_v = Monoid<VALUE_TYPE>{};
 
+/** Opaque count accumulator; the Monoid combines by addition. */
 struct Count {
     std::size_t d_value;
 
@@ -33,6 +40,7 @@ struct Count {
 };
 
 // c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06
+/** Monoid<Count>: identity is zero, combine adds counts. */
 template <>
 struct Monoid<Count> {
     constexpr auto identity() const -> Count { return Count{0}; }
@@ -43,6 +51,7 @@ struct Monoid<Count> {
 };
 // c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06 end
 
+/** Monoid<int>: additive monoid with identity 0. */
 template <>
 struct Monoid<int> {
     constexpr auto identity() const -> int { return 0; }
@@ -50,6 +59,7 @@ struct Monoid<int> {
     constexpr auto combine(int lhs, int rhs) const -> int { return lhs + rhs; }
 };
 
+/** Monoid<long>: additive monoid with identity 0. */
 template <>
 struct Monoid<long> {
     constexpr auto identity() const -> long { return 0L; }
@@ -59,6 +69,7 @@ struct Monoid<long> {
     }
 };
 
+/** Monoid<std::size_t>: additive monoid with identity 0. */
 template <>
 struct Monoid<std::size_t> {
     constexpr auto identity() const -> std::size_t { return 0U; }
@@ -69,6 +80,7 @@ struct Monoid<std::size_t> {
     }
 };
 
+/** Monoid<std::string>: concatenation monoid with identity "". */
 template <>
 struct Monoid<std::string> {
     auto identity() const -> std::string { return {}; }
@@ -79,6 +91,7 @@ struct Monoid<std::string> {
     }
 };
 
+/** Monoid<std::vector<T>>: concatenation monoid with identity empty vector. */
 template <class VALUE_TYPE>
 struct Monoid<std::vector<VALUE_TYPE>> {
     auto identity() const -> std::vector<VALUE_TYPE> { return {}; }
@@ -96,11 +109,13 @@ struct Monoid<std::vector<VALUE_TYPE>> {
 namespace smd {
 
 // b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02
+/** Returns the identity element for the Monoid of VALUE_TYPE. */
 template <class VALUE_TYPE>
 auto monoid_identity() -> VALUE_TYPE {
     return typeclass::monoid_v<VALUE_TYPE>.identity();
 }
 
+/** Combines two values using the Monoid of VALUE_TYPE. */
 template <class VALUE_TYPE>
 auto monoid_combine(const VALUE_TYPE &lhs, const VALUE_TYPE &rhs)
     -> VALUE_TYPE {

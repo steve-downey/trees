@@ -14,6 +14,13 @@
 
 namespace smd {
 
+/** Traversable typeclass instance for list_range<VIEW>.
+ * traverse maps each element into an applicative context and collects the
+ * results back into a list_range inside that context. Elements are processed
+ * left-to-right; an empty range yields applicative.pure({}).
+ * Requires a forward range so that the traversal can visit elements in order.
+ * @tparam VIEW underlying view type; must satisfy std::ranges::forward_range
+ */
 template <class VIEW>
     requires std::ranges::forward_range<VIEW>
 struct ListRangeTraversableImpl {
@@ -69,12 +76,14 @@ struct ListRangeTraversableImpl {
     }
 };
 
+/** Traversable map exposing traverse for list_range<VIEW>. */
 template <class VIEW>
     requires std::ranges::forward_range<VIEW>
 struct ListRangeTraversableMap : Traversable<ListRangeTraversableImpl<VIEW>> {
     using ListRangeTraversableImpl<VIEW>::traverse;
 };
 
+/** Registers ListRangeTraversableMap as the Traversable instance for list_range<VIEW>. */
 template <class VIEW>
     requires std::ranges::forward_range<VIEW>
 inline constexpr auto traversable_typeclass<smd::ranges::list_range<VIEW>> =

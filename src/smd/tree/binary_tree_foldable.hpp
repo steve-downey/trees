@@ -12,6 +12,11 @@
 
 namespace smd {
 
+/** Foldable typeclass instance for BinaryTree<T>.
+ * fold_map applies @p function to every node value (in-order: left, root,
+ * right) and combines the results using the Monoid for the return type.
+ * @tparam T element type of the tree being folded
+ */
 template <class T>
 struct BinaryTreeFoldableImpl {
     template <class F>
@@ -35,11 +40,13 @@ struct BinaryTreeFoldableImpl {
     }
 };
 
+/** Foldable map that exposes the fold_map operation for BinaryTree<T>. */
 template <class T>
 struct BinaryTreeFoldableMap : Foldable<BinaryTreeFoldableImpl<T>> {
     using BinaryTreeFoldableImpl<T>::fold_map;
 };
 
+/** Registers BinaryTreeFoldableMap as the Foldable instance for BinaryTree<T>. */
 template <class T>
 inline constexpr auto foldable_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeFoldableMap<T>{};

@@ -12,6 +12,11 @@
 
 namespace smd {
 
+/** Foldable typeclass instance for Fix<ExprF> (the fixpoint expression tree).
+ * fold_map applies @p f to each ExprConst leaf value and combines results
+ * using the Monoid for the return type. Add and Mul nodes combine their
+ * children's results left-then-right.
+ */
 struct FixpointTreeFoldableImpl {
 
     // b2c8e4f1-3a6d-4f1b-9e7c-5d2b8a4f3c91
@@ -48,11 +53,13 @@ struct FixpointTreeFoldableImpl {
     // b2c8e4f1-3a6d-4f1b-9e7c-5d2b8a4f3c91 end
 };
 
+/** Foldable map that exposes fold_map for Fix<ExprF>. */
 struct FixpointTreeFoldableMap : Foldable<FixpointTreeFoldableImpl> {
     using FixpointTreeFoldableImpl::fold_map;
 };
 
 // c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83
+/** Registers FixpointTreeFoldableMap as the Foldable instance for Fix<ExprF>. */
 template <>
 inline constexpr auto foldable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =
     FixpointTreeFoldableMap{};

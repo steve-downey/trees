@@ -5,11 +5,17 @@
 
 namespace smd::fixpoint {
 
+/** Aggregate that inherits operator() from each of @p Ts.
+ * Used with std::visit to combine multiple lambdas into a single visitor
+ * without writing a hand-rolled visitor struct.
+ * Example: std::visit(overloaded{case1, case2, ...}, variant)
+ */
 template <typename... Ts>
 struct overloaded : Ts... {
     using Ts::operator()...;
 };
 
+/** Deduction guide so overloaded{...} works without explicit template args. */
 template <typename... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 

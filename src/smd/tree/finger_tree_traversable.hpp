@@ -28,6 +28,9 @@
 
 namespace smd {
 
+/** Traversable typeclass implementation for FingerTree; materialises via
+ * flatten() then reconstructs with from_sequence(); O(n).
+ */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 struct FingerTreeTraversableImpl {
     using element_type = T;
@@ -60,12 +63,14 @@ struct FingerTreeTraversableImpl {
     }
 };
 
+/** Traversable typeclass map entry for FingerTree. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 struct FingerTreeTraversableMap
     : Traversable<FingerTreeTraversableImpl<T, TAG_TYPE, MEASURE_POLICY>> {
     using FingerTreeTraversableImpl<T, TAG_TYPE, MEASURE_POLICY>::traverse;
 };
 
+/** Registers FingerTree as a Traversable for all tag and measure combinations. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 inline constexpr auto
     traversable_typeclass<smd::tree::FingerTree<T, TAG_TYPE, MEASURE_POLICY>> =

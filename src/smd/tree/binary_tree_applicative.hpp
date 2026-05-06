@@ -12,14 +12,30 @@
 
 namespace smd {
 
+/** Applicative typeclass instance for BinaryTree<T> with shape-aware semantics.
+ * 
+ * pure(v) produces a single leaf. apply recurses pairwise over matching tree
+ * structure: a leaf function distributes over the argument's shape; a leaf
+ * argument distributes over the function's shape; when both have children,
+ * only positions where both trees have a child are combined (pairwise).
+ * These are monad-derived (not zip) applicative semantics.
+ * @tparam T element type of the function tree (F is the function type stored)
+ */
 template <class T>
 struct BinaryTreeApplicativeImpl {
+    /** Lift a plain value into a single-leaf tree. */
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value) {
         using U = remove_cvref_t<VALUE>;
         return smd::tree::BinaryTree<U>::leaf(std::forward<VALUE>(value));
     }
 
+    /**
+     * @brief Apply a tree of functions to a tree of arguments, shape-aware.
+     * @param functions tree whose nodes contain callables
+     * @param arguments tree whose nodes contain arguments
+     * @return tree of results; shape determined by pairwise recursion rules
+     */
     template <class F, class A>
     auto apply(this auto &&self, const smd::tree::BinaryTree<F> &functions,
                const smd::tree::BinaryTree<A> &arguments)
@@ -74,12 +90,14 @@ struct BinaryTreeApplicativeImpl {
     }
 };
 
+/** Applicative map exposing pure and apply for BinaryTree<T>. */
 template <class T>
 struct BinaryTreeApplicativeMap : Applicative<BinaryTreeApplicativeImpl<T>> {
     using BinaryTreeApplicativeImpl<T>::apply;
     using BinaryTreeApplicativeImpl<T>::pure;
 };
 
+/** Registers BinaryTreeApplicativeMap as the Applicative instance for BinaryTree<T>. */
 template <class T>
 inline constexpr auto applicative_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeApplicativeMap<T>{};

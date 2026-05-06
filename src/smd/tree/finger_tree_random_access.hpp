@@ -18,25 +18,44 @@
 
 namespace smd::tree {
 
+/** @brief Persistent random-access sequence backed by a finger tree.
+ *
+ * @tparam T Element type.
+ *
+ * Uses UnitMeasure (element count) as the finger tree measure, enabling O(log
+ * n) index navigation without materialisation.
+ *
+ * Complexity:
+ * - at / update / insert / erase: O(log n)
+ * - push_front / push_back:       O(1) amortized
+ * - size / empty:                 O(1)
+ * - to_vector:                    O(n)
+ */
 template <typename T>
 class FingerTreeRandomAccess {
     FingerTree<T> d_tree;
 
   public:
+    /** Constructs an empty sequence. */
     FingerTreeRandomAccess() : d_tree(FingerTree<T>::empty()) {}
 
+    /** Constructs from an existing finger tree. */
     explicit FingerTreeRandomAccess(FingerTree<T> tree)
         : d_tree(std::move(tree)) {}
 
+    /** Builds a sequence from a vector in order; O(n). */
     static auto from_sequence(std::vector<T> values) -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(
             FingerTree<T>::from_sequence(std::move(values)));
     }
 
+    /** Returns the number of elements. */
     auto size() const -> std::size_t { return d_tree.breadth(); }
 
+    /** Returns true if the sequence contains no elements. */
     auto empty() const -> bool { return d_tree.is_empty(); }
 
+    /** Returns the element at @p index, or nullopt if out of range; O(log n). */
     auto at(std::size_t index) const -> std::optional<T> {
         if (index >= size()) {
             return std::nullopt;
@@ -51,14 +70,17 @@ class FingerTreeRandomAccess {
         return sp->d_pivot;
     }
 
+    /** Returns a new sequence with @p value appended at the back; O(1) amortized. */
     auto push_back(T value) const -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(d_tree.snoc(std::move(value)));
     }
 
+    /** Returns a new sequence with @p value prepended at the front; O(1) amortized. */
     auto push_front(T value) const -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(d_tree.cons(std::move(value)));
     }
 
+    /** Returns a new sequence with @p value inserted before position @p index; O(log n). */
     auto insert(std::size_t index, T value) const -> FingerTreeRandomAccess {
         // split_at with count predicate puts [0,index) left, [index,n) right.
         // O(log n).
@@ -70,6 +92,9 @@ class FingerTreeRandomAccess {
             parts.d_right));
     }
 
+    /** Returns a new sequence with the element at @p index removed; O(log n).
+     * Returns @c *this unchanged if @p index is out of range.
+     */
     auto erase(std::size_t index) const -> FingerTreeRandomAccess {
         if (index >= size()) {
             return *this;
@@ -85,6 +110,9 @@ class FingerTreeRandomAccess {
             FingerTree<T>::concat(sp->d_left, sp->d_right));
     }
 
+    /** Returns a new sequence with position @p index replaced by @p value; O(log n).
+     * Returns @c *this unchanged if @p index is out of range.
+     */
     auto update(std::size_t index, T value) const -> FingerTreeRandomAccess {
         if (index >= size()) {
             return *this;
@@ -100,6 +128,7 @@ class FingerTreeRandomAccess {
             sp->d_left.snoc(std::move(value)), sp->d_right));
     }
 
+    /** Materialises all elements into a vector in sequence order; O(n). */
     auto to_vector() const -> std::vector<T> { return d_tree.flatten(); }
 };
 
@@ -107,6 +136,7 @@ class FingerTreeRandomAccess {
 
 namespace smd {
 
+/** Foldable typeclass implementation for FingerTreeRandomAccess. */
 template <class T>
 struct FingerTreeRandomAccessFoldableImpl {
     template <class F>
@@ -123,16 +153,19 @@ struct FingerTreeRandomAccessFoldableImpl {
     }
 };
 
+/** Foldable typeclass map entry for FingerTreeRandomAccess. */
 template <class T>
 struct FingerTreeRandomAccessFoldableMap
     : Foldable<FingerTreeRandomAccessFoldableImpl<T>> {
     using FingerTreeRandomAccessFoldableImpl<T>::fold_map;
 };
 
+/** Registers FingerTreeRandomAccess as a Foldable. */
 template <class T>
 inline constexpr auto foldable_typeclass<smd::tree::FingerTreeRandomAccess<T>> =
     FingerTreeRandomAccessFoldableMap<T>{};
 
+/** Traversable typeclass implementation for FingerTreeRandomAccess. */
 template <class T>
 struct FingerTreeRandomAccessTraversableImpl {
     using element_type = T;
@@ -164,12 +197,14 @@ struct FingerTreeRandomAccessTraversableImpl {
     }
 };
 
+/** Traversable typeclass map entry for FingerTreeRandomAccess. */
 template <class T>
 struct FingerTreeRandomAccessTraversableMap
     : Traversable<FingerTreeRandomAccessTraversableImpl<T>> {
     using FingerTreeRandomAccessTraversableImpl<T>::traverse;
 };
 
+/** Registers FingerTreeRandomAccess as a Traversable. */
 template <class T>
 inline constexpr auto
     traversable_typeclass<smd::tree::FingerTreeRandomAccess<T>> =

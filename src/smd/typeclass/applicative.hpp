@@ -90,6 +90,10 @@ auto make_terminating_partial(FUNCTION &&function) {
 // applicative_typeclass<Concrete>.
 // - Do not introduce hidden alternate semantics without a distinct map/type.
 
+/** CRTP base for Applicative instances.
+ * `Impl` must provide `pure(value)` and `apply(f_in_context, arg_in_context)`.
+ * All other operations are derived.
+ */
 template <class Impl>
 struct Applicative : protected Impl {
     static_assert(!std::is_same_v<Impl, std::false_type>,
@@ -113,6 +117,12 @@ struct Applicative : protected Impl {
                            std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
 
+    /** Lifts `function` into the applicative and applies it to one or more
+     * effectful arguments left-to-right, producing a single effectful result.
+     * @param function  A plain callable; it is wrapped with `pure` internally.
+     * @param first_argument  First effectful argument (e.g., optional or vector).
+     * @param rest_arguments  Additional effectful arguments, if any.
+     */
     template <class FUNCTION, class FIRST_ARGUMENT, class... REST_ARGUMENTS>
     auto invoke(this auto &&self, FUNCTION &&function,
                 FIRST_ARGUMENT &&first_argument,
@@ -164,17 +174,22 @@ struct Applicative : protected Impl {
     }
 
   public:
+    /** Single-argument fmap via invoke; applies `function` to one effectful arg. */
     template <class FUNCTION, class ARGUMENT>
     auto map(this auto &&self, FUNCTION &&function, ARGUMENT &&argument) {
         return self.invoke(std::forward<FUNCTION>(function),
                            std::forward<ARGUMENT>(argument));
     }
 
+    /** Alias for `pure`; embeds a plain value into the applicative context. */
     template <class VALUE>
     auto lift(this auto &&self, VALUE &&value) {
         return self.pure(std::forward<VALUE>(value));
     }
 
+    /** Alias for the primitive `apply`: applies an effectful function to an
+     * effectful argument.
+     */
     template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
     auto ap(this auto &&self, FUNCTION_IN_CONTEXT &&function,
             ARGUMENT_IN_CONTEXT &&argument) {
@@ -182,6 +197,7 @@ struct Applicative : protected Impl {
                           std::forward<ARGUMENT_IN_CONTEXT>(argument));
     }
 
+    /** Lifts a binary function and applies it to two effectful arguments. */
     template <class FUNCTION, class FIRST_ARGUMENT, class SECOND_ARGUMENT>
     auto zip_with(this auto &&self, FUNCTION &&function,
                   FIRST_ARGUMENT &&first_argument,
@@ -191,6 +207,7 @@ struct Applicative : protected Impl {
                            std::forward<SECOND_ARGUMENT>(second_argument));
     }
 
+    /** Sequences two effectful values; returns the second, ignoring the first. */
     template <class FIRST_ARGUMENT, class SECOND_ARGUMENT>
     auto discard_first(this auto &&self, FIRST_ARGUMENT &&first_argument,
                        SECOND_ARGUMENT &&second_argument) {
@@ -202,6 +219,7 @@ struct Applicative : protected Impl {
             std::forward<SECOND_ARGUMENT>(second_argument));
     }
 
+    /** Sequences two effectful values; returns the first, ignoring the second. */
     template <class FIRST_ARGUMENT, class SECOND_ARGUMENT>
     auto discard_second(this auto &&self, FIRST_ARGUMENT &&first_argument,
                         SECOND_ARGUMENT &&second_argument) {
@@ -213,6 +231,7 @@ struct Applicative : protected Impl {
             std::forward<SECOND_ARGUMENT>(second_argument));
     }
 
+    /** Delegates invoke to a different applicative instance at runtime. */
     template <class APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT,
               class... REST_ARGUMENTS>
     auto invoke_with(this auto &&, const APPLICATIVE_MAP &applicative_map,
@@ -224,6 +243,7 @@ struct Applicative : protected Impl {
             std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
 
+    /** Delegates apply_pure to a different applicative instance at runtime. */
     template <class APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT,
               class... REST_ARGUMENTS>
     auto apply_pure_with(this auto &&, const APPLICATIVE_MAP &applicative_map,
@@ -235,6 +255,7 @@ struct Applicative : protected Impl {
             std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
 
+    /** Delegates invoke to a compile-time constant applicative instance. */
     template <const auto &APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT,
               class... REST_ARGUMENTS>
     auto invoke_with(this auto &&, FUNCTION &&function,
@@ -246,6 +267,7 @@ struct Applicative : protected Impl {
             std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
 
+    /** Delegates apply_pure to a compile-time constant applicative instance. */
     template <const auto &APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT,
               class... REST_ARGUMENTS>
     auto apply_pure_with(this auto &&, FUNCTION &&function,
@@ -258,6 +280,7 @@ struct Applicative : protected Impl {
     }
 };
 
+/** Typeclass lookup variable for Applicative; specialize for each type. */
 template <class T>
 inline constexpr auto applicative_typeclass = std::false_type{};
 
@@ -328,10 +351,12 @@ struct BemanOptionalApplicativeMap
     using BemanOptionalApplicativeImpl<VALUE_TYPE>::pure;
 };
 
+/** Applicative instance for `std::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
 inline constexpr auto applicative_typeclass<std::optional<VALUE_TYPE>> =
     OptionalApplicativeMap<VALUE_TYPE>{};
 
+/** Applicative instance for `beman::optional::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                            std::optional<VALUE_TYPE>>)

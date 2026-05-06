@@ -17,6 +17,7 @@
 
 namespace smd::tree {
 
+/** Heap-allocated, shared, immutable value — used for tree nodes and spine. */
 template <typename T>
 using Boxed = std::shared_ptr<const T>;
 
@@ -86,6 +87,9 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 } // namespace detail
 
+/** Measure policy that counts each element as 1; TAG_TYPE must be an additive
+ * monoid (e.g. std::size_t).
+ */
 template <typename VALUE_TYPE, typename TAG_TYPE>
 struct UnitMeasure {
     auto operator()(const VALUE_TYPE &) const -> TAG_TYPE {
@@ -93,6 +97,7 @@ struct UnitMeasure {
     }
 };
 
+/** Measure policy that lifts the cached measure stored inside a Node variant. */
 template <typename NODE_T, typename TAG_TYPE>
 struct NodeMeasure {
     auto operator()(const NODE_T &node) const -> TAG_TYPE {
@@ -101,6 +106,22 @@ struct NodeMeasure {
     }
 };
 
+/** @brief Persistent Hinze-Paterson 2-3 finger tree.
+ *
+ * @tparam T              Element type stored at the leaves.
+ * @tparam TAG_TYPE       Monoid-valued measure annotation cached at every node.
+ * @tparam MEASURE_POLICY Callable that maps a @p T value to a @p TAG_TYPE
+ *                        measure; must be default-constructible.
+ * @tparam DEPTH          NTTP used to break polymorphic recursion; the spine is
+ *                        a @c FingerTree<Node<T>, TAG_TYPE, NodeMeasure, DEPTH+1>.
+ *
+ * Complexity:
+ * - cons/snoc:        O(1) amortized
+ * - append/concat:    O(log min(n, m))
+ * - split/search:     O(log n)
+ * - flatten/for_each: O(n)
+ * - view_l/view_r:    O(1) amortized
+ */
 template <typename T, typename TAG_TYPE = std::size_t,
           typename MEASURE_POLICY = UnitMeasure<T, TAG_TYPE>, int DEPTH = 0>
 class FingerTree {
@@ -752,20 +773,25 @@ class FingerTree {
     }
 
   public:
+    /** The leaf element type. */
     using value_type = T;
+    /** The monoid measure type annotating each node. */
     using tag_type = Tag;
 
+    /** Result of view_l() / view_r(): the exposed element and the remaining tree. */
     struct View {
         T d_value;
         FingerTree d_rest;
     };
 
+    /** Result of split(): the pivot element extracted between two subtrees. */
     struct Split {
         FingerTree d_left;
         T d_pivot;
         FingerTree d_right;
     };
 
+    /** Result of split_at(): the tree partitioned into two halves. */
     struct SplitAt {
         FingerTree d_left;
         FingerTree d_right;
@@ -881,26 +907,33 @@ class FingerTree {
     }
 
   public:
+    /** Constructs an empty tree. */
     FingerTree() : d_repr(Empty{}) {}
 
+    /** Returns an empty tree. */
     static auto empty() -> FingerTree { return make_empty(); }
 
+    /** Returns a single-element tree containing @p value. */
     static auto leaf(T value) -> FingerTree {
         return make_single(std::move(value));
     }
 
+    /** Returns true if the tree contains no elements. */
     auto is_empty() const -> bool {
         return std::holds_alternative<Empty>(d_repr);
     }
 
+    /** Returns true if the tree contains exactly one element. */
     auto is_leaf() const -> bool {
         return std::holds_alternative<Single>(d_repr);
     }
 
+    /** Returns true if the tree has a deep (two-digit + spine) structure. */
     auto is_branch() const -> bool {
         return std::holds_alternative<DeepPtr>(d_repr);
     }
 
+    /** Returns the cached monoid measure over all elements in the tree. */
     auto measure() const -> Tag {
         return std::visit(
             detail::overloaded{
@@ -910,6 +943,7 @@ class FingerTree {
             d_repr);
     }
 
+    /** Returns the number of leaf elements (the element count). */
     auto breadth() const -> std::size_t {
         return std::visit(
             detail::overloaded{
@@ -921,6 +955,7 @@ class FingerTree {
             d_repr);
     }
 
+    /** Returns the structural depth of the spine (number of nested levels). */
     auto depth() const -> std::size_t {
         return std::visit(
             detail::overloaded{
@@ -930,11 +965,13 @@ class FingerTree {
             d_repr);
     }
 
+    /** Returns the single element stored in a leaf tree; asserts if not a leaf. */
     auto value() const -> const T & {
         assert(is_leaf());
         return std::get<Single>(d_repr).d_value;
     }
 
+    /** Prepends @p x to the front of the tree; O(1) amortized. */
     auto cons(T x) const -> FingerTree {
         return std::visit(
             detail::overloaded{
@@ -973,6 +1010,7 @@ class FingerTree {
             d_repr);
     }
 
+    /** Appends @p x to the back of the tree; O(1) amortized. */
     auto snoc(T x) const -> FingerTree {
         return std::visit(
             detail::overloaded{
@@ -1011,28 +1049,34 @@ class FingerTree {
             d_repr);
     }
 
+    /** Concatenates @p right onto this tree; O(log min(n, m)). */
     auto append(const FingerTree &right) const -> FingerTree {
         return app3(*this, {}, right);
     }
 
+    /** Static alias: concatenates @p left and @p right. */
     static auto branch(const FingerTree &left, const FingerTree &right)
         -> FingerTree {
         return left.append(right);
     }
 
+    /** Static alias: cons — prepends @p value to @p tree. */
     static auto prepend(T value, const FingerTree &tree) -> FingerTree {
         return tree.cons(std::move(value));
     }
 
+    /** Static alias: snoc — appends @p value to @p tree. */
     static auto append(const FingerTree &tree, T value) -> FingerTree {
         return tree.snoc(std::move(value));
     }
 
+    /** Static alias for append(); concatenates @p left and @p right. */
     static auto concat(const FingerTree &left, const FingerTree &right)
         -> FingerTree {
         return left.append(right);
     }
 
+    /** Materialises all elements into a vector in sequence order; O(n). */
     auto flatten() const -> std::vector<T> {
         return std::visit(
             detail::overloaded{
@@ -1049,9 +1093,9 @@ class FingerTree {
             d_repr);
     }
 
-    // Call callback(const T&) for each element in sequence order, without heap
-    // allocation. Prefer over flatten() when results do not need to outlive the
-    // callback loop.
+    /** Calls @p callback for each element in sequence order without allocating;
+     * prefer over flatten() when the result does not need to outlive the loop.
+     */
     template <typename F>
     void for_each(F &&callback) const {
         std::visit(detail::overloaded{[](const Empty &) {},
@@ -1066,6 +1110,7 @@ class FingerTree {
                    d_repr);
     }
 
+    /** Decomposes into (head, tail); returns nullopt on an empty tree; O(1) amortized. */
     auto view_l() const -> std::optional<View> {
         return std::visit(
             detail::overloaded{
@@ -1087,6 +1132,7 @@ class FingerTree {
             d_repr);
     }
 
+    /** Decomposes into (init, last); returns nullopt on an empty tree; O(1) amortized. */
     auto view_r() const -> std::optional<View> {
         return std::visit(detail::overloaded{
                               [](const Empty &) -> std::optional<View> {
@@ -1108,28 +1154,33 @@ class FingerTree {
                           d_repr);
     }
 
+    /** Returns the first element; asserts if empty. */
     auto head() const -> T {
         auto v = view_l();
         assert(v.has_value());
         return std::move(v->d_value);
     }
 
+    /** Returns the tree without its first element; returns empty if already empty. */
     auto tail() const -> FingerTree {
         auto v = view_l();
         return v.has_value() ? std::move(v->d_rest) : empty();
     }
 
+    /** Returns the last element; asserts if empty. */
     auto last() const -> T {
         auto v = view_r();
         assert(v.has_value());
         return std::move(v->d_value);
     }
 
+    /** Returns the tree without its last element; returns empty if already empty. */
     auto init() const -> FingerTree {
         auto v = view_r();
         return v.has_value() ? std::move(v->d_rest) : empty();
     }
 
+    /** Returns the pivot value from split(@p predicate), or nullopt; O(log n). */
     template <typename PREDICATE>
     auto search(PREDICATE &&predicate) const -> std::optional<T> {
         auto sp = split(std::forward<PREDICATE>(predicate));
@@ -1138,11 +1189,23 @@ class FingerTree {
         return std::move(sp->d_pivot);
     }
 
+    /** @brief Splits the tree at the first element where the accumulated prefix
+     *         measure satisfies @p predicate; O(log n).
+     *
+     * @return nullopt if no element satisfies the predicate.
+     *         Otherwise a Split whose @c d_pivot is that element, @c d_left
+     *         contains all prior elements, and @c d_right contains all
+     *         subsequent elements.
+     */
     template <typename PREDICATE>
     auto split(PREDICATE &&predicate) const -> std::optional<Split> {
         return split_impl(predicate, tag_identity());
     }
 
+    /** @brief Splits into (left, right) where @p predicate first becomes true
+     *         on the accumulated prefix; the triggering element is placed at
+     *         the front of @c d_right; O(log n).
+     */
     template <typename PREDICATE>
     auto split_at(PREDICATE &&predicate) const -> SplitAt {
         auto sp = split(std::forward<PREDICATE>(predicate));
@@ -1153,6 +1216,12 @@ class FingerTree {
                        sp->d_right.cons(std::move(sp->d_pivot))};
     }
 
+    /** @brief Splits after the first @p index elements; O(log n) when
+     *         TAG_TYPE is std::size_t with UnitMeasure, O(n) otherwise.
+     *
+     * @param index Number of elements to place in @c d_left.
+     *              Clamped to [0, breadth()].
+     */
     auto split_at_index(std::size_t index) const -> SplitAt {
         if (index == 0U) {
             return SplitAt{empty(), *this};
@@ -1182,6 +1251,9 @@ class FingerTree {
         }
     }
 
+    /** @brief Splits when the accumulated prefix measure first reaches
+     *         @p threshold; requires TAG_TYPE to support @c >=; O(log n).
+     */
     auto split_at_measure(const Tag &threshold) const -> SplitAt
         requires requires(const Tag &lhs, const Tag &rhs) {
             { lhs >= rhs } -> std::convertible_to<bool>;
@@ -1191,6 +1263,7 @@ class FingerTree {
             [&threshold](const Tag &prefix) { return prefix >= threshold; });
     }
 
+    /** Builds a tree from a vector by snocing each element in order; O(n). */
     static auto from_sequence(std::vector<T> values) -> FingerTree {
         auto result = empty();
         for (auto &v : values) {

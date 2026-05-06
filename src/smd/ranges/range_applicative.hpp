@@ -14,8 +14,17 @@
 
 namespace smd {
 
+/** Applicative typeclass instance for list_range<VIEW> with Cartesian-product
+ * (nondeterminism / list-monad) semantics.
+ * 
+ * pure(x) = {x} (singleton range).
+ * apply(fs, xs) = {f(x) | f <- fs, x <- xs} — every function applied to
+ * every argument, producing all combinations in fs-major order.
+ * @tparam VIEW underlying view type of the list_range
+ */
 template <class VIEW>
 struct ListRangeApplicativeImpl {
+    /** Lift a value into a single-element range. */
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value) {
         using Stored = remove_cvref_t<VALUE>;
@@ -23,6 +32,11 @@ struct ListRangeApplicativeImpl {
             std::vector<Stored>{std::forward<VALUE>(value)});
     }
 
+    /**
+     * @brief Apply every function in @p functions to every argument in
+     *        @p arguments (Cartesian product).
+     * @return range of size |functions| * |arguments|, in fs-major order
+     */
     template <class FUNCTION_VIEW, class ARGUMENT_VIEW>
     auto apply(this auto &&,
                const smd::ranges::list_range<FUNCTION_VIEW> &functions,
@@ -48,12 +62,14 @@ struct ListRangeApplicativeImpl {
     }
 };
 
+/** Applicative map exposing pure and apply for list_range<VIEW>. */
 template <class VIEW>
 struct ListRangeApplicativeMap : Applicative<ListRangeApplicativeImpl<VIEW>> {
     using ListRangeApplicativeImpl<VIEW>::apply;
     using ListRangeApplicativeImpl<VIEW>::pure;
 };
 
+/** Registers ListRangeApplicativeMap as the Applicative instance for list_range<VIEW>. */
 template <class VIEW>
 inline constexpr auto applicative_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeApplicativeMap<VIEW>{};

@@ -19,6 +19,11 @@ namespace smd {
 // traversable_typeclass<Concrete>.
 // - Traversal must preserve container shape while sequencing effects.
 
+/** CRTP base for Traversable instances.
+ * `Impl` must provide `traverse(applicative, f, container)` and declare
+ * `element_type`. All other operations (`sequence`, `for_each`,
+ * `traverse_with`, `sequence_with`) are derived.
+ */
 template <class Impl>
 struct Traversable : protected Impl {
     static_assert(!std::is_same_v<Impl, std::false_type>,
@@ -38,6 +43,9 @@ struct Traversable : protected Impl {
     // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11
 
     // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46
+    /** Applies `function` to each element and sequences the resulting effects;
+     * the applicative is inferred from the return type of `function`.
+     */
     template <class T, class F>
     auto for_each(this auto &&self, T &&value, F &&function) {
         using Context =
@@ -49,6 +57,9 @@ struct Traversable : protected Impl {
     // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46 end
 
     // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79
+    /** Sequences a container of effectful values into a single effect containing
+     * the container. The element type must itself be an applicative context.
+     */
     template <class T>
     auto sequence(this auto &&self, T &&value) {
         using Context = element_type;
@@ -59,6 +70,9 @@ struct Traversable : protected Impl {
     }
     // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79 end
 
+    /** Traverses using a different traversable instance; applicative is inferred
+     * from the return type of `function`.
+     */
     template <class TRAVERSABLE_MAP, class T, class F>
     auto traverse_with(this auto &&, const TRAVERSABLE_MAP &traversable_map,
                        F &&function, T &&value) {
@@ -69,6 +83,7 @@ struct Traversable : protected Impl {
                                         std::forward<T>(value));
     }
 
+    /** Traverses using explicit traversable and applicative instances. */
     template <class TRAVERSABLE_MAP, class APPLICATIVE_MAP, class T, class F>
     auto traverse_with(this auto &&, const TRAVERSABLE_MAP &traversable_map,
                        const APPLICATIVE_MAP &applicative_map, F &&function,
@@ -77,6 +92,9 @@ struct Traversable : protected Impl {
             applicative_map, std::forward<F>(function), std::forward<T>(value));
     }
 
+    /** Sequences using a different traversable instance; applicative is inferred
+     * from the container's element type.
+     */
     template <class TRAVERSABLE_MAP, class T>
     auto sequence_with(this auto &&self, const TRAVERSABLE_MAP &traversable_map,
                        T &&value) {
@@ -88,9 +106,17 @@ struct Traversable : protected Impl {
     // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end
 };
 
+/** Typeclass lookup variable for Traversable; specialize for each container type. */
 template <class T>
 inline constexpr auto traversable_typeclass = std::false_type{};
 
+/** @brief Maps `function` over `value`, sequences effects left-to-right,
+ *         and preserves container shape.
+ *
+ * @param function  A callable returning an applicative effect for each element.
+ * @param value     The traversable container to process.
+ * @return          The container shape lifted into the applicative effect.
+ */
 template <class F, class T>
 auto traverse(F &&function, T &&value) {
     const auto &map = traversable_typeclass<remove_cvref_t<T>>;

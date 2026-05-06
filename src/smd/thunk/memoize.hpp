@@ -22,8 +22,12 @@
 
 namespace smd::thunk {
 
-// erased_thunk<Result> — type-erased wrapper for any callable returning Result.
-// Copies share the same underlying callable via shared_ptr.
+/** Type-erased, copyable wrapper for any callable returning @p Result.
+ * All copies of an erased_thunk share the same underlying callable via
+ * shared_ptr, so invoking any copy calls the same object.
+ * Virtual dispatch is used so that the concrete callable type need not be
+ * known at the point of storage (e.g. in a heterogeneous container).
+ */
 template <typename Result>
 class erased_thunk {
     struct ThunkBase {
@@ -46,6 +50,7 @@ class erased_thunk {
   public:
     erased_thunk() = default;
 
+    /** Construct from any compatible callable (excluded: self-type). */
     template <
         typename Callable, typename CallableT = std::remove_cvref_t<Callable>,
         std::enable_if_t<!std::is_same_v<CallableT, erased_thunk>, int> = 0>
@@ -53,18 +58,25 @@ class erased_thunk {
         : d_impl(std::make_shared<ThunkModel<CallableT>>(
               std::forward<Callable>(callable))) {}
 
+    /** Invoke the wrapped callable and return a reference to its result. */
     [[nodiscard]] auto operator()() const -> const Result & {
         assert(d_impl != nullptr);
         return d_impl->invoke();
     }
 };
 
-// memoize(callable, args...) — returns a callable that evaluates
-// delay(callable, args...) exactly once and caches the result.  All copies
-// of the returned callable share the same cached value via shared_ptr.
-//
-// Not thread-safe: concurrent first calls race on the variant mutation.
-// See thread-safety note at the top of this file.
+/**
+ * @brief Return a callable that evaluates delay(callable, args...) exactly
+ *        once and caches the result; all copies share the cached value.
+ *
+ * Not thread-safe: concurrent first calls race on the internal variant
+ * mutation. See the thread-safety note at the top of this file.
+ *
+ * @param c     callable to defer and memoize
+ * @param args  arguments forwarded into the underlying delay closure
+ * @return nullary callable returning const Result& on every call after the
+ *         first evaluation
+ */
 template <typename Callable, typename... Args>
 auto memoize(Callable &&c, Args &&...args) {
     using Closure =
@@ -84,9 +96,17 @@ auto memoize(Callable &&c, Args &&...args) {
     };
 }
 
-// measured_memoize(measure, callable, args...) — like memoize(), but attaches
-// a pre-computed Measure alongside the deferred result.  Returns a struct with
-// cached_measure() and force() accessors.
+/**
+ * @brief Like memoize(), but attaches a pre-computed @p measure alongside the
+ *        deferred result.
+ *
+ * Returns a struct with cached_measure() (returns the measure without forcing
+ * the thunk) and force() (evaluates or returns the cached result).
+ *
+ * @param measure  pre-computed annotation value stored eagerly
+ * @param c        callable to memoize
+ * @param args     arguments forwarded to the underlying memoize closure
+ */
 template <typename Measure, typename Callable, typename... Args>
 auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
     auto deferred =
@@ -98,9 +118,11 @@ auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
             Measure d_measure;
             mutable decltype(deferred) d_force;
 
+            /** Return the pre-computed measure without evaluating the thunk. */
             [[nodiscard]] auto cached_measure() const -> const Measure & {
                 return d_measure;
             }
+            /** Force evaluation (or return cached value) of the deferred callable. */
             [[nodiscard]] auto force() const -> decltype(auto) {
                 return d_force();
             }

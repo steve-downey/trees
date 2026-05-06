@@ -13,8 +13,13 @@
 
 namespace smd {
 
+/** Foldable typeclass instance for list_range<VIEW>.
+ * Provides fold_map, fold_left, fold_right, and convenience query operations.
+ * @tparam VIEW underlying view type
+ */
 template <class VIEW>
 struct ListRangeFoldableImpl {
+    /** Map @p function over all elements and combine results via their Monoid. */
     template <class FUNCTION>
     auto fold_map(this auto &&self, FUNCTION &&function,
                   const smd::ranges::list_range<VIEW> &values) {
@@ -30,11 +35,13 @@ struct ListRangeFoldableImpl {
                               });
     }
 
+    /** Return the number of elements in the range. */
     auto length(this auto &&, const smd::ranges::list_range<VIEW> &values)
         -> std::size_t {
         return static_cast<std::size_t>(std::ranges::distance(values));
     }
 
+    /** Left fold: reduce the range to a single value, left-to-right. */
     template <class STATE, class FUNCTION>
     auto fold_left(this auto &&, const smd::ranges::list_range<VIEW> &values,
                    STATE initial_state, FUNCTION &&function) {
@@ -42,6 +49,9 @@ struct ListRangeFoldableImpl {
                                       std::forward<FUNCTION>(function));
     }
 
+    /** Right fold: reduce the range to a single value, right-to-left.
+     * Materializes the range into a vector first to support reverse iteration.
+     */
     template <class STATE, class FUNCTION>
     auto fold_right(this auto &&, const smd::ranges::list_range<VIEW> &values,
                     STATE initial_state, FUNCTION &&function) {
@@ -50,27 +60,35 @@ struct ListRangeFoldableImpl {
                                        std::forward<FUNCTION>(function));
     }
 
+    /** True if any element satisfies @p predicate. */
     template <class PREDICATE>
     auto any_of(this auto &&, const smd::ranges::list_range<VIEW> &values,
                 PREDICATE &&predicate) -> bool {
         return std::ranges::any_of(values, std::forward<PREDICATE>(predicate));
     }
 
+    /** True if all elements satisfy @p predicate. */
     template <class PREDICATE>
     auto all_of(this auto &&, const smd::ranges::list_range<VIEW> &values,
                 PREDICATE &&predicate) -> bool {
         return std::ranges::all_of(values, std::forward<PREDICATE>(predicate));
     }
 
+    /** True if the range contains no elements. */
     auto empty(this auto &&, const smd::ranges::list_range<VIEW> &values)
         -> bool {
         return std::ranges::empty(values);
     }
 
+    /** Materialize the range into a vector. */
     auto to_vector(this auto &&, const smd::ranges::list_range<VIEW> &values) {
         return smd::ranges::detail::materialize(values);
     }
 
+    /**
+     * @brief Return the first element satisfying @p predicate, or nullopt.
+     * @return optional containing the first matching value, or nullopt
+     */
     template <class PREDICATE>
     auto find_first(this auto &&, const smd::ranges::list_range<VIEW> &values,
                     PREDICATE &&predicate) {
@@ -85,6 +103,7 @@ struct ListRangeFoldableImpl {
     }
 };
 
+/** Foldable map exposing all fold operations for list_range<VIEW>. */
 template <class VIEW>
 struct ListRangeFoldableMap : Foldable<ListRangeFoldableImpl<VIEW>> {
     using ListRangeFoldableImpl<VIEW>::all_of;
@@ -98,6 +117,7 @@ struct ListRangeFoldableMap : Foldable<ListRangeFoldableImpl<VIEW>> {
     using ListRangeFoldableImpl<VIEW>::to_vector;
 };
 
+/** Registers ListRangeFoldableMap as the Foldable instance for list_range<VIEW>. */
 template <class VIEW>
 inline constexpr auto foldable_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeFoldableMap<VIEW>{};

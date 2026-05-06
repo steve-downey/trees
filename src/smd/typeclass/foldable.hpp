@@ -205,6 +205,11 @@ namespace smd {
 //   empty, to_vector, find_first) live on the same looked-up object.
 // - Traversal order is instance-defined but must be coherent per instance.
 
+/** CRTP base for Foldable instances.
+ * `Impl` must provide either `fold_map(f, container)` or `fold_right` +
+ * `element_type`; all other operations are derived from whichever is the
+ * primitive.
+ */
 template <class Impl>
 struct Foldable : protected Impl {
     static_assert(!std::is_same_v<Impl, std::false_type>,
@@ -237,6 +242,7 @@ struct Foldable : protected Impl {
     // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2
 
     // c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08
+    /** Returns the number of elements in the foldable container. */
     template <class T>
     auto length(this auto &&self, T &&value) -> std::size_t {
         const auto count =
@@ -246,6 +252,9 @@ struct Foldable : protected Impl {
     }
     // c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08 end
 
+    /** Left-associative fold: applies `function(state, element)` for each
+     * element in traversal order, starting from `initial_state`.
+     */
     template <class T, class STATE, class F>
     auto fold_left(this auto &&self, T &&value, STATE initial_state,
                    F &&function) {
@@ -265,6 +274,9 @@ struct Foldable : protected Impl {
         return program(StateType(std::move(initial_state)));
     }
 
+    /** Right-associative fold: applies `function(element, state)` for each
+     * element in reverse traversal order, starting from `initial_state`.
+     */
     template <class T, class STATE, class F>
     auto fold_right(this auto &&self, T &&value, STATE initial_state,
                     F &&function) {
@@ -284,17 +296,22 @@ struct Foldable : protected Impl {
         return program(StateType(std::move(initial_state)));
     }
 
+    /** Combines all elements using the Monoid of the element type
+     * (requires elements themselves to be Monoid values).
+     */
     template <class T>
     auto combine_all(this auto &&self, T &&value) {
         return self.fold_map([](const auto &x) { return x; },
                              std::forward<T>(value));
     }
 
+    /** Alias for `combine_all`. */
     template <class T>
     auto fold(this auto &&self, T &&value) {
         return self.combine_all(std::forward<T>(value));
     }
 
+    /** Returns `true` if any element satisfies `predicate`. */
     template <class T, class PREDICATE>
     auto any_of(this auto &&self, T &&value, PREDICATE &&predicate) -> bool {
         const auto result = self.fold_map(
@@ -306,6 +323,7 @@ struct Foldable : protected Impl {
         return result.d_value;
     }
 
+    /** Returns `true` if all elements satisfy `predicate`. */
     template <class T, class PREDICATE>
     auto all_of(this auto &&self, T &&value, PREDICATE &&predicate) -> bool {
         const auto result = self.fold_map(
@@ -317,6 +335,7 @@ struct Foldable : protected Impl {
         return result.d_value;
     }
 
+    /** Returns `true` if the container holds no elements. */
     template <class T>
     auto empty(this auto &&self, T &&value) -> bool {
         return !self.any_of(std::forward<T>(value),
@@ -324,6 +343,7 @@ struct Foldable : protected Impl {
     }
 
     // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09
+    /** Collects all elements into a `std::vector` in traversal order. */
     template <class T>
     auto to_vector(this auto &&self, T &&value) {
         return self.fold_map(
@@ -336,6 +356,7 @@ struct Foldable : protected Impl {
     // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09 end
     // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end
 
+    /** Returns the first element satisfying `predicate`, or an empty optional. */
     template <class T, class PREDICATE>
     auto find_first(this auto &&self, T &&value, PREDICATE &&predicate) {
         const auto result = self.fold_map(
@@ -352,6 +373,7 @@ struct Foldable : protected Impl {
     }
 };
 
+/** Typeclass lookup variable for Foldable; specialize for each container type. */
 template <class T>
 inline constexpr auto foldable_typeclass = std::false_type{};
 

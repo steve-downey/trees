@@ -12,6 +12,9 @@
 
 namespace smd {
 
+/** Foldable typeclass implementation for FingerTree; uses for_each to avoid
+ * heap allocation during traversal.
+ */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 struct FingerTreeFoldableImpl {
     template <class F>
@@ -30,12 +33,14 @@ struct FingerTreeFoldableImpl {
     }
 };
 
+/** Foldable typeclass map entry for FingerTree. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 struct FingerTreeFoldableMap
     : Foldable<FingerTreeFoldableImpl<T, TAG_TYPE, MEASURE_POLICY>> {
     using FingerTreeFoldableImpl<T, TAG_TYPE, MEASURE_POLICY>::fold_map;
 };
 
+/** Registers FingerTree as a Foldable for all tag and measure combinations. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 inline constexpr auto
     foldable_typeclass<smd::tree::FingerTree<T, TAG_TYPE, MEASURE_POLICY>> =

@@ -49,14 +49,30 @@ auto zip_list_result_size(const FIRST &first, const REST &...rest)
 
 } // namespace detail
 
+/** Applicative typeclass instance for zip_list<T> with positional (zip)
+ * semantics.
+ * 
+ * pure(x) = infinite repetition of x (zip_list::repeat(x)).
+ * apply(fs, xs) zips functions and arguments positionally, truncating to the
+ * length of the shortest finite operand. If all operands are infinite the
+ * result is also infinite (repeating f(x) for the first positions).
+ * @tparam T element type of the zip_list holding function values
+ */
 template <class T>
 struct ZipListApplicativeImpl {
+    /** Lift a value into an infinite zip_list repeating that value. */
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value) {
         using U = remove_cvref_t<VALUE>;
         return zip_list<U>::repeat(U(std::forward<VALUE>(value)));
     }
 
+    /**
+     * @brief Zip functions and arguments positionally; truncate to shortest finite.
+     * @param functions zip_list of callables
+     * @param arguments zip_list of arguments
+     * @return zip_list of results; infinite only when both operands are infinite
+     */
     template <class F, class A>
     auto apply(this auto &&, const zip_list<F> &functions,
                const zip_list<A> &arguments) {
@@ -82,6 +98,14 @@ struct ZipListApplicativeImpl {
         return result;
     }
 
+    /**
+     * @brief N-ary positional application: apply @p function over all zip_lists
+     *        element-wise, truncating to the shortest finite operand.
+     * @param function  callable accepting one element from each input list
+     * @param first     first zip_list
+     * @param rest      remaining zip_lists
+     * @return zip_list of results
+     */
     template <class FUNCTION, class FIRST, class... REST>
     auto invoke(this auto &&, FUNCTION &&function, const FIRST &first,
                 const REST &...rest) {
@@ -112,12 +136,14 @@ struct ZipListApplicativeImpl {
     }
 };
 
+/** Applicative map exposing pure, apply, and invoke for zip_list<T>. */
 template <class T>
 struct ZipListApplicativeMap : Applicative<ZipListApplicativeImpl<T>> {
     using ZipListApplicativeImpl<T>::apply;
     using ZipListApplicativeImpl<T>::pure;
 };
 
+/** Registers ZipListApplicativeMap as the Applicative instance for zip_list<T>. */
 template <class T>
 inline constexpr auto applicative_typeclass<zip_list<T>> =
     ZipListApplicativeMap<T>{};

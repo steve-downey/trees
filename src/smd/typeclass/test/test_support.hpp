@@ -14,11 +14,15 @@
 
 namespace smd::typeclass::test {
 
+/** Return true if @p left == @p right; thin wrapper for use in law checks. */
 template <class LEFT, class RIGHT>
 auto are_equal(LEFT &&left, RIGHT &&right) -> bool {
     return std::forward<LEFT>(left) == std::forward<RIGHT>(right);
 }
 
+/** Verify the Applicative identity law: `pure(id) <*> v == v`.
+ * @tparam CONTEXT an applicative context type with a registered typeclass
+ */
 template <class CONTEXT>
 auto check_applicative_identity_law(const CONTEXT &value) -> bool {
     const auto &applicative =
@@ -28,6 +32,9 @@ auto check_applicative_identity_law(const CONTEXT &value) -> bool {
     return result == value;
 }
 
+/** Verify the Applicative homomorphism law: `pure(f) <*> pure(x) == pure(f x)`.
+ * @tparam CONTEXT the applicative context whose typeclass is under test
+ */
 template <class CONTEXT, class FUNCTION, class VALUE>
 auto check_applicative_homomorphism_law(const FUNCTION &function,
                                         const VALUE &value) -> bool {
@@ -39,6 +46,10 @@ auto check_applicative_homomorphism_law(const FUNCTION &function,
     return left == right;
 }
 
+/** Verify that `invoke(f, u, v)` agrees with the desugared `ap`/`pure` form
+ * for a binary @p function applied to effectful arguments @p first and @p second.
+ * @tparam CONTEXT the applicative context whose typeclass is under test
+ */
 template <class CONTEXT, class FUNCTION>
 auto check_applicative_invoke_binary_law(const FUNCTION &function,
                                          const CONTEXT &first,
@@ -59,6 +70,9 @@ auto check_applicative_invoke_binary_law(const FUNCTION &function,
     return invoke_result == ap_result;
 }
 
+/** Minimal single-element applicative context used in law tests.
+ * `pure(x)` wraps @p x; `apply` unwraps and invokes the stored function.
+ */
 template <class VALUE_TYPE>
 struct Identity {
     using value_type = VALUE_TYPE;
@@ -69,6 +83,9 @@ struct Identity {
         -> bool = default;
 };
 
+/** Like Identity but uses forwarding (rvalue-ref) apply semantics.
+ * Distinguishes dispatch paths in tests that require move-only contexts.
+ */
 template <class VALUE_TYPE>
 struct BareIdentity {
     using value_type = VALUE_TYPE;
@@ -79,6 +96,9 @@ struct BareIdentity {
         -> bool = default;
 };
 
+/** Ordered multi-element foldable context backed by `std::vector`.
+ * fold_map accumulates left-to-right in `values` order.
+ */
 template <class VALUE_TYPE>
 struct Sequence {
     using value_type = VALUE_TYPE;
@@ -91,6 +111,7 @@ struct Sequence {
 
 using smd::typeclass::Count;
 
+/** Convenience alias so tests can write `Vector<int>` instead of `std::vector<int>`. */
 template <class VALUE_TYPE>
 using Vector = std::vector<VALUE_TYPE>;
 
@@ -98,6 +119,7 @@ using Vector = std::vector<VALUE_TYPE>;
 
 namespace smd {
 
+/** Applicative implementation for Identity<V>: pure wraps, apply unwraps and invokes. */
 template <class VALUE_TYPE>
 struct TestIdentityApplicativeImpl {
     template <class VALUE>
@@ -118,6 +140,7 @@ struct TestIdentityApplicativeImpl {
     }
 };
 
+/** Applicative typeclass record for Identity<V>; exposes pure and apply. */
 template <class VALUE_TYPE>
 struct TestIdentityApplicativeMap
     : Applicative<TestIdentityApplicativeImpl<VALUE_TYPE>> {
@@ -130,6 +153,7 @@ inline constexpr auto
     applicative_typeclass<smd::typeclass::test::Identity<VALUE_TYPE>> =
         TestIdentityApplicativeMap<VALUE_TYPE>{};
 
+/** Applicative implementation for BareIdentity<V>: apply uses forwarding references. */
 template <class VALUE_TYPE>
 struct BareIdentityApplicativeImpl {
     template <class VALUE>
@@ -151,6 +175,7 @@ struct BareIdentityApplicativeImpl {
     }
 };
 
+/** Applicative typeclass record for BareIdentity<V>; exposes pure and apply. */
 template <class VALUE_TYPE>
 struct BareIdentityApplicativeMap
     : Applicative<BareIdentityApplicativeImpl<VALUE_TYPE>> {
@@ -163,6 +188,7 @@ inline constexpr auto
     applicative_typeclass<smd::typeclass::test::BareIdentity<VALUE_TYPE>> =
         BareIdentityApplicativeMap<VALUE_TYPE>{};
 
+/** Foldable implementation for Sequence<V>: fold_map walks values left-to-right. */
 template <class VALUE_TYPE>
 struct TestSequenceFoldableImpl {
     template <class FUNCTION>
@@ -179,6 +205,7 @@ struct TestSequenceFoldableImpl {
     }
 };
 
+/** Foldable typeclass record for Sequence<V>; exposes fold_map. */
 template <class VALUE_TYPE>
 struct TestSequenceFoldableMap
     : Foldable<TestSequenceFoldableImpl<VALUE_TYPE>> {
@@ -190,6 +217,9 @@ inline constexpr auto
     foldable_typeclass<smd::typeclass::test::Sequence<VALUE_TYPE>> =
         TestSequenceFoldableMap<VALUE_TYPE>{};
 
+/** Traversable implementation for Identity<V>: traverse applies f to the single value
+ * and wraps the result back in Identity inside the applicative effect.
+ */
 template <class VALUE_TYPE>
 struct TestIdentityTraversableImpl {
     using element_type = VALUE_TYPE;
@@ -208,6 +238,7 @@ struct TestIdentityTraversableImpl {
     }
 };
 
+/** Traversable typeclass record for Identity<V>; exposes traverse. */
 template <class VALUE_TYPE>
 struct TestIdentityTraversableMap
     : Traversable<TestIdentityTraversableImpl<VALUE_TYPE>> {

@@ -15,6 +15,11 @@
 
 namespace smd {
 
+/** Traversable typeclass instance for BinaryTree<T>.
+ * traverse maps each node value into an applicative context and rebuilds a
+ * BinaryTree inside that context, preserving the original tree's shape.
+ * @tparam T element type of the tree being traversed
+ */
 template <class T>
 struct BinaryTreeTraversableImpl {
     using element_type = T;
@@ -102,11 +107,13 @@ struct BinaryTreeTraversableImpl {
     }
 };
 
+/** Traversable map that exposes traverse for BinaryTree<T>. */
 template <class T>
 struct BinaryTreeTraversableMap : Traversable<BinaryTreeTraversableImpl<T>> {
     using BinaryTreeTraversableImpl<T>::traverse;
 };
 
+/** Registers BinaryTreeTraversableMap as the Traversable instance for BinaryTree<T>. */
 template <class T>
 inline constexpr auto traversable_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeTraversableMap<T>{};

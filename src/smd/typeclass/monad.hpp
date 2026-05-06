@@ -16,15 +16,12 @@
 
 namespace smd {
 
-// Monad<Impl>
-//
-// Minimal hooks: pure + bind.
-// Derived: apply (synthesized from bind + pure), join, kleisli, bind_with.
-//
-// Monad does not inherit from Applicative. The Impl delegates pure to an
-// applicative typeclass object when one exists, or defines it directly when
-// none is available. The base class synthesizes apply from bind + pure, so
-// a Monad instance provides Applicative-equivalent operations automatically.
+/** CRTP base for Monad instances.
+ * `Impl` must provide `pure(value)` and `bind(ma, f)`.
+ * `apply` is synthesized; `join` and `kleisli` are derived.
+ * Monad does not inherit from Applicative, but provides equivalent
+ * operations once `apply` is synthesized from `bind` + `pure`.
+ */
 template <class Impl>
 struct Monad : protected Impl {
     static_assert(!std::is_same_v<Impl, std::false_type>,
@@ -79,6 +76,7 @@ struct Monad : protected Impl {
     }
 };
 
+/** Typeclass lookup variable for Monad; specialize for each type. */
 template <class T>
 inline constexpr auto monad_typeclass = std::false_type{};
 
@@ -112,6 +110,7 @@ struct OptionalMonadMap : Monad<OptionalMonadImpl<VALUE_TYPE>> {
     using OptionalMonadImpl<VALUE_TYPE>::pure;
 };
 
+/** Monad instance for `std::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
 inline constexpr auto monad_typeclass<std::optional<VALUE_TYPE>> =
     OptionalMonadMap<VALUE_TYPE>{};
@@ -150,6 +149,7 @@ struct BemanOptionalMonadMap
     using BemanOptionalMonadImpl<VALUE_TYPE>::pure;
 };
 
+/** Monad instance for `beman::optional::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                            std::optional<VALUE_TYPE>>)
@@ -159,12 +159,14 @@ inline constexpr auto
 
 // -- Free-function API --
 
+/** Sequences a monadic value `ma` through function `f` (Haskell's `>>=`). */
 template <class MA, class F>
 auto mbind(MA &&ma, F &&f) {
     const auto &map = monad_typeclass<remove_cvref_t<MA>>;
     return map.bind(std::forward<MA>(ma), std::forward<F>(f));
 }
 
+/** Flattens a nested monadic value; equivalent to `bind(mma, id)`. */
 template <class MMA>
 auto join(MMA &&mma) {
     const auto &map = monad_typeclass<remove_cvref_t<MMA>>;

@@ -13,6 +13,13 @@
 
 namespace smd {
 
+/** Traversable typeclass instance for FringeTree<T>.
+ * traverse maps each leaf value into an applicative context and rebuilds a
+ * FringeTree inside that context, preserving the original tree's structure.
+ * Empty stays empty; leaves become single-element trees; branches combine
+ * the traversed subtrees with FringeTree::branch inside the applicative.
+ * @tparam T leaf element type of the tree being traversed
+ */
 template <class T>
 struct FringeTreeTraversableImpl {
     using element_type = T;
@@ -51,11 +58,13 @@ struct FringeTreeTraversableImpl {
     }
 };
 
+/** Traversable map that exposes traverse for FringeTree<T>. */
 template <class T>
 struct FringeTreeTraversableMap : Traversable<FringeTreeTraversableImpl<T>> {
     using FringeTreeTraversableImpl<T>::traverse;
 };
 
+/** Registers FringeTreeTraversableMap as the Traversable instance for FringeTree<T>. */
 template <class T>
 inline constexpr auto traversable_typeclass<smd::tree::FringeTree<T>> =
     FringeTreeTraversableMap<T>{};

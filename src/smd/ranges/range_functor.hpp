@@ -11,6 +11,11 @@
 
 namespace smd {
 
+/** Functor typeclass instance for list_range<VIEW>.
+ * fmap applies @p function lazily to each element via std::views::transform
+ * and wraps the result in a new list_range.
+ * @tparam VIEW underlying view type of the list_range being mapped
+ */
 template <class VIEW>
 struct ListRangeFunctorImpl {
     template <class FUNCTION>
@@ -21,11 +26,13 @@ struct ListRangeFunctorImpl {
     }
 };
 
+/** Functor map that exposes fmap for list_range<VIEW>. */
 template <class VIEW>
 struct ListRangeFunctorMap : Functor<ListRangeFunctorImpl<VIEW>> {
     using ListRangeFunctorImpl<VIEW>::fmap;
 };
 
+/** Registers ListRangeFunctorMap as the Functor instance for list_range<VIEW>. */
 template <class VIEW>
 inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeFunctorMap<VIEW>{};

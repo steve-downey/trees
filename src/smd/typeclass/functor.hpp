@@ -24,11 +24,17 @@ namespace smd {
 // - Dispatch happens through a provided object or functor_typeclass<Concrete>.
 // - Keep lookup explicit through typeclass objects, not ADL overloads.
 
+/** CRTP base for Functor instances.
+ * `Impl` must provide `fmap(f, container)`; `replace` is derived from it.
+ */
 template <class Impl>
 struct Functor : protected Impl {
     using Impl::fmap;
 
     // e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02
+    /** Replaces every element of `value` with `replacement`, ignoring the
+     * original element values.
+     */
     template <class T, class U>
     auto replace(this auto &&self, T &&value, U &&replacement) {
         return self.fmap([replacement = std::forward<U>(replacement)](
@@ -38,6 +44,7 @@ struct Functor : protected Impl {
     // e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02 end
 };
 
+/** Typeclass lookup variable for Functor; specialize for each container type. */
 template <class T>
 inline constexpr auto functor_typeclass = std::false_type{};
 
@@ -106,16 +113,19 @@ struct VectorFunctorMap : Functor<VectorFunctorImpl<VALUE_TYPE>> {
     using VectorFunctorImpl<VALUE_TYPE>::fmap;
 };
 
+/** Functor instance for `std::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
 inline constexpr auto functor_typeclass<std::optional<VALUE_TYPE>> =
     OptionalFunctorMap<VALUE_TYPE>{};
 
+/** Functor instance for `beman::optional::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                            std::optional<VALUE_TYPE>>)
 inline constexpr auto functor_typeclass<beman::optional::optional<VALUE_TYPE>> =
     BemanOptionalFunctorMap<VALUE_TYPE>{};
 
+/** Functor instance for `std::vector<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
 inline constexpr auto functor_typeclass<std::vector<VALUE_TYPE>> =
     VectorFunctorMap<VALUE_TYPE>{};

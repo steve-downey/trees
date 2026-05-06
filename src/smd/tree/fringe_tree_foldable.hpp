@@ -12,6 +12,12 @@
 
 namespace smd {
 
+/** Foldable typeclass instance for FringeTree<T>.
+ * fold_map maps @p function over leaf values and combines results with the
+ * Monoid identity/combine. Empty trees yield the monoid identity; branches
+ * combine left and right recursively.
+ * @tparam T leaf element type
+ */
 template <class T>
 struct FringeTreeFoldableImpl {
     template <class F>
@@ -35,11 +41,13 @@ struct FringeTreeFoldableImpl {
     }
 };
 
+/** Foldable map that exposes fold_map for FringeTree<T>. */
 template <class T>
 struct FringeTreeFoldableMap : Foldable<FringeTreeFoldableImpl<T>> {
     using FringeTreeFoldableImpl<T>::fold_map;
 };
 
+/** Registers FringeTreeFoldableMap as the Foldable instance for FringeTree<T>. */
 template <class T>
 inline constexpr auto foldable_typeclass<smd::tree::FringeTree<T>> =
     FringeTreeFoldableMap<T>{};

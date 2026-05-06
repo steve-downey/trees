@@ -19,6 +19,9 @@
 
 namespace smd::tree {
 
+/** Measure tag tracking the minimum element in a subtree; empty subtree is
+ * represented by nullopt.
+ */
 template <typename T>
 struct MinTag {
     std::optional<T> d_value;
@@ -26,6 +29,9 @@ struct MinTag {
     friend bool operator==(const MinTag &, const MinTag &) = default;
 };
 
+/** Measure tag tracking the maximum element in a subtree; empty subtree is
+ * represented by nullopt.
+ */
 template <typename T>
 struct MaxTag {
     std::optional<T> d_value;
@@ -33,7 +39,7 @@ struct MaxTag {
     friend bool operator==(const MaxTag &, const MaxTag &) = default;
 };
 
-// Combined measure tracking both min and max in a single tree pass.
+/** Combined measure tracking both min and max in a single tree pass. */
 template <typename T>
 struct PriorityTag {
     MinTag<T> d_min;
@@ -42,6 +48,7 @@ struct PriorityTag {
     friend bool operator==(const PriorityTag &, const PriorityTag &) = default;
 };
 
+/** Measure policy that lifts a single element into a PriorityTag. */
 template <typename T>
 struct PriorityMeasure {
     auto operator()(const T &value) const -> PriorityTag<T> {
@@ -49,6 +56,14 @@ struct PriorityMeasure {
     }
 };
 
+/** @brief Persistent double-ended priority queue backed by a finger tree.
+ *
+ * @tparam T Element type; must be totally ordered.
+ *
+ * pop_min and pop_max are O(log n) via measure-guided split.
+ * push is O(1) amortized.
+ * min/max queries are O(1) via the cached PriorityTag.
+ */
 template <typename T>
 class FingerTreePriorityQueue {
     using Tree = FingerTree<T, PriorityTag<T>, PriorityMeasure<T>>;
@@ -58,32 +73,44 @@ class FingerTreePriorityQueue {
     explicit FingerTreePriorityQueue(Tree tree) : d_tree(std::move(tree)) {}
 
   public:
+    /** Constructs an empty priority queue. */
     FingerTreePriorityQueue() : d_tree(Tree::empty()) {}
 
+    /** Builds a priority queue from a vector of values; O(n). */
     static auto from_values(std::vector<T> values) -> FingerTreePriorityQueue {
         return FingerTreePriorityQueue{Tree::from_sequence(std::move(values))};
     }
 
+    /** Returns true if the queue contains no elements. */
     auto empty() const -> bool { return d_tree.is_empty(); }
 
+    /** Returns the number of elements. */
     auto size() const -> std::size_t { return d_tree.breadth(); }
 
+    /** Returns the minimum element, or nullopt if empty; O(1). */
     auto min() const -> std::optional<T> {
         auto m = d_tree.measure().d_min.d_value;
         return m.has_value() ? std::optional<T>{*m} : std::nullopt;
     }
 
+    /** Returns the maximum element, or nullopt if empty; O(1). */
     auto max() const -> std::optional<T> {
         auto m = d_tree.measure().d_max.d_value;
         return m.has_value() ? std::optional<T>{*m} : std::nullopt;
     }
 
+    /** Returns a new queue with @p value inserted; O(1) amortized. */
     auto push(T value) const -> FingerTreePriorityQueue {
         return FingerTreePriorityQueue{d_tree.snoc(std::move(value))};
     }
 
     // O(log n): prefix min is non-increasing; predicate flips true at the first
     // element whose value equals the global min and stays true thereafter.
+    /** @brief Removes and returns the minimum element; O(log n).
+     *
+     * @return nullopt if empty; otherwise a pair of the minimum value and the
+     *         remaining queue.
+     */
     auto pop_min() const
         -> std::optional<std::pair<T, FingerTreePriorityQueue>> {
         auto tag = d_tree.measure();
@@ -105,6 +132,11 @@ class FingerTreePriorityQueue {
 
     // O(log n): prefix max is non-decreasing; predicate flips true at the first
     // element whose value equals the global max and stays true thereafter.
+    /** @brief Removes and returns the maximum element; O(log n).
+     *
+     * @return nullopt if empty; otherwise a pair of the maximum value and the
+     *         remaining queue.
+     */
     auto pop_max() const
         -> std::optional<std::pair<T, FingerTreePriorityQueue>> {
         auto tag = d_tree.measure();
@@ -124,6 +156,7 @@ class FingerTreePriorityQueue {
             FingerTreePriorityQueue{Tree::concat(sp->d_left, sp->d_right)}};
     }
 
+    /** Materialises all elements into a vector in insertion order; O(n). */
     auto to_vector() const -> std::vector<T> { return d_tree.flatten(); }
 };
 
@@ -131,6 +164,7 @@ class FingerTreePriorityQueue {
 
 namespace smd::typeclass {
 
+/** Monoid instance for MinTag: identity is nullopt; combine keeps the lesser value. */
 template <typename T>
 struct Monoid<smd::tree::MinTag<T>> {
     auto identity() const -> smd::tree::MinTag<T> { return {std::nullopt}; }
@@ -149,6 +183,7 @@ struct Monoid<smd::tree::MinTag<T>> {
     }
 };
 
+/** Monoid instance for MaxTag: identity is nullopt; combine keeps the greater value. */
 template <typename T>
 struct Monoid<smd::tree::MaxTag<T>> {
     auto identity() const -> smd::tree::MaxTag<T> { return {std::nullopt}; }
@@ -167,6 +202,7 @@ struct Monoid<smd::tree::MaxTag<T>> {
     }
 };
 
+/** Monoid instance for PriorityTag: combines MinTag and MaxTag independently. */
 template <typename T>
 struct Monoid<smd::tree::PriorityTag<T>> {
     auto identity() const -> smd::tree::PriorityTag<T> {
@@ -186,6 +222,7 @@ struct Monoid<smd::tree::PriorityTag<T>> {
 
 namespace smd {
 
+/** Foldable typeclass implementation for FingerTreePriorityQueue. */
 template <class T>
 struct FingerTreePriorityQueueFoldableImpl {
     template <class F>
@@ -202,17 +239,20 @@ struct FingerTreePriorityQueueFoldableImpl {
     }
 };
 
+/** Foldable typeclass map entry for FingerTreePriorityQueue. */
 template <class T>
 struct FingerTreePriorityQueueFoldableMap
     : Foldable<FingerTreePriorityQueueFoldableImpl<T>> {
     using FingerTreePriorityQueueFoldableImpl<T>::fold_map;
 };
 
+/** Registers FingerTreePriorityQueue as a Foldable. */
 template <class T>
 inline constexpr auto
     foldable_typeclass<smd::tree::FingerTreePriorityQueue<T>> =
         FingerTreePriorityQueueFoldableMap<T>{};
 
+/** Traversable typeclass implementation for FingerTreePriorityQueue. */
 template <class T>
 struct FingerTreePriorityQueueTraversableImpl {
     using element_type = T;
@@ -244,12 +284,14 @@ struct FingerTreePriorityQueueTraversableImpl {
     }
 };
 
+/** Traversable typeclass map entry for FingerTreePriorityQueue. */
 template <class T>
 struct FingerTreePriorityQueueTraversableMap
     : Traversable<FingerTreePriorityQueueTraversableImpl<T>> {
     using FingerTreePriorityQueueTraversableImpl<T>::traverse;
 };
 
+/** Registers FingerTreePriorityQueue as a Traversable. */
 template <class T>
 inline constexpr auto
     traversable_typeclass<smd::tree::FingerTreePriorityQueue<T>> =
