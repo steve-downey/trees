@@ -1,0 +1,373 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+TITLE: Review Notes: beman.monadics
+#+AUTHOR: Steve Downey
+#+EMAIL: sdowney@gmail.com
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+DESCRIPTION:
+#+KEYWORDS:
+#+SUBTITLE: box_traits as a Basis for Generic Monadic Operations
+#+DATE: {{{modification-time(%Y-%m-%d, VC)}}}
+#+STARTUP: showall
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:nil html-preamble:t
+#+OPTIONS: html-scripts:n html-style:nil html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+
+* What beman.monadics Proposes
+
+~beman.monadics~ proposes ~box_traits<T>~ — a traits-based customization point — and ~box~, a concept that any adapted type satisfies.
+The four C++23 monadic operations (~and_then~, ~transform~, ~or_else~, ~transform_error~) are re-expressed as free functions that work over any box type.
+
+The problem is real.
+C++23 added these operations as member functions on ~std::optional~ ([[https://wg21.link/P0798][P0798]]) and ~std::expected~ ([[https://wg21.link/P2505][P2505]]).
+Member functions cannot be added to types you do not own.
+~shared_ptr~, ~absl::StatusOr~, ~boost::optional~, raw pointers, and every in-house result type are shut out.
+
+The library solves this with a traits struct that users specialize:
+
+#+begin_src cpp
+template <typename T>
+struct beman::monadics::box_traits<std::optional<T>> {
+    [[nodiscard]] static constexpr auto error() { return std::nullopt; }
+};
+#+end_src
+
+One line.
+The library deduces the rest (~has_value~, ~value~, ~value_type~, ~rebind~) from ~optional~'s own interface.
+
+After that, pipe syntax works:
+
+#+begin_src cpp
+auto result = std::optional{42}
+    | bms::and_then([](int v) { return std::optional{v * 2}; })
+    | bms::transform([](int v) { return v + 1; })
+    | bms::or_else([]() { return std::optional{0}; });
+#+end_src
+
+* The Deduction Cascade
+
+The most distinctive design feature is the deduction cascade.
+For each capability (~value_type~, ~has_value~, ~value~, ~error~, ~make~, ~make_error~, ~rebind~, ~rebind_error~), the library tries:
+
+1. The explicit ~box_traits<T>~ specialization
+2. The type's own members (~T::has_value()~, ~T::value()~, etc.)
+3. Template parameter deduction (~rebind~ from the type's template arguments)
+
+You only supply what cannot be found automatically.
+
+~std::expected<T, E>~ already has ~has_value()~, ~value()~, ~error()~, ~value_type~, ~error_type~, and two template parameters.
+One member suffices — ~make_error~ — because ~expected~ constructs error states via ~std::unexpect~-tagged construction, not from the error type directly:
+
+#+begin_src cpp
+template <typename T, typename E>
+struct beman::monadics::box_traits<std::expected<T, E>> {
+    [[nodiscard]] static constexpr auto make_error(auto&& e) {
+        return std::expected<T, E>{std::unexpect, std::forward<decltype(e)>(e)};
+    }
+};
+#+end_src
+
+For ~std::shared_ptr<T>~, more must be supplied because the type exposes almost nothing compatible:
+
+#+begin_src cpp
+template <typename T>
+struct beman::monadics::box_traits<std::shared_ptr<T>> {
+    static bool           has_value(const std::shared_ptr<T>& p) { return static_cast<bool>(p); }
+    static decltype(auto) value(auto&& p)    { return *std::forward<decltype(p)>(p); }
+    static std::shared_ptr<T> make(T v)      { return std::make_shared<T>(std::move(v)); }
+    static std::shared_ptr<T> error()        { return nullptr; }
+};
+#+end_src
+
+The cascade is a practical convenience.
+It is not part of the algebraic structure — it is a C++ encoding trick that reduces boilerplate.
+Its correctness depends on the assumption that deduced operations satisfy the same laws as explicitly provided ones.
+This is assumed, not checked.
+
+* Error Channel Detection
+
+Not all boxes carry a typed error.
+~std::optional~ signals absence structurally — there is no stored error value.
+The library detects this via a simple arity check.
+
+When ~error()~ is nullary — returning a compile-time constant without reading the box — the box has no real error channel.
+~transform_error~ is disabled.
+~or_else~ takes a nullary callback.
+
+When ~error(box)~ is unary — reading the stored error from the box — the error channel is real.
+All four operations are available.
+~or_else~ takes a unary callback receiving the error.
+
+This detection is mechanical and automatic.
+It follows from the ~box_traits~ specialization the user provides.
+
+In the implementation, ~propagate_error~ branches on ~has_error_channel<Box>~:
+
+#+begin_src cpp
+template<typename NewBox, typename Box>
+    requires propagatable_error<NewBox, Box>
+constexpr decltype(auto) propagate_error(Box&& box) {
+    using BoxTraits = get_box_traits<Box>;
+    using NewBoxTraits = get_box_traits<NewBox>;
+
+    if constexpr (has_error_channel<Box>) {
+        return NewBoxTraits::make_error(BoxTraits::error(std::forward<Box>(box)));
+    } else {
+        return NewBoxTraits::make_error(BoxTraits::error());
+    }
+}
+#+end_src
+
+* The Four Operations
+
+The four operations share a uniform structure.
+Each checks ~has_value~, then either operates on the value path or propagates the error path (or vice versa for ~or_else~ and ~transform_error~).
+
+| Operation | Value present | Value absent |
+|---|---|---|
+| ~transform(f)~ | ~make(f(value))~ | propagate error |
+| ~and_then(f)~ | ~f(value)~ (returns a box) | propagate error |
+| ~or_else(f)~ | propagate value | ~f(error)~ (returns a box) |
+| ~transform_error(f)~ | propagate value | ~make_error(f(error))~ |
+
+~transform~ wraps the result.
+~and_then~ does not — the callback returns a box directly.
+~or_else~ is the error-path dual of ~and_then~.
+~transform_error~ is the error-path dual of ~transform~.
+
+The pipe syntax is implemented via hidden-friend ~operator|~ on closure types, found by ADL.
+No global operator overload.
+No conflict with ~ranges::operator|~.
+
+* The True Primitive: either_box
+
+The four operations are not independent.
+They are all instances of one operation: case analysis on a sum type.
+
+Given two constructors (~make~ and ~make_error~) and an eliminator (~has_value~ + ~value~ + ~error~), define:
+
+#+begin_src cpp
+template <box Box>
+auto either_box(auto&& on_error, auto&& on_value, Box&& box) {
+    using Traits = get_box_traits<Box>;
+    if (Traits::has_value(box))
+        return on_value(Traits::value(std::forward<Box>(box)));
+    else
+        return on_error(Traits::error(std::forward<Box>(box)));
+}
+#+end_src
+
+All four operations are derived:
+
+- ~transform(f, box)~ = ~either_box(propagate_error, compose(make, f), box)~
+- ~and_then(f, box)~ = ~either_box(propagate_error, f, box)~
+- ~or_else(f, box)~ = ~either_box(f, propagate_value, box)~
+- ~transform_error(f, box)~ = ~either_box(compose(make_error, f), propagate_value, box)~
+
+The true primitive basis is: { ~make~, ~make_error~, ~either_box~ }.
+Everything else follows.
+
+This is the universal property of the coproduct.
+~make~ and ~make_error~ are the coproduct injections (Left and Right).
+~either_box~ is the mediating morphism.
+The four operations are the standard derived combinators.
+
+In Haskell, this is the ~either~ function:
+
+#+begin_src haskell
+either :: (a -> c) -> (b -> c) -> Either a b -> c
+either f _ (Left  a) = f a
+either _ g (Right b) = g b
+#+end_src
+
+The library does not currently expose ~either_box~ as a public primitive.
+I think it should.
+It is the simplest correct basis, and users writing new operations would benefit from it directly rather than reimplementing the ~has_value~ / ~value~ / ~error~ dance each time.
+
+* The Laws
+
+The operations must satisfy laws.
+These are not aspirational — they are the conditions under which generic code using the operations produces correct results.
+
+** Monad laws (and_then / make)
+
+1. Left identity: ~make(a) | and_then(f) == f(a)~
+2. Right identity: ~m | and_then(make) == m~
+3. Associativity: ~(m | and_then(f)) | and_then(g) == m | and_then(\x -> f(x) | and_then(g))~
+
+** MonadError laws (or_else / make_error)
+
+1. Catch-throw: ~make_error(e) | or_else(f) == f(e)~
+2. Pass-through: ~make(a) | or_else(f) == make(a)~
+
+** Bifunctor laws (transform / transform_error)
+
+1. Identity: ~m | transform(id) == m~
+2. Composition: ~m | transform(f . g) == m | transform(g) | transform(f)~
+3. Same for ~transform_error~
+
+** Coherence
+
+1. ~m | transform(f) == m | and_then(compose(make, f))~
+2. ~m | transform_error(f) == m | or_else(compose(make_error, f))~
+
+The library does not currently test these laws generically.
+The test suite verifies behavior on specific types.
+Law-based property testing — parameterized over any ~box~ type — would strengthen confidence that new ~box_traits~ specializations are correct.
+
+* Relationship to Existing Proposals
+
+** P0798 / P2505: Member functions on optional and expected
+
+~beman.monadics~ generalizes these to free functions over any adapted type.
+The four operations are the same.
+The paper does not propose deprecating the member-function APIs.
+
+** P1255: concept maybe and views::nullable
+
+[[https://wg21.link/P1255][P1255]] proposes a simpler abstraction: ~concept maybe~ requires only ~bool(t)~ and ~*t~.
+No error type, no error access, no construction.
+
+~maybe~ is the nullable case — value or absence with no error information.
+~box~ is the full case — value or typed error.
+
+Every ~maybe~ is a degenerate ~box~ where the error type is a singleton.
+The nullary ~error()~ in ~box_traits~ is the encoding of this degeneracy.
+~transform_error~ disabled, ~or_else~ takes a nullary callback.
+
+These are not competing proposals.
+~maybe~ sits below ~box~ in the concept hierarchy.
+A standard library could define ~box~ as a refinement of ~maybe~.
+
+** Rust's Try trait
+
+Rust's unstable ~Try~ trait (tracking issue [[https://github.com/rust-lang/rust/issues/84277][#84277]]) is structurally near-identical to ~box_traits~:
+
+| Rust ~Try~ | ~box_traits~ |
+|-----------|-------------|
+| ~Output~ | ~value_type~ |
+| ~Residual~ | (related to) ~error_type~ |
+| ~from_output~ | ~make~ |
+| ~from_residual~ | ~make_error~ |
+| ~branch~ | ~has_value~ + ~value~ + ~error~ |
+
+~branch~ returns ~ControlFlow<Residual, Output>~ — the ~either_box~ eliminator returning a tagged union.
+
+Rust keeps the four combinator methods (~map~, ~and_then~, ~or_else~, ~map_err~) as inherent methods on ~Result~ and ~Option~, not as generic functions derived from ~Try~.
+~Try~ only powers the ~?~ operator.
+
+One notable difference: Rust's ~or_else~ on ~Result~ /allows changing the error type/ (~E \to F~).
+~beman.monadics~ does not — it requires the same box template.
+This constrains recovery strategies.
+
+* The Difficulty of Extending to Ranges
+
+The operations in ~beman.monadics~ work on individual boxes.
+The natural next question is: can they be lifted to work over ranges of boxes?
+
+Given ~vector<optional<int>>~, I might want:
+- Transform each element: ~vector<optional<int>> \to vector<optional<double>>~ (element-wise ~transform~)
+- Sequence the whole thing: ~vector<optional<int>> \to optional<vector<int>>~ (commute the containers)
+
+The first is straightforward — it is ~ranges::transform~ composed with ~bms::transform~.
+The second is not.
+
+** Sequencing requires Applicative structure
+
+Commuting ~vector<optional<int>>~ into ~optional<vector<int>>~ is the ~sequence~ operation from Traversable.
+It requires that the inner type (~optional~) be an Applicative functor, not just a box.
+
+An Applicative provides ~pure~ (which ~make~ gives) and ~apply~ (which ~box_traits~ does not give).
+~apply~ takes a box of functions and a box of values and produces a box of results:
+
+#+begin_src haskell
+(<*>) :: f (a -> b) -> f a -> f b
+#+end_src
+
+For ~optional~:
+
+#+begin_src cpp
+// apply: optional<function> × optional<value> → optional<result>
+auto apply(optional<F> f, optional<A> a) -> optional<invoke_result_t<F, A>> {
+    if (f && a) return invoke(*f, *a);
+    return nullopt;
+}
+#+end_src
+
+~box_traits~ does not provide ~apply~.
+It provides ~and_then~ (monadic bind), which is strictly more powerful — every Monad is an Applicative.
+But the derivation ~apply(f, a) = f | and_then([&a](auto fn) { return a | transform(fn); })~ requires sequencing, which introduces ordering dependencies that Applicative does not have.
+
+** The range-of-boxes problem is monad transformer territory
+
+A ~vector<optional<int>>~ involves two layers of structure:
+- The outer range (vector) — itself a monad (the list/nondeterminism monad)
+- The inner box (optional) — also a monad
+
+Composing two monads does not, in general, produce a monad.
+This is the monad transformer problem.
+
+Haskell solves this with explicit transformer stacks (~MaybeT (ListT Identity)~).
+Rust does not solve it generically — you write ~filter_map~ or ~collect::<Result<Vec<_>, _>>()~ by hand.
+C++ Ranges solve a special case: ~views::join~ flattens ~range<range<T>>~ into ~range<T>~ because the list monad's ~join~ is concatenation.
+
+For ~range<optional<T>> \to optional<range<T>>~, you need ~traverse~ / ~sequence~, which requires:
+1. A Traversable instance for the range (how to rebuild the range shape)
+2. An Applicative instance for the optional (how to combine effects)
+
+~box_traits~ provides neither.
+It provides the monadic operations on individual boxes, not the lifting machinery to work across containers.
+
+** What would be needed
+
+To extend ~beman.monadics~ to ranges, the library would need to either:
+
+1. Add ~apply~ to ~box_traits~ (making boxes Applicative, not just Monadic), plus a ~traverse~ free function — this is significant new machinery.
+2. Provide specific range-of-box combinators (~filter_values~, ~collect_or_error~) that handle the common cases without the general theory — pragmatic but ad hoc.
+3. Accept that the box abstraction covers individual boxes only and leave range composition to the user — honest but limiting.
+
+Option 2 is what Rust does.
+~Iterator::filter_map~ and ~Iterator::collect::<Result<Vec<_>, _>>()~ are specific solutions to specific range-of-box patterns.
+They work.
+They do not generalize.
+
+Option 1 is what a full typeclass hierarchy provides.
+But it requires substantially more infrastructure than ~box_traits~ currently offers.
+
+* Design Strengths
+
+- The deduction cascade is genuinely practical.  It handles the zoo of existing types — ~optional~, ~expected~, ~shared_ptr~, raw pointers, ~StatusOr~ — with minimal boilerplate.
+- Explicit opt-in prevents accidental adoption.  You must specialize ~box_traits~ even for types with compatible interfaces.
+- The pipe syntax is well-engineered.  Hidden-friend ~operator|~ avoids the global overload problems that plagued earlier designs.
+- Error channel detection is automatic and correct.  The nullary/unary ~error()~ distinction cleanly separates nullable types from error-carrying types.
+- Named concept constraints produce readable diagnostics.  ~and_thenable_return~ says "should return the Box with same error_type" instead of "expression not well-formed."
+- All operations are ~constexpr~.  Chains over ~optional~ and ~expected~ can evaluate entirely at compile time.
+
+* Open Questions
+
+1. *Should ~either_box~ be a public primitive?*  It is the true basis operation from which all four derive.  Exposing it would simplify user-defined extensions.
+
+2. *Should the library test laws generically?*  The test suite verifies behavior on specific types.  Parameterized law tests over any ~box~ would catch broken ~box_traits~ specializations.
+
+3. *Should ~or_else~ allow changing the error type?*  Rust allows this (~E \to F~).  ~beman.monadics~ does not.  This is a design choice, not a correctness issue, but it constrains recovery strategies.
+
+4. *Should there be a ~concept maybe_box~ sub-concept?*  The library already distinguishes nullable boxes from error-carrying boxes via ~has_error_channel~.  Making this a concept-level distinction would formalize the [[https://wg21.link/P1255][P1255]] relationship.
+
+5. *What is the range story?*  The operations work on individual boxes.  Extending to ranges requires either Applicative/Traversable infrastructure or specific range-of-box combinators.  The library should be explicit about this boundary.
+
+6. *Should the deduction cascade verify laws?*  Deduced operations are assumed to satisfy the same laws as explicitly provided ones.  A deduced ~has_value~ that disagrees with a deduced ~value~ would produce silent incorrectness.
