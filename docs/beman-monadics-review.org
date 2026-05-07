@@ -349,6 +349,81 @@ They do not generalize.
 Option 1 is what a full typeclass hierarchy provides.
 But it requires substantially more infrastructure than ~box_traits~ currently offers.
 
+* The Two Monads of optional
+
+~std::optional<T>~ participates in two entirely different monadic structures at the same time.
+
+** optional as a Maybe monad
+
+~optional<T>~ holds a value or signals absence.
+~and_then~ is monadic bind: if present, apply the function; if absent, propagate ~nullopt~.
+~transform~ is fmap: apply a function to the value if present.
+
+This is what ~beman.monadics~ models.
+
+** optional as a Range
+
+~optional<T>~ is also a range of zero or one elements.
+P1255's ~views::nullable~ adapts it into a view.
+~ranges::views::transform~ applies a function to each element.
+~ranges::views::join~ flattens a range of ranges.
+
+As a range, ~optional~ participates in the list/nondeterminism monad — the monad where ~join~ is concatenation.
+
+** They happen to agree — for optional
+
+For ~optional~ specifically, the two structures produce the same results:
+
+| Operation | Maybe monad | Range monad |
+|---|---|---|
+| ~transform(f)~ on present | ~optional{f(*opt)}~ | range of one: ~{f(*opt)}~ |
+| ~transform(f)~ on absent | ~nullopt~ | empty range |
+| ~and_then(f)~ on present | ~f(*opt)~ | ~transform(f) \vert join~ → same |
+| ~and_then(f)~ on absent | ~nullopt~ | empty range |
+
+This agreement is a coincidence of ~optional~'s triviality.
+It holds because a range of zero or one elements is degenerate — there is nothing to concatenate.
+
+** They do not agree in general
+
+For ~expected<T, E>~, the Range interpretation loses information.
+An ~expected~ in error state is an empty range — but /which/ error?
+The error is gone.
+
+The Maybe monad preserves the error.
+The Range monad discards it.
+
+These are different structures with different semantics, and they cannot be unified without choosing which one you mean.
+
+** "Box" names the wrong thing
+
+The name "Box" suggests containment.
+Containment is the Range story: a thing that holds zero or more elements.
+
+But the four operations are not about containment.
+They are about /outcome/: a computation either succeeded with a value or failed with a disappointment.
+
+- ~transform~: if successful, transform the success
+- ~and_then~: if successful, try another fallible computation
+- ~or_else~: if disappointed, try recovery
+- ~transform_error~: if disappointed, transform the disappointment
+
+This is ~Fallible~ or ~Outcome~ or ~Result~ semantics, not ~Box~ semantics.
+
+The name "Box" oversells the genericity.
+It implies that any container-like thing should participate.
+But ~vector~ is a container and is not a box.
+~deque~ is a container and is not a box.
+The things that are boxes — ~optional~, ~expected~, pointers, ~StatusOr~ — are not containers in the Range sense.
+They are fallible computations that either produced a value or did not.
+
+When ~optional~ is used as a Range, it gets Range operations (~views::transform~, ~views::join~, ~views::filter~).
+When it is used as a fallible outcome, it gets the four monadic operations.
+These are different roles.
+The fact that ~optional~ can play both is a property of ~optional~, not a property of the abstraction.
+
+The library would be clearer if the concept were named to reflect what it actually models: a value-or-disappointment holder, not a generic box.
+
 * Design Strengths
 
 - The deduction cascade is genuinely practical.  It handles the zoo of existing types — ~optional~, ~expected~, ~shared_ptr~, raw pointers, ~StatusOr~ — with minimal boilerplate.
@@ -371,3 +446,5 @@ But it requires substantially more infrastructure than ~box_traits~ currently of
 5. *What is the range story?*  The operations work on individual boxes.  Extending to ranges requires either Applicative/Traversable infrastructure or specific range-of-box combinators.  The library should be explicit about this boundary.
 
 6. *Should the deduction cascade verify laws?*  Deduced operations are assumed to satisfy the same laws as explicitly provided ones.  A deduced ~has_value~ that disagrees with a deduced ~value~ would produce silent incorrectness.
+
+7. *Is "box" the right name?*  The abstraction models fallible outcomes, not containers.  ~optional~ participates as both a Range and a box, but these are different roles with different operations.  A name like ~fallible~ or ~outcome~ would better communicate what the concept actually requires.
