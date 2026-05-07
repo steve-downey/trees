@@ -8,6 +8,8 @@ target_sources(
     PRIVATE
         applicative_bad.cpp
         applicative_examples.cpp
+        blog_fixpoint_examples.cpp
+        blog_typeclass_examples.cpp
         foldable_examples.cpp
         lookup_modes_examples.cpp
         traversable_examples.cpp

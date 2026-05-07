@@ -26,4 +26,12 @@ TEST_CASE("TypeclassExamples - SlideExamplesRemainExecutable") {
     auto nttp_lookup = nttp_object_lookup_example();
     REQUIRE(nttp_lookup);
     CHECK(*nttp_lookup == 10);
+
+    CHECK(blog_foldable_showcase());
+    CHECK(blog_traverse_validate());
+    CHECK(blog_traverse_relabel());
+
+    CHECK(blog_numeric_limits_parallel());
+    CHECK(blog_three_lookup_modes());
+    CHECK(blog_derived_operations());
 }

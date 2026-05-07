@@ -31,6 +31,20 @@ auto explicit_object_lookup_example() -> std::optional<int>;
 /** Call a generic algorithm with the typeclass object bound as an NTTP default. */
 auto nttp_object_lookup_example() -> std::optional<int>;
 
+/** Blog post: consolidated Foldable derived-ops showcase on a fixpoint tree. */
+auto blog_foldable_showcase() -> bool;
+/** Blog post: traverse with validation (all-or-nothing). */
+auto blog_traverse_validate() -> bool;
+/** Blog post: traverse relabeling (double every constant). */
+auto blog_traverse_relabel() -> bool;
+
+/** Blog post: numeric_limits parallel — typeclass lookup works like numeric_limits. */
+auto blog_numeric_limits_parallel() -> bool;
+/** Blog post: three lookup modes on one type. */
+auto blog_three_lookup_modes() -> bool;
+/** Blog post: derived operations — fmap gives replace for free. */
+auto blog_derived_operations() -> bool;
+
 } // namespace smd::typeclass::examples
 
 #endif // INCLUDED_SMD_TYPECLASS_EXAMPLES_EXAMPLES

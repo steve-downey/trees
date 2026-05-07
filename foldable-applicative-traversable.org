@@ -87,7 +87,7 @@
 #+REVEAL_DEFAULT_FRAG_STYLE: (appear)
 #+REVEAL_SLIDE_LEVEL: 6
 
-#+OPTIONS: reveal_single_file:t
+#+OPTIONS: reveal_single_file:nil
 
 #+CITE_EXPORT: basic
 #+BIBLIOGRAPHY: ./docs/references.bib

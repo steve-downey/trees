@@ -1,0 +1,670 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+TITLE: Fixpoint Trees in C++: From Expression Trees to Generic Algorithms
+#+AUTHOR: Steve Downey
+#+EMAIL: sdowney@gmail.com
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+DESCRIPTION:
+#+KEYWORDS:
+#+SUBTITLE:
+#+DATE: {{{modification-time(%Y-%m-%d, VC)}}}
+#+STARTUP: showall
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:nil html-preamble:t
+#+OPTIONS: html-scripts:n html-style:nil html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+BIBLIOGRAPHY: ./references.bib
+
+* Building an Expression Tree in 20 Lines
+
+I want to build expression trees, evaluate them, and do it without inheritance or virtual functions.
+
+Here is the entire type system for an expression tree.
+The full self-contained example is in [[orgit-file:src/examples/fixpoint_tree_example.cpp][=src/examples/fixpoint_tree_example.cpp=]].
+[[https://godbolt.org][Paste it into Compiler Explorer]] --- it compiles with any C++23 toolchain.
+
+#+begin_src cpp
+#include <iostream>
+#include <memory>
+#include <variant>
+
+template <typename A>
+using Box = std::shared_ptr<A>;
+
+template <typename A, typename... Args>
+auto make_box(Args&&... args) -> Box<A> {
+    return std::make_shared<A>(std::forward<Args>(args)...);
+}
+
+template <typename A> struct Const { int val; };
+template <typename A> struct Add   { Box<A> left, right; };
+template <typename A> struct Mul   { Box<A> left, right; };
+
+template <typename A>
+using ExprF = std::variant<Const<A>, Add<A>, Mul<A>>;
+
+template <template <typename> class F>
+struct Fix { F<Fix<F>> inner; };
+
+template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+#+end_src
+
+That is it.
+A ~Fix<ExprF>~ value /is/ a tree node, and every node is a [[https://en.cppreference.com/w/cpp/utility/variant][=std::variant=]] of constant, addition, or multiplication.
+No CRTP, no base classes.
+
+A handful of helpers let us build and evaluate trees:
+
+#+begin_src cpp
+using ExprTree = Fix<ExprF>;
+
+ExprTree const_node(int v) { return Fix<ExprF>{Const<ExprTree>{v}}; }
+
+ExprTree add_node(ExprTree l, ExprTree r) {
+    return Fix<ExprF>{Add<ExprTree>{make_box<ExprTree>(std::move(l)),
+                                     make_box<ExprTree>(std::move(r))}};
+}
+
+ExprTree mul_node(ExprTree l, ExprTree r) {
+    return Fix<ExprF>{Mul<ExprTree>{make_box<ExprTree>(std::move(l)),
+                                     make_box<ExprTree>(std::move(r))}};
+}
+#+end_src
+
+Build ~(2 * 3) + 4~ and evaluate it:
+
+#+begin_src cpp
+int main() {
+    ExprTree tree =
+        add_node(mul_node(const_node(2), const_node(3)), const_node(4));
+
+    auto eval = overloaded{
+        [](const Const<int>& c) { return c.val; },
+        [](const Add<int>&   a) { return *a.left + *a.right; },
+        [](const Mul<int>&   m) { return *m.left * *m.right; },
+    };
+
+    // ... but how does eval get applied recursively?
+}
+#+end_src
+
+That ~eval~ object handles one layer.
+Constants return their value.
+Additions add children that are already integers.
+Multiplications multiply children that are already integers.
+It does not recurse.
+
+The recursion is supplied separately, by a function called ~cata~.
+First, the pieces.
+
+* The Pieces
+
+The Compiler Explorer example above is self-contained but simplified.
+The repository version in [[orgit-file:src/smd/tree/fixpoint_tree.hpp][=src/smd/tree/fixpoint_tree.hpp=]] uses slightly different names (~ExprConst~, ~ExprAdd~, ~ExprMul~) and ~double~ values instead of ~int~.
+From here on I will use the repository names.
+
+** The Non-Recursive Functor
+
+The key idea is that ~ExprF~ does not refer to itself.
+It is parameterized on a type ~A~ that fills the recursive positions.
+
+From [[orgit-file:src/smd/tree/fixpoint_tree.hpp][=src/smd/tree/fixpoint_tree.hpp=]]:
+
+#+begin_src cpp
+template <typename A>
+struct ExprConst {
+    double value;
+};
+
+template <typename A>
+struct ExprAdd {
+    Box<A> left;
+    Box<A> right;
+};
+
+template <typename A>
+struct ExprMul {
+    Box<A> left;
+    Box<A> right;
+};
+
+template <typename A>
+using ExprF = std::variant<ExprConst<A>, ExprAdd<A>, ExprMul<A>>;
+#+end_src
+
+When ~A~ is ~double~, an ~ExprF<double>~ is one layer where children are already numbers.
+When ~A~ is the full tree type, children are subtrees.
+
+This parameterization is the whole trick.
+
+** Box: Breaking Infinite Instantiation
+
+A ~variant~ cannot directly contain itself.
+~ExprF<Fix<ExprF>>~ with a ~Fix<ExprF>~ member by value would require the compiler to instantiate an infinitely large type.
+~Box<A>~ wraps the recursive position in a [[https://en.cppreference.com/w/cpp/memory/shared_ptr][=std::shared_ptr=]], adding one pointer indirection that breaks the cycle.
+
+From [[orgit-file:src/smd/fixpoint/box.hpp][=src/smd/fixpoint/box.hpp=]]:
+
+#+begin_src cpp
+template <typename A>
+using Box = std::shared_ptr<A>;
+#+end_src
+
+This is a stand-in for ~std::indirect~ from C++26 ([[https://wg21.link/P3019][P3019]]).
+In the meantime, ~shared_ptr~ gives us structural sharing for free --- copying a subtree is copying a pointer.
+We will take that trade.
+
+** Fix: Tying the Recursive Knot
+
+~Fix<F>~ is the type-level fixed-point combinator.
+A ~Fix<F>~ /is/ an ~F~ whose recursive positions are filled with ~Fix<F>~.
+
+From [[orgit-file:src/smd/fixpoint/fix.hpp][=src/smd/fixpoint/fix.hpp=]]:
+
+#+begin_src cpp
+template <template <typename> class F>
+struct Fix {
+    F<Fix<F>> inner;
+};
+#+end_src
+
+The type equation is $\mathit{Fix}\langle F \rangle \cong F\langle \mathit{Fix}\langle F \rangle \rangle$.
+That isomorphism is witnessed by two trivial functions:
+
+#+begin_src cpp
+template <template <typename> class F>
+constexpr auto wrap(F<Fix<F>> layer) -> Fix<F> {
+    return Fix<F>{std::move(layer)};
+}
+
+template <template <typename> class F>
+constexpr auto unwrap(const Fix<F>& fixed) -> const F<Fix<F>>& {
+    return fixed.inner;
+}
+#+end_src
+
+~wrap~ packs one layer into the fixed-point wrapper.
+~unwrap~ exposes the layer inside.
+Both exist to make the type system happy, not to do work.
+
+~Fix<ExprF>~ is the tree type.
+~unwrap~ on any tree node gives back the ~variant~ for that node.
+
+** fmap: Lifting a Function Over One Layer
+
+Given a function ~A \to B~, ~fmap_expr~ applies it at every recursive position inside one ~ExprF<A>~ layer, producing an ~ExprF<B>~.
+
+From [[orgit-file:src/smd/tree/fixpoint_tree.hpp][=src/smd/tree/fixpoint_tree.hpp=]]:
+
+#+begin_src cpp
+template <typename F, typename A>
+auto fmap_expr(F&& f, const ExprF<A>& expr) {
+    using B = std::invoke_result_t<F, const A&>;
+    return std::visit(
+        overloaded{
+            [](const ExprConst<A>& c) -> ExprF<B> {
+                return ExprConst<B>{c.value};
+            },
+            [&f](const ExprAdd<A>& a) -> ExprF<B> {
+                return ExprAdd<B>{make_box<B>(std::invoke(f, *a.left)),
+                                  make_box<B>(std::invoke(f, *a.right))};
+            },
+            [&f](const ExprMul<A>& m) -> ExprF<B> {
+                return ExprMul<B>{make_box<B>(std::invoke(f, *m.left)),
+                                  make_box<B>(std::invoke(f, *m.right))};
+            },
+        },
+        expr);
+}
+#+end_src
+
+Constants have no recursive positions, so ~f~ is never called --- the value copies across.
+Add and Mul apply ~f~ to both children.
+
+This is the only place in the system that knows the /shape/ of ~ExprF~.
+Everything else --- catamorphism, Foldable, Traversable --- is generic over any functor that provides an ~fmap~.
+That separation is deliberate.
+
+** Smart Constructors
+
+Building a tree by hand with ~wrap~ and ~make_box~ is noisy.
+Smart constructors hide the ceremony.
+
+Also in [[orgit-file:src/smd/tree/fixpoint_tree.hpp][=fixpoint_tree.hpp=]]:
+
+#+begin_src cpp
+using Expr = Fix<ExprF>;
+
+inline auto const_expr(double value) -> Expr {
+    return wrap<ExprF>(ExprF<Expr>{ExprConst<Expr>{value}});
+}
+
+inline auto add_expr(Expr left, Expr right) -> Expr {
+    return wrap<ExprF>(ExprF<Expr>{ExprAdd<Expr>{
+        make_box<Expr>(std::move(left)),
+        make_box<Expr>(std::move(right))}});
+}
+
+inline auto mul_expr(Expr left, Expr right) -> Expr {
+    return wrap<ExprF>(ExprF<Expr>{ExprMul<Expr>{
+        make_box<Expr>(std::move(left)),
+        make_box<Expr>(std::move(right))}});
+}
+#+end_src
+
+Now ~(1 + 2) * 3~ reads naturally:
+
+#+begin_src cpp
+auto tree = mul_expr(add_expr(const_expr(1.0), const_expr(2.0)),
+                     const_expr(3.0));
+#+end_src
+
+* Catamorphism: Separating Recursion from Business Logic
+
+** What Is an F-Algebra?
+
+An F-algebra is a function that consumes one layer of the functor /after the recursive positions have already been processed/.
+That is the important part.
+
+For evaluation, the algebra type is ~ExprF<double> \to double~.
+The children are already doubles.
+The algebra just combines them.
+
+From [[orgit-file:src/smd/tree/fixpoint_tree.hpp][=src/smd/tree/fixpoint_tree.hpp=]]:
+
+#+begin_src cpp
+inline auto eval_algebra(const ExprF<double>& expr) -> double {
+    return std::visit(
+        overloaded{
+            [](const ExprConst<double>& c) { return c.value; },
+            [](const ExprAdd<double>&   a) { return *a.left + *a.right; },
+            [](const ExprMul<double>&   m) { return *m.left * *m.right; },
+        },
+        expr);
+}
+#+end_src
+
+Not recursive.
+Does not know or care how deep the tree is.
+Handles exactly one layer.
+~cata~ supplies the recursion.
+
+** cata: The Generic Fold
+
+The catamorphism applies the algebra bottom-up.
+At each node it maps the recursive fold over the children (via ~fmap~), then applies the algebra to the resulting layer.
+
+From [[orgit-file:src/smd/fixpoint/cata.hpp][=src/smd/fixpoint/cata.hpp=]]:
+
+#+begin_src cpp
+template <typename Result, template <typename> class F,
+          typename Algebra, typename FMap>
+auto cata(const Algebra& algebra, const FMap& fmap_fn,
+          const Fix<F>& tree) -> Result
+{
+    const auto& layer = unwrap(tree);
+    auto evaluated = fmap_fn(
+        [&](const Fix<F>& child) -> Result {
+            return cata<Result>(algebra, fmap_fn, child);
+        },
+        layer);
+    return algebra(evaluated);
+}
+#+end_src
+
+Inside out:
+1. ~unwrap(tree)~ exposes the ~ExprF<Fix<ExprF>>~ layer.
+2. ~fmap_fn~ applies the recursive lambda at every child position, replacing each subtree with a ~Result~.  This produces an ~ExprF<Result>~.
+3. ~algebra~ consumes that ~ExprF<Result>~ and returns the final ~Result~.
+
+At a leaf (~ExprConst~), ~fmap~ has nothing to recurse into.
+The algebra sees ~ExprConst<double>{42.0}~ and returns ~42.0~.
+
+At an ~ExprAdd~ with two leaf children, ~fmap~ recursively evaluates both to doubles, then the algebra sees ~ExprAdd<double>~ holding ~{3.0, 7.0}~ and returns ~10.0~.
+
+Evaluation is one line:
+
+#+begin_src cpp
+inline auto eval(const Expr& expr) -> double {
+    return cata<double>(eval_algebra, fmap_expr_fn, expr);
+}
+#+end_src
+
+** A Different Algebra, A Different Result
+
+The payoff: a new operation on the tree is just a new algebra.
+Here is a pretty-printer that produces a string instead of a number.
+No new recursion code.
+
+From [[orgit-file:src/smd/tree/fixpoint_tree.t.cpp][=src/smd/tree/fixpoint_tree.t.cpp=]]:
+
+#+begin_src cpp
+auto print_algebra =
+    [](const ExprF<std::string>& expr) -> std::string {
+    return std::visit(
+        overloaded{
+            [](const ExprConst<std::string>& c) {
+                std::ostringstream s;
+                s << std::fixed << std::setprecision(1) << c.value;
+                return s.str();
+            },
+            [](const ExprAdd<std::string>& a) {
+                return "(" + *a.left + " + " + *a.right + ")";
+            },
+            [](const ExprMul<std::string>& m) {
+                return "(" + *m.left + " * " + *m.right + ")";
+            },
+        },
+        expr);
+};
+
+auto e = mul_expr(add_expr(const_expr(1.0), const_expr(2.0)),
+                  const_expr(4.0));
+auto result = cata<std::string>(print_algebra, fmap_expr_fn, e);
+// result == "((1.0 + 2.0) * 4.0)"
+#+end_src
+
+Same tree.
+Same ~cata~.
+Same ~fmap~.
+Different algebra, different result type.
+
+The algebra answers /how to combine/.
+The recursion scheme answers /how to recurse/.
+They never tangle.
+That separation is the point.
+
+* Foldable: One Hook, Many Derived Operations
+
+The catamorphism is powerful, but you have to supply ~fmap~ and think in F-algebras.
+For the everyday operations --- counting, collecting, testing predicates --- there is a simpler interface.
+
+** The Typeclass Object Pattern
+
+I use a pattern where each concept (Foldable, Applicative, Traversable) has a variable template that maps a type to an object providing all operations for that concept.
+I described this pattern in more detail in [[https://sdowney.org/posts/index.php/2024/05/19/concept-maps-using-c23-library-tech/][Concept Maps Using C++23 Library Tech]] and [[https://sdowney.org/posts/index.php/2023/12/24/some-informal-remarks-towards-a-new-theory-of-trait-customization/][Some Informal Remarks Towards a New Theory of Trait Customization]].
+
+From [[orgit-file:src/smd/typeclass/foldable.hpp][=src/smd/typeclass/foldable.hpp=]]:
+
+#+begin_src cpp
+template <class T>
+inline constexpr auto foldable_typeclass = std::false_type{};
+#+end_src
+
+Default: ~false_type~.
+No instance.
+A type opts in by specializing the template.
+
+From [[orgit-file:src/smd/tree/fixpoint_tree_foldable.hpp][=src/smd/tree/fixpoint_tree_foldable.hpp=]]:
+
+#+begin_src cpp
+template <>
+inline constexpr auto foldable_typeclass<Fix<ExprF>> =
+    FixpointTreeFoldableMap{};
+#+end_src
+
+Three lines.
+No inheritance from the data type, no central registry, no modification to the tree definition.
+The specialization lives in a separate header.
+
+** fold_map: The Single Required Hook
+
+The Foldable instance provides one function: ~fold_map~.
+Apply a function to each leaf, combine the results with a [[https://en.wikipedia.org/wiki/Monoid][Monoid]].
+
+From [[orgit-file:src/smd/tree/fixpoint_tree_foldable.hpp][=src/smd/tree/fixpoint_tree_foldable.hpp=]]:
+
+#+begin_src cpp
+struct FixpointTreeFoldableImpl {
+    template <class F>
+    auto fold_map(this auto&& self, F&& f,
+                  const Fix<ExprF>& t)
+    {
+        const auto& layer = unwrap(t);
+
+        if (std::holds_alternative<ExprConst<Expr>>(layer)) {
+            return std::invoke(f, std::get<ExprConst<Expr>>(layer).value);
+        }
+
+        const auto fold_children = [&](const auto& left,
+                                       const auto& right) {
+            auto lhs = self.fold_map(f, *left);
+            auto rhs = self.fold_map(f, *right);
+            using Result = std::remove_cvref_t<decltype(lhs)>;
+            return monoid_v<Result>.combine(lhs, rhs);
+        };
+
+        if (std::holds_alternative<ExprAdd<Expr>>(layer)) {
+            const auto& a = std::get<ExprAdd<Expr>>(layer);
+            return fold_children(a.left, a.right);
+        }
+
+        const auto& m = std::get<ExprMul<Expr>>(layer);
+        return fold_children(m.left, m.right);
+    }
+};
+#+end_src
+
+Leaves: apply ~f~ directly.
+Branches: fold both children, combine with the Monoid for the return type.
+
+~f~'s return type determines which Monoid.
+Map each leaf to ~Count{1}~, the Monoid adds counts.
+Map each leaf to ~vector{x}~, the Monoid concatenates vectors.
+The fold itself does not change.
+
+** What You Get for Free
+
+The CRTP base ~Foldable<Impl>~ derives a full suite from ~fold_map~ alone.
+
+Tested in [[orgit-file:src/smd/typeclass/examples/blog_fixpoint_examples.cpp][=blog_fixpoint_examples.cpp=]] and [[orgit-file:src/smd/tree/fixpoint_tree_foldable.t.cpp][=fixpoint_tree_foldable.t.cpp=]]:
+
+#+begin_src cpp
+const auto& foldable = foldable_typeclass<Expr>;
+
+auto tree = mul_expr(add_expr(const_expr(1.0), const_expr(2.0)),
+                     add_expr(const_expr(3.0), const_expr(4.0)));
+foldable.length(tree);    // 4
+foldable.to_vector(tree); // {1.0, 2.0, 3.0, 4.0}
+
+foldable.fold_left(tree, 0.0,
+    [](double acc, double x) { return acc + x; }); // 10.0
+
+foldable.any_of(tree, [](double x) { return x == 3.0; }); // true
+foldable.all_of(tree, [](double x) { return x > 0.0; });  // true
+
+foldable.find_first(tree, [](double x) { return x > 2.0; }); // optional{3.0}
+#+end_src
+
+Each picks the right Monoid for ~fold_map~:
+- ~length~: maps to ~Count{1}~ and sums.
+- ~to_vector~: maps to a single-element vector and concatenates.
+- ~any_of~: maps to ~Any{predicate(x)}~ and combines with OR.
+- ~fold_left~ / ~fold_right~: uses a function-composition Monoid to build the fold as a chain of closures, then executes it.
+
+One hook.
+Ten derived operations.
+That is the trade I want.
+
+* Traversable: A Tree Stays a Tree
+
+Foldable collapses a tree into a summary --- a count, a vector, a sum.
+The tree is gone.
+
+Sometimes I want to transform values /and keep the tree/.
+Two differently shaped trees can flatten to the same sequence under ~to_vector~, but traversal should preserve the original branching.
+
+That is what Traversable does [cite:@gibbons2006iterator].
+
+** The traverse Implementation
+
+The Traversable instance maps each leaf through a function that returns an Applicative context (like [[https://en.cppreference.com/w/cpp/utility/optional][=std::optional=]]), then rebuilds the tree inside that context [cite:@mcbride2008applicative].
+
+From [[orgit-file:src/smd/tree/fixpoint_tree_traversable.hpp][=src/smd/tree/fixpoint_tree_traversable.hpp=]]:
+
+#+begin_src cpp
+struct FixpointTreeTraversableImpl {
+    using element_type = double;
+
+    template <class APPLICATIVE, class F>
+    auto traverse(this auto&& self, const APPLICATIVE& applicative,
+                  F&& f, const Fix<ExprF>& t)
+    {
+        const auto& layer = unwrap(t);
+
+        if (std::holds_alternative<ExprConst<Expr>>(layer)) {
+            return applicative.invoke(
+                [](double value) { return const_expr(value); },
+                std::invoke(std::forward<F>(f),
+                            std::get<ExprConst<Expr>>(layer).value));
+        }
+
+        const auto traverse_pair = [&](const auto& left,
+                                       const auto& right,
+                                       auto builder) {
+            auto l = self.traverse(applicative, f, *left);
+            auto r = self.traverse(applicative, f, *right);
+            return applicative.invoke(std::move(builder), l, r);
+        };
+
+        if (std::holds_alternative<ExprAdd<Expr>>(layer)) {
+            const auto& a = std::get<ExprAdd<Expr>>(layer);
+            return traverse_pair(a.left, a.right,
+                [](auto&& l, auto&& r) {
+                    return add_expr(std::forward<decltype(l)>(l),
+                                    std::forward<decltype(r)>(r));
+                });
+        }
+
+        const auto& m = std::get<ExprMul<Expr>>(layer);
+        return traverse_pair(m.left, m.right,
+            [](auto&& l, auto&& r) {
+                return mul_expr(std::forward<decltype(l)>(l),
+                                std::forward<decltype(r)>(r));
+            });
+    }
+};
+#+end_src
+
+At a leaf: apply ~f~ to the value (getting an ~optional<double>~), then ~applicative.invoke~ lifts ~const_expr~ into that context.
+At a branch: recursively traverse both children, then ~applicative.invoke~ applies the builder (~add_expr~ or ~mul_expr~) to the two results.
+
+If any leaf returns ~nullopt~, the whole traversal short-circuits.
+If every leaf succeeds, you get an ~optional<Expr>~ with the exact same shape.
+No partial results.
+
+** Validation: All-or-Nothing
+
+Tested in [[orgit-file:src/smd/typeclass/examples/blog_fixpoint_examples.cpp][=blog_fixpoint_examples.cpp=]] and [[orgit-file:src/smd/tree/fixpoint_tree_traversable.t.cpp][=fixpoint_tree_traversable.t.cpp=]]:
+
+#+begin_src cpp
+auto tree = mul_expr(add_expr(const_expr(1.0), const_expr(2.0)),
+                     const_expr(3.0));
+
+auto validated = smd::traverse(
+    [](double x) -> std::optional<double> {
+        return x > 0.0 ? std::optional{x} : std::nullopt;
+    },
+    tree);
+
+assert(validated.has_value());
+assert(eval(*validated) == 9.0);  // (1 + 2) * 3, same shape
+#+end_src
+
+#+begin_src cpp
+auto bad_tree = mul_expr(add_expr(const_expr(-1.0), const_expr(2.0)),
+                         const_expr(3.0));
+
+auto result = smd::traverse(
+    [](double x) -> std::optional<double> {
+        return x > 0.0 ? std::optional{x} : std::nullopt;
+    },
+    bad_tree);
+
+assert(!result.has_value());  // no partial tree returned
+#+end_src
+
+Everything validates, or you get nothing.
+
+** Relabeling: Same Shape, Different Values
+
+Any transformation that returns an Applicative context works:
+
+#+begin_src cpp
+// (1+2)*3 = 9 becomes (2+4)*6 = 36
+auto doubled = smd::traverse(
+    [](double x) -> std::optional<double> {
+        return std::optional{x * 2.0};
+    },
+    tree);
+
+assert(doubled.has_value());
+assert(eval(*doubled) == 36.0);
+#+end_src
+
+~(1 + 2) * 3~ becomes ~(2 + 4) * 6~.
+The addition is still an addition.
+The multiplication is still a multiplication.
+Only the leaf values changed.
+
+A fold would give me ~36.0~ directly but the tree would be gone.
+Traversable gives back the tree, ready for further work.
+
+** Structure Preservation in Tests
+
+The test suite verifies that traversal preserves structure, not just values.
+
+From [[orgit-file:src/smd/tree/fixpoint_tree_traversable.t.cpp][=src/smd/tree/fixpoint_tree_traversable.t.cpp=]]:
+
+#+begin_src cpp
+auto tree = add_expr(const_expr(1.0), const_expr(2.0));
+auto traversed = smd::traverse(
+    [](double x) -> std::optional<double> {
+        return std::optional{x + 1.0};
+    },
+    tree);
+
+assert(traversed.has_value());
+const auto& layer = unwrap(*traversed);
+assert(std::holds_alternative<ExprAdd<Expr>>(layer));
+// Root is still an Add node.
+#+end_src
+
+* The Bigger Picture
+
+This fixpoint expression tree is the simplest tree in the repository.
+It exists to demonstrate the pattern cleanly.
+
+The same ~foldable_typeclass~, ~traversable_typeclass~, and generic ~traverse~ function work with:
+
+- ~BinaryTree<T>~ ([[orgit-file:src/smd/tree/binary_tree.hpp][=binary_tree.hpp=]]): ~shared_ptr~-based tree, values at every node.
+- ~FringeTree<T>~ ([[orgit-file:src/smd/tree/fringe_tree.hpp][=fringe_tree.hpp=]]): ~variant~-based (Empty | Leaf | Branch), values at leaves.
+- ~FingerTree<T>~ ([[orgit-file:src/smd/tree/finger_tree.hpp][=finger_tree.hpp=]]): Hinze-Paterson 2-3 finger tree with monoid-cached measures --- O(1) amortized cons/snoc, O(log n) split, O(log min(n,m)) concatenation [cite:@hinze2006fingertrees].
+
+An algorithm written against ~foldable_typeclass<T>~ works on all of them.
+The call site does not change when the representation changes.
+That is the payoff.
+
+~Fix~ ties the knot.
+~cata~ folds bottom-up.
+~fold_map~ gives ten derived operations from one hook.
+~traverse~ keeps the tree alive through effectful transformations.
+
+Once you see it here, you see it everywhere.
+
+#+print_bibliography:
