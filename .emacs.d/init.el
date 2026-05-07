@@ -174,3 +174,5 @@
 (use-package with-editor)
 
 (use-package citeproc :ensure t :after org)
+
+(setq org-export-allow-bind-keywords t)

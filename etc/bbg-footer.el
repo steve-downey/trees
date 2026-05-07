@@ -34,7 +34,7 @@ Relative to the exported HTML file.  Empty string omits the image.")
   "Return an <img> tag for SRC at HEIGHT px, or empty string if SRC is blank."
   (if (string-blank-p src)
       ""
-    (format "<img src=\"%s\" alt=\"%s\" style=\"height:%dpx;width:auto;display:block;\">"
+    (format "<img src='%s' alt='%s' style='height:%dpx;width:auto;display:block;'>"
             src alt height)))
 
 (defun bbg-footer--build-postamble ()
@@ -92,13 +92,12 @@ if ( window.location.search.match( /print-pdf/gi ) ) {
      bbg-footer-text
      right-logo)))
 
-(defun bbg-footer--apply (&rest _)
+(defun bbg-footer-apply (&rest _)
   "Set `org-re-reveal-postamble' from the current footer variables.
 Called via `org-export-before-processing-hook', after local variables
 in the visiting buffer are already in effect."
-  (setq-local org-re-reveal-postamble (bbg-footer--build-postamble)))
+  (setq org-re-reveal-postamble (bbg-footer--build-postamble)))
 
-(add-hook 'org-export-before-processing-hook #'bbg-footer--apply)
 
 (provide 'bbg-footer)
 

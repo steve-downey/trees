@@ -394,7 +394,7 @@ pre.src {
     display: block;
     width: fit-content;
     min-width: 60%;
-    max-width: 95%;
+    max-width: 100%;
     box-sizing: border-box;
 }
 
@@ -407,7 +407,7 @@ pre.src-cpp {
     display: block;
     width: fit-content;
     min-width: 60%;
-    max-width: 95%;
+    max-width: 100%;
     box-sizing: border-box;
 }
 
@@ -432,7 +432,7 @@ pre.example {
     display: block;
     width: fit-content;
     min-width: 60%;
-    max-width: 95%;
+    max-width: 100%;
     box-sizing: border-box;
 }
 

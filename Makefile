@@ -565,6 +565,7 @@ ORGFILES := $(wildcard *.org)
 	-f package-initialize \
 	--eval "(setq enable-local-variables :all)" \
 	--load etc/bbg-footer.el \
+	--load etc/set-footer.el \
 	--visit $< \
 	--eval "(org-transclusion-mode t)" \
 	--eval "(org-export-to-file 'html \"$@\")"
@@ -579,6 +580,7 @@ ORGFILES := $(wildcard *.org)
 	--batch --load .emacs.d/init.el  \
 	-f package-initialize \
 	--load etc/bbg-footer.el \
+	--load etc/set-footer.el \
 	--eval "(setq enable-local-variables :all)" \
 	--visit $< \
 	--eval "(org-transclusion-mode t)" \
@@ -594,6 +596,7 @@ ORGFILES := $(wildcard *.org)
 	--batch --load .emacs.d/init.el  \
 	-f package-initialize \
 	--load etc/bbg-footer.el \
+	--load etc/set-footer.el \
 	--eval "(setq enable-local-variables :all)" \
 	--visit $< \
 	--eval "(org-transclusion-mode t)" \

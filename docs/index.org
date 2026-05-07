@@ -3,7 +3,7 @@
 #+OPTIONS: toc:2 num:nil
 
 * Overview
-This index transcludes active files under =trees/src= that are explicitly listed in CMake =target_sources()= entries.
+This index transcludes active files under =src= that are explicitly listed in CMake =target_sources()= entries.
 It excludes =deadcode= and =smd/conceptmap=.
 
 * Active Source Files
@@ -147,5 +147,5 @@ Run from repository root to regenerate this file:
 #+begin_src bash :results output verbatim
 set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
-make -C "$repo_root/trees" docs-index
+make -C "$repo_root" docs-index
 #+end_src

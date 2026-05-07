@@ -1,17 +1,17 @@
 ---
 title: Live Source Snapshot (main, strict built-target graph)
-summary: Point-in-time fenced dump of trees/src C++ files explicitly listed in CMake target_sources() on main.
+summary: Point-in-time fenced dump of src C++ files explicitly listed in CMake target_sources() on main.
 source_of_truth: git HEAD on branch main
 strictness: only explicit target_sources entries; excludes transitively included headers
 scope:
   include:
-    - files directly named in trees/src/**/CMakeLists.txt target_sources()
+    - files directly named in src/**/CMakeLists.txt target_sources()
   exclude:
-    - trees/src/deadcode/**
-    - trees/src/smd/conceptmap/**
+    - src/deadcode/**
+    - src/smd/conceptmap/**
 update_policy:
   when_to_update:
-    - Any time target_sources lists in trees/src/**/CMakeLists.txt change.
+    - Any time target_sources lists in src/**/CMakeLists.txt change.
     - Any time a listed file changes on main and this snapshot is used as a baseline.
   how_to_update:
     - Rebuild the explicit built-file manifest from CMakeLists and regenerate from git HEAD.
@@ -22,9 +22,9 @@ notes:
 
 # Live Source Snapshot (main, strict built-target graph)
 
-Generated from main at commit 0222a18f.
+Generated from main at commit 2bfab86c.
 
-This file includes only source files explicitly listed in CMake target_sources() entries under trees/src.
+This file includes only source files explicitly listed in CMake target_sources() entries under src.
 
 ## smd/fixpoint/box.hpp
 
@@ -38,9 +38,14 @@ This file includes only source files explicitly listed in CMake target_sources()
 
 namespace smd::fixpoint {
 
+/** Indirection type used inside F<Fix<F>> to break infinite template
+ * instantiation. Box<A> = shared_ptr<A>; structural sharing is a side-effect.
+ * @tparam A the pointed-to type (typically a recursive Fix instantiation)
+ */
 template <typename A>
 using Box = std::shared_ptr<A>;
 
+/** Construct a Box<A> in-place, forwarding @p args to A's constructor. */
 template <typename A, typename... Args>
 auto make_box(Args &&...args) -> Box<A> {
     return std::make_shared<A>(std::forward<Args>(args)...);
@@ -64,6 +69,21 @@ auto make_box(Args &&...args) -> Box<A> {
 
 namespace smd::fixpoint {
 
+/**
+ * @brief Catamorphism: bottom-up fold over a Fix<F> tree.
+ *
+ * Recursively descends into the tree, applying @p algebra at each level.
+ * At each node the @p fmap_fn lifts the recursive fold into the functor layer
+ * so that @p algebra receives an F<Result> rather than an F<Fix<F>>.
+ *
+ * @tparam Result   the type produced at each level by @p algebra
+ * @tparam F        the non-recursive functor whose fixed-point is being folded
+ * @param algebra   function F<Result> -> Result (the catamorphism algebra)
+ * @param fmap_fn   function (Fix<F>->Result, F<Fix<F>>) -> F<Result>
+ *                  — lifts the fold function over one layer of F
+ * @param tree      the fixed-point tree to fold
+ * @return          the folded result at the root
+ */
 template <typename Result, template <typename> class F, typename Algebra,
           typename FMap>
 auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
@@ -95,16 +115,26 @@ auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
 
 namespace smd::fixpoint {
 
+/** Fixed-point combinator that ties the recursive knot for a functor @p F.
+ * 
+ * Fix<F> is the iso-recursive type satisfying Fix<F> ≅ F<Fix<F>>.
+ * The single data member @c inner holds one unwrapped layer; wrap/unwrap
+ * are the iso-recursive isomorphism boundary.
+ * Use Box<Fix<F>> inside F to avoid infinite template instantiation depth.
+ * @tparam F unary template functor (takes the recursive position as its param)
+ */
 template <template <typename> class F>
 struct Fix {
     F<Fix<F>> inner;
 };
 
+/** Wrap one layer of @p F into the fixed-point type. */
 template <template <typename> class F>
 constexpr auto wrap(F<Fix<F>> layer) -> Fix<F> {
     return Fix<F>{std::move(layer)};
 }
 
+/** Unwrap one layer from a fixed-point value, exposing F<Fix<F>>. */
 template <template <typename> class F>
 constexpr auto unwrap(const Fix<F> &fixed) -> const F<Fix<F>> & {
     return fixed.inner;
@@ -126,11 +156,17 @@ constexpr auto unwrap(const Fix<F> &fixed) -> const F<Fix<F>> & {
 
 namespace smd::fixpoint {
 
+/** Aggregate that inherits operator() from each of @p Ts.
+ * Used with std::visit to combine multiple lambdas into a single visitor
+ * without writing a hand-rolled visitor struct.
+ * Example: std::visit(overloaded{case1, case2, ...}, variant)
+ */
 template <typename... Ts>
 struct overloaded : Ts... {
     using Ts::operator()...;
 };
 
+/** Deduction guide so overloaded{...} works without explicit template args. */
 template <typename... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
@@ -159,8 +195,17 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 namespace smd {
 
+/** Applicative typeclass instance for list_range<VIEW> with Cartesian-product
+ * (nondeterminism / list-monad) semantics.
+ * 
+ * pure(x) = {x} (singleton range).
+ * apply(fs, xs) = {f(x) | f <- fs, x <- xs} — every function applied to
+ * every argument, producing all combinations in fs-major order.
+ * @tparam VIEW underlying view type of the list_range
+ */
 template <class VIEW>
 struct ListRangeApplicativeImpl {
+    /** Lift a value into a single-element range. */
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value) {
         using Stored = remove_cvref_t<VALUE>;
@@ -168,6 +213,11 @@ struct ListRangeApplicativeImpl {
             std::vector<Stored>{std::forward<VALUE>(value)});
     }
 
+    /**
+     * @brief Apply every function in @p functions to every argument in
+     *        @p arguments (Cartesian product).
+     * @return range of size |functions| * |arguments|, in fs-major order
+     */
     template <class FUNCTION_VIEW, class ARGUMENT_VIEW>
     auto apply(this auto &&,
                const smd::ranges::list_range<FUNCTION_VIEW> &functions,
@@ -193,12 +243,14 @@ struct ListRangeApplicativeImpl {
     }
 };
 
+/** Applicative map exposing pure and apply for list_range<VIEW>. */
 template <class VIEW>
 struct ListRangeApplicativeMap : Applicative<ListRangeApplicativeImpl<VIEW>> {
     using ListRangeApplicativeImpl<VIEW>::apply;
     using ListRangeApplicativeImpl<VIEW>::pure;
 };
 
+/** Registers ListRangeApplicativeMap as the Applicative instance for list_range<VIEW>. */
 template <class VIEW>
 inline constexpr auto applicative_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeApplicativeMap<VIEW>{};
@@ -227,8 +279,13 @@ inline constexpr auto applicative_typeclass<smd::ranges::list_range<VIEW>> =
 
 namespace smd {
 
+/** Foldable typeclass instance for list_range<VIEW>.
+ * Provides fold_map, fold_left, fold_right, and convenience query operations.
+ * @tparam VIEW underlying view type
+ */
 template <class VIEW>
 struct ListRangeFoldableImpl {
+    /** Map @p function over all elements and combine results via their Monoid. */
     template <class FUNCTION>
     auto fold_map(this auto &&self, FUNCTION &&function,
                   const smd::ranges::list_range<VIEW> &values) {
@@ -244,11 +301,13 @@ struct ListRangeFoldableImpl {
                               });
     }
 
+    /** Return the number of elements in the range. */
     auto length(this auto &&, const smd::ranges::list_range<VIEW> &values)
         -> std::size_t {
         return static_cast<std::size_t>(std::ranges::distance(values));
     }
 
+    /** Left fold: reduce the range to a single value, left-to-right. */
     template <class STATE, class FUNCTION>
     auto fold_left(this auto &&, const smd::ranges::list_range<VIEW> &values,
                    STATE initial_state, FUNCTION &&function) {
@@ -256,6 +315,9 @@ struct ListRangeFoldableImpl {
                                       std::forward<FUNCTION>(function));
     }
 
+    /** Right fold: reduce the range to a single value, right-to-left.
+     * Materializes the range into a vector first to support reverse iteration.
+     */
     template <class STATE, class FUNCTION>
     auto fold_right(this auto &&, const smd::ranges::list_range<VIEW> &values,
                     STATE initial_state, FUNCTION &&function) {
@@ -264,27 +326,35 @@ struct ListRangeFoldableImpl {
                                        std::forward<FUNCTION>(function));
     }
 
+    /** True if any element satisfies @p predicate. */
     template <class PREDICATE>
     auto any_of(this auto &&, const smd::ranges::list_range<VIEW> &values,
                 PREDICATE &&predicate) -> bool {
         return std::ranges::any_of(values, std::forward<PREDICATE>(predicate));
     }
 
+    /** True if all elements satisfy @p predicate. */
     template <class PREDICATE>
     auto all_of(this auto &&, const smd::ranges::list_range<VIEW> &values,
                 PREDICATE &&predicate) -> bool {
         return std::ranges::all_of(values, std::forward<PREDICATE>(predicate));
     }
 
+    /** True if the range contains no elements. */
     auto empty(this auto &&, const smd::ranges::list_range<VIEW> &values)
         -> bool {
         return std::ranges::empty(values);
     }
 
+    /** Materialize the range into a vector. */
     auto to_vector(this auto &&, const smd::ranges::list_range<VIEW> &values) {
         return smd::ranges::detail::materialize(values);
     }
 
+    /**
+     * @brief Return the first element satisfying @p predicate, or nullopt.
+     * @return optional containing the first matching value, or nullopt
+     */
     template <class PREDICATE>
     auto find_first(this auto &&, const smd::ranges::list_range<VIEW> &values,
                     PREDICATE &&predicate) {
@@ -299,6 +369,7 @@ struct ListRangeFoldableImpl {
     }
 };
 
+/** Foldable map exposing all fold operations for list_range<VIEW>. */
 template <class VIEW>
 struct ListRangeFoldableMap : Foldable<ListRangeFoldableImpl<VIEW>> {
     using ListRangeFoldableImpl<VIEW>::all_of;
@@ -312,6 +383,7 @@ struct ListRangeFoldableMap : Foldable<ListRangeFoldableImpl<VIEW>> {
     using ListRangeFoldableImpl<VIEW>::to_vector;
 };
 
+/** Registers ListRangeFoldableMap as the Foldable instance for list_range<VIEW>. */
 template <class VIEW>
 inline constexpr auto foldable_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeFoldableMap<VIEW>{};
@@ -338,6 +410,11 @@ inline constexpr auto foldable_typeclass<smd::ranges::list_range<VIEW>> =
 
 namespace smd {
 
+/** Functor typeclass instance for list_range<VIEW>.
+ * fmap applies @p function lazily to each element via std::views::transform
+ * and wraps the result in a new list_range.
+ * @tparam VIEW underlying view type of the list_range being mapped
+ */
 template <class VIEW>
 struct ListRangeFunctorImpl {
     template <class FUNCTION>
@@ -348,11 +425,13 @@ struct ListRangeFunctorImpl {
     }
 };
 
+/** Functor map that exposes fmap for list_range<VIEW>. */
 template <class VIEW>
 struct ListRangeFunctorMap : Functor<ListRangeFunctorImpl<VIEW>> {
     using ListRangeFunctorImpl<VIEW>::fmap;
 };
 
+/** Registers ListRangeFunctorMap as the Functor instance for list_range<VIEW>. */
 template <class VIEW>
 inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeFunctorMap<VIEW>{};
@@ -398,6 +477,12 @@ auto materialize(RANGE &&range) {
 
 } // namespace detail
 
+/** Range adaptor that wraps any view and satisfies the Foldable, Applicative,
+ * and Traversable interfaces. list_range is the canonical container type for
+ * the range-based typeclass instances in smd::ranges.
+ * @tparam VIEW underlying view type; must satisfy std::ranges::view and
+ *              std::ranges::input_range
+ */
 template <class VIEW>
     requires(std::ranges::view<VIEW> && std::ranges::input_range<VIEW>)
 class list_range : public std::ranges::view_interface<list_range<VIEW>> {
@@ -411,6 +496,7 @@ class list_range : public std::ranges::view_interface<list_range<VIEW>> {
         requires std::default_initializable<VIEW>
     = default;
 
+    /** Construct a list_range wrapping @p view. */
     constexpr explicit list_range(VIEW view) : d_view(std::move(view)) {}
 
     constexpr auto begin() { return std::ranges::begin(d_view); }
@@ -429,21 +515,25 @@ class list_range : public std::ranges::view_interface<list_range<VIEW>> {
         return std::ranges::end(d_view);
     }
 
+    /** Return a copy of the underlying view (lvalue overload). */
     constexpr auto base() const &
         requires std::copy_constructible<VIEW>
     {
         return d_view;
     }
 
+    /** Return the underlying view by move (rvalue overload). */
     constexpr auto base() && { return std::move(d_view); }
 };
 
+/** Wrap any viewable range in a list_range using std::views::all. */
 template <std::ranges::viewable_range RANGE>
 auto all(RANGE &&range) {
     using View = std::views::all_t<RANGE>;
     return list_range<View>{std::views::all(std::forward<RANGE>(range))};
 }
 
+/** Create a single-element list_range holding @p value. */
 template <class VALUE>
 auto single(VALUE &&value) {
     using Stored = std::remove_cvref_t<VALUE>;
@@ -451,6 +541,7 @@ auto single(VALUE &&value) {
         std::views::single(std::forward<VALUE>(value))};
 }
 
+/** Create a list_range from an owned vector. */
 template <class VALUE>
 auto from_vector(std::vector<VALUE> values) {
     return all(std::move(values));
@@ -481,6 +572,13 @@ auto from_vector(std::vector<VALUE> values) {
 
 namespace smd {
 
+/** Traversable typeclass instance for list_range<VIEW>.
+ * traverse maps each element into an applicative context and collects the
+ * results back into a list_range inside that context. Elements are processed
+ * left-to-right; an empty range yields applicative.pure({}).
+ * Requires a forward range so that the traversal can visit elements in order.
+ * @tparam VIEW underlying view type; must satisfy std::ranges::forward_range
+ */
 template <class VIEW>
     requires std::ranges::forward_range<VIEW>
 struct ListRangeTraversableImpl {
@@ -536,12 +634,14 @@ struct ListRangeTraversableImpl {
     }
 };
 
+/** Traversable map exposing traverse for list_range<VIEW>. */
 template <class VIEW>
     requires std::ranges::forward_range<VIEW>
 struct ListRangeTraversableMap : Traversable<ListRangeTraversableImpl<VIEW>> {
     using ListRangeTraversableImpl<VIEW>::traverse;
 };
 
+/** Registers ListRangeTraversableMap as the Traversable instance for list_range<VIEW>. */
 template <class VIEW>
     requires std::ranges::forward_range<VIEW>
 inline constexpr auto traversable_typeclass<smd::ranges::list_range<VIEW>> =
@@ -568,10 +668,17 @@ inline constexpr auto traversable_typeclass<smd::ranges::list_range<VIEW>> =
 
 namespace smd::thunk {
 
-// delay(callable, args...) — capture a callable and its arguments into a
-// closure that invokes them on demand.  The closure is not memoized; each
-// call re-invokes callable.  Use smd::thunk::memoize() for call-once
-// semantics.
+/**
+ * @brief Capture a callable and its arguments into a re-evaluating closure.
+ *
+ * The returned nullary callable stores @p c and @p args... by value; each
+ * invocation re-evaluates callable(args...) from scratch. For call-once
+ * (memoized) semantics use smd::thunk::memoize() instead.
+ *
+ * @param c       callable to defer
+ * @param args    arguments forwarded into the closure by value
+ * @return nullary callable that invokes c(args...) on every call
+ */
 template <typename Callable, typename... Args>
 auto delay(Callable &&c, Args &&...args) {
     using CallableT = std::remove_cvref_t<Callable>;
@@ -620,8 +727,12 @@ auto delay(Callable &&c, Args &&...args) {
 
 namespace smd::thunk {
 
-// erased_thunk<Result> — type-erased wrapper for any callable returning Result.
-// Copies share the same underlying callable via shared_ptr.
+/** Type-erased, copyable wrapper for any callable returning @p Result.
+ * All copies of an erased_thunk share the same underlying callable via
+ * shared_ptr, so invoking any copy calls the same object.
+ * Virtual dispatch is used so that the concrete callable type need not be
+ * known at the point of storage (e.g. in a heterogeneous container).
+ */
 template <typename Result>
 class erased_thunk {
     struct ThunkBase {
@@ -644,6 +755,7 @@ class erased_thunk {
   public:
     erased_thunk() = default;
 
+    /** Construct from any compatible callable (excluded: self-type). */
     template <
         typename Callable, typename CallableT = std::remove_cvref_t<Callable>,
         std::enable_if_t<!std::is_same_v<CallableT, erased_thunk>, int> = 0>
@@ -651,18 +763,25 @@ class erased_thunk {
         : d_impl(std::make_shared<ThunkModel<CallableT>>(
               std::forward<Callable>(callable))) {}
 
+    /** Invoke the wrapped callable and return a reference to its result. */
     [[nodiscard]] auto operator()() const -> const Result & {
         assert(d_impl != nullptr);
         return d_impl->invoke();
     }
 };
 
-// memoize(callable, args...) — returns a callable that evaluates
-// delay(callable, args...) exactly once and caches the result.  All copies
-// of the returned callable share the same cached value via shared_ptr.
-//
-// Not thread-safe: concurrent first calls race on the variant mutation.
-// See thread-safety note at the top of this file.
+/**
+ * @brief Return a callable that evaluates delay(callable, args...) exactly
+ *        once and caches the result; all copies share the cached value.
+ *
+ * Not thread-safe: concurrent first calls race on the internal variant
+ * mutation. See the thread-safety note at the top of this file.
+ *
+ * @param c     callable to defer and memoize
+ * @param args  arguments forwarded into the underlying delay closure
+ * @return nullary callable returning const Result& on every call after the
+ *         first evaluation
+ */
 template <typename Callable, typename... Args>
 auto memoize(Callable &&c, Args &&...args) {
     using Closure =
@@ -682,9 +801,17 @@ auto memoize(Callable &&c, Args &&...args) {
     };
 }
 
-// measured_memoize(measure, callable, args...) — like memoize(), but attaches
-// a pre-computed Measure alongside the deferred result.  Returns a struct with
-// cached_measure() and force() accessors.
+/**
+ * @brief Like memoize(), but attaches a pre-computed @p measure alongside the
+ *        deferred result.
+ *
+ * Returns a struct with cached_measure() (returns the measure without forcing
+ * the thunk) and force() (evaluates or returns the cached result).
+ *
+ * @param measure  pre-computed annotation value stored eagerly
+ * @param c        callable to memoize
+ * @param args     arguments forwarded to the underlying memoize closure
+ */
 template <typename Measure, typename Callable, typename... Args>
 auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
     auto deferred =
@@ -696,9 +823,11 @@ auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
             Measure d_measure;
             mutable decltype(deferred) d_force;
 
+            /** Return the pre-computed measure without evaluating the thunk. */
             [[nodiscard]] auto cached_measure() const -> const Measure & {
                 return d_measure;
             }
+            /** Force evaluation (or return cached value) of the deferred callable. */
             [[nodiscard]] auto force() const -> decltype(auto) {
                 return d_force();
             }
@@ -730,14 +859,30 @@ auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
 
 namespace smd {
 
+/** Applicative typeclass instance for BinaryTree<T> with shape-aware semantics.
+ * 
+ * pure(v) produces a single leaf. apply recurses pairwise over matching tree
+ * structure: a leaf function distributes over the argument's shape; a leaf
+ * argument distributes over the function's shape; when both have children,
+ * only positions where both trees have a child are combined (pairwise).
+ * These are monad-derived (not zip) applicative semantics.
+ * @tparam T element type of the function tree (F is the function type stored)
+ */
 template <class T>
 struct BinaryTreeApplicativeImpl {
+    /** Lift a plain value into a single-leaf tree. */
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value) {
         using U = remove_cvref_t<VALUE>;
         return smd::tree::BinaryTree<U>::leaf(std::forward<VALUE>(value));
     }
 
+    /**
+     * @brief Apply a tree of functions to a tree of arguments, shape-aware.
+     * @param functions tree whose nodes contain callables
+     * @param arguments tree whose nodes contain arguments
+     * @return tree of results; shape determined by pairwise recursion rules
+     */
     template <class F, class A>
     auto apply(this auto &&self, const smd::tree::BinaryTree<F> &functions,
                const smd::tree::BinaryTree<A> &arguments)
@@ -792,12 +937,14 @@ struct BinaryTreeApplicativeImpl {
     }
 };
 
+/** Applicative map exposing pure and apply for BinaryTree<T>. */
 template <class T>
 struct BinaryTreeApplicativeMap : Applicative<BinaryTreeApplicativeImpl<T>> {
     using BinaryTreeApplicativeImpl<T>::apply;
     using BinaryTreeApplicativeImpl<T>::pure;
 };
 
+/** Registers BinaryTreeApplicativeMap as the Applicative instance for BinaryTree<T>. */
 template <class T>
 inline constexpr auto applicative_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeApplicativeMap<T>{};
@@ -825,6 +972,11 @@ inline constexpr auto applicative_typeclass<smd::tree::BinaryTree<T>> =
 
 namespace smd {
 
+/** Foldable typeclass instance for BinaryTree<T>.
+ * fold_map applies @p function to every node value (in-order: left, root,
+ * right) and combines the results using the Monoid for the return type.
+ * @tparam T element type of the tree being folded
+ */
 template <class T>
 struct BinaryTreeFoldableImpl {
     template <class F>
@@ -848,11 +1000,13 @@ struct BinaryTreeFoldableImpl {
     }
 };
 
+/** Foldable map that exposes the fold_map operation for BinaryTree<T>. */
 template <class T>
 struct BinaryTreeFoldableMap : Foldable<BinaryTreeFoldableImpl<T>> {
     using BinaryTreeFoldableImpl<T>::fold_map;
 };
 
+/** Registers BinaryTreeFoldableMap as the Foldable instance for BinaryTree<T>. */
 template <class T>
 inline constexpr auto foldable_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeFoldableMap<T>{};
@@ -877,6 +1031,12 @@ inline constexpr auto foldable_typeclass<smd::tree::BinaryTree<T>> =
 
 namespace smd::tree {
 
+/** Persistent binary tree where every node carries a value.
+ * Nodes are either leaves (no children) or internal nodes with left and right
+ * subtrees. Sharing is structural: subtrees are held by shared_ptr, so copies
+ * are cheap and the tree is immutable once built.
+ * @tparam T element type stored at every node
+ */
 template <class T>
 class BinaryTree {
     T d_value;
@@ -886,49 +1046,63 @@ class BinaryTree {
   public:
     using value_type = T;
 
+    /** Construct a leaf node holding @p value (no children). */
     static auto leaf(T value) -> BinaryTree {
         return BinaryTree(std::move(value), {}, {});
     }
 
+    /** Construct an internal node with @p value and two children. */
     static auto node(T value, BinaryTree left, BinaryTree right) -> BinaryTree {
         return BinaryTree(std::move(value),
                           std::make_shared<BinaryTree>(std::move(left)),
                           std::make_shared<BinaryTree>(std::move(right)));
     }
 
+    /** Alias for node(); prefer node() in new code. */
     static auto branch(T value, BinaryTree left, BinaryTree right)
         -> BinaryTree {
         return node(std::move(value), std::move(left), std::move(right));
     }
 
+    /** Low-level constructor accepting pre-built child shared_ptrs.
+     * Null pointers represent absent children.
+     */
     static auto from_children_ptrs(T value, std::shared_ptr<BinaryTree> left,
                                    std::shared_ptr<BinaryTree> right)
         -> BinaryTree {
         return BinaryTree(std::move(value), std::move(left), std::move(right));
     }
 
+    /** Heap-allocate a copy of @p tree and return the owning pointer. */
     static auto make_ptr(BinaryTree tree) -> std::shared_ptr<BinaryTree> {
         return std::make_shared<BinaryTree>(std::move(tree));
     }
 
+    /** Return the value stored at this node. */
     auto value() const -> const T & { return d_value; }
 
+    /** True when this node has a left child. */
     auto has_left() const -> bool { return static_cast<bool>(d_left); }
+    /** True when this node has a right child. */
     auto has_right() const -> bool { return static_cast<bool>(d_right); }
 
+    /** Return the left child; precondition: has_left(). */
     auto left() const -> const BinaryTree & {
         assert(d_left);
         return *d_left;
     }
 
+    /** Return the right child; precondition: has_right(). */
     auto right() const -> const BinaryTree & {
         assert(d_right);
         return *d_right;
     }
 
+    /** Shared pointer to the left child; may be null. */
     auto left_ptr() const -> const std::shared_ptr<BinaryTree> & {
         return d_left;
     }
+    /** Shared pointer to the right child; may be null. */
     auto right_ptr() const -> const std::shared_ptr<BinaryTree> & {
         return d_right;
     }
@@ -966,6 +1140,11 @@ class BinaryTree {
 
 namespace smd {
 
+/** Traversable typeclass instance for BinaryTree<T>.
+ * traverse maps each node value into an applicative context and rebuilds a
+ * BinaryTree inside that context, preserving the original tree's shape.
+ * @tparam T element type of the tree being traversed
+ */
 template <class T>
 struct BinaryTreeTraversableImpl {
     using element_type = T;
@@ -1053,11 +1232,13 @@ struct BinaryTreeTraversableImpl {
     }
 };
 
+/** Traversable map that exposes traverse for BinaryTree<T>. */
 template <class T>
 struct BinaryTreeTraversableMap : Traversable<BinaryTreeTraversableImpl<T>> {
     using BinaryTreeTraversableImpl<T>::traverse;
 };
 
+/** Registers BinaryTreeTraversableMap as the Traversable instance for BinaryTree<T>. */
 template <class T>
 inline constexpr auto traversable_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeTraversableMap<T>{};
@@ -1085,6 +1266,9 @@ inline constexpr auto traversable_typeclass<smd::tree::BinaryTree<T>> =
 
 namespace smd {
 
+/** Foldable typeclass implementation for FingerTree; uses for_each to avoid
+ * heap allocation during traversal.
+ */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 struct FingerTreeFoldableImpl {
     template <class F>
@@ -1103,12 +1287,14 @@ struct FingerTreeFoldableImpl {
     }
 };
 
+/** Foldable typeclass map entry for FingerTree. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 struct FingerTreeFoldableMap
     : Foldable<FingerTreeFoldableImpl<T, TAG_TYPE, MEASURE_POLICY>> {
     using FingerTreeFoldableImpl<T, TAG_TYPE, MEASURE_POLICY>::fold_map;
 };
 
+/** Registers FingerTree as a Foldable for all tag and measure combinations. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 inline constexpr auto
     foldable_typeclass<smd::tree::FingerTree<T, TAG_TYPE, MEASURE_POLICY>> =
@@ -1142,6 +1328,7 @@ inline constexpr auto
 
 namespace smd::tree {
 
+/** Heap-allocated, shared, immutable value — used for tree nodes and spine. */
 template <typename T>
 using Boxed = std::shared_ptr<const T>;
 
@@ -1211,6 +1398,9 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 } // namespace detail
 
+/** Measure policy that counts each element as 1; TAG_TYPE must be an additive
+ * monoid (e.g. std::size_t).
+ */
 template <typename VALUE_TYPE, typename TAG_TYPE>
 struct UnitMeasure {
     auto operator()(const VALUE_TYPE &) const -> TAG_TYPE {
@@ -1218,6 +1408,7 @@ struct UnitMeasure {
     }
 };
 
+/** Measure policy that lifts the cached measure stored inside a Node variant. */
 template <typename NODE_T, typename TAG_TYPE>
 struct NodeMeasure {
     auto operator()(const NODE_T &node) const -> TAG_TYPE {
@@ -1226,6 +1417,22 @@ struct NodeMeasure {
     }
 };
 
+/** @brief Persistent Hinze-Paterson 2-3 finger tree.
+ *
+ * @tparam T              Element type stored at the leaves.
+ * @tparam TAG_TYPE       Monoid-valued measure annotation cached at every node.
+ * @tparam MEASURE_POLICY Callable that maps a @p T value to a @p TAG_TYPE
+ *                        measure; must be default-constructible.
+ * @tparam DEPTH          NTTP used to break polymorphic recursion; the spine is
+ *                        a @c FingerTree<Node<T>, TAG_TYPE, NodeMeasure, DEPTH+1>.
+ *
+ * Complexity:
+ * - cons/snoc:        O(1) amortized
+ * - append/concat:    O(log min(n, m))
+ * - split/search:     O(log n)
+ * - flatten/for_each: O(n)
+ * - view_l/view_r:    O(1) amortized
+ */
 template <typename T, typename TAG_TYPE = std::size_t,
           typename MEASURE_POLICY = UnitMeasure<T, TAG_TYPE>, int DEPTH = 0>
 class FingerTree {
@@ -1877,20 +2084,25 @@ class FingerTree {
     }
 
   public:
+    /** The leaf element type. */
     using value_type = T;
+    /** The monoid measure type annotating each node. */
     using tag_type = Tag;
 
+    /** Result of view_l() / view_r(): the exposed element and the remaining tree. */
     struct View {
         T d_value;
         FingerTree d_rest;
     };
 
+    /** Result of split(): the pivot element extracted between two subtrees. */
     struct Split {
         FingerTree d_left;
         T d_pivot;
         FingerTree d_right;
     };
 
+    /** Result of split_at(): the tree partitioned into two halves. */
     struct SplitAt {
         FingerTree d_left;
         FingerTree d_right;
@@ -2006,26 +2218,33 @@ class FingerTree {
     }
 
   public:
+    /** Constructs an empty tree. */
     FingerTree() : d_repr(Empty{}) {}
 
+    /** Returns an empty tree. */
     static auto empty() -> FingerTree { return make_empty(); }
 
+    /** Returns a single-element tree containing @p value. */
     static auto leaf(T value) -> FingerTree {
         return make_single(std::move(value));
     }
 
+    /** Returns true if the tree contains no elements. */
     auto is_empty() const -> bool {
         return std::holds_alternative<Empty>(d_repr);
     }
 
+    /** Returns true if the tree contains exactly one element. */
     auto is_leaf() const -> bool {
         return std::holds_alternative<Single>(d_repr);
     }
 
+    /** Returns true if the tree has a deep (two-digit + spine) structure. */
     auto is_branch() const -> bool {
         return std::holds_alternative<DeepPtr>(d_repr);
     }
 
+    /** Returns the cached monoid measure over all elements in the tree. */
     auto measure() const -> Tag {
         return std::visit(
             detail::overloaded{
@@ -2035,6 +2254,7 @@ class FingerTree {
             d_repr);
     }
 
+    /** Returns the number of leaf elements (the element count). */
     auto breadth() const -> std::size_t {
         return std::visit(
             detail::overloaded{
@@ -2046,6 +2266,7 @@ class FingerTree {
             d_repr);
     }
 
+    /** Returns the structural depth of the spine (number of nested levels). */
     auto depth() const -> std::size_t {
         return std::visit(
             detail::overloaded{
@@ -2055,11 +2276,13 @@ class FingerTree {
             d_repr);
     }
 
+    /** Returns the single element stored in a leaf tree; asserts if not a leaf. */
     auto value() const -> const T & {
         assert(is_leaf());
         return std::get<Single>(d_repr).d_value;
     }
 
+    /** Prepends @p x to the front of the tree; O(1) amortized. */
     auto cons(T x) const -> FingerTree {
         return std::visit(
             detail::overloaded{
@@ -2098,6 +2321,7 @@ class FingerTree {
             d_repr);
     }
 
+    /** Appends @p x to the back of the tree; O(1) amortized. */
     auto snoc(T x) const -> FingerTree {
         return std::visit(
             detail::overloaded{
@@ -2136,28 +2360,34 @@ class FingerTree {
             d_repr);
     }
 
+    /** Concatenates @p right onto this tree; O(log min(n, m)). */
     auto append(const FingerTree &right) const -> FingerTree {
         return app3(*this, {}, right);
     }
 
+    /** Static alias: concatenates @p left and @p right. */
     static auto branch(const FingerTree &left, const FingerTree &right)
         -> FingerTree {
         return left.append(right);
     }
 
+    /** Static alias: cons — prepends @p value to @p tree. */
     static auto prepend(T value, const FingerTree &tree) -> FingerTree {
         return tree.cons(std::move(value));
     }
 
+    /** Static alias: snoc — appends @p value to @p tree. */
     static auto append(const FingerTree &tree, T value) -> FingerTree {
         return tree.snoc(std::move(value));
     }
 
+    /** Static alias for append(); concatenates @p left and @p right. */
     static auto concat(const FingerTree &left, const FingerTree &right)
         -> FingerTree {
         return left.append(right);
     }
 
+    /** Materialises all elements into a vector in sequence order; O(n). */
     auto flatten() const -> std::vector<T> {
         return std::visit(
             detail::overloaded{
@@ -2174,9 +2404,9 @@ class FingerTree {
             d_repr);
     }
 
-    // Call callback(const T&) for each element in sequence order, without heap
-    // allocation. Prefer over flatten() when results do not need to outlive the
-    // callback loop.
+    /** Calls @p callback for each element in sequence order without allocating;
+     * prefer over flatten() when the result does not need to outlive the loop.
+     */
     template <typename F>
     void for_each(F &&callback) const {
         std::visit(detail::overloaded{[](const Empty &) {},
@@ -2191,6 +2421,7 @@ class FingerTree {
                    d_repr);
     }
 
+    /** Decomposes into (head, tail); returns nullopt on an empty tree; O(1) amortized. */
     auto view_l() const -> std::optional<View> {
         return std::visit(
             detail::overloaded{
@@ -2212,6 +2443,7 @@ class FingerTree {
             d_repr);
     }
 
+    /** Decomposes into (init, last); returns nullopt on an empty tree; O(1) amortized. */
     auto view_r() const -> std::optional<View> {
         return std::visit(detail::overloaded{
                               [](const Empty &) -> std::optional<View> {
@@ -2233,28 +2465,33 @@ class FingerTree {
                           d_repr);
     }
 
+    /** Returns the first element; asserts if empty. */
     auto head() const -> T {
         auto v = view_l();
         assert(v.has_value());
         return std::move(v->d_value);
     }
 
+    /** Returns the tree without its first element; returns empty if already empty. */
     auto tail() const -> FingerTree {
         auto v = view_l();
         return v.has_value() ? std::move(v->d_rest) : empty();
     }
 
+    /** Returns the last element; asserts if empty. */
     auto last() const -> T {
         auto v = view_r();
         assert(v.has_value());
         return std::move(v->d_value);
     }
 
+    /** Returns the tree without its last element; returns empty if already empty. */
     auto init() const -> FingerTree {
         auto v = view_r();
         return v.has_value() ? std::move(v->d_rest) : empty();
     }
 
+    /** Returns the pivot value from split(@p predicate), or nullopt; O(log n). */
     template <typename PREDICATE>
     auto search(PREDICATE &&predicate) const -> std::optional<T> {
         auto sp = split(std::forward<PREDICATE>(predicate));
@@ -2263,11 +2500,23 @@ class FingerTree {
         return std::move(sp->d_pivot);
     }
 
+    /** @brief Splits the tree at the first element where the accumulated prefix
+     *         measure satisfies @p predicate; O(log n).
+     *
+     * @return nullopt if no element satisfies the predicate.
+     *         Otherwise a Split whose @c d_pivot is that element, @c d_left
+     *         contains all prior elements, and @c d_right contains all
+     *         subsequent elements.
+     */
     template <typename PREDICATE>
     auto split(PREDICATE &&predicate) const -> std::optional<Split> {
         return split_impl(predicate, tag_identity());
     }
 
+    /** @brief Splits into (left, right) where @p predicate first becomes true
+     *         on the accumulated prefix; the triggering element is placed at
+     *         the front of @c d_right; O(log n).
+     */
     template <typename PREDICATE>
     auto split_at(PREDICATE &&predicate) const -> SplitAt {
         auto sp = split(std::forward<PREDICATE>(predicate));
@@ -2278,6 +2527,12 @@ class FingerTree {
                        sp->d_right.cons(std::move(sp->d_pivot))};
     }
 
+    /** @brief Splits after the first @p index elements; O(log n) when
+     *         TAG_TYPE is std::size_t with UnitMeasure, O(n) otherwise.
+     *
+     * @param index Number of elements to place in @c d_left.
+     *              Clamped to [0, breadth()].
+     */
     auto split_at_index(std::size_t index) const -> SplitAt {
         if (index == 0U) {
             return SplitAt{empty(), *this};
@@ -2307,6 +2562,9 @@ class FingerTree {
         }
     }
 
+    /** @brief Splits when the accumulated prefix measure first reaches
+     *         @p threshold; requires TAG_TYPE to support @c >=; O(log n).
+     */
     auto split_at_measure(const Tag &threshold) const -> SplitAt
         requires requires(const Tag &lhs, const Tag &rhs) {
             { lhs >= rhs } -> std::convertible_to<bool>;
@@ -2316,6 +2574,7 @@ class FingerTree {
             [&threshold](const Tag &prefix) { return prefix >= threshold; });
     }
 
+    /** Builds a tree from a vector by snocing each element in order; O(n). */
     static auto from_sequence(std::vector<T> values) -> FingerTree {
         auto result = empty();
         for (auto &v : values) {
@@ -2353,6 +2612,7 @@ class FingerTree {
 
 namespace smd::tree {
 
+/** A half-open interval [d_start, d_end) annotated with an arbitrary payload. */
 template <typename PAYLOAD_TYPE>
 struct Interval {
     std::size_t d_start;
@@ -2360,6 +2620,9 @@ struct Interval {
     PAYLOAD_TYPE d_payload;
 };
 
+/** Measure tag caching the maximum endpoint of all intervals in a subtree.
+ * Used to prune interval stabbing and overlap queries.
+ */
 template <typename PAYLOAD_TYPE>
 struct IntervalMaxEndTag {
     std::size_t d_max_end;
@@ -2368,6 +2631,7 @@ struct IntervalMaxEndTag {
                            const IntervalMaxEndTag &) = default;
 };
 
+/** Measure policy that maps an Interval to its IntervalMaxEndTag. */
 template <typename PAYLOAD_TYPE>
 struct IntervalMeasure {
     auto operator()(const Interval<PAYLOAD_TYPE> &interval) const
@@ -2376,6 +2640,20 @@ struct IntervalMeasure {
     }
 };
 
+/** @brief Persistent interval index supporting stabbing and overlap queries.
+ *
+ * @tparam PAYLOAD_TYPE Arbitrary data associated with each interval.
+ *
+ * Stores half-open intervals [start, end).  The IntervalMaxEndTag measure
+ * allows measure-guided pruning: subtrees whose maximum endpoint is at or
+ * below the query point cannot contain any matching interval.
+ *
+ * Complexity:
+ * - insert:        O(1) amortized (snoc)
+ * - query_point:   O(log n + k) where k is the number of results
+ * - query_overlap: O(log n + k) where k is the number of results
+ * - entries:       O(n)
+ */
 template <typename PAYLOAD_TYPE>
 class FingerTreeIntervalIndex {
     using Entry = Interval<PAYLOAD_TYPE>;
@@ -2385,17 +2663,24 @@ class FingerTreeIntervalIndex {
     Tree d_tree;
 
   public:
+    /** Constructs an empty interval index. */
     FingerTreeIntervalIndex() : d_tree(Tree::empty()) {}
 
+    /** Builds an interval index from a vector of intervals; O(n). */
     static auto from_intervals(std::vector<Entry> entries)
         -> FingerTreeIntervalIndex {
         return FingerTreeIntervalIndex{Tree::from_sequence(std::move(entries))};
     }
 
+    /** Returns a new index with @p entry appended; O(1) amortized. */
     auto insert(Entry entry) const -> FingerTreeIntervalIndex {
         return FingerTreeIntervalIndex{d_tree.snoc(std::move(entry))};
     }
 
+    /** @brief Returns payloads of all intervals containing @p point.
+     *
+     * Uses measure-guided pruning to skip subtrees that cannot contain a match.
+     */
     auto query_point(std::size_t point) const -> std::vector<PAYLOAD_TYPE> {
         std::vector<PAYLOAD_TYPE> out;
 
@@ -2415,6 +2700,11 @@ class FingerTreeIntervalIndex {
         return out;
     }
 
+    /** @brief Returns payloads of all intervals overlapping [start, end).
+     *
+     * Two half-open intervals overlap when neither is entirely before the
+     * other.  Uses measure-guided pruning to skip non-overlapping subtrees.
+     */
     auto query_overlap(std::size_t start, std::size_t end) const
         -> std::vector<PAYLOAD_TYPE> {
         std::vector<PAYLOAD_TYPE> out;
@@ -2435,6 +2725,7 @@ class FingerTreeIntervalIndex {
         return out;
     }
 
+    /** Materialises all stored intervals in insertion order; O(n). */
     auto entries() const -> std::vector<Entry> { return d_tree.flatten(); }
 
   private:
@@ -2445,6 +2736,7 @@ class FingerTreeIntervalIndex {
 
 namespace smd::typeclass {
 
+/** Monoid instance for IntervalMaxEndTag: identity is 0; combine takes the max. */
 template <typename PAYLOAD_TYPE>
 struct Monoid<smd::tree::IntervalMaxEndTag<PAYLOAD_TYPE>> {
     auto identity() const -> smd::tree::IntervalMaxEndTag<PAYLOAD_TYPE> {
@@ -2462,6 +2754,7 @@ struct Monoid<smd::tree::IntervalMaxEndTag<PAYLOAD_TYPE>> {
 
 namespace smd {
 
+/** Foldable typeclass implementation for FingerTreeIntervalIndex; folds over payloads. */
 template <class PAYLOAD_TYPE>
 struct FingerTreeIntervalIndexFoldableImpl {
     template <class F>
@@ -2479,17 +2772,22 @@ struct FingerTreeIntervalIndexFoldableImpl {
     }
 };
 
+/** Foldable typeclass map entry for FingerTreeIntervalIndex. */
 template <class PAYLOAD_TYPE>
 struct FingerTreeIntervalIndexFoldableMap
     : Foldable<FingerTreeIntervalIndexFoldableImpl<PAYLOAD_TYPE>> {
     using FingerTreeIntervalIndexFoldableImpl<PAYLOAD_TYPE>::fold_map;
 };
 
+/** Registers FingerTreeIntervalIndex as a Foldable. */
 template <class PAYLOAD_TYPE>
 inline constexpr auto
     foldable_typeclass<smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE>> =
         FingerTreeIntervalIndexFoldableMap<PAYLOAD_TYPE>{};
 
+/** Traversable typeclass implementation for FingerTreeIntervalIndex; maps over
+ * payloads while preserving interval geometry.
+ */
 template <class PAYLOAD_TYPE>
 struct FingerTreeIntervalIndexTraversableImpl {
     using element_type = PAYLOAD_TYPE;
@@ -2526,12 +2824,14 @@ struct FingerTreeIntervalIndexTraversableImpl {
     }
 };
 
+/** Traversable typeclass map entry for FingerTreeIntervalIndex. */
 template <class PAYLOAD_TYPE>
 struct FingerTreeIntervalIndexTraversableMap
     : Traversable<FingerTreeIntervalIndexTraversableImpl<PAYLOAD_TYPE>> {
     using FingerTreeIntervalIndexTraversableImpl<PAYLOAD_TYPE>::traverse;
 };
 
+/** Registers FingerTreeIntervalIndex as a Traversable. */
 template <class PAYLOAD_TYPE>
 inline constexpr auto
     traversable_typeclass<smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE>> =
@@ -2567,6 +2867,9 @@ inline constexpr auto
 
 namespace smd::tree {
 
+/** Measure tag tracking the minimum element in a subtree; empty subtree is
+ * represented by nullopt.
+ */
 template <typename T>
 struct MinTag {
     std::optional<T> d_value;
@@ -2574,6 +2877,9 @@ struct MinTag {
     friend bool operator==(const MinTag &, const MinTag &) = default;
 };
 
+/** Measure tag tracking the maximum element in a subtree; empty subtree is
+ * represented by nullopt.
+ */
 template <typename T>
 struct MaxTag {
     std::optional<T> d_value;
@@ -2581,7 +2887,7 @@ struct MaxTag {
     friend bool operator==(const MaxTag &, const MaxTag &) = default;
 };
 
-// Combined measure tracking both min and max in a single tree pass.
+/** Combined measure tracking both min and max in a single tree pass. */
 template <typename T>
 struct PriorityTag {
     MinTag<T> d_min;
@@ -2590,6 +2896,7 @@ struct PriorityTag {
     friend bool operator==(const PriorityTag &, const PriorityTag &) = default;
 };
 
+/** Measure policy that lifts a single element into a PriorityTag. */
 template <typename T>
 struct PriorityMeasure {
     auto operator()(const T &value) const -> PriorityTag<T> {
@@ -2597,6 +2904,14 @@ struct PriorityMeasure {
     }
 };
 
+/** @brief Persistent double-ended priority queue backed by a finger tree.
+ *
+ * @tparam T Element type; must be totally ordered.
+ *
+ * pop_min and pop_max are O(log n) via measure-guided split.
+ * push is O(1) amortized.
+ * min/max queries are O(1) via the cached PriorityTag.
+ */
 template <typename T>
 class FingerTreePriorityQueue {
     using Tree = FingerTree<T, PriorityTag<T>, PriorityMeasure<T>>;
@@ -2606,32 +2921,44 @@ class FingerTreePriorityQueue {
     explicit FingerTreePriorityQueue(Tree tree) : d_tree(std::move(tree)) {}
 
   public:
+    /** Constructs an empty priority queue. */
     FingerTreePriorityQueue() : d_tree(Tree::empty()) {}
 
+    /** Builds a priority queue from a vector of values; O(n). */
     static auto from_values(std::vector<T> values) -> FingerTreePriorityQueue {
         return FingerTreePriorityQueue{Tree::from_sequence(std::move(values))};
     }
 
+    /** Returns true if the queue contains no elements. */
     auto empty() const -> bool { return d_tree.is_empty(); }
 
+    /** Returns the number of elements. */
     auto size() const -> std::size_t { return d_tree.breadth(); }
 
+    /** Returns the minimum element, or nullopt if empty; O(1). */
     auto min() const -> std::optional<T> {
         auto m = d_tree.measure().d_min.d_value;
         return m.has_value() ? std::optional<T>{*m} : std::nullopt;
     }
 
+    /** Returns the maximum element, or nullopt if empty; O(1). */
     auto max() const -> std::optional<T> {
         auto m = d_tree.measure().d_max.d_value;
         return m.has_value() ? std::optional<T>{*m} : std::nullopt;
     }
 
+    /** Returns a new queue with @p value inserted; O(1) amortized. */
     auto push(T value) const -> FingerTreePriorityQueue {
         return FingerTreePriorityQueue{d_tree.snoc(std::move(value))};
     }
 
     // O(log n): prefix min is non-increasing; predicate flips true at the first
     // element whose value equals the global min and stays true thereafter.
+    /** @brief Removes and returns the minimum element; O(log n).
+     *
+     * @return nullopt if empty; otherwise a pair of the minimum value and the
+     *         remaining queue.
+     */
     auto pop_min() const
         -> std::optional<std::pair<T, FingerTreePriorityQueue>> {
         auto tag = d_tree.measure();
@@ -2653,6 +2980,11 @@ class FingerTreePriorityQueue {
 
     // O(log n): prefix max is non-decreasing; predicate flips true at the first
     // element whose value equals the global max and stays true thereafter.
+    /** @brief Removes and returns the maximum element; O(log n).
+     *
+     * @return nullopt if empty; otherwise a pair of the maximum value and the
+     *         remaining queue.
+     */
     auto pop_max() const
         -> std::optional<std::pair<T, FingerTreePriorityQueue>> {
         auto tag = d_tree.measure();
@@ -2672,6 +3004,7 @@ class FingerTreePriorityQueue {
             FingerTreePriorityQueue{Tree::concat(sp->d_left, sp->d_right)}};
     }
 
+    /** Materialises all elements into a vector in insertion order; O(n). */
     auto to_vector() const -> std::vector<T> { return d_tree.flatten(); }
 };
 
@@ -2679,6 +3012,7 @@ class FingerTreePriorityQueue {
 
 namespace smd::typeclass {
 
+/** Monoid instance for MinTag: identity is nullopt; combine keeps the lesser value. */
 template <typename T>
 struct Monoid<smd::tree::MinTag<T>> {
     auto identity() const -> smd::tree::MinTag<T> { return {std::nullopt}; }
@@ -2697,6 +3031,7 @@ struct Monoid<smd::tree::MinTag<T>> {
     }
 };
 
+/** Monoid instance for MaxTag: identity is nullopt; combine keeps the greater value. */
 template <typename T>
 struct Monoid<smd::tree::MaxTag<T>> {
     auto identity() const -> smd::tree::MaxTag<T> { return {std::nullopt}; }
@@ -2715,6 +3050,7 @@ struct Monoid<smd::tree::MaxTag<T>> {
     }
 };
 
+/** Monoid instance for PriorityTag: combines MinTag and MaxTag independently. */
 template <typename T>
 struct Monoid<smd::tree::PriorityTag<T>> {
     auto identity() const -> smd::tree::PriorityTag<T> {
@@ -2734,6 +3070,7 @@ struct Monoid<smd::tree::PriorityTag<T>> {
 
 namespace smd {
 
+/** Foldable typeclass implementation for FingerTreePriorityQueue. */
 template <class T>
 struct FingerTreePriorityQueueFoldableImpl {
     template <class F>
@@ -2750,17 +3087,20 @@ struct FingerTreePriorityQueueFoldableImpl {
     }
 };
 
+/** Foldable typeclass map entry for FingerTreePriorityQueue. */
 template <class T>
 struct FingerTreePriorityQueueFoldableMap
     : Foldable<FingerTreePriorityQueueFoldableImpl<T>> {
     using FingerTreePriorityQueueFoldableImpl<T>::fold_map;
 };
 
+/** Registers FingerTreePriorityQueue as a Foldable. */
 template <class T>
 inline constexpr auto
     foldable_typeclass<smd::tree::FingerTreePriorityQueue<T>> =
         FingerTreePriorityQueueFoldableMap<T>{};
 
+/** Traversable typeclass implementation for FingerTreePriorityQueue. */
 template <class T>
 struct FingerTreePriorityQueueTraversableImpl {
     using element_type = T;
@@ -2792,12 +3132,14 @@ struct FingerTreePriorityQueueTraversableImpl {
     }
 };
 
+/** Traversable typeclass map entry for FingerTreePriorityQueue. */
 template <class T>
 struct FingerTreePriorityQueueTraversableMap
     : Traversable<FingerTreePriorityQueueTraversableImpl<T>> {
     using FingerTreePriorityQueueTraversableImpl<T>::traverse;
 };
 
+/** Registers FingerTreePriorityQueue as a Traversable. */
 template <class T>
 inline constexpr auto
     traversable_typeclass<smd::tree::FingerTreePriorityQueue<T>> =
@@ -2832,25 +3174,44 @@ inline constexpr auto
 
 namespace smd::tree {
 
+/** @brief Persistent random-access sequence backed by a finger tree.
+ *
+ * @tparam T Element type.
+ *
+ * Uses UnitMeasure (element count) as the finger tree measure, enabling O(log
+ * n) index navigation without materialisation.
+ *
+ * Complexity:
+ * - at / update / insert / erase: O(log n)
+ * - push_front / push_back:       O(1) amortized
+ * - size / empty:                 O(1)
+ * - to_vector:                    O(n)
+ */
 template <typename T>
 class FingerTreeRandomAccess {
     FingerTree<T> d_tree;
 
   public:
+    /** Constructs an empty sequence. */
     FingerTreeRandomAccess() : d_tree(FingerTree<T>::empty()) {}
 
+    /** Constructs from an existing finger tree. */
     explicit FingerTreeRandomAccess(FingerTree<T> tree)
         : d_tree(std::move(tree)) {}
 
+    /** Builds a sequence from a vector in order; O(n). */
     static auto from_sequence(std::vector<T> values) -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(
             FingerTree<T>::from_sequence(std::move(values)));
     }
 
+    /** Returns the number of elements. */
     auto size() const -> std::size_t { return d_tree.breadth(); }
 
+    /** Returns true if the sequence contains no elements. */
     auto empty() const -> bool { return d_tree.is_empty(); }
 
+    /** Returns the element at @p index, or nullopt if out of range; O(log n). */
     auto at(std::size_t index) const -> std::optional<T> {
         if (index >= size()) {
             return std::nullopt;
@@ -2865,14 +3226,17 @@ class FingerTreeRandomAccess {
         return sp->d_pivot;
     }
 
+    /** Returns a new sequence with @p value appended at the back; O(1) amortized. */
     auto push_back(T value) const -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(d_tree.snoc(std::move(value)));
     }
 
+    /** Returns a new sequence with @p value prepended at the front; O(1) amortized. */
     auto push_front(T value) const -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(d_tree.cons(std::move(value)));
     }
 
+    /** Returns a new sequence with @p value inserted before position @p index; O(log n). */
     auto insert(std::size_t index, T value) const -> FingerTreeRandomAccess {
         // split_at with count predicate puts [0,index) left, [index,n) right.
         // O(log n).
@@ -2884,6 +3248,9 @@ class FingerTreeRandomAccess {
             parts.d_right));
     }
 
+    /** Returns a new sequence with the element at @p index removed; O(log n).
+     * Returns @c *this unchanged if @p index is out of range.
+     */
     auto erase(std::size_t index) const -> FingerTreeRandomAccess {
         if (index >= size()) {
             return *this;
@@ -2899,6 +3266,9 @@ class FingerTreeRandomAccess {
             FingerTree<T>::concat(sp->d_left, sp->d_right));
     }
 
+    /** Returns a new sequence with position @p index replaced by @p value; O(log n).
+     * Returns @c *this unchanged if @p index is out of range.
+     */
     auto update(std::size_t index, T value) const -> FingerTreeRandomAccess {
         if (index >= size()) {
             return *this;
@@ -2914,6 +3284,7 @@ class FingerTreeRandomAccess {
             sp->d_left.snoc(std::move(value)), sp->d_right));
     }
 
+    /** Materialises all elements into a vector in sequence order; O(n). */
     auto to_vector() const -> std::vector<T> { return d_tree.flatten(); }
 };
 
@@ -2921,6 +3292,7 @@ class FingerTreeRandomAccess {
 
 namespace smd {
 
+/** Foldable typeclass implementation for FingerTreeRandomAccess. */
 template <class T>
 struct FingerTreeRandomAccessFoldableImpl {
     template <class F>
@@ -2937,16 +3309,19 @@ struct FingerTreeRandomAccessFoldableImpl {
     }
 };
 
+/** Foldable typeclass map entry for FingerTreeRandomAccess. */
 template <class T>
 struct FingerTreeRandomAccessFoldableMap
     : Foldable<FingerTreeRandomAccessFoldableImpl<T>> {
     using FingerTreeRandomAccessFoldableImpl<T>::fold_map;
 };
 
+/** Registers FingerTreeRandomAccess as a Foldable. */
 template <class T>
 inline constexpr auto foldable_typeclass<smd::tree::FingerTreeRandomAccess<T>> =
     FingerTreeRandomAccessFoldableMap<T>{};
 
+/** Traversable typeclass implementation for FingerTreeRandomAccess. */
 template <class T>
 struct FingerTreeRandomAccessTraversableImpl {
     using element_type = T;
@@ -2978,12 +3353,14 @@ struct FingerTreeRandomAccessTraversableImpl {
     }
 };
 
+/** Traversable typeclass map entry for FingerTreeRandomAccess. */
 template <class T>
 struct FingerTreeRandomAccessTraversableMap
     : Traversable<FingerTreeRandomAccessTraversableImpl<T>> {
     using FingerTreeRandomAccessTraversableImpl<T>::traverse;
 };
 
+/** Registers FingerTreeRandomAccess as a Traversable. */
 template <class T>
 inline constexpr auto
     traversable_typeclass<smd::tree::FingerTreeRandomAccess<T>> =
@@ -3020,17 +3397,35 @@ inline constexpr auto
 
 namespace smd::tree {
 
+/** Measure policy that maps a string chunk to its byte length. */
 struct RopeChunkMeasure {
     auto operator()(const std::string &value) const -> std::size_t {
         return value.size();
     }
 };
 
+/** @brief Persistent text buffer implemented as a rope over string chunks.
+ *
+ * The underlying finger tree uses RopeChunkMeasure so the accumulated measure
+ * at any node is the total byte count of all chunks to the left.  This enables
+ * O(log n) positional split and, consequently, O(log n) insert/erase/replace.
+ *
+ * Chunk boundaries are not exposed in the public API; callers work with byte
+ * positions and string_view values.
+ *
+ * Complexity:
+ * - from_text:    O(n / chunk_size)
+ * - size_bytes:   O(1)
+ * - to_string:    O(n)
+ * - insert/erase/replace: O(log n)
+ * - chunks:       O(n)
+ */
 class FingerTreeRope {
     using Tree = FingerTree<std::string, std::size_t, RopeChunkMeasure>;
 
     Tree d_tree;
 
+    /** Splits the rope at byte position @p pos; may split a chunk in two. */
     auto split_chars(std::size_t pos) const
         -> std::pair<FingerTreeRope, FingerTreeRope> {
         if (pos == 0) {
@@ -3069,12 +3464,17 @@ class FingerTreeRope {
     }
 
   public:
+    /** Constructs an empty rope. */
     FingerTreeRope() : d_tree(Tree::empty()) {}
 
+    /** Builds a rope from a vector of pre-formed string chunks; O(n chunks). */
     static auto from_chunks(std::vector<std::string> chunks) -> FingerTreeRope {
         return FingerTreeRope{Tree::from_sequence(std::move(chunks))};
     }
 
+    /** @brief Builds a rope from a text string, splitting into chunks of at
+     *         most @p chunk_size bytes.
+     */
     static auto from_text(std::string_view text, std::size_t chunk_size = 16)
         -> FingerTreeRope {
         std::vector<std::string> chunks;
@@ -3088,8 +3488,10 @@ class FingerTreeRope {
         return from_chunks(std::move(chunks));
     }
 
+    /** Returns the total length of the text in bytes; O(1). */
     auto size_bytes() const -> std::size_t { return d_tree.measure(); }
 
+    /** Concatenates all chunks into a single string; O(n). */
     auto to_string() const -> std::string {
         std::string out;
         out.reserve(size_bytes());
@@ -3099,6 +3501,7 @@ class FingerTreeRope {
         return out;
     }
 
+    /** Returns a new rope with @p text inserted at byte position @p pos; O(log n). */
     auto insert(std::size_t pos, std::string_view text) const
         -> FingerTreeRope {
         auto [left, right] = split_chars(pos);
@@ -3107,6 +3510,7 @@ class FingerTreeRope {
             Tree::concat(left.d_tree, middle.d_tree), right.d_tree)};
     }
 
+    /** Returns a new rope with @p count bytes removed starting at @p pos; O(log n). */
     auto erase(std::size_t pos, std::size_t count) const -> FingerTreeRope {
         auto [left, rest] = split_chars(pos);
         auto [drop, right] = rest.split_chars(count);
@@ -3114,11 +3518,13 @@ class FingerTreeRope {
         return FingerTreeRope{Tree::concat(left.d_tree, right.d_tree)};
     }
 
+    /** Returns a new rope with @p count bytes at @p pos replaced by @p text; O(log n). */
     auto replace(std::size_t pos, std::size_t count,
                  std::string_view text) const -> FingerTreeRope {
         return erase(pos, count).insert(pos, text);
     }
 
+    /** Returns a snapshot of the internal chunk vector in sequence order; O(n). */
     auto chunks() const -> std::vector<std::string> { return d_tree.flatten(); }
 
   private:
@@ -3129,6 +3535,7 @@ class FingerTreeRope {
 
 namespace smd {
 
+/** Foldable typeclass implementation for FingerTreeRope; folds over string chunks. */
 struct FingerTreeRopeFoldableImpl {
     template <class F>
     auto fold_map(this auto &&, F &&function,
@@ -3145,14 +3552,17 @@ struct FingerTreeRopeFoldableImpl {
     }
 };
 
+/** Foldable typeclass map entry for FingerTreeRope. */
 struct FingerTreeRopeFoldableMap : Foldable<FingerTreeRopeFoldableImpl> {
     using FingerTreeRopeFoldableImpl::fold_map;
 };
 
+/** Registers FingerTreeRope as a Foldable. */
 template <>
 inline constexpr auto foldable_typeclass<smd::tree::FingerTreeRope> =
     FingerTreeRopeFoldableMap{};
 
+/** Traversable typeclass implementation for FingerTreeRope; maps over chunks. */
 struct FingerTreeRopeTraversableImpl {
     using element_type = std::string;
 
@@ -3184,11 +3594,13 @@ struct FingerTreeRopeTraversableImpl {
     }
 };
 
+/** Traversable typeclass map entry for FingerTreeRope. */
 struct FingerTreeRopeTraversableMap
     : Traversable<FingerTreeRopeTraversableImpl> {
     using FingerTreeRopeTraversableImpl::traverse;
 };
 
+/** Registers FingerTreeRope as a Traversable. */
 template <>
 inline constexpr auto traversable_typeclass<smd::tree::FingerTreeRope> =
     FingerTreeRopeTraversableMap{};
@@ -3232,6 +3644,9 @@ inline constexpr auto traversable_typeclass<smd::tree::FingerTreeRope> =
 
 namespace smd {
 
+/** Traversable typeclass implementation for FingerTree; materialises via
+ * flatten() then reconstructs with from_sequence(); O(n).
+ */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 struct FingerTreeTraversableImpl {
     using element_type = T;
@@ -3264,12 +3679,14 @@ struct FingerTreeTraversableImpl {
     }
 };
 
+/** Traversable typeclass map entry for FingerTree. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 struct FingerTreeTraversableMap
     : Traversable<FingerTreeTraversableImpl<T, TAG_TYPE, MEASURE_POLICY>> {
     using FingerTreeTraversableImpl<T, TAG_TYPE, MEASURE_POLICY>::traverse;
 };
 
+/** Registers FingerTree as a Traversable for all tag and measure combinations. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 inline constexpr auto
     traversable_typeclass<smd::tree::FingerTree<T, TAG_TYPE, MEASURE_POLICY>> =
@@ -3288,6 +3705,13 @@ inline constexpr auto
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE_WRAPPERS
 #define INCLUDED_SMD_TREE_FINGER_TREE_WRAPPERS
+
+/** Convenience header that includes all four finger tree wrapper types:
+ * - FingerTreeIntervalIndex  — interval stabbing/overlap queries
+ * - FingerTreePriorityQueue  — persistent double-ended priority queue
+ * - FingerTreeRandomAccess   — persistent random-access sequence
+ * - FingerTreeRope            — persistent text rope
+ */
 
 #include <smd/tree/finger_tree_interval_index.hpp>
 #include <smd/tree/finger_tree_priority_queue.hpp>
@@ -3315,6 +3739,11 @@ inline constexpr auto
 
 namespace smd {
 
+/** Foldable typeclass instance for Fix<ExprF> (the fixpoint expression tree).
+ * fold_map applies @p f to each ExprConst leaf value and combines results
+ * using the Monoid for the return type. Add and Mul nodes combine their
+ * children's results left-then-right.
+ */
 struct FixpointTreeFoldableImpl {
 
     // b2c8e4f1-3a6d-4f1b-9e7c-5d2b8a4f3c91
@@ -3351,11 +3780,13 @@ struct FixpointTreeFoldableImpl {
     // b2c8e4f1-3a6d-4f1b-9e7c-5d2b8a4f3c91 end
 };
 
+/** Foldable map that exposes fold_map for Fix<ExprF>. */
 struct FixpointTreeFoldableMap : Foldable<FixpointTreeFoldableImpl> {
     using FixpointTreeFoldableImpl::fold_map;
 };
 
 // c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83
+/** Registers FixpointTreeFoldableMap as the Foldable instance for Fix<ExprF>. */
 template <>
 inline constexpr auto foldable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =
     FixpointTreeFoldableMap{};
@@ -3389,26 +3820,44 @@ namespace smd::tree {
 using smd::fixpoint::Box;
 using smd::fixpoint::make_box;
 
+/** Constant-leaf functor for the expression tree; carries a double literal.
+ * @tparam A recursive position placeholder (not yet fixed)
+ */
 template <typename A>
 struct ExprConst {
     double value;
 };
 
+/** Addition node functor; holds boxed left and right sub-expressions.
+ * @tparam A recursive position placeholder
+ */
 template <typename A>
 struct ExprAdd {
     Box<A> left;
     Box<A> right;
 };
 
+/** Multiplication node functor; holds boxed left and right sub-expressions.
+ * @tparam A recursive position placeholder
+ */
 template <typename A>
 struct ExprMul {
     Box<A> left;
     Box<A> right;
 };
 
+/** Non-recursive expression functor: variant of Const, Add, Mul over @p A.
+ * Expr = Fix<ExprF> gives the recursive fixed-point tree type.
+ */
 template <typename A>
 using ExprF = std::variant<ExprConst<A>, ExprAdd<A>, ExprMul<A>>;
 
+/**
+ * @brief Lift a function over one layer of ExprF (the fmap for ExprF).
+ * @param f function to apply at each recursive position
+ * @param expr the ExprF layer to map over
+ * @return ExprF<B> with f applied to every A inside the layer
+ */
 template <typename F, typename A>
 auto fmap_expr(F &&f, const ExprF<A> &expr) {
     using B = std::invoke_result_t<F, const A &>;
@@ -3429,27 +3878,35 @@ auto fmap_expr(F &&f, const ExprF<A> &expr) {
         expr);
 }
 
+/** Callable wrapper around fmap_expr for use as an fmap_fn argument to cata. */
 inline constexpr auto fmap_expr_fn = [](auto &&f, const auto &expr) {
     return fmap_expr(std::forward<decltype(f)>(f), expr);
 };
 
+/** The fixed-point expression tree type: Fix<ExprF>. */
 using Expr = smd::fixpoint::Fix<ExprF>;
 
+/** Build a constant-leaf expression node. */
 inline auto const_expr(double value) -> Expr {
     return smd::fixpoint::wrap<ExprF>(ExprF<Expr>{ExprConst<Expr>{value}});
 }
 
+/** Build an addition node from two sub-expressions. */
 inline auto add_expr(Expr left, Expr right) -> Expr {
     return smd::fixpoint::wrap<ExprF>(ExprF<Expr>{ExprAdd<Expr>{
         make_box<Expr>(std::move(left)), make_box<Expr>(std::move(right))}});
 }
 
+/** Build a multiplication node from two sub-expressions. */
 inline auto mul_expr(Expr left, Expr right) -> Expr {
     return smd::fixpoint::wrap<ExprF>(ExprF<Expr>{ExprMul<Expr>{
         make_box<Expr>(std::move(left)), make_box<Expr>(std::move(right))}});
 }
 
 // e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04
+/** Catamorphism algebra that reduces ExprF<double> to a double.
+ * Used by eval() to perform numeric evaluation in a single bottom-up pass.
+ */
 inline auto eval_algebra(const ExprF<double> &expr) -> double {
     return std::visit(
         smd::fixpoint::overloaded{
@@ -3460,6 +3917,7 @@ inline auto eval_algebra(const ExprF<double> &expr) -> double {
         expr);
 }
 
+/** Evaluate an expression tree to a double via catamorphism. */
 inline auto eval(const Expr &expr) -> double {
     return smd::fixpoint::cata<double>(eval_algebra, fmap_expr_fn, expr);
 }
@@ -3488,6 +3946,12 @@ inline auto eval(const Expr &expr) -> double {
 
 namespace smd {
 
+/** Traversable typeclass instance for Fix<ExprF> (the fixpoint expression tree).
+ * Treats ExprConst leaf doubles as the traversal element type. traverse maps
+ * each constant value through the applicative and rebuilds an Expr in that
+ * context; Add and Mul nodes combine their traversed children with the
+ * appropriate builder (add_expr / mul_expr) inside the applicative.
+ */
 struct FixpointTreeTraversableImpl {
     using element_type = double;
 
@@ -3532,10 +3996,12 @@ struct FixpointTreeTraversableImpl {
     }
 };
 
+/** Traversable map that exposes traverse for Fix<ExprF>. */
 struct FixpointTreeTraversableMap : Traversable<FixpointTreeTraversableImpl> {
     using FixpointTreeTraversableImpl::traverse;
 };
 
+/** Registers FixpointTreeTraversableMap as the Traversable instance for Fix<ExprF>. */
 template <>
 inline constexpr auto
     traversable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =
@@ -3563,14 +4029,30 @@ inline constexpr auto
 
 namespace smd {
 
+/** Applicative typeclass instance for FringeTree<T> with shape-aware semantics.
+ * 
+ * pure(v) produces a single leaf. apply recurses pairwise: a leaf function
+ * distributes over the argument's shape, a leaf argument distributes over the
+ * function's shape, and two branches recurse on matching sides. Empty operands
+ * yield an empty result. These are monad-derived (not zip) applicative
+ * semantics; the structure mirrors the sequence monad over the fringe.
+ * @tparam T element type of the function tree
+ */
 template <class T>
 struct FringeTreeApplicativeImpl {
+    /** Lift a plain value into a single-leaf tree. */
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value) {
         using U = remove_cvref_t<VALUE>;
         return smd::tree::FringeTree<U>::leaf(std::forward<VALUE>(value));
     }
 
+    /**
+     * @brief Apply a tree of functions to a tree of arguments, shape-aware.
+     * @param functions tree whose leaves contain callables
+     * @param arguments tree whose leaves contain arguments
+     * @return tree of results; empty if either operand is empty
+     */
     template <class F, class A>
     auto apply(this auto &&self, const smd::tree::FringeTree<F> &functions,
                const smd::tree::FringeTree<A> &arguments)
@@ -3604,12 +4086,14 @@ struct FringeTreeApplicativeImpl {
     }
 };
 
+/** Applicative map exposing pure and apply for FringeTree<T>. */
 template <class T>
 struct FringeTreeApplicativeMap : Applicative<FringeTreeApplicativeImpl<T>> {
     using FringeTreeApplicativeImpl<T>::apply;
     using FringeTreeApplicativeImpl<T>::pure;
 };
 
+/** Registers FringeTreeApplicativeMap as the Applicative instance for FringeTree<T>. */
 template <class T>
 inline constexpr auto applicative_typeclass<smd::tree::FringeTree<T>> =
     FringeTreeApplicativeMap<T>{};
@@ -3637,6 +4121,12 @@ inline constexpr auto applicative_typeclass<smd::tree::FringeTree<T>> =
 
 namespace smd {
 
+/** Foldable typeclass instance for FringeTree<T>.
+ * fold_map maps @p function over leaf values and combines results with the
+ * Monoid identity/combine. Empty trees yield the monoid identity; branches
+ * combine left and right recursively.
+ * @tparam T leaf element type
+ */
 template <class T>
 struct FringeTreeFoldableImpl {
     template <class F>
@@ -3660,11 +4150,13 @@ struct FringeTreeFoldableImpl {
     }
 };
 
+/** Foldable map that exposes fold_map for FringeTree<T>. */
 template <class T>
 struct FringeTreeFoldableMap : Foldable<FringeTreeFoldableImpl<T>> {
     using FringeTreeFoldableImpl<T>::fold_map;
 };
 
+/** Registers FringeTreeFoldableMap as the Foldable instance for FringeTree<T>. */
 template <class T>
 inline constexpr auto foldable_typeclass<smd::tree::FringeTree<T>> =
     FringeTreeFoldableMap<T>{};
@@ -3693,6 +4185,15 @@ inline constexpr auto foldable_typeclass<smd::tree::FringeTree<T>> =
 
 namespace smd::tree {
 
+/** Persistent balanced binary tree representing a sequence of leaf values.
+ * 
+ * The tree has three variants: Empty (no elements), Leaf (one element), and
+ * Branch (two subtrees). Values live exclusively at leaves; branches carry
+ * only structure and a cached measure (leaf count). This design supports
+ * efficient deque operations (cons/snoc/head/tail/last/init) and O(1) concat
+ * via structural sharing.
+ * @tparam T element type stored at leaves
+ */
 template <class T>
 class FringeTree {
     struct Empty {};
@@ -3710,17 +4211,21 @@ class FringeTree {
   public:
     using value_type = T;
 
+    /** A deconstructed view of the front or back element plus the remaining tree. */
     struct View {
         T d_value;
         FringeTree d_rest;
     };
 
+    /** Construct the empty tree (no elements). */
     static auto empty() -> FringeTree { return FringeTree(Empty{}); }
 
+    /** Construct a single-element tree containing @p value. */
     static auto leaf(T value) -> FringeTree {
         return FringeTree(Leaf{std::move(value)});
     }
 
+    /** Construct a branch joining two non-empty subtrees. */
     static auto branch(FringeTree left, FringeTree right) -> FringeTree {
         auto left_ptr = std::make_shared<FringeTree>(std::move(left));
         auto right_ptr = std::make_shared<FringeTree>(std::move(right));
@@ -3729,16 +4234,20 @@ class FringeTree {
             Branch{measure, std::move(left_ptr), std::move(right_ptr)});
     }
 
+    /** True when the tree is empty. */
     auto is_empty() const -> bool {
         return std::holds_alternative<Empty>(d_data);
     }
+    /** True when the tree is a single leaf. */
     auto is_leaf() const -> bool {
         return std::holds_alternative<Leaf>(d_data);
     }
+    /** True when the tree is an internal branch. */
     auto is_branch() const -> bool {
         return std::holds_alternative<Branch>(d_data);
     }
 
+    /** Number of leaf elements in the tree (cached at branches). */
     auto measure() const -> std::size_t {
         if (is_empty()) {
             return 0U;
@@ -3749,23 +4258,28 @@ class FringeTree {
         return std::get<Branch>(d_data).d_measure;
     }
 
+    /** Return the leaf value; precondition: is_leaf(). */
     auto value() const -> const T & {
         assert(is_leaf());
         return std::get<Leaf>(d_data).d_value;
     }
 
+    /** Return the left subtree; precondition: is_branch(). */
     auto left() const -> const FringeTree & {
         assert(is_branch());
         return *std::get<Branch>(d_data).d_left;
     }
 
+    /** Return the right subtree; precondition: is_branch(). */
     auto right() const -> const FringeTree & {
         assert(is_branch());
         return *std::get<Branch>(d_data).d_right;
     }
 
+    /** Synonym for measure() — number of leaf elements. */
     auto breadth() const -> std::size_t { return measure(); }
 
+    /** Maximum depth from root to any leaf. */
     auto depth() const -> std::size_t {
         if (is_empty()) {
             return 0U;
@@ -3778,6 +4292,7 @@ class FringeTree {
         return ((l > r) ? l : r) + 1U;
     }
 
+    /** Collect all leaf values into a vector in left-to-right order. */
     auto flatten() const -> std::vector<T> {
         if (is_empty()) {
             return {};
@@ -3792,6 +4307,7 @@ class FringeTree {
         return l;
     }
 
+    /** Visit each leaf value left-to-right, calling @p callback on each. */
     template <typename F>
     void for_each(F &&callback) const {
         if (is_empty()) {
@@ -3805,6 +4321,7 @@ class FringeTree {
         right().for_each(callback);
     }
 
+    /** Concatenate two trees; empty operands are identity elements. */
     static auto concat(const FringeTree &left_tree,
                        const FringeTree &right_tree) -> FringeTree {
         if (left_tree.is_empty()) {
@@ -3816,26 +4333,32 @@ class FringeTree {
         return branch(left_tree, right_tree);
     }
 
+    /** Prepend @p value to @p tree (cons / push-front). */
     static auto prepend(T value, const FringeTree &tree) -> FringeTree {
         return concat(leaf(std::move(value)), tree);
     }
 
+    /** Append @p value to @p tree (snoc / push-back), static form. */
     static auto append(const FringeTree &tree, T value) -> FringeTree {
         return concat(tree, leaf(std::move(value)));
     }
 
+    /** Return a new tree with @p x prepended (deque cons). */
     auto cons(T x) const -> FringeTree {
         return concat(leaf(std::move(x)), *this);
     }
 
+    /** Return a new tree with @p x appended (deque snoc). */
     auto snoc(T x) const -> FringeTree {
         return concat(*this, leaf(std::move(x)));
     }
 
+    /** Return the concatenation of this tree with @p other. */
     auto append(const FringeTree &other) const -> FringeTree {
         return concat(*this, other);
     }
 
+    /** Build a tree from a vector, appending elements left-to-right. */
     static auto from_sequence(std::vector<T> values) -> FringeTree {
         auto result = empty();
         for (auto &v : values) {
@@ -3844,6 +4367,10 @@ class FringeTree {
         return result;
     }
 
+    /**
+     * @brief Destructure from the left: returns the front element and the rest.
+     * @return nullopt if empty; otherwise View{front, tail}
+     */
     auto view_l() const -> std::optional<View> {
         if (is_empty()) {
             return std::nullopt;
@@ -3860,6 +4387,10 @@ class FringeTree {
         return right().view_l();
     }
 
+    /**
+     * @brief Destructure from the right: returns the back element and the rest.
+     * @return nullopt if empty; otherwise View{back, init}
+     */
     auto view_r() const -> std::optional<View> {
         if (is_empty()) {
             return std::nullopt;
@@ -3877,23 +4408,27 @@ class FringeTree {
         return left().view_r();
     }
 
+    /** Return the first (leftmost) leaf value; precondition: non-empty. */
     auto head() const -> T {
         auto v = view_l();
         assert(v.has_value());
         return v->d_value;
     }
 
+    /** Return all but the first leaf; returns empty() when called on empty. */
     auto tail() const -> FringeTree {
         auto v = view_l();
         return v.has_value() ? v->d_rest : empty();
     }
 
+    /** Return the last (rightmost) leaf value; precondition: non-empty. */
     auto last() const -> T {
         auto v = view_r();
         assert(v.has_value());
         return v->d_value;
     }
 
+    /** Return all but the last leaf; returns empty() when called on empty. */
     auto init() const -> FringeTree {
         auto v = view_r();
         return v.has_value() ? v->d_rest : empty();
@@ -3931,6 +4466,13 @@ class FringeTree {
 
 namespace smd {
 
+/** Traversable typeclass instance for FringeTree<T>.
+ * traverse maps each leaf value into an applicative context and rebuilds a
+ * FringeTree inside that context, preserving the original tree's structure.
+ * Empty stays empty; leaves become single-element trees; branches combine
+ * the traversed subtrees with FringeTree::branch inside the applicative.
+ * @tparam T leaf element type of the tree being traversed
+ */
 template <class T>
 struct FringeTreeTraversableImpl {
     using element_type = T;
@@ -3969,11 +4511,13 @@ struct FringeTreeTraversableImpl {
     }
 };
 
+/** Traversable map that exposes traverse for FringeTree<T>. */
 template <class T>
 struct FringeTreeTraversableMap : Traversable<FringeTreeTraversableImpl<T>> {
     using FringeTreeTraversableImpl<T>::traverse;
 };
 
+/** Registers FringeTreeTraversableMap as the Traversable instance for FringeTree<T>. */
 template <class T>
 inline constexpr auto traversable_typeclass<smd::tree::FringeTree<T>> =
     FringeTreeTraversableMap<T>{};
@@ -4079,6 +4623,10 @@ auto make_terminating_partial(FUNCTION &&function) {
 // applicative_typeclass<Concrete>.
 // - Do not introduce hidden alternate semantics without a distinct map/type.
 
+/** CRTP base for Applicative instances.
+ * `Impl` must provide `pure(value)` and `apply(f_in_context, arg_in_context)`.
+ * All other operations are derived.
+ */
 template <class Impl>
 struct Applicative : protected Impl {
     static_assert(!std::is_same_v<Impl, std::false_type>,
@@ -4102,6 +4650,12 @@ struct Applicative : protected Impl {
                            std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
 
+    /** Lifts `function` into the applicative and applies it to one or more
+     * effectful arguments left-to-right, producing a single effectful result.
+     * @param function  A plain callable; it is wrapped with `pure` internally.
+     * @param first_argument  First effectful argument (e.g., optional or vector).
+     * @param rest_arguments  Additional effectful arguments, if any.
+     */
     template <class FUNCTION, class FIRST_ARGUMENT, class... REST_ARGUMENTS>
     auto invoke(this auto &&self, FUNCTION &&function,
                 FIRST_ARGUMENT &&first_argument,
@@ -4153,17 +4707,22 @@ struct Applicative : protected Impl {
     }
 
   public:
+    /** Single-argument fmap via invoke; applies `function` to one effectful arg. */
     template <class FUNCTION, class ARGUMENT>
     auto map(this auto &&self, FUNCTION &&function, ARGUMENT &&argument) {
         return self.invoke(std::forward<FUNCTION>(function),
                            std::forward<ARGUMENT>(argument));
     }
 
+    /** Alias for `pure`; embeds a plain value into the applicative context. */
     template <class VALUE>
     auto lift(this auto &&self, VALUE &&value) {
         return self.pure(std::forward<VALUE>(value));
     }
 
+    /** Alias for the primitive `apply`: applies an effectful function to an
+     * effectful argument.
+     */
     template <class FUNCTION_IN_CONTEXT, class ARGUMENT_IN_CONTEXT>
     auto ap(this auto &&self, FUNCTION_IN_CONTEXT &&function,
             ARGUMENT_IN_CONTEXT &&argument) {
@@ -4171,6 +4730,7 @@ struct Applicative : protected Impl {
                           std::forward<ARGUMENT_IN_CONTEXT>(argument));
     }
 
+    /** Lifts a binary function and applies it to two effectful arguments. */
     template <class FUNCTION, class FIRST_ARGUMENT, class SECOND_ARGUMENT>
     auto zip_with(this auto &&self, FUNCTION &&function,
                   FIRST_ARGUMENT &&first_argument,
@@ -4180,6 +4740,7 @@ struct Applicative : protected Impl {
                            std::forward<SECOND_ARGUMENT>(second_argument));
     }
 
+    /** Sequences two effectful values; returns the second, ignoring the first. */
     template <class FIRST_ARGUMENT, class SECOND_ARGUMENT>
     auto discard_first(this auto &&self, FIRST_ARGUMENT &&first_argument,
                        SECOND_ARGUMENT &&second_argument) {
@@ -4191,6 +4752,7 @@ struct Applicative : protected Impl {
             std::forward<SECOND_ARGUMENT>(second_argument));
     }
 
+    /** Sequences two effectful values; returns the first, ignoring the second. */
     template <class FIRST_ARGUMENT, class SECOND_ARGUMENT>
     auto discard_second(this auto &&self, FIRST_ARGUMENT &&first_argument,
                         SECOND_ARGUMENT &&second_argument) {
@@ -4202,6 +4764,7 @@ struct Applicative : protected Impl {
             std::forward<SECOND_ARGUMENT>(second_argument));
     }
 
+    /** Delegates invoke to a different applicative instance at runtime. */
     template <class APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT,
               class... REST_ARGUMENTS>
     auto invoke_with(this auto &&, const APPLICATIVE_MAP &applicative_map,
@@ -4213,6 +4776,7 @@ struct Applicative : protected Impl {
             std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
 
+    /** Delegates apply_pure to a different applicative instance at runtime. */
     template <class APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT,
               class... REST_ARGUMENTS>
     auto apply_pure_with(this auto &&, const APPLICATIVE_MAP &applicative_map,
@@ -4224,6 +4788,7 @@ struct Applicative : protected Impl {
             std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
 
+    /** Delegates invoke to a compile-time constant applicative instance. */
     template <const auto &APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT,
               class... REST_ARGUMENTS>
     auto invoke_with(this auto &&, FUNCTION &&function,
@@ -4235,6 +4800,7 @@ struct Applicative : protected Impl {
             std::forward<REST_ARGUMENTS>(rest_arguments)...);
     }
 
+    /** Delegates apply_pure to a compile-time constant applicative instance. */
     template <const auto &APPLICATIVE_MAP, class FUNCTION, class FIRST_ARGUMENT,
               class... REST_ARGUMENTS>
     auto apply_pure_with(this auto &&, FUNCTION &&function,
@@ -4247,6 +4813,7 @@ struct Applicative : protected Impl {
     }
 };
 
+/** Typeclass lookup variable for Applicative; specialize for each type. */
 template <class T>
 inline constexpr auto applicative_typeclass = std::false_type{};
 
@@ -4317,10 +4884,12 @@ struct BemanOptionalApplicativeMap
     using BemanOptionalApplicativeImpl<VALUE_TYPE>::pure;
 };
 
+/** Applicative instance for `std::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
 inline constexpr auto applicative_typeclass<std::optional<VALUE_TYPE>> =
     OptionalApplicativeMap<VALUE_TYPE>{};
 
+/** Applicative instance for `beman::optional::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                            std::optional<VALUE_TYPE>>)
@@ -4815,6 +5384,11 @@ namespace smd {
 //   empty, to_vector, find_first) live on the same looked-up object.
 // - Traversal order is instance-defined but must be coherent per instance.
 
+/** CRTP base for Foldable instances.
+ * `Impl` must provide either `fold_map(f, container)` or `fold_right` +
+ * `element_type`; all other operations are derived from whichever is the
+ * primitive.
+ */
 template <class Impl>
 struct Foldable : protected Impl {
     static_assert(!std::is_same_v<Impl, std::false_type>,
@@ -4847,6 +5421,7 @@ struct Foldable : protected Impl {
     // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2
 
     // c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08
+    /** Returns the number of elements in the foldable container. */
     template <class T>
     auto length(this auto &&self, T &&value) -> std::size_t {
         const auto count =
@@ -4856,6 +5431,9 @@ struct Foldable : protected Impl {
     }
     // c1e5b4a7-4d3f-4c2b-a7e1-7f9d4c6b3e08 end
 
+    /** Left-associative fold: applies `function(state, element)` for each
+     * element in traversal order, starting from `initial_state`.
+     */
     template <class T, class STATE, class F>
     auto fold_left(this auto &&self, T &&value, STATE initial_state,
                    F &&function) {
@@ -4875,6 +5453,9 @@ struct Foldable : protected Impl {
         return program(StateType(std::move(initial_state)));
     }
 
+    /** Right-associative fold: applies `function(element, state)` for each
+     * element in reverse traversal order, starting from `initial_state`.
+     */
     template <class T, class STATE, class F>
     auto fold_right(this auto &&self, T &&value, STATE initial_state,
                     F &&function) {
@@ -4894,17 +5475,22 @@ struct Foldable : protected Impl {
         return program(StateType(std::move(initial_state)));
     }
 
+    /** Combines all elements using the Monoid of the element type
+     * (requires elements themselves to be Monoid values).
+     */
     template <class T>
     auto combine_all(this auto &&self, T &&value) {
         return self.fold_map([](const auto &x) { return x; },
                              std::forward<T>(value));
     }
 
+    /** Alias for `combine_all`. */
     template <class T>
     auto fold(this auto &&self, T &&value) {
         return self.combine_all(std::forward<T>(value));
     }
 
+    /** Returns `true` if any element satisfies `predicate`. */
     template <class T, class PREDICATE>
     auto any_of(this auto &&self, T &&value, PREDICATE &&predicate) -> bool {
         const auto result = self.fold_map(
@@ -4916,6 +5502,7 @@ struct Foldable : protected Impl {
         return result.d_value;
     }
 
+    /** Returns `true` if all elements satisfy `predicate`. */
     template <class T, class PREDICATE>
     auto all_of(this auto &&self, T &&value, PREDICATE &&predicate) -> bool {
         const auto result = self.fold_map(
@@ -4927,6 +5514,7 @@ struct Foldable : protected Impl {
         return result.d_value;
     }
 
+    /** Returns `true` if the container holds no elements. */
     template <class T>
     auto empty(this auto &&self, T &&value) -> bool {
         return !self.any_of(std::forward<T>(value),
@@ -4934,6 +5522,7 @@ struct Foldable : protected Impl {
     }
 
     // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09
+    /** Collects all elements into a `std::vector` in traversal order. */
     template <class T>
     auto to_vector(this auto &&self, T &&value) {
         return self.fold_map(
@@ -4946,6 +5535,7 @@ struct Foldable : protected Impl {
     // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09 end
     // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end
 
+    /** Returns the first element satisfying `predicate`, or an empty optional. */
     template <class T, class PREDICATE>
     auto find_first(this auto &&self, T &&value, PREDICATE &&predicate) {
         const auto result = self.fold_map(
@@ -4962,6 +5552,7 @@ struct Foldable : protected Impl {
     }
 };
 
+/** Typeclass lookup variable for Foldable; specialize for each container type. */
 template <class T>
 inline constexpr auto foldable_typeclass = std::false_type{};
 
@@ -5000,11 +5591,17 @@ namespace smd {
 // - Dispatch happens through a provided object or functor_typeclass<Concrete>.
 // - Keep lookup explicit through typeclass objects, not ADL overloads.
 
+/** CRTP base for Functor instances.
+ * `Impl` must provide `fmap(f, container)`; `replace` is derived from it.
+ */
 template <class Impl>
 struct Functor : protected Impl {
     using Impl::fmap;
 
     // e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02
+    /** Replaces every element of `value` with `replacement`, ignoring the
+     * original element values.
+     */
     template <class T, class U>
     auto replace(this auto &&self, T &&value, U &&replacement) {
         return self.fmap([replacement = std::forward<U>(replacement)](
@@ -5014,6 +5611,7 @@ struct Functor : protected Impl {
     // e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02 end
 };
 
+/** Typeclass lookup variable for Functor; specialize for each container type. */
 template <class T>
 inline constexpr auto functor_typeclass = std::false_type{};
 
@@ -5082,16 +5680,19 @@ struct VectorFunctorMap : Functor<VectorFunctorImpl<VALUE_TYPE>> {
     using VectorFunctorImpl<VALUE_TYPE>::fmap;
 };
 
+/** Functor instance for `std::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
 inline constexpr auto functor_typeclass<std::optional<VALUE_TYPE>> =
     OptionalFunctorMap<VALUE_TYPE>{};
 
+/** Functor instance for `beman::optional::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                            std::optional<VALUE_TYPE>>)
 inline constexpr auto functor_typeclass<beman::optional::optional<VALUE_TYPE>> =
     BemanOptionalFunctorMap<VALUE_TYPE>{};
 
+/** Functor instance for `std::vector<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
 inline constexpr auto functor_typeclass<std::vector<VALUE_TYPE>> =
     VectorFunctorMap<VALUE_TYPE>{};
@@ -5123,15 +5724,12 @@ inline constexpr auto functor_typeclass<std::vector<VALUE_TYPE>> =
 
 namespace smd {
 
-// Monad<Impl>
-//
-// Minimal hooks: pure + bind.
-// Derived: apply (synthesized from bind + pure), join, kleisli, bind_with.
-//
-// Monad does not inherit from Applicative. The Impl delegates pure to an
-// applicative typeclass object when one exists, or defines it directly when
-// none is available. The base class synthesizes apply from bind + pure, so
-// a Monad instance provides Applicative-equivalent operations automatically.
+/** CRTP base for Monad instances.
+ * `Impl` must provide `pure(value)` and `bind(ma, f)`.
+ * `apply` is synthesized; `join` and `kleisli` are derived.
+ * Monad does not inherit from Applicative, but provides equivalent
+ * operations once `apply` is synthesized from `bind` + `pure`.
+ */
 template <class Impl>
 struct Monad : protected Impl {
     static_assert(!std::is_same_v<Impl, std::false_type>,
@@ -5186,6 +5784,7 @@ struct Monad : protected Impl {
     }
 };
 
+/** Typeclass lookup variable for Monad; specialize for each type. */
 template <class T>
 inline constexpr auto monad_typeclass = std::false_type{};
 
@@ -5219,6 +5818,7 @@ struct OptionalMonadMap : Monad<OptionalMonadImpl<VALUE_TYPE>> {
     using OptionalMonadImpl<VALUE_TYPE>::pure;
 };
 
+/** Monad instance for `std::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
 inline constexpr auto monad_typeclass<std::optional<VALUE_TYPE>> =
     OptionalMonadMap<VALUE_TYPE>{};
@@ -5257,6 +5857,7 @@ struct BemanOptionalMonadMap
     using BemanOptionalMonadImpl<VALUE_TYPE>::pure;
 };
 
+/** Monad instance for `beman::optional::optional<VALUE_TYPE>`. */
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                            std::optional<VALUE_TYPE>>)
@@ -5266,12 +5867,14 @@ inline constexpr auto
 
 // -- Free-function API --
 
+/** Sequences a monadic value `ma` through function `f` (Haskell's `>>=`). */
 template <class MA, class F>
 auto mbind(MA &&ma, F &&f) {
     const auto &map = monad_typeclass<remove_cvref_t<MA>>;
     return map.bind(std::forward<MA>(ma), std::forward<F>(f));
 }
 
+/** Flattens a nested monadic value; equivalent to `bind(mma, id)`. */
 template <class MMA>
 auto join(MMA &&mma) {
     const auto &map = monad_typeclass<remove_cvref_t<MMA>>;
@@ -5308,12 +5911,19 @@ namespace smd::typeclass {
 // domain.
 // - Prefer adding new Monoid<T> specializations over ad hoc free functions.
 
+/** Customization point for the Monoid typeclass.
+ * Specialize this struct for type `VALUE_TYPE` and provide
+ * `identity()` and `combine(lhs, rhs)` to make that type usable
+ * wherever a Monoid is required (e.g., as the result type of fold_map).
+ */
 template <class VALUE_TYPE>
 struct Monoid;
 
+/** Canonical lookup object for Monoid<VALUE_TYPE>; used by generic algorithms. */
 template <class VALUE_TYPE>
 inline constexpr Monoid<VALUE_TYPE> monoid_v = Monoid<VALUE_TYPE>{};
 
+/** Opaque count accumulator; the Monoid combines by addition. */
 struct Count {
     std::size_t d_value;
 
@@ -5322,6 +5932,7 @@ struct Count {
 };
 
 // c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06
+/** Monoid<Count>: identity is zero, combine adds counts. */
 template <>
 struct Monoid<Count> {
     constexpr auto identity() const -> Count { return Count{0}; }
@@ -5332,6 +5943,7 @@ struct Monoid<Count> {
 };
 // c3a1e0f8-6b5d-4c2a-a8e3-3d7b9f4a1c06 end
 
+/** Monoid<int>: additive monoid with identity 0. */
 template <>
 struct Monoid<int> {
     constexpr auto identity() const -> int { return 0; }
@@ -5339,6 +5951,7 @@ struct Monoid<int> {
     constexpr auto combine(int lhs, int rhs) const -> int { return lhs + rhs; }
 };
 
+/** Monoid<long>: additive monoid with identity 0. */
 template <>
 struct Monoid<long> {
     constexpr auto identity() const -> long { return 0L; }
@@ -5348,6 +5961,7 @@ struct Monoid<long> {
     }
 };
 
+/** Monoid<std::size_t>: additive monoid with identity 0. */
 template <>
 struct Monoid<std::size_t> {
     constexpr auto identity() const -> std::size_t { return 0U; }
@@ -5358,6 +5972,7 @@ struct Monoid<std::size_t> {
     }
 };
 
+/** Monoid<std::string>: concatenation monoid with identity "". */
 template <>
 struct Monoid<std::string> {
     auto identity() const -> std::string { return {}; }
@@ -5368,6 +5983,7 @@ struct Monoid<std::string> {
     }
 };
 
+/** Monoid<std::vector<T>>: concatenation monoid with identity empty vector. */
 template <class VALUE_TYPE>
 struct Monoid<std::vector<VALUE_TYPE>> {
     auto identity() const -> std::vector<VALUE_TYPE> { return {}; }
@@ -5385,11 +6001,13 @@ struct Monoid<std::vector<VALUE_TYPE>> {
 namespace smd {
 
 // b5f3d1a9-7c4e-4b2f-9a5d-6e3c7b8d4f02
+/** Returns the identity element for the Monoid of VALUE_TYPE. */
 template <class VALUE_TYPE>
 auto monoid_identity() -> VALUE_TYPE {
     return typeclass::monoid_v<VALUE_TYPE>.identity();
 }
 
+/** Combines two values using the Monoid of VALUE_TYPE. */
 template <class VALUE_TYPE>
 auto monoid_combine(const VALUE_TYPE &lhs, const VALUE_TYPE &rhs)
     -> VALUE_TYPE {
@@ -5427,6 +6045,11 @@ namespace smd {
 // traversable_typeclass<Concrete>.
 // - Traversal must preserve container shape while sequencing effects.
 
+/** CRTP base for Traversable instances.
+ * `Impl` must provide `traverse(applicative, f, container)` and declare
+ * `element_type`. All other operations (`sequence`, `for_each`,
+ * `traverse_with`, `sequence_with`) are derived.
+ */
 template <class Impl>
 struct Traversable : protected Impl {
     static_assert(!std::is_same_v<Impl, std::false_type>,
@@ -5446,6 +6069,9 @@ struct Traversable : protected Impl {
     // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11
 
     // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46
+    /** Applies `function` to each element and sequences the resulting effects;
+     * the applicative is inferred from the return type of `function`.
+     */
     template <class T, class F>
     auto for_each(this auto &&self, T &&value, F &&function) {
         using Context =
@@ -5457,6 +6083,9 @@ struct Traversable : protected Impl {
     // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46 end
 
     // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79
+    /** Sequences a container of effectful values into a single effect containing
+     * the container. The element type must itself be an applicative context.
+     */
     template <class T>
     auto sequence(this auto &&self, T &&value) {
         using Context = element_type;
@@ -5467,6 +6096,9 @@ struct Traversable : protected Impl {
     }
     // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79 end
 
+    /** Traverses using a different traversable instance; applicative is inferred
+     * from the return type of `function`.
+     */
     template <class TRAVERSABLE_MAP, class T, class F>
     auto traverse_with(this auto &&, const TRAVERSABLE_MAP &traversable_map,
                        F &&function, T &&value) {
@@ -5477,6 +6109,7 @@ struct Traversable : protected Impl {
                                         std::forward<T>(value));
     }
 
+    /** Traverses using explicit traversable and applicative instances. */
     template <class TRAVERSABLE_MAP, class APPLICATIVE_MAP, class T, class F>
     auto traverse_with(this auto &&, const TRAVERSABLE_MAP &traversable_map,
                        const APPLICATIVE_MAP &applicative_map, F &&function,
@@ -5485,6 +6118,9 @@ struct Traversable : protected Impl {
             applicative_map, std::forward<F>(function), std::forward<T>(value));
     }
 
+    /** Sequences using a different traversable instance; applicative is inferred
+     * from the container's element type.
+     */
     template <class TRAVERSABLE_MAP, class T>
     auto sequence_with(this auto &&self, const TRAVERSABLE_MAP &traversable_map,
                        T &&value) {
@@ -5496,9 +6132,17 @@ struct Traversable : protected Impl {
     // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end
 };
 
+/** Typeclass lookup variable for Traversable; specialize for each container type. */
 template <class T>
 inline constexpr auto traversable_typeclass = std::false_type{};
 
+/** @brief Maps `function` over `value`, sequences effects left-to-right,
+ *         and preserves container shape.
+ *
+ * @param function  A callable returning an applicative effect for each element.
+ * @param value     The traversable container to process.
+ * @return          The container shape lifted into the applicative effect.
+ */
 template <class F, class T>
 auto traverse(F &&function, T &&value) {
     const auto &map = traversable_typeclass<remove_cvref_t<T>>;
@@ -5541,6 +6185,9 @@ namespace smd {
 template <class T>
 using remove_cvref_t = std::remove_cvref_t<T>;
 
+/** Trait that extracts the element type from an applicative container.
+ * Primary template uses the nested `value_type` alias when present.
+ */
 template <class T, class = void>
 struct applicative_value;
 
@@ -5560,6 +6207,7 @@ struct applicative_value<beman::optional::optional<T>, void> {
     using type = T;
 };
 
+/** Convenience alias for `applicative_value<T>::type`. */
 template <class T>
 using applicative_value_t = typename applicative_value<remove_cvref_t<T>>::type;
 
@@ -5623,14 +6271,30 @@ auto zip_list_result_size(const FIRST &first, const REST &...rest)
 
 } // namespace detail
 
+/** Applicative typeclass instance for zip_list<T> with positional (zip)
+ * semantics.
+ * 
+ * pure(x) = infinite repetition of x (zip_list::repeat(x)).
+ * apply(fs, xs) zips functions and arguments positionally, truncating to the
+ * length of the shortest finite operand. If all operands are infinite the
+ * result is also infinite (repeating f(x) for the first positions).
+ * @tparam T element type of the zip_list holding function values
+ */
 template <class T>
 struct ZipListApplicativeImpl {
+    /** Lift a value into an infinite zip_list repeating that value. */
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value) {
         using U = remove_cvref_t<VALUE>;
         return zip_list<U>::repeat(U(std::forward<VALUE>(value)));
     }
 
+    /**
+     * @brief Zip functions and arguments positionally; truncate to shortest finite.
+     * @param functions zip_list of callables
+     * @param arguments zip_list of arguments
+     * @return zip_list of results; infinite only when both operands are infinite
+     */
     template <class F, class A>
     auto apply(this auto &&, const zip_list<F> &functions,
                const zip_list<A> &arguments) {
@@ -5656,6 +6320,14 @@ struct ZipListApplicativeImpl {
         return result;
     }
 
+    /**
+     * @brief N-ary positional application: apply @p function over all zip_lists
+     *        element-wise, truncating to the shortest finite operand.
+     * @param function  callable accepting one element from each input list
+     * @param first     first zip_list
+     * @param rest      remaining zip_lists
+     * @return zip_list of results
+     */
     template <class FUNCTION, class FIRST, class... REST>
     auto invoke(this auto &&, FUNCTION &&function, const FIRST &first,
                 const REST &...rest) {
@@ -5686,12 +6358,14 @@ struct ZipListApplicativeImpl {
     }
 };
 
+/** Applicative map exposing pure, apply, and invoke for zip_list<T>. */
 template <class T>
 struct ZipListApplicativeMap : Applicative<ZipListApplicativeImpl<T>> {
     using ZipListApplicativeImpl<T>::apply;
     using ZipListApplicativeImpl<T>::pure;
 };
 
+/** Registers ZipListApplicativeMap as the Applicative instance for zip_list<T>. */
 template <class T>
 inline constexpr auto applicative_typeclass<zip_list<T>> =
     ZipListApplicativeMap<T>{};
@@ -5717,6 +6391,19 @@ inline constexpr auto applicative_typeclass<zip_list<T>> =
 
 namespace smd {
 
+/** List with positional (zip) applicative semantics that can represent an
+ * infinite repetition of a single value.
+ * 
+ * A zip_list is either finite (elements stored in @c data) or infinite
+ * (a single @c repeated value that logically occupies every position). The
+ * ZipList applicative applies functions positionally and truncates to the
+ * shortest finite operand; pure(x) yields the infinite repetition of x so
+ * that it acts as an identity for truncation.
+ * 
+ * Invariant: when @c repeated has a value, @c data is ignored and the
+ * zip_list models an infinite repetition of @c repeated.
+ * @tparam T element type
+ */
 template <class T>
 struct zip_list {
     using value_type = T;
@@ -5726,14 +6413,20 @@ struct zip_list {
     std::vector<T> data;
     std::optional<T> repeated{};
 
+    /** Construct an infinite zip_list repeating @p value at every position. */
     static auto repeat(T value) -> zip_list {
         return zip_list{{}, std::move(value)};
     }
 
+    /** True when this zip_list represents an infinite repetition. */
     auto is_repeating() const -> bool { return repeated.has_value(); }
 
+    /** Number of elements in the finite representation; 0 for infinite lists. */
     auto finite_size() const -> std::size_t { return data.size(); }
 
+    /** Equality: two infinite lists are equal iff they repeat the same value;
+     * two finite lists use element-wise comparison; mixed always false.
+     */
     friend auto operator==(const zip_list &left, const zip_list &right)
         -> bool {
         if (left.is_repeating() || right.is_repeating()) {

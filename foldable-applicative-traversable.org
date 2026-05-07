@@ -1321,7 +1321,4 @@ Hidden bibliography slide.
 
 # Local Variables:
 # org-html-htmlize-output-type: css
-# bbg-footer-text: "© 2026 Bloomberg Finance L.P. All rights reserved."
-# bbg-footer-left-logo: "etc/assets/TechAtBloomberg_black.png"
-# bbg-footer-right-logo: "etc/assets/BBGEngineering_black.png"
 # End:
