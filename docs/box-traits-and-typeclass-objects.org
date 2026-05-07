@@ -480,7 +480,76 @@ Rust chose flexibility.
 ~beman.monadics~ chose simplicity.
 Worth discussing in review.
 
+** P1255 maybe: The Simpler Monad
+
+[[https://wg21.link/P1255][P1255R14]] proposes ~concept maybe~ and ~views::nullable~.
+The ~maybe~ concept is deliberately minimal:
+
+#+begin_src cpp
+template <class T>
+concept maybe = requires(const T t) {
+    bool(t);
+    *(t);
+};
+#+end_src
+
+Two operations.
+Contextually convertible to bool, and dereferenceable.
+That is the entire contract.
+
+~maybe~ covers ~std::optional~, pointers to object, ~std::shared_ptr~, and any user type that supports ~bool(t)~ and ~*t~.
+It does NOT cover ~std::expected~ — there is no error type, no error access, no error construction.
+
+The free functions proposed on ~maybe~ are:
+- ~value_or(m, u)~ — the value or a fallback
+- ~reference_or(m, u)~ — a reference to the value or a reference to a fallback
+- ~or_invoke(m, invocable)~ — the value or the result of calling a function
+- ~yield_if(b, t)~ — an optional conditioned on a boolean
+
+No ~and_then~.
+No ~transform~.
+No ~transform_error~.
+No pipe syntax.
+
+*** maybe vs box: two levels of the same hierarchy
+
+~maybe~ and ~box~ are not competing proposals.
+They sit at different levels of the same type hierarchy.
+
+| | ~maybe~ (P1255) | ~box~ (beman.monadics) |
+|---|---|---|
+| Operations | ~bool(t)~, ~*t~ | ~has_value~, ~value~, ~error~, ~make~, ~make_error~, ~rebind~, ~rebind_error~ |
+| Error type | none — absence is structural | optional: sentinel; expected: typed |
+| Haskell equivalent | ~Maybe~ | ~ExceptT e Identity~ |
+| Category theory | Functor on value, pointed (has ~pure~) | Bifunctor, Monad, MonadError |
+| Types covered | optional, pointer, shared_ptr | optional, expected, shared_ptr, pointer, StatusOr, ... |
+
+In Haskell terms, ~maybe~ is ~Maybe~ — the free pointed functor with a zero.
+~box~ is ~Either e~ — a bifunctor with independent value and error channels.
+
+~Maybe a ≅ Either () a~.
+Every ~maybe~ is a ~box~ where the error type is a singleton.
+
+*** This is exactly Bifunctor.Join
+
+I said earlier that ~optional~ is ~Bifunctor.Join expected~ — the error type collapsed to a sentinel.
+P1255's ~maybe~ concept is the interface for the ~Join~ed case.
+~beman.monadics~'s ~box~ concept is the interface for the general case.
+
+The nullary/unary ~error()~ detection in ~beman.monadics~ is precisely the mechanism that detects whether a box is in the ~Join~ed (maybe) regime or the full bifunctor regime.
+When ~error()~ is nullary, the box is a ~maybe~: no real error channel, ~transform_error~ disabled.
+When ~error(box)~ is unary, the box has a real error channel.
+
 *** What this means for the review
+
+~beman.monadics~ proposes the full ~ExceptT~ abstraction.
+P1255 proposes the ~Maybe~ abstraction.
+
+The question for review is not which is right — both are.
+The question is whether ~box_traits~ should acknowledge the split explicitly:
+1. Should there be a ~concept maybe_box~ (or similar) that is the sub-concept for nullable types without error channels?
+2. Should the four operations degrade gracefully — ~transform_error~ already does, but should ~or_else~ also change signature (nullary vs unary) based on the error channel?
+3. The deduction cascade already handles the mechanical detection.  The concept hierarchy could make it part of the type theory.
 
 The theoretical foundation is sound.
 The structure is ~ExceptT e Identity~ with bifunctor operations, which is a well-studied object.
