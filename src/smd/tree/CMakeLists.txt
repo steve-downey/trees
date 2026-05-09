@@ -45,6 +45,7 @@ if(TREE_ENABLE_TESTING)
         finger_tree_traversable.t.cpp
         finger_tree_wrappers.t.cpp
         fixpoint_tree.t.cpp
+        fixpoint_tree_algorithm.t.cpp
         fixpoint_tree_foldable.t.cpp
         fixpoint_tree_traversable.t.cpp
         fringe_tree.t.cpp

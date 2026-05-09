@@ -134,6 +134,74 @@ That call performs compile-time lookup to the right typeclass object specializat
 - Slide snippet sources are compiled via `smd_typeclass_slide_examples`.
 - Top-level target `slide_snippets_check` ensures presentation snippets remain compilable.
 
+## Algorithm objects: Inheriting from typeclass instances
+
+An algorithm that composes multiple typeclass operations can inherit from the typeclass instance, bringing those operations into unqualified scope as inherited members.
+
+The typeclass objects are stateless empty structs, so inheritance adds no data and slicing is not a concern.
+
+### Pattern
+
+```cpp
+namespace detail {
+
+template <class T,
+          const auto& TC = smd::traversable_typeclass<smd::remove_cvref_t<T>>>
+struct validate_impl : smd::remove_cvref_t<decltype(TC)> {
+    template <class Pred>
+    auto call(Pred&& pred, const T& value) const {
+        // for_each is an inherited member — no qualification needed
+        return this->for_each(value, [&](const auto& elem) -> std::optional<...> {
+            if (pred(elem)) return {elem};
+            return std::nullopt;
+        });
+    }
+};
+
+} // namespace detail
+
+// Public CPO: single object, deduces T from argument
+struct validate_fn {
+    template <class Pred, class T>
+    auto operator()(Pred&& pred, T&& value) const {
+        return detail::validate_impl<smd::remove_cvref_t<T>>{}.call(
+            std::forward<Pred>(pred), std::forward<T>(value));
+    }
+};
+inline constexpr validate_fn validate{};
+```
+
+### Multi-typeclass composition
+
+When an algorithm needs both Foldable and Traversable, inherit from both:
+
+```cpp
+template <class T,
+          const auto& FC = smd::foldable_typeclass<smd::remove_cvref_t<T>>,
+          const auto& TC = smd::traversable_typeclass<smd::remove_cvref_t<T>>>
+struct transform_if_large_impl
+    : smd::remove_cvref_t<decltype(FC)>,
+      smd::remove_cvref_t<decltype(TC)> {
+    using foldable_base    = smd::remove_cvref_t<decltype(FC)>;
+    using traversable_base = smd::remove_cvref_t<decltype(TC)>;
+
+    template <class F>
+    auto call(std::size_t min_size, F&& f, const T& value) const {
+        if (this->foldable_base::length(value) < min_size)
+            return std::optional<T>{};
+        return this->traversable_base::for_each(value, ...);
+    }
+};
+```
+
+### Key points
+
+- The implementation is in `detail` — callers see only the deducing `operator()` on the CPO.
+- `decltype` on a `const auto&` NTTP gives a reference type; use `remove_cvref_t<decltype(TC)>` at base specifiers, nested type extraction, and qualified disambiguation calls.
+- ADL is suppressed because the CPO is an object, not a function.
+- The NTTP defaults pin the typeclass lookup; callers can override if needed.
+- Working example: `src/smd/tree/fixpoint_tree_algorithm.hpp` with tests in `fixpoint_tree_algorithm.t.cpp`.
+
 ## Applicative: Derived invoke via terminating partial application
 
 In Haskell, Applicative is minimal (`pure` and `(<*>)`).

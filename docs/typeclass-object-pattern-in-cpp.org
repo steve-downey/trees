@@ -363,6 +363,121 @@ CHECK(fold_map_foldable.to_vector(seq) == fold_right_foldable.to_vector(seq));
 The ~using~ declaration is the mechanism.
 It is not decorative boilerplate.
 
+* Algorithm Objects: Inheriting from the Typeclass
+
+The three lookup modes above let generic code /call/ typeclass operations.
+But when I am writing an algorithm that /composes/ several operations --- checking a precondition with Foldable, then transforming via Traversable --- I want those names available without qualifying through a separate lookup object on every call.
+
+The solution is to inherit from the typeclass instance.
+The typeclass objects are empty structs, so the inheritance adds no data, and slicing to the base is a non-issue.
+The inheritance is purely a mechanism to bring the operation names into scope.
+
+** The Implementation Layer
+
+An algorithm implementation struct inherits from the typeclass, parameterized by an NTTP that defaults to the standard lookup.
+The algorithm body calls typeclass operations through ~this->~.
+
+From [[orgit-file:src/smd/tree/fixpoint_tree_algorithm.hpp][=src/smd/tree/fixpoint_tree_algorithm.hpp=]]:
+
+#+begin_src cpp
+template <class T,
+          const auto &TC = smd::traversable_typeclass<remove_cvref_t<T>>>
+struct validate_impl : remove_cvref_t<decltype(TC)> {
+    template <class Pred>
+    auto call(Pred &&pred, const T &value) const {
+        using element_type =
+            typename remove_cvref_t<decltype(TC)>::element_type;
+        return this->for_each(value,
+            [&](const element_type &elem)
+                -> std::optional<element_type> {
+                if (pred(elem)) return {elem};
+                return std::nullopt;
+            });
+    }
+};
+#+end_src
+
+~for_each~ is not a free function and not a qualified call through a separate object.
+It is an inherited member.
+The algorithm body reads like the operations belong to it.
+
+** Multi-Typeclass Composition
+
+When an algorithm needs operations from more than one typeclass, inherit from both.
+Both bases are empty, so there is no diamond and no ambiguity (the typeclass surfaces have disjoint operation names by design).
+
+#+begin_src cpp
+template <class T,
+          const auto &FC = smd::foldable_typeclass<remove_cvref_t<T>>,
+          const auto &TC = smd::traversable_typeclass<remove_cvref_t<T>>>
+struct transform_if_large_impl
+    : remove_cvref_t<decltype(FC)>,
+      remove_cvref_t<decltype(TC)> {
+    using foldable_base    = remove_cvref_t<decltype(FC)>;
+    using traversable_base = remove_cvref_t<decltype(TC)>;
+    using element_type     = typename traversable_base::element_type;
+
+    template <class F>
+    auto call(std::size_t min_size, F &&f, const T &value) const {
+        auto n = this->foldable_base::length(value);
+        if (n < min_size)
+            return std::optional<T>{};
+
+        return this->traversable_base::for_each(
+            value, [&](const element_type &elem)
+                       -> std::optional<element_type> {
+                return {f(elem)};
+            });
+    }
+};
+#+end_src
+
+~length~ comes from Foldable.
+~for_each~ comes from Traversable.
+Both are called as inherited members.
+The base-qualified ~this->foldable_base::length~ disambiguates in the presence of multiple inheritance; where names are unique, plain ~this->for_each~ suffices.
+
+** The Public Layer: Niebloid / CPO
+
+The implementation struct is a detail.
+The public interface is a single ~inline constexpr~ object with a deducing ~operator()~.
+Callers never name the implementation type and never supply a type argument.
+
+#+begin_src cpp
+struct validate_fn {
+    template <class Pred, class T>
+    auto operator()(Pred &&pred, T &&value) const {
+        return detail::validate_impl<remove_cvref_t<T>>{}.call(
+            std::forward<Pred>(pred),
+            std::forward<T>(value));
+    }
+};
+inline constexpr validate_fn validate{};
+#+end_src
+
+Call site:
+
+#+begin_src cpp
+auto result = algorithm::validate(
+    [](double x) { return x > 0.0; }, tree);
+#+end_src
+
+~T~ is deduced.
+ADL is suppressed because ~validate~ is an object, not a function.
+The inheritance from the typeclass, the NTTP pinning, the ephemeral construction of the impl --- all invisible.
+
+** Practical Note: ~decltype~ on NTTP References
+
+A ~const auto&~ NTTP gives a reference type under ~decltype~.
+You cannot inherit from a reference, and you cannot use it in a qualified name.
+~remove_cvref_t<decltype(TC)>~ is needed at three points:
+
+1. The base specifier: ~struct impl : remove_cvref_t<decltype(TC)>~
+2. Extracting nested types: ~typename remove_cvref_t<decltype(TC)>::element_type~
+3. Disambiguation in multi-inheritance: ~this->remove_cvref_t<decltype(FC)>::length(...)~
+
+Type aliases (~using foldable_base = ...~) keep this readable.
+
 * The Implementer Surface
 
 The pattern splits the naming problem in two.
