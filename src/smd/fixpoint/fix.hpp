@@ -22,14 +22,26 @@ struct Fix {
 
 /** Wrap one layer of @p F into the fixed-point type. */
 template <template <typename> class F>
-constexpr auto wrap(F<Fix<F>> layer) -> Fix<F> {
+constexpr auto wrap_fix(F<Fix<F>> layer) -> Fix<F> {
     return Fix<F>{std::move(layer)};
 }
 
 /** Unwrap one layer from a fixed-point value, exposing F<Fix<F>>. */
 template <template <typename> class F>
-constexpr auto unwrap(const Fix<F> &fixed) -> const F<Fix<F>> & {
+constexpr auto unwrap_fix(const Fix<F> &fixed) -> const F<Fix<F>> & {
     return fixed.inner;
+}
+
+template <template <typename> class F>
+[[deprecated("use wrap_fix")]]
+constexpr auto wrap(F<Fix<F>> layer) -> Fix<F> {
+    return wrap_fix<F>(std::move(layer));
+}
+
+template <template <typename> class F>
+[[deprecated("use unwrap_fix")]]
+constexpr auto unwrap(const Fix<F> &fixed) -> const F<Fix<F>> & {
+    return unwrap_fix(fixed);
 }
 
 } // namespace smd::fixpoint

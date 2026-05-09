@@ -7,32 +7,51 @@
 
 namespace smd::fixpoint {
 
-/**
- * @brief Catamorphism: bottom-up fold over a Fix<F> tree.
- *
- * Recursively descends into the tree, applying @p algebra at each level.
- * At each node the @p fmap_fn lifts the recursive fold into the functor layer
- * so that @p algebra receives an F<Result> rather than an F<Fix<F>>.
- *
- * @tparam Result   the type produced at each level by @p algebra
- * @tparam F        the non-recursive functor whose fixed-point is being folded
- * @param algebra   function F<Result> -> Result (the catamorphism algebra)
- * @param fmap_fn   function (Fix<F>->Result, F<Fix<F>>) -> F<Result>
- *                  — lifts the fold function over one layer of F
- * @param tree      the fixed-point tree to fold
- * @return          the folded result at the root
- */
 template <typename Result, template <typename> class F, typename Algebra,
           typename FMap>
-auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
+auto fold_fix(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
     -> Result {
-    const auto &layer = unwrap(tree);
+    const auto &layer = unwrap_fix(tree);
     auto evaluated = fmap_fn(
         [&](const Fix<F> &child) -> Result {
-            return cata<Result>(algebra, fmap_fn, child);
+            return fold_fix<Result>(algebra, fmap_fn, child);
         },
         layer);
     return algebra(evaluated);
+}
+
+template <template <typename> class F, typename Coalgebra, typename FMap,
+          typename Seed>
+auto unfold_fix(const Coalgebra &coalgebra, const FMap &fmap_fn,
+                const Seed &seed) -> Fix<F> {
+    auto layer = coalgebra(seed);
+    auto expanded = fmap_fn(
+        [&](const Seed &child) -> Fix<F> {
+            return unfold_fix<F>(coalgebra, fmap_fn, child);
+        },
+        layer);
+    return wrap_fix<F>(std::move(expanded));
+}
+
+template <typename Result, template <typename> class F, typename Algebra,
+          typename Coalgebra, typename FMap, typename Seed>
+auto refold(const Algebra &algebra, const Coalgebra &coalgebra,
+            const FMap &fmap_fn, const Seed &seed) -> Result {
+    auto layer = coalgebra(seed);
+    auto evaluated = fmap_fn(
+        [&](const Seed &child) -> Result {
+            return refold<Result, F>(algebra, coalgebra, fmap_fn, child);
+        },
+        layer);
+    return algebra(evaluated);
+}
+
+template <typename Result, template <typename> class F, typename Algebra,
+          typename FMap>
+[[deprecated("use fold_fix")]]
+auto cata(const Algebra &algebra, const FMap &fmap_fn, const Fix<F> &tree)
+    -> Result {
+    return fold_fix<Result>(algebra, fmap_fn, tree);
 }
 
 } // namespace smd::fixpoint

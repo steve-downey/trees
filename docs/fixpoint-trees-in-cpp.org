@@ -68,7 +68,7 @@ That is it.
 A ~Fix<ExprF>~ value /is/ a tree node, and every node is a [[https://en.cppreference.com/w/cpp/utility/variant][=std::variant=]] of constant, addition, or multiplication.
 No CRTP, no base classes.
 
-A handful of helpers let us build and evaluate trees:
+A handful of helpers let me build and evaluate trees:
 
 #+begin_src cpp
 using ExprTree = Fix<ExprF>;
@@ -109,14 +109,14 @@ Additions add children that are already integers.
 Multiplications multiply children that are already integers.
 It does not recurse.
 
-The recursion is supplied separately, by a function called ~cata~.
+The recursion is supplied separately, by a function called ~fold_fix~.
 First, the pieces.
 
 * The Pieces
 
 The Compiler Explorer example above is self-contained but simplified.
 The repository version in [[orgit-file:src/smd/tree/fixpoint_tree.hpp][=src/smd/tree/fixpoint_tree.hpp=]] uses slightly different names (~ExprConst~, ~ExprAdd~, ~ExprMul~) and ~double~ values instead of ~int~.
-From here on I will use the repository names.
+From here on I use the repository names.
 
 ** The Non-Recursive Functor
 
@@ -166,8 +166,8 @@ using Box = std::shared_ptr<A>;
 #+end_src
 
 This is a stand-in for ~std::indirect~ from C++26 ([[https://wg21.link/P3019][P3019]]).
-In the meantime, ~shared_ptr~ gives us structural sharing for free --- copying a subtree is copying a pointer.
-We will take that trade.
+In the meantime, ~shared_ptr~ gives structural sharing for free --- copying a subtree is copying a pointer.
+I will take that trade.
 
 ** Fix: Tying the Recursive Knot
 
@@ -188,22 +188,22 @@ That isomorphism is witnessed by two trivial functions:
 
 #+begin_src cpp
 template <template <typename> class F>
-constexpr auto wrap(F<Fix<F>> layer) -> Fix<F> {
+constexpr auto wrap_fix(F<Fix<F>> layer) -> Fix<F> {
     return Fix<F>{std::move(layer)};
 }
 
 template <template <typename> class F>
-constexpr auto unwrap(const Fix<F>& fixed) -> const F<Fix<F>>& {
+constexpr auto unwrap_fix(const Fix<F>& fixed) -> const F<Fix<F>>& {
     return fixed.inner;
 }
 #+end_src
 
-~wrap~ packs one layer into the fixed-point wrapper.
-~unwrap~ exposes the layer inside.
+~wrap_fix~ packs one layer into the fixed-point wrapper.
+~unwrap_fix~ exposes the layer inside.
 Both exist to make the type system happy, not to do work.
 
 ~Fix<ExprF>~ is the tree type.
-~unwrap~ on any tree node gives back the ~variant~ for that node.
+~unwrap_fix~ on any tree node gives back the ~variant~ for that node.
 
 ** fmap: Lifting a Function Over One Layer
 
@@ -242,7 +242,7 @@ That separation is deliberate.
 
 ** Smart Constructors
 
-Building a tree by hand with ~wrap~ and ~make_box~ is noisy.
+Building a tree by hand with ~wrap_fix~ and ~make_box~ is noisy.
 Smart constructors hide the ceremony.
 
 Also in [[orgit-file:src/smd/tree/fixpoint_tree.hpp][=fixpoint_tree.hpp=]]:
@@ -251,17 +251,17 @@ Also in [[orgit-file:src/smd/tree/fixpoint_tree.hpp][=fixpoint_tree.hpp=]]:
 using Expr = Fix<ExprF>;
 
 inline auto const_expr(double value) -> Expr {
-    return wrap<ExprF>(ExprF<Expr>{ExprConst<Expr>{value}});
+    return wrap_fix<ExprF>(ExprF<Expr>{ExprConst<Expr>{value}});
 }
 
 inline auto add_expr(Expr left, Expr right) -> Expr {
-    return wrap<ExprF>(ExprF<Expr>{ExprAdd<Expr>{
+    return wrap_fix<ExprF>(ExprF<Expr>{ExprAdd<Expr>{
         make_box<Expr>(std::move(left)),
         make_box<Expr>(std::move(right))}});
 }
 
 inline auto mul_expr(Expr left, Expr right) -> Expr {
-    return wrap<ExprF>(ExprF<Expr>{ExprMul<Expr>{
+    return wrap_fix<ExprF>(ExprF<Expr>{ExprMul<Expr>{
         make_box<Expr>(std::move(left)),
         make_box<Expr>(std::move(right))}});
 }
@@ -274,7 +274,7 @@ auto tree = mul_expr(add_expr(const_expr(1.0), const_expr(2.0)),
                      const_expr(3.0));
 #+end_src
 
-* Catamorphism: Separating Recursion from Business Logic
+* Recursion Schemes: Separating Recursion from Business Logic
 
 ** What Is an F-Algebra?
 
@@ -302,9 +302,9 @@ inline auto eval_algebra(const ExprF<double>& expr) -> double {
 Not recursive.
 Does not know or care how deep the tree is.
 Handles exactly one layer.
-~cata~ supplies the recursion.
+~fold_fix~ supplies the recursion.
 
-** cata: The Generic Fold
+** fold_fix: The Generic Fold
 
 The catamorphism applies the algebra bottom-up.
 At each node it maps the recursive fold over the children (via ~fmap~), then applies the algebra to the resulting layer.
@@ -314,13 +314,13 @@ From [[orgit-file:src/smd/fixpoint/cata.hpp][=src/smd/fixpoint/cata.hpp=]]:
 #+begin_src cpp
 template <typename Result, template <typename> class F,
           typename Algebra, typename FMap>
-auto cata(const Algebra& algebra, const FMap& fmap_fn,
-          const Fix<F>& tree) -> Result
+auto fold_fix(const Algebra& algebra, const FMap& fmap_fn,
+              const Fix<F>& tree) -> Result
 {
-    const auto& layer = unwrap(tree);
+    const auto& layer = unwrap_fix(tree);
     auto evaluated = fmap_fn(
         [&](const Fix<F>& child) -> Result {
-            return cata<Result>(algebra, fmap_fn, child);
+            return fold_fix<Result>(algebra, fmap_fn, child);
         },
         layer);
     return algebra(evaluated);
@@ -328,7 +328,7 @@ auto cata(const Algebra& algebra, const FMap& fmap_fn,
 #+end_src
 
 Inside out:
-1. ~unwrap(tree)~ exposes the ~ExprF<Fix<ExprF>>~ layer.
+1. ~unwrap_fix(tree)~ exposes the ~ExprF<Fix<ExprF>>~ layer.
 2. ~fmap_fn~ applies the recursive lambda at every child position, replacing each subtree with a ~Result~.  This produces an ~ExprF<Result>~.
 3. ~algebra~ consumes that ~ExprF<Result>~ and returns the final ~Result~.
 
@@ -341,7 +341,7 @@ Evaluation is one line:
 
 #+begin_src cpp
 inline auto eval(const Expr& expr) -> double {
-    return cata<double>(eval_algebra, fmap_expr_fn, expr);
+    return fold_fix<double>(eval_algebra, fmap_expr_fn, expr);
 }
 #+end_src
 
@@ -375,12 +375,12 @@ auto print_algebra =
 
 auto e = mul_expr(add_expr(const_expr(1.0), const_expr(2.0)),
                   const_expr(4.0));
-auto result = cata<std::string>(print_algebra, fmap_expr_fn, e);
+auto result = fold_fix<std::string>(print_algebra, fmap_expr_fn, e);
 // result == "((1.0 + 2.0) * 4.0)"
 #+end_src
 
 Same tree.
-Same ~cata~.
+Same ~fold_fix~.
 Same ~fmap~.
 Different algebra, different result type.
 
@@ -388,6 +388,105 @@ The algebra answers /how to combine/.
 The recursion scheme answers /how to recurse/.
 They never tangle.
 That separation is the point.
+
+** unfold_fix: Building a Tree from a Seed
+
+~fold_fix~ tears a tree down.
+~unfold_fix~ builds one up.
+
+A coalgebra is a function ~a \to F\langle a \rangle~ --- it takes a seed and produces one layer of the functor with seeds at the recursive positions.
+~unfold_fix~ applies the coalgebra repeatedly, expanding seeds until the tree is fully built.
+
+From [[orgit-file:src/smd/fixpoint/cata.hpp][=src/smd/fixpoint/cata.hpp=]]:
+
+#+begin_src cpp
+template <template <typename> class F, typename Coalgebra,
+          typename FMap, typename Seed>
+auto unfold_fix(const Coalgebra& coalgebra, const FMap& fmap_fn,
+                const Seed& seed) -> Fix<F>
+{
+    auto layer = coalgebra(seed);
+    auto expanded = fmap_fn(
+        [&](const Seed& child) -> Fix<F> {
+            return unfold_fix<F>(coalgebra, fmap_fn, child);
+        },
+        layer);
+    return wrap_fix<F>(std::move(expanded));
+}
+#+end_src
+
+Same structure as ~fold_fix~, inverted.
+The coalgebra generates the layer; ~fmap_fn~ recurses into the seeds; ~wrap_fix~ closes it.
+
+Building a Peano natural number from an ~int~:
+
+#+begin_src cpp
+auto nat_coalgebra = [](int n) -> NatF<int> {
+    if (n <= 0) return Zero{};
+    return Succ<int>{make_box<int>(n - 1)};
+};
+
+auto three = unfold_fix<NatF>(nat_coalgebra, fmap_nat_fn, 3);
+// Succ(Succ(Succ(Zero)))
+#+end_src
+
+The coalgebra handles one layer.
+~unfold_fix~ supplies the recursion.
+Same separation, other direction.
+
+** refold: Fold Without Building the Tree
+
+Sometimes I want to unfold a seed and immediately fold the result.
+~refold~ fuses both passes into one --- no intermediate ~Fix<F>~ is ever allocated.
+
+From [[orgit-file:src/smd/fixpoint/cata.hpp][=src/smd/fixpoint/cata.hpp=]]:
+
+#+begin_src cpp
+template <typename Result, template <typename> class F,
+          typename Algebra, typename Coalgebra,
+          typename FMap, typename Seed>
+auto refold(const Algebra& algebra, const Coalgebra& coalgebra,
+            const FMap& fmap_fn, const Seed& seed) -> Result
+{
+    auto layer = coalgebra(seed);
+    auto evaluated = fmap_fn(
+        [&](const Seed& child) -> Result {
+            return refold<Result, F>(algebra, coalgebra,
+                                     fmap_fn, child);
+        },
+        layer);
+    return algebra(evaluated);
+}
+#+end_src
+
+Compare with ~fold_fix~: where ~fold_fix~ calls ~unwrap_fix~ to get a layer from an existing tree, ~refold~ calls the coalgebra to generate it.
+~fold_fix~ recurses into ~Fix<F>~ children; ~refold~ recurses into seeds.
+The algebra is the same.
+
+The equivalence is:
+
+#+begin_src
+fold_fix(algebra, fmap, unfold_fix<F>(coalgebra, fmap, seed))
+    == refold<Result, F>(algebra, coalgebra, fmap, seed)
+#+end_src
+
+Same answer, no intermediate tree.
+The test suite checks this for every input size.
+
+** A Note on Names
+
+The traditional names for these three schemes --- catamorphism, anamorphism, hylomorphism --- are precise, but they are jargon that most C++ programmers have no reason to know.
+The Haskell [[https://hackage.haskell.org/package/data-fix-0.3.4/docs/Data-Fix.html][=data-fix=]] library (0.3.4) reached the same conclusion and deprecated ~cata~, ~ana~, and ~hylo~ in favor of descriptive names.
+I followed that lead.
+
+| Traditional | This library  | data-fix      |
+|-------------+---------------+---------------|
+| cata        | ~fold_fix~    | ~foldFix~     |
+| ana         | ~unfold_fix~  | ~unfoldFix~   |
+| hylo        | ~refold~      | ~refold~      |
+
+The old name ~cata~ is still available as a ~[[deprecated]]~ alias; ~wrap~ and ~unwrap~ likewise forward to ~wrap_fix~ and ~unwrap_fix~.
+The new functions have no jargon aliases.
 
 * Foldable: One Hook, Many Derived Operations
 
@@ -435,7 +534,7 @@ struct FixpointTreeFoldableImpl {
     auto fold_map(this auto&& self, F&& f,
                   const Fix<ExprF>& t)
     {
-        const auto& layer = unwrap(t);
+        const auto& layer = unwrap_fix(t);
 
         if (std::holds_alternative<ExprConst<Expr>>(layer)) {
             return std::invoke(f, std::get<ExprConst<Expr>>(layer).value);
@@ -525,7 +624,7 @@ struct FixpointTreeTraversableImpl {
     auto traverse(this auto&& self, const APPLICATIVE& applicative,
                   F&& f, const Fix<ExprF>& t)
     {
-        const auto& layer = unwrap(t);
+        const auto& layer = unwrap_fix(t);
 
         if (std::holds_alternative<ExprConst<Expr>>(layer)) {
             return applicative.invoke(
@@ -640,7 +739,7 @@ auto traversed = smd::traverse(
     tree);
 
 assert(traversed.has_value());
-const auto& layer = unwrap(*traversed);
+const auto& layer = unwrap_fix(*traversed);
 assert(std::holds_alternative<ExprAdd<Expr>>(layer));
 // Root is still an Add node.
 #+end_src
@@ -661,7 +760,9 @@ The call site does not change when the representation changes.
 That is the payoff.
 
 ~Fix~ ties the knot.
-~cata~ folds bottom-up.
+~fold_fix~ folds bottom-up.
+~unfold_fix~ builds a tree from a seed.
+~refold~ folds without materializing the tree.
 ~fold_map~ gives ten derived operations from one hook.
 ~traverse~ keeps the tree alive through effectful transformations.
 

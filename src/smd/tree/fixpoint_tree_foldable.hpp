@@ -23,13 +23,13 @@ struct FixpointTreeFoldableImpl {
     template <class F>
     auto fold_map(this auto &&self, F &&f,
                   const smd::fixpoint::Fix<smd::tree::ExprF> &t) {
-        using smd::fixpoint::unwrap;
+        using smd::fixpoint::unwrap_fix;
         using smd::tree::ExprAdd;
         using smd::tree::ExprConst;
         using smd::tree::ExprMul;
         using Expr = smd::tree::Expr;
 
-        const auto &layer = unwrap(t);
+        const auto &layer = unwrap_fix(t);
 
         if (std::holds_alternative<ExprConst<Expr>>(layer)) {
             return std::invoke(f, std::get<ExprConst<Expr>>(layer).value);

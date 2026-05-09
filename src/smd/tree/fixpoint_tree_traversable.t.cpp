@@ -99,14 +99,14 @@ TEST_CASE("FixpointTreeTraversableTest - ForEachOptionalSuccess") {
 }
 
 TEST_CASE("FixpointTreeTraversableTest - TraversePreservesStructure") {
-    using smd::fixpoint::unwrap;
+    using smd::fixpoint::unwrap_fix;
     using smd::tree::ExprAdd;
 
     auto tree = add_expr(const_expr(1.0), const_expr(2.0));
     auto traversed = smd::traverse(IncrementValue{}, tree);
 
     REQUIRE(traversed.has_value());
-    const auto &layer = unwrap(*traversed);
+    const auto &layer = unwrap_fix(*traversed);
     CHECK(std::holds_alternative<ExprAdd<Expr>>(layer));
 }
 

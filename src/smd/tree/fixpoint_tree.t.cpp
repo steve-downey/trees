@@ -29,19 +29,19 @@ using smd::tree::mul_expr;
 
 TEST_CASE("FixpointTree - ConstExprConstruction") {
     auto c = const_expr(42.0);
-    const auto &layer = smd::fixpoint::unwrap(c);
+    const auto &layer = smd::fixpoint::unwrap_fix(c);
     CHECK(std::holds_alternative<ExprConst<Expr>>(layer));
 }
 
 TEST_CASE("FixpointTree - AddExprConstruction") {
     auto e = add_expr(const_expr(1.0), const_expr(2.0));
-    const auto &layer = smd::fixpoint::unwrap(e);
+    const auto &layer = smd::fixpoint::unwrap_fix(e);
     CHECK(std::holds_alternative<ExprAdd<Expr>>(layer));
 }
 
 TEST_CASE("FixpointTree - MulExprConstruction") {
     auto e = mul_expr(const_expr(3.0), const_expr(4.0));
-    const auto &layer = smd::fixpoint::unwrap(e);
+    const auto &layer = smd::fixpoint::unwrap_fix(e);
     CHECK(std::holds_alternative<ExprMul<Expr>>(layer));
 }
 
@@ -78,7 +78,7 @@ TEST_CASE("FixpointTree - EvalDeeplyNested") {
 }
 
 TEST_CASE("FixpointTree - CustomPrettyPrintAlgebra") {
-    using smd::fixpoint::cata;
+    using smd::fixpoint::fold_fix;
     using smd::fixpoint::overloaded;
 
     auto format_constant = [](double value) -> std::string {
@@ -106,7 +106,7 @@ TEST_CASE("FixpointTree - CustomPrettyPrintAlgebra") {
 
     auto e =
         mul_expr(add_expr(const_expr(1.0), const_expr(2.0)), const_expr(4.0));
-    auto result = cata<std::string>(print_algebra, fmap_expr_fn, e);
+    auto result = fold_fix<std::string>(print_algebra, fmap_expr_fn, e);
     CHECK(result == "((1.0 + 2.0) * 4.0)");
 }
 

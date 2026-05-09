@@ -13,11 +13,13 @@
 #include <variant>
 
 using smd::fixpoint::Box;
-using smd::fixpoint::cata;
+using smd::fixpoint::fold_fix;
 using smd::fixpoint::Fix;
 using smd::fixpoint::make_box;
 using smd::fixpoint::overloaded;
-using smd::fixpoint::wrap;
+using smd::fixpoint::refold;
+using smd::fixpoint::unfold_fix;
+using smd::fixpoint::wrap_fix;
 
 namespace {
 
@@ -33,10 +35,10 @@ using NatF = std::variant<Zero, Succ<A>>;
 
 using Nat = Fix<NatF>;
 
-auto make_zero() -> Nat { return wrap<NatF>(NatF<Nat>{Zero{}}); }
+auto make_zero() -> Nat { return wrap_fix<NatF>(NatF<Nat>{Zero{}}); }
 
 auto make_succ(Nat n) -> Nat {
-    return wrap<NatF>(NatF<Nat>{Succ<Nat>{make_box<Nat>(std::move(n))}});
+    return wrap_fix<NatF>(NatF<Nat>{Succ<Nat>{make_box<Nat>(std::move(n))}});
 }
 
 template <typename A, typename F>
@@ -64,16 +66,22 @@ auto count_algebra = [](const NatF<int> &n) -> int {
                       n);
 };
 
+auto nat_coalgebra = [](int n) -> NatF<int> {
+    if (n <= 0)
+        return Zero{};
+    return Succ<int>{make_box<int>(n - 1)};
+};
+
 } // namespace
 
 TEST_CASE("Cata - NatZero") {
     auto zero = make_zero();
-    CHECK(cata<int>(count_algebra, fmap_nat_fn, zero) == 0);
+    CHECK(fold_fix<int>(count_algebra, fmap_nat_fn, zero) == 0);
 }
 
 TEST_CASE("Cata - NatTwo") {
     auto two = make_succ(make_succ(make_zero()));
-    CHECK(cata<int>(count_algebra, fmap_nat_fn, two) == 2);
+    CHECK(fold_fix<int>(count_algebra, fmap_nat_fn, two) == 2);
 }
 
 TEST_CASE("Cata - NatFive") {
@@ -81,7 +89,7 @@ TEST_CASE("Cata - NatFive") {
     for (int i = 0; i < 5; ++i) {
         n = make_succ(std::move(n));
     }
-    CHECK(cata<int>(count_algebra, fmap_nat_fn, n) == 5);
+    CHECK(fold_fix<int>(count_algebra, fmap_nat_fn, n) == 5);
 }
 
 TEST_CASE("Cata - NatCustomAlgebra") {
@@ -95,5 +103,34 @@ TEST_CASE("Cata - NatCustomAlgebra") {
                           n);
     };
 
-    CHECK(cata<bool>(bool_algebra, fmap_nat_fn, three) == false);
+    CHECK(fold_fix<bool>(bool_algebra, fmap_nat_fn, three) == false);
+}
+
+TEST_CASE("UnfoldFix - NatFromZero") {
+    auto nat = unfold_fix<NatF>(nat_coalgebra, fmap_nat_fn, 0);
+    CHECK(fold_fix<int>(count_algebra, fmap_nat_fn, nat) == 0);
+}
+
+TEST_CASE("UnfoldFix - NatFromFive") {
+    auto nat = unfold_fix<NatF>(nat_coalgebra, fmap_nat_fn, 5);
+    CHECK(fold_fix<int>(count_algebra, fmap_nat_fn, nat) == 5);
+}
+
+TEST_CASE("Refold - NatZero") {
+    CHECK(refold<int, NatF>(count_algebra, nat_coalgebra, fmap_nat_fn, 0) == 0);
+}
+
+TEST_CASE("Refold - NatFive") {
+    CHECK(refold<int, NatF>(count_algebra, nat_coalgebra, fmap_nat_fn, 5) == 5);
+}
+
+TEST_CASE("Refold - EquivalentToFoldOfUnfold") {
+    for (int n = 0; n < 10; ++n) {
+        auto via_tree =
+            fold_fix<int>(count_algebra, fmap_nat_fn,
+                          unfold_fix<NatF>(nat_coalgebra, fmap_nat_fn, n));
+        auto via_refold =
+            refold<int, NatF>(count_algebra, nat_coalgebra, fmap_nat_fn, n);
+        CHECK(via_tree == via_refold);
+    }
 }

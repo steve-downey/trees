@@ -24,13 +24,13 @@ struct FixpointTreeTraversableImpl {
     template <class APPLICATIVE, class F>
     auto traverse(this auto &&self, const APPLICATIVE &applicative, F &&f,
                   const smd::fixpoint::Fix<smd::tree::ExprF> &t) {
-        using smd::fixpoint::unwrap;
+        using smd::fixpoint::unwrap_fix;
         using smd::tree::ExprAdd;
         using smd::tree::ExprConst;
         using smd::tree::ExprMul;
         using Expr = smd::tree::Expr;
 
-        const auto &layer = unwrap(t);
+        const auto &layer = unwrap_fix(t);
 
         if (std::holds_alternative<ExprConst<Expr>>(layer)) {
             return applicative.invoke(

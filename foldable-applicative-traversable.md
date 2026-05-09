@@ -382,7 +382,7 @@ Foldable is the operational entry point for this in everyday code.
 
 </div>
 
--   Fixpoint Expression Tree: eval\_algebra and cata
+-   Fixpoint Expression Tree: eval\_algebra and fold\_fix
 
     ```cpp
     /** Catamorphism algebra that reduces ExprF<double> to a double.
@@ -400,7 +400,7 @@ Foldable is the operational entry point for this in everyday code.
     
     /** Evaluate an expression tree to a double via catamorphism. */
     inline auto eval(const Expr &expr) -> double {
-        return smd::fixpoint::cata<double>(eval_algebra, fmap_expr_fn, expr);
+        return smd::fixpoint::fold_fix<double>(eval_algebra, fmap_expr_fn, expr);
     }
     ```
     
@@ -409,7 +409,7 @@ Foldable is the operational entry point for this in everyday code.
     eval_algebra consumes one already-processed layer.
     Constants return their value.
     Binary nodes combine the folded children.
-    cata supplies the recursion.
+    fold_fix supplies the recursion.
     That separation is the point.
     </p>
     
