@@ -3,7 +3,7 @@
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE_PRIORITY_QUEUE
 #define INCLUDED_SMD_TREE_FINGER_TREE_PRIORITY_QUEUE
 
-#include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree2.hpp>
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/foldable.hpp>
 #include <smd/typeclass/monoid.hpp>
@@ -66,7 +66,7 @@ struct PriorityMeasure {
  */
 template <typename T>
 class FingerTreePriorityQueue {
-    using Tree = FingerTree<T, PriorityTag<T>, PriorityMeasure<T>>;
+    using Tree = FingerTree2<T, PriorityTag<T>, PriorityMeasure<T>>;
 
     Tree d_tree;
 

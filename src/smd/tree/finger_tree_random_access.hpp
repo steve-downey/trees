@@ -3,7 +3,7 @@
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE_RANDOM_ACCESS
 #define INCLUDED_SMD_TREE_FINGER_TREE_RANDOM_ACCESS
 
-#include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree2.hpp>
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/foldable.hpp>
 #include <smd/typeclass/traversable.hpp>
@@ -33,20 +33,20 @@ namespace smd::tree {
  */
 template <typename T>
 class FingerTreeRandomAccess {
-    FingerTree<T> d_tree;
+    FingerTree2<T> d_tree;
 
   public:
     /** Constructs an empty sequence. */
-    FingerTreeRandomAccess() : d_tree(FingerTree<T>::empty()) {}
+    FingerTreeRandomAccess() : d_tree(FingerTree2<T>::empty()) {}
 
     /** Constructs from an existing finger tree. */
-    explicit FingerTreeRandomAccess(FingerTree<T> tree)
+    explicit FingerTreeRandomAccess(FingerTree2<T> tree)
         : d_tree(std::move(tree)) {}
 
     /** Builds a sequence from a vector in order; O(n). */
     static auto from_sequence(std::vector<T> values) -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(
-            FingerTree<T>::from_sequence(std::move(values)));
+            FingerTree2<T>::from_sequence(std::move(values)));
     }
 
     /** Returns the number of elements. */
@@ -86,9 +86,9 @@ class FingerTreeRandomAccess {
         // O(log n).
         auto parts = d_tree.split_at(
             [index](std::size_t prefix) { return prefix > index; });
-        return FingerTreeRandomAccess(FingerTree<T>::concat(
-            FingerTree<T>::concat(parts.d_left,
-                                  FingerTree<T>::leaf(std::move(value))),
+        return FingerTreeRandomAccess(FingerTree2<T>::concat(
+            FingerTree2<T>::concat(parts.d_left,
+                                  FingerTree2<T>::leaf(std::move(value))),
             parts.d_right));
     }
 
@@ -107,7 +107,7 @@ class FingerTreeRandomAccess {
             return *this;
         }
         return FingerTreeRandomAccess(
-            FingerTree<T>::concat(sp->d_left, sp->d_right));
+            FingerTree2<T>::concat(sp->d_left, sp->d_right));
     }
 
     /** Returns a new sequence with position @p index replaced by @p value; O(log n).
@@ -124,7 +124,7 @@ class FingerTreeRandomAccess {
         if (!sp.has_value()) {
             return *this;
         }
-        return FingerTreeRandomAccess(FingerTree<T>::concat(
+        return FingerTreeRandomAccess(FingerTree2<T>::concat(
             sp->d_left.snoc(std::move(value)), sp->d_right));
     }
 

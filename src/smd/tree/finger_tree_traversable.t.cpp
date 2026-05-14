@@ -12,7 +12,7 @@
 #include <vector>
 
 TEST_CASE("FingerTreeTraversableTest - TraverseOptionalSucceeds") {
-    using Tree = smd::tree::FingerTree<int>;
+    using Tree = smd::tree::FingerTree2<int>;
     auto t = Tree::from_sequence({1, 2, 3});
     auto result = smd::traverse([](int x) { return std::optional{x * 10}; }, t);
     REQUIRE(result.has_value());
@@ -20,7 +20,7 @@ TEST_CASE("FingerTreeTraversableTest - TraverseOptionalSucceeds") {
 }
 
 TEST_CASE("FingerTreeTraversableTest - TraverseOptionalFailsOnNullopt") {
-    using Tree = smd::tree::FingerTree<int>;
+    using Tree = smd::tree::FingerTree2<int>;
     auto t = Tree::from_sequence({1, 2, 3});
     auto result = smd::traverse(
         [](int x) -> std::optional<int> {
@@ -31,7 +31,7 @@ TEST_CASE("FingerTreeTraversableTest - TraverseOptionalFailsOnNullopt") {
 }
 
 TEST_CASE("FingerTreeTraversableTest - TraversePreservesShape") {
-    using Tree = smd::tree::FingerTree<int>;
+    using Tree = smd::tree::FingerTree2<int>;
     auto t = Tree::from_sequence({10, 20, 30, 40});
     auto result = smd::traverse([](int x) { return std::optional{x + 1}; }, t);
     REQUIRE(result.has_value());

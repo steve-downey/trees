@@ -14,7 +14,9 @@ target_sources(
                 fringe_tree_foldable.hpp
                 fringe_tree_applicative.hpp
                 fringe_tree_traversable.hpp
-                finger_tree.hpp
+                finger_tree2.hpp
+                finger_tree3.hpp
+                finger_tree4.hpp
                 finger_tree_foldable.hpp
                 finger_tree_traversable.hpp
                 finger_tree_random_access.hpp
@@ -36,7 +38,9 @@ if(TREE_ENABLE_TESTING)
         binary_tree_applicative.t.cpp
         binary_tree_foldable.t.cpp
         binary_tree_traversable.t.cpp
-        finger_tree.t.cpp
+        finger_tree2.t.cpp
+        finger_tree3.t.cpp
+        finger_tree4.t.cpp
         finger_tree_foldable.t.cpp
         finger_tree_interval_index.t.cpp
         finger_tree_priority_queue.t.cpp

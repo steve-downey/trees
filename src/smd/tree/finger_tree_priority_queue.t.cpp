@@ -168,3 +168,76 @@ TEST_CASE("FingerTreePriorityQueueTest - PopMaxWithDuplicates") {
     CHECK(*q3.max() == 7);
     CHECK(*q3.min() == 2);
 }
+
+TEST_CASE("FingerTreePriorityQueueTest - Empty") {
+    using Queue = smd::tree::FingerTreePriorityQueue<int>;
+
+    Queue q;
+    CHECK(q.empty());
+    CHECK(q.size() == 0U);
+    CHECK_FALSE(q.min().has_value());
+    CHECK_FALSE(q.max().has_value());
+    CHECK_FALSE(q.pop_min().has_value());
+    CHECK_FALSE(q.pop_max().has_value());
+}
+
+TEST_CASE("FingerTreePriorityQueueTest - PopMinAllSorted") {
+    using Queue = smd::tree::FingerTreePriorityQueue<int>;
+
+    auto q = Queue::from_values({9, 3, 7, 1, 5, 8, 2, 6, 4, 10,
+                                 15, 13, 11, 14, 12, 20, 18, 16, 19, 17});
+    std::vector<int> extracted;
+    while (!q.empty()) {
+        auto r = q.pop_min();
+        REQUIRE(r.has_value());
+        extracted.push_back(r->first);
+        q = std::move(r->second);
+    }
+    CHECK(std::is_sorted(extracted.begin(), extracted.end()));
+    CHECK(extracted.size() == 20U);
+    CHECK(extracted.front() == 1);
+    CHECK(extracted.back() == 20);
+}
+
+TEST_CASE("FingerTreePriorityQueueTest - PopMaxAllReverseSorted") {
+    using Queue = smd::tree::FingerTreePriorityQueue<int>;
+
+    auto q = Queue::from_values({9, 3, 7, 1, 5, 8, 2, 6, 4, 10,
+                                 15, 13, 11, 14, 12, 20, 18, 16, 19, 17});
+    std::vector<int> extracted;
+    while (!q.empty()) {
+        auto r = q.pop_max();
+        REQUIRE(r.has_value());
+        extracted.push_back(r->first);
+        q = std::move(r->second);
+    }
+    CHECK(std::is_sorted(extracted.rbegin(), extracted.rend()));
+    CHECK(extracted.size() == 20U);
+    CHECK(extracted.front() == 20);
+    CHECK(extracted.back() == 1);
+}
+
+TEST_CASE("FingerTreePriorityQueueTest - LargeScale") {
+    using Queue = smd::tree::FingerTreePriorityQueue<int>;
+
+    auto q = Queue();
+    for (int i = 1000; i > 0; --i)
+        q = q.push(i);
+
+    CHECK(q.size() == 1000U);
+    CHECK(*q.min() == 1);
+    CHECK(*q.max() == 1000);
+
+    // Extract all via pop_min → sorted
+    std::vector<int> sorted;
+    auto q2 = q;
+    while (!q2.empty()) {
+        auto r = q2.pop_min();
+        sorted.push_back(r->first);
+        q2 = std::move(r->second);
+    }
+    CHECK(sorted.size() == 1000U);
+    CHECK(std::is_sorted(sorted.begin(), sorted.end()));
+    CHECK(sorted.front() == 1);
+    CHECK(sorted.back() == 1000);
+}

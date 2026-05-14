@@ -12,7 +12,7 @@
 #include <vector>
 
 TEST_CASE("FingerTreeFoldableTest - LengthAndToVector") {
-    using Tree = smd::tree::FingerTree<int>;
+    using Tree = smd::tree::FingerTree2<int>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
     auto t = Tree::from_sequence({1, 2, 3, 4, 5});
     CHECK(foldable.length(t) == 5);
@@ -20,7 +20,7 @@ TEST_CASE("FingerTreeFoldableTest - LengthAndToVector") {
 }
 
 TEST_CASE("FingerTreeFoldableTest - FoldMapAccumulates") {
-    using Tree = smd::tree::FingerTree<int>;
+    using Tree = smd::tree::FingerTree2<int>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
     auto t = Tree::from_sequence({1, 2, 3});
     auto sum = foldable.fold_map([](int x) { return x; }, t);
@@ -28,7 +28,7 @@ TEST_CASE("FingerTreeFoldableTest - FoldMapAccumulates") {
 }
 
 TEST_CASE("FingerTreeFoldableTest - EmptyTreeHasLengthZero") {
-    using Tree = smd::tree::FingerTree<int>;
+    using Tree = smd::tree::FingerTree2<int>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
     auto t = Tree::empty();
     CHECK(foldable.length(t) == 0);

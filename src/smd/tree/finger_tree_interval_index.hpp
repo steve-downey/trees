@@ -3,7 +3,7 @@
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE_INTERVAL_INDEX
 #define INCLUDED_SMD_TREE_FINGER_TREE_INTERVAL_INDEX
 
-#include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree2.hpp>
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/foldable.hpp>
 #include <smd/typeclass/monoid.hpp>
@@ -62,7 +62,7 @@ struct IntervalMeasure {
 template <typename PAYLOAD_TYPE>
 class FingerTreeIntervalIndex {
     using Entry = Interval<PAYLOAD_TYPE>;
-    using Tree = FingerTree<Entry, IntervalMaxEndTag<PAYLOAD_TYPE>,
+    using Tree = FingerTree2<Entry, IntervalMaxEndTag<PAYLOAD_TYPE>,
                             IntervalMeasure<PAYLOAD_TYPE>>;
 
     Tree d_tree;

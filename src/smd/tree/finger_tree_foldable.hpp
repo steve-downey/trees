@@ -3,7 +3,7 @@
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE_FOLDABLE
 #define INCLUDED_SMD_TREE_FINGER_TREE_FOLDABLE
 
-#include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree2.hpp>
 #include <smd/typeclass/foldable.hpp>
 
 #include <functional>
@@ -20,7 +20,7 @@ struct FingerTreeFoldableImpl {
     template <class F>
     auto
     fold_map(this auto &&, F &&function,
-             const smd::tree::FingerTree<T, TAG_TYPE, MEASURE_POLICY> &tree)
+             const smd::tree::FingerTree2<T, TAG_TYPE, MEASURE_POLICY> &tree)
         -> remove_cvref_t<std::invoke_result_t<F, const T &>> {
         using Result = remove_cvref_t<std::invoke_result_t<F, const T &>>;
 
@@ -43,7 +43,7 @@ struct FingerTreeFoldableMap
 /** Registers FingerTree as a Foldable for all tag and measure combinations. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 inline constexpr auto
-    foldable_typeclass<smd::tree::FingerTree<T, TAG_TYPE, MEASURE_POLICY>> =
+    foldable_typeclass<smd::tree::FingerTree2<T, TAG_TYPE, MEASURE_POLICY>> =
         FingerTreeFoldableMap<T, TAG_TYPE, MEASURE_POLICY>{};
 
 } // namespace smd

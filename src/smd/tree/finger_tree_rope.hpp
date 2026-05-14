@@ -3,7 +3,7 @@
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE_ROPE
 #define INCLUDED_SMD_TREE_FINGER_TREE_ROPE
 
-#include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree2.hpp>
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/foldable.hpp>
 #include <smd/typeclass/traversable.hpp>
@@ -44,7 +44,7 @@ struct RopeChunkMeasure {
  * - chunks:       O(n)
  */
 class FingerTreeRope {
-    using Tree = FingerTree<std::string, std::size_t, RopeChunkMeasure>;
+    using Tree = FingerTree2<std::string, std::size_t, RopeChunkMeasure>;
 
     Tree d_tree;
 

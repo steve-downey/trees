@@ -7,7 +7,7 @@
 // - Materialization: traverse materializes the tree via flatten() into a
 // vector.
 // - Preservation: monoid measure semantics are preserved through the traversal.
-// - Reconstruction: results are rebuilt via FingerTree<U>::from_sequence() with
+// - Reconstruction: results are rebuilt via FingerTree2<U>::from_sequence() with
 // same measure policy.
 // - Applicative semantics: all traversals follow left-to-right order
 // independent of tree structure.
@@ -17,7 +17,7 @@
 // is acceptable. Wrapper types override with specialized traversal that
 // preserves wrapper invariants.
 
-#include <smd/tree/finger_tree.hpp>
+#include <smd/tree/finger_tree2.hpp>
 #include <smd/typeclass/applicative.hpp>
 #include <smd/typeclass/traversable.hpp>
 
@@ -38,7 +38,7 @@ struct FingerTreeTraversableImpl {
     template <class APPLICATIVE, class F>
     auto
     traverse(this auto &&, const APPLICATIVE &applicative, F &&function,
-             const smd::tree::FingerTree<T, TAG_TYPE, MEASURE_POLICY> &tree) {
+             const smd::tree::FingerTree2<T, TAG_TYPE, MEASURE_POLICY> &tree) {
         using Context = remove_cvref_t<std::invoke_result_t<F, const T &>>;
         using U = smd::applicative_value_t<Context>;
 
@@ -56,7 +56,7 @@ struct FingerTreeTraversableImpl {
 
         return applicative.invoke(
             [](std::vector<U> values) {
-                return smd::tree::FingerTree<U>::from_sequence(
+                return smd::tree::FingerTree2<U>::from_sequence(
                     std::move(values));
             },
             std::move(accumulated));
@@ -73,7 +73,7 @@ struct FingerTreeTraversableMap
 /** Registers FingerTree as a Traversable for all tag and measure combinations. */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 inline constexpr auto
-    traversable_typeclass<smd::tree::FingerTree<T, TAG_TYPE, MEASURE_POLICY>> =
+    traversable_typeclass<smd::tree::FingerTree2<T, TAG_TYPE, MEASURE_POLICY>> =
         FingerTreeTraversableMap<T, TAG_TYPE, MEASURE_POLICY>{};
 
 } // namespace smd
