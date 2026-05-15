@@ -6,6 +6,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <bit>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -538,4 +539,77 @@ TEST_CASE("FingerTree5 - StringElements")
     CHECK(t.measure() == 4U);
     CHECK(t.head() == "alpha");
     CHECK(t.last() == "delta");
+}
+
+TEST_CASE("FingerTree5 - SpineDepthIsLogarithmic")
+{
+    // Verifies the structural invariant: spine_depth() <= floor(log2(N)).
+    //
+    // Each element at spine level d is a Node covering >= 2^d leaves, so a
+    // non-empty spine at level d requires N >= 2^d.  Therefore
+    // spine_depth() <= floor(log2(N)), i.e., within std::bit_width(N) - 1.
+    //
+    // This bound makes every recursive call chain in FingerTree5
+    // (flatten, for_each, view_l/r rebalancing, shared_ptr destructor cascade)
+    // safe from stack overflow for all realistically sized trees.
+    using FT = smd::tree::FingerTree5<int>;
+
+    for (int n : {1, 2, 3, 9, 10, 100, 1000, 5000, 10000}) {
+        auto t = FT::empty();
+        for (int i = 0; i < n; ++i)
+            t = t.snoc(i);
+
+        auto depth = t.spine_depth();
+        auto bound = std::bit_width(static_cast<std::size_t>(n));
+        INFO("n=" << n << " spine_depth=" << depth << " bit_width=" << bound);
+        CHECK(depth < bound); // strict: depth <= floor(log2(n)) < bit_width(n)
+    }
+
+    // Empty and single-element trees have depth 0.
+    CHECK(FT::empty().spine_depth() == 0U);
+    CHECK(FT::leaf(42).spine_depth() == 0U);
+}
+
+TEST_CASE("FingerTree5 - LargeTreeRecursionNoStackOverflow")
+{
+    // Exercises all O(log N) recursive call chains at N = 10'000.
+    // spine_depth() is at most floor(log2(10000)) = 13.
+    // The shared_ptr destructor cascade, flatten_elems, for_each_internal,
+    // and view_l/r spine-borrowing all recurse through the same bounded chain.
+    //
+    // A naive singly-linked list of the same size would overflow the default
+    // stack at ~8K–64K frames.  A finger tree cannot: the structure enforces
+    // the logarithmic depth.
+    using FT = smd::tree::FingerTree5<int>;
+
+    static constexpr int kN = 10'000;
+
+    auto t = FT::empty();
+    for (int i = 0; i < kN; ++i)
+        t = t.snoc(i);
+
+    REQUIRE(t.measure() == static_cast<std::size_t>(kN));
+    REQUIRE(t.spine_depth() <= std::bit_width(static_cast<std::size_t>(kN)) - 1U);
+
+    // flatten: recurses through spine chain then Elem nodes
+    auto v = t.flatten();
+    REQUIRE(static_cast<int>(v.size()) == kN);
+    CHECK(v.front() == 0);
+    CHECK(v.back() == kN - 1);
+
+    // for_each: same recursive structure as flatten
+    long long sum = 0;
+    t.for_each([&](int x) { sum += x; });
+    CHECK(sum == static_cast<long long>(kN) * (kN - 1) / 2);
+
+    // view_l drain: exercises spine-borrowing rebalancing at each step
+    int count = 0;
+    auto u = t;
+    while (auto vl = u.view_l()) {
+        ++count;
+        u = std::move(vl->d_rest);
+    }
+    CHECK(count == kN);
+
+    // Destructor of t runs here — shared_ptr chain unwinds spine_depth() frames.
 }

@@ -813,6 +813,35 @@ class FingerTree5 {
         return ft5::leaf_value(s.d_elem);
     }
 
+    // -- spine_depth: O(log N) -----------------------------------------------
+    //
+    // Returns the number of nested spine levels (0 for Empty/Single, 1 for a
+    // Deep with no spine, 1 + spine->spine_depth() otherwise).
+    //
+    // Structural invariant: spine_depth() <= floor(log2(N)) for any N-element
+    // tree.  Proof sketch: an element at spine level d is a Node covering >= 2^d
+    // leaves, so a non-empty spine at level d requires N >= 2^d.
+    //
+    // Consequence: every recursive call chain in this class — flatten_elems,
+    // for_each_internal, view_l/r spine-borrowing, and the shared_ptr destructor
+    // cascade — is bounded by O(log N) frames and cannot stack-overflow for any
+    // tree that can physically exist.  This bound is tested by
+    // "FingerTree5 - SpineDepthIsLogarithmic" and exercised at N=10'000 by
+    // "FingerTree5 - LargeTreeRecursionNoStackOverflow".
+
+    auto spine_depth() const -> std::size_t {
+        return std::visit(
+            ft5::overloaded{
+                [](const Empty &) -> std::size_t { return 0; },
+                [](const Single &) -> std::size_t { return 0; },
+                [](const DeepPtr &d) -> std::size_t {
+                    if (!d->d_spine || d->d_spine->is_empty())
+                        return 1;
+                    return 1 + d->d_spine->spine_depth();
+                }},
+            d_repr);
+    }
+
     // -- cons / snoc: O(1) amortized -----------------------------------------
 
     auto cons(T x) const -> FingerTree5 {
