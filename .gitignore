@@ -22,3 +22,4 @@ uv.lock
 !foldable-applicative-traversable-slides.html
 /docs/html/
 recc-scan-deps.d/
+.claude/settings.local.json
