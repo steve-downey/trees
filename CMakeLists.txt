@@ -34,6 +34,12 @@ option(
     ${PROJECT_IS_TOP_LEVEL}
 )
 
+option(
+    TREE_ENABLE_BENCHMARKS
+    "Enable building the finger tree comparison benchmark executable"
+    OFF
+)
+
 set(CMAKE_VERIFY_INTERFACE_HEADER_SETS ON)
 
 # Add Catch2 from the vendor directory
