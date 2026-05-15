@@ -10,6 +10,39 @@
 #include <string>
 #include <vector>
 
+namespace {
+
+struct Weighted {
+    std::size_t d_total;
+
+    friend bool operator==(const Weighted &, const Weighted &) = default;
+    friend bool operator>=(const Weighted &lhs, const Weighted &rhs) {
+        return lhs.d_total >= rhs.d_total;
+    }
+};
+
+struct WeightedMeasure {
+    auto operator()(int value) const -> Weighted {
+        return Weighted{static_cast<std::size_t>(value * 10)};
+    }
+};
+
+} // namespace
+
+namespace smd::typeclass {
+
+template <>
+struct Monoid<Weighted> {
+    constexpr auto identity() const -> Weighted { return Weighted{0U}; }
+
+    constexpr auto combine(const Weighted &lhs, const Weighted &rhs) const
+        -> Weighted {
+        return Weighted{lhs.d_total + rhs.d_total};
+    }
+};
+
+} // namespace smd::typeclass
+
 TEST_CASE("FingerTree5 - HeaderIsIdempotent")
 {
     REQUIRE(true);
@@ -337,6 +370,164 @@ TEST_CASE("FingerTree5 - AppendStressCrossSpine")
     REQUIRE(v.size() == 512U);
     for (int i = 0; i < 512; ++i)
         CHECK(v[static_cast<std::size_t>(i)] == i);
+}
+
+TEST_CASE("FingerTree5 - Split")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    for (int i = 0; i < 100; ++i)
+        t = t.snoc(i);
+
+    auto sp = t.split([](std::size_t p) { return p > 25U; });
+    REQUIRE(sp.has_value());
+    CHECK(sp->d_pivot == 25);
+    CHECK(sp->d_left.measure() == 25U);
+    CHECK(sp->d_right.measure() == 74U);
+}
+
+TEST_CASE("FingerTree5 - SplitAtMeasure")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    for (int i = 0; i < 100; ++i)
+        t = t.snoc(i);
+
+    auto sa = t.split_at_measure(std::size_t{51});
+    CHECK(sa.d_left.measure() == 50U);
+    CHECK(sa.d_right.measure() == 50U);
+
+    auto lv = sa.d_left.flatten();
+    auto rv = sa.d_right.flatten();
+    REQUIRE(lv.size() == 50U);
+    REQUIRE(rv.size() == 50U);
+    for (int i = 0; i < 50; ++i) {
+        CHECK(lv[static_cast<std::size_t>(i)] == i);
+        CHECK(rv[static_cast<std::size_t>(i)] == i + 50);
+    }
+}
+
+TEST_CASE("FingerTree5 - SplitEmpty")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    auto sp = t.split([](std::size_t) { return true; });
+    CHECK_FALSE(sp.has_value());
+}
+
+TEST_CASE("FingerTree5 - SplitLeafMatching")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::leaf(7);
+    auto sp = t.split([](std::size_t p) { return p > 0U; });
+    REQUIRE(sp.has_value());
+    CHECK(sp->d_pivot == 7);
+    CHECK(sp->d_left.is_empty());
+    CHECK(sp->d_right.is_empty());
+}
+
+TEST_CASE("FingerTree5 - SplitLeafNonMatching")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::leaf(7);
+    auto sp = t.split([](std::size_t) { return false; });
+    CHECK_FALSE(sp.has_value());
+}
+
+TEST_CASE("FingerTree5 - SplitNoMatch")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::from_sequence({1, 2, 3, 4, 5});
+    auto sp = t.split([](std::size_t) { return false; });
+    CHECK_FALSE(sp.has_value());
+}
+
+TEST_CASE("FingerTree5 - Search")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    for (int i = 0; i < 50; ++i)
+        t = t.snoc(i);
+
+    auto found = t.search([](std::size_t p) { return p > 10U; });
+    REQUIRE(found.has_value());
+    CHECK(*found == 10);
+}
+
+TEST_CASE("FingerTree5 - SplitAtPredicateAlwaysTrue")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::from_sequence({1, 2, 3, 4, 5});
+    auto sp = t.split([](std::size_t) { return true; });
+    REQUIRE(sp.has_value());
+    CHECK(sp->d_pivot == 1);
+    CHECK(sp->d_left.is_empty());
+    CHECK(sp->d_right.flatten() == std::vector<int>{2, 3, 4, 5});
+}
+
+TEST_CASE("FingerTree5 - SplitRoundTripsViaConcat")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    for (int i = 0; i < 100; ++i)
+        t = t.snoc(i);
+
+    for (std::size_t pivot : {std::size_t{1}, std::size_t{27}, std::size_t{50},
+                              std::size_t{75}, std::size_t{99}}) {
+        auto sa = t.split_at_measure(pivot);
+        auto rejoined = FT::concat(sa.d_left, sa.d_right);
+        CHECK(rejoined.flatten() == t.flatten());
+    }
+}
+
+TEST_CASE("FingerTree5 - WeightedSplitAtMeasure")
+{
+    using FT = smd::tree::FingerTree5<int, Weighted, WeightedMeasure>;
+
+    auto t = FT::empty();
+    for (int i = 1; i <= 10; ++i)
+        t = t.snoc(i); // weights: 10, 20, 30, ..., 100 ; total 550
+
+    CHECK(t.measure() == Weighted{550U});
+
+    auto sa = t.split_at_measure(Weighted{200U});
+    // Sum of 10+20+30+40 = 100 < 200 ; +50 = 150 < 200 ; +60 = 210 >= 200
+    // So pivot is element 6 (weight 60), left has 1..5, right has 6..10.
+    CHECK(sa.d_left.measure() == Weighted{150U});
+    CHECK(sa.d_right.measure() == Weighted{400U});
+    CHECK(sa.d_left.flatten() == std::vector<int>{1, 2, 3, 4, 5});
+    CHECK(sa.d_right.flatten() == std::vector<int>{6, 7, 8, 9, 10});
+}
+
+TEST_CASE("FingerTree5 - SplitWithStatefulPredicate")
+{
+    // Verifies the predicate doesn't get erased to std::function; a
+    // capturing/non-copyable callable still threads through end-to-end.
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    for (int i = 0; i < 30; ++i)
+        t = t.snoc(i);
+
+    struct Threshold {
+        std::size_t value;
+        auto operator()(std::size_t p) const -> bool { return p > value; }
+    };
+
+    Threshold pred{17U};
+    auto sp = t.split(pred);
+    REQUIRE(sp.has_value());
+    CHECK(sp->d_pivot == 17);
+    CHECK(sp->d_left.measure() == 17U);
 }
 
 TEST_CASE("FingerTree5 - StringElements")

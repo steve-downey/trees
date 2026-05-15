@@ -18,6 +18,7 @@
 #include <smd/typeclass/monoid.hpp>
 
 #include <cassert>
+#include <concepts>
 #include <cstddef>
 #include <inplace_vector>
 #include <memory>
@@ -540,6 +541,148 @@ class FingerTree5 {
             d_repr);
     }
 
+    // -- Internal split ------------------------------------------------------
+    //
+    // Predicate is templated end-to-end: no std::function allocation per
+    // recursive call.  The predicate flows by const reference; the running
+    // prefix is threaded as a runtime value, so a single Pred type satisfies
+    // the entire descent.
+
+    struct InternalSplit {
+        FingerTree5 d_left;
+        EP d_pivot;
+        FingerTree5 d_right;
+    };
+
+    struct DigitSplit {
+        std::optional<Digit> d_left;
+        EP d_pivot;
+        std::optional<Digit> d_right;
+    };
+
+    template <typename PRED>
+    static auto split_digit(const PRED &pred, Tag prefix, const Digit &d)
+        -> std::optional<DigitSplit> {
+        Tag running = prefix;
+        for (std::size_t i = 0; i < d.size(); ++i) {
+            running = ft5::tag_op<Tag>(running, d[i]->d_measure);
+            if (pred(running)) {
+                std::optional<Digit> left_d;
+                std::optional<Digit> right_d;
+                if (i > 0) {
+                    Digit ld;
+                    for (std::size_t k = 0; k < i; ++k)
+                        ld.push_back(d[k]);
+                    left_d = std::move(ld);
+                }
+                if (i + 1 < d.size()) {
+                    Digit rd;
+                    for (std::size_t k = i + 1; k < d.size(); ++k)
+                        rd.push_back(d[k]);
+                    right_d = std::move(rd);
+                }
+                return DigitSplit{std::move(left_d), d[i], std::move(right_d)};
+            }
+        }
+        return std::nullopt;
+    }
+
+    template <typename PRED>
+    static auto split_within_elem(const PRED &pred, Tag prefix,
+                                  const EP &node_ep) -> DigitSplit {
+        auto children = ft5::elem_to_digit<T, Tag>(node_ep);
+        auto ds = split_digit(pred, prefix, children);
+        assert(ds.has_value() &&
+               "split_within_elem: predicate never triggered");
+        return std::move(*ds);
+    }
+
+    static auto assemble_l(std::optional<Digit> left_d, SpinePtr spine,
+                           Digit right) -> FingerTree5 {
+        if (left_d.has_value())
+            return make_deep(std::move(*left_d), std::move(spine),
+                             std::move(right));
+        return deep_l(std::move(spine), std::move(right));
+    }
+
+    static auto assemble_r(Digit left, SpinePtr spine,
+                           std::optional<Digit> right_d) -> FingerTree5 {
+        if (right_d.has_value())
+            return make_deep(std::move(left), std::move(spine),
+                             std::move(*right_d));
+        return deep_r(std::move(left), std::move(spine));
+    }
+
+    template <typename PRED>
+    auto split_impl(const PRED &pred, Tag prefix) const
+        -> std::optional<InternalSplit> {
+        if (is_empty())
+            return std::nullopt;
+
+        if (auto *s = std::get_if<Single>(&d_repr)) {
+            if (pred(ft5::tag_op<Tag>(prefix, s->d_elem->d_measure)))
+                return InternalSplit{make_empty(), s->d_elem, make_empty()};
+            return std::nullopt;
+        }
+
+        const auto &d = *std::get<DeepPtr>(d_repr);
+
+        auto vl = ft5::tag_op<Tag>(prefix, ft5::digit_measure(d.d_left));
+        if (pred(vl)) {
+            auto ds = split_digit(pred, prefix, d.d_left);
+            if (!ds.has_value())
+                return std::nullopt;
+            auto lt = ds->d_left.has_value() ? digit_to_tree(*ds->d_left)
+                                              : make_empty();
+            auto rt = assemble_l(std::move(ds->d_right), d.d_spine, d.d_right);
+            return InternalSplit{std::move(lt), std::move(ds->d_pivot),
+                                 std::move(rt)};
+        }
+
+        auto spine_m =
+            d.d_spine ? d.d_spine->measure() : ft5::tag_id<Tag>();
+        auto vm = ft5::tag_op<Tag>(vl, spine_m);
+        if (pred(vm)) {
+            if (!d.d_spine || d.d_spine->is_empty())
+                return std::nullopt;
+
+            // Recurse into spine; thread vl as the new prefix rather than
+            // wrapping pred in a closure (no allocation, single Pred type).
+            auto ss = d.d_spine->split_impl(pred, vl);
+            if (!ss.has_value())
+                return std::nullopt;
+
+            auto node_prefix =
+                ft5::tag_op<Tag>(vl, ss->d_left.measure());
+            auto ns = split_within_elem(pred, node_prefix, ss->d_pivot);
+
+            SpinePtr sl;
+            if (!ss->d_left.is_empty())
+                sl = std::make_shared<const FingerTree5>(
+                    std::move(ss->d_left));
+            SpinePtr sr;
+            if (!ss->d_right.is_empty())
+                sr = std::make_shared<const FingerTree5>(
+                    std::move(ss->d_right));
+
+            auto lt =
+                assemble_r(d.d_left, std::move(sl), std::move(ns.d_left));
+            auto rt = assemble_l(std::move(ns.d_right), std::move(sr),
+                                 d.d_right);
+            return InternalSplit{std::move(lt), std::move(ns.d_pivot),
+                                 std::move(rt)};
+        }
+
+        auto ds = split_digit(pred, vm, d.d_right);
+        if (!ds.has_value())
+            return std::nullopt;
+        auto lt = assemble_r(d.d_left, d.d_spine, std::move(ds->d_left));
+        auto rt = ds->d_right.has_value() ? digit_to_tree(*ds->d_right)
+                                           : make_empty();
+        return InternalSplit{std::move(lt), std::move(ds->d_pivot),
+                             std::move(rt)};
+    }
+
     // -- app3: Hinze-Paterson concatenation ----------------------------------
 
     static auto app3(const FingerTree5 &left, std::vector<EP> middle,
@@ -754,6 +897,56 @@ class FingerTree5 {
     static auto concat(const FingerTree5 &left, const FingerTree5 &right)
         -> FingerTree5 {
         return left.append(right);
+    }
+
+    // -- split: O(log n) -----------------------------------------------------
+
+    struct Split {
+        FingerTree5 d_left;
+        T d_pivot;
+        FingerTree5 d_right;
+    };
+
+    struct SplitAt {
+        FingerTree5 d_left;
+        FingerTree5 d_right;
+    };
+
+    template <typename PRED>
+    auto search(PRED &&pred) const -> std::optional<T> {
+        auto sp = split(std::forward<PRED>(pred));
+        if (!sp.has_value())
+            return std::nullopt;
+        return std::move(sp->d_pivot);
+    }
+
+    template <typename PRED>
+    auto split(PRED &&pred) const -> std::optional<Split> {
+        auto is = split_impl(pred, ft5::tag_id<Tag>());
+        if (!is.has_value())
+            return std::nullopt;
+        assert(ft5::is_leaf(is->d_pivot));
+        return Split{std::move(is->d_left),
+                     ft5::leaf_value(is->d_pivot),
+                     std::move(is->d_right)};
+    }
+
+    template <typename PRED>
+    auto split_at(PRED &&pred) const -> SplitAt {
+        auto sp = split(std::forward<PRED>(pred));
+        if (!sp.has_value())
+            return SplitAt{*this, empty()};
+        return SplitAt{std::move(sp->d_left),
+                       sp->d_right.cons(std::move(sp->d_pivot))};
+    }
+
+    auto split_at_measure(const Tag &threshold) const -> SplitAt
+        requires requires(const Tag &a, const Tag &b) {
+            { a >= b } -> std::convertible_to<bool>;
+        }
+    {
+        return split_at(
+            [&threshold](const Tag &prefix) { return prefix >= threshold; });
     }
 };
 
