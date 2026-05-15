@@ -63,7 +63,7 @@ if(TREE_ENABLE_TESTING)
         PRIVATE smd::tree Catch2::Catch2WithMain
     )
 
-    target_compile_features(smd_tree_tests PRIVATE cxx_std_23)
+    target_compile_features(smd_tree_tests PRIVATE cxx_std_26)
 
     catch_discover_tests(smd_tree_tests)
 endif()

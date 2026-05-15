@@ -47,7 +47,7 @@ CONFIG ?= Asan
 
 export
 
-TOOLCHAIN ?= clang
+TOOLCHAIN ?= gcc-16
 
 ifeq ($(strip $(TOOLCHAIN)),system)
 	_build_name?=build-system/

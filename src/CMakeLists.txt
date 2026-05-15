@@ -38,7 +38,7 @@ target_sources(
     PUBLIC FILE_SET smd_tree_headers TYPE HEADERS BASE_DIRS .
 )
 target_link_libraries(smd.tree INTERFACE smd::typeclass smd::fixpoint)
-target_compile_features(smd.tree INTERFACE cxx_std_23)
+target_compile_features(smd.tree INTERFACE cxx_std_26)
 
 add_library(smd.ziplist INTERFACE)
 add_library(smd::ziplist ALIAS smd.ziplist)
