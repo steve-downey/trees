@@ -214,6 +214,52 @@ auto digit_init(const Digit<T, Tag> &d) -> Digit<T, Tag> {
     return out;
 }
 
+// Copy a Digit into a flat vector for cross-level operations (concat).
+template <typename T, typename Tag>
+auto digit_to_vec(const Digit<T, Tag> &d) -> std::vector<ElemPtr<T, Tag>> {
+    std::vector<ElemPtr<T, Tag>> out;
+    out.reserve(d.size());
+    for (const auto &ep : d)
+        out.push_back(ep);
+    return out;
+}
+
+// Group a flat sequence of ElemPtrs into Node2/Node3 nodes for the next
+// spine level.  Input size must be >= 2.
+template <typename T, typename Tag>
+auto nodes_from(std::vector<ElemPtr<T, Tag>> elems)
+    -> std::vector<ElemPtr<T, Tag>> {
+    std::vector<ElemPtr<T, Tag>> result;
+    auto n = elems.size();
+    std::size_t i = 0;
+    while (n - i > 4) {
+        result.push_back(
+            make_node3<T, Tag>(std::move(elems[i]), std::move(elems[i + 1]),
+                               std::move(elems[i + 2])));
+        i += 3;
+    }
+    switch (n - i) {
+    case 2:
+        result.push_back(
+            make_node2<T, Tag>(std::move(elems[i]), std::move(elems[i + 1])));
+        break;
+    case 3:
+        result.push_back(
+            make_node3<T, Tag>(std::move(elems[i]), std::move(elems[i + 1]),
+                               std::move(elems[i + 2])));
+        break;
+    case 4:
+        result.push_back(
+            make_node2<T, Tag>(std::move(elems[i]), std::move(elems[i + 1])));
+        result.push_back(make_node2<T, Tag>(std::move(elems[i + 2]),
+                                            std::move(elems[i + 3])));
+        break;
+    default:
+        assert(false && "nodes_from: invalid count");
+    }
+    return result;
+}
+
 // Unwrap a Node elem into a 2-or-3 element digit.
 template <typename T, typename Tag>
 auto elem_to_digit(const ElemPtr<T, Tag> &ep) -> Digit<T, Tag> {
@@ -494,6 +540,60 @@ class FingerTree5 {
             d_repr);
     }
 
+    // -- app3: Hinze-Paterson concatenation ----------------------------------
+
+    static auto app3(const FingerTree5 &left, std::vector<EP> middle,
+                     const FingerTree5 &right) -> FingerTree5 {
+        if (left.is_empty()) {
+            auto result = right;
+            for (auto it = middle.rbegin(); it != middle.rend(); ++it)
+                result = result.cons_internal(std::move(*it));
+            return result;
+        }
+        if (right.is_empty()) {
+            auto result = left;
+            for (auto &elem : middle)
+                result = result.snoc_internal(std::move(elem));
+            return result;
+        }
+        if (auto *ls = std::get_if<Single>(&left.d_repr)) {
+            auto result = right;
+            for (auto it = middle.rbegin(); it != middle.rend(); ++it)
+                result = result.cons_internal(std::move(*it));
+            return result.cons_internal(ls->d_elem);
+        }
+        if (auto *rs = std::get_if<Single>(&right.d_repr)) {
+            auto result = left;
+            for (auto &elem : middle)
+                result = result.snoc_internal(std::move(elem));
+            return result.snoc_internal(rs->d_elem);
+        }
+
+        const auto &ld = *std::get<DeepPtr>(left.d_repr);
+        const auto &rd = *std::get<DeepPtr>(right.d_repr);
+
+        auto combined = ft5::digit_to_vec<T, Tag>(ld.d_right);
+        combined.insert(combined.end(),
+                        std::make_move_iterator(middle.begin()),
+                        std::make_move_iterator(middle.end()));
+        {
+            auto rl = ft5::digit_to_vec<T, Tag>(rd.d_left);
+            combined.insert(combined.end(), rl.begin(), rl.end());
+        }
+        auto ns = ft5::nodes_from<T, Tag>(std::move(combined));
+
+        auto left_spine =
+            ld.d_spine ? *ld.d_spine : FingerTree5::empty();
+        auto right_spine =
+            rd.d_spine ? *rd.d_spine : FingerTree5::empty();
+        auto new_spine =
+            FingerTree5::app3(left_spine, std::move(ns), right_spine);
+        SpinePtr sp;
+        if (!new_spine.is_empty())
+            sp = std::make_shared<const FingerTree5>(std::move(new_spine));
+        return make_deep(ld.d_left, std::move(sp), rd.d_right);
+    }
+
     // -- Internal flatten / for_each -----------------------------------------
 
     void flatten_elems(std::vector<T> &out) const {
@@ -643,6 +743,17 @@ class FingerTree5 {
         for (auto &v : values)
             result = result.snoc(std::move(v));
         return result;
+    }
+
+    // -- append / concat: O(log min(n, m)) -----------------------------------
+
+    auto append(const FingerTree5 &right) const -> FingerTree5 {
+        return app3(*this, {}, right);
+    }
+
+    static auto concat(const FingerTree5 &left, const FingerTree5 &right)
+        -> FingerTree5 {
+        return left.append(right);
     }
 };
 

@@ -248,6 +248,97 @@ TEST_CASE("FingerTree5 - PersistenceAfterMutation")
     CHECK(t2.flatten() == std::vector<int>{1, 2, 3, 4});
 }
 
+TEST_CASE("FingerTree5 - Append")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto left = FT::from_sequence({1, 2, 3, 4, 5});
+    auto right = FT::from_sequence({6, 7, 8, 9, 10});
+    auto combined = left.append(right);
+
+    CHECK(combined.measure() == 10U);
+    auto v = combined.flatten();
+    REQUIRE(v.size() == 10U);
+    for (int i = 0; i < 10; ++i)
+        CHECK(v[static_cast<std::size_t>(i)] == i + 1);
+}
+
+TEST_CASE("FingerTree5 - AppendLarge")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto left = FT::empty();
+    for (int i = 0; i < 50; ++i)
+        left = left.snoc(i);
+    auto right = FT::empty();
+    for (int i = 50; i < 100; ++i)
+        right = right.snoc(i);
+
+    auto combined = left.append(right);
+    CHECK(combined.measure() == 100U);
+
+    auto v = combined.flatten();
+    REQUIRE(v.size() == 100U);
+    for (int i = 0; i < 100; ++i)
+        CHECK(v[static_cast<std::size_t>(i)] == i);
+}
+
+TEST_CASE("FingerTree5 - AppendEmpty")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::from_sequence({1, 2, 3});
+    auto e = FT::empty();
+
+    CHECK(t.append(e).flatten() == std::vector<int>{1, 2, 3});
+    CHECK(e.append(t).flatten() == std::vector<int>{1, 2, 3});
+    CHECK(e.append(e).is_empty());
+}
+
+TEST_CASE("FingerTree5 - AppendSingle")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::from_sequence({1, 2, 3});
+    auto s = FT::leaf(99);
+
+    CHECK(t.append(s).flatten() == std::vector<int>{1, 2, 3, 99});
+    CHECK(s.append(t).flatten() == std::vector<int>{99, 1, 2, 3});
+}
+
+TEST_CASE("FingerTree5 - ConcatMatchesAppend")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto a = FT::from_sequence({1, 2, 3});
+    auto b = FT::from_sequence({4, 5, 6});
+
+    auto via_member = a.append(b).flatten();
+    auto via_static = FT::concat(a, b).flatten();
+    CHECK(via_member == via_static);
+}
+
+TEST_CASE("FingerTree5 - AppendStressCrossSpine")
+{
+    // Cross-spine concatenation: both sides have nontrivial spines.
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto left = FT::empty();
+    for (int i = 0; i < 256; ++i)
+        left = left.snoc(i);
+    auto right = FT::empty();
+    for (int i = 256; i < 512; ++i)
+        right = right.snoc(i);
+
+    auto combined = left.append(right);
+    CHECK(combined.measure() == 512U);
+
+    auto v = combined.flatten();
+    REQUIRE(v.size() == 512U);
+    for (int i = 0; i < 512; ++i)
+        CHECK(v[static_cast<std::size_t>(i)] == i);
+}
+
 TEST_CASE("FingerTree5 - StringElements")
 {
     using FT = smd::tree::FingerTree5<std::string>;
