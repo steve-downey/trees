@@ -18,6 +18,7 @@ target_sources(
                 finger_tree3.hpp
                 finger_tree4.hpp
                 finger_tree5.hpp
+                finger_tree5_foldable.hpp
                 finger_tree_foldable.hpp
                 finger_tree_traversable.hpp
                 finger_tree_random_access.hpp
@@ -43,6 +44,7 @@ if(TREE_ENABLE_TESTING)
         finger_tree3.t.cpp
         finger_tree4.t.cpp
         finger_tree5.t.cpp
+        finger_tree5_foldable.t.cpp
         finger_tree_foldable.t.cpp
         finger_tree_interval_index.t.cpp
         finger_tree_priority_queue.t.cpp
