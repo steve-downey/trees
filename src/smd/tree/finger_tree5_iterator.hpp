@@ -30,6 +30,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <memory>
 #include <vector>
@@ -48,9 +49,14 @@ class FingerTree5Iterator {
 
     struct SpineFrame {
         std::shared_ptr<const typename FT::Deep> deep;
-        enum Section { LEFT = 0, SPINE = 1, RIGHT = 2 } section;
+        enum class Section : std::uint8_t { LEFT = 0, SPINE = 1, RIGHT = 2 } section;
         std::size_t index; // digit index (unused when section == SPINE)
     };
+
+    // Shorthand — dependent type so using enum is not allowed, use these.
+    static constexpr auto k_left  = SpineFrame::Section::LEFT;
+    static constexpr auto k_spine = SpineFrame::Section::SPINE;
+    static constexpr auto k_right = SpineFrame::Section::RIGHT;
 
     struct ElemFrame {
         EP          elem;
@@ -118,11 +124,11 @@ class FingerTree5Iterator {
     // Sets the top frame's section to SPINE and descends into the spine.
     void enter_spine_left(const typename FT::SpinePtr& sp) {
         // Mark that we are now in the spine section of the current Deep.
-        d_spine_path.back().section = SpineFrame::SPINE;
+        d_spine_path.back().section = k_spine;
 
         if (!sp || sp->is_empty()) {
             // No spine — go directly to RIGHT.
-            d_spine_path.back().section = SpineFrame::RIGHT;
+            d_spine_path.back().section = k_right;
             d_spine_path.back().index   = 0;
             descend_elem_left(d_spine_path.back().deep->d_right[0]);
             return;
@@ -135,7 +141,7 @@ class FingerTree5Iterator {
             },
             [this](const typename FT::DeepPtr& d) {
                 // reserve(32) in constructor prevents reallocation.
-                d_spine_path.push_back({d, SpineFrame::LEFT, 0});
+                d_spine_path.push_back({d, k_left, 0});
                 descend_elem_left(d_spine_path.back().deep->d_left[0]);
             }
         }, sp->d_repr);
@@ -143,12 +149,12 @@ class FingerTree5Iterator {
 
     // Called when the top SpineFrame's RIGHT digit is exhausted (going backward).
     void enter_spine_right(const typename FT::SpinePtr& sp) {
-        d_spine_path.back().section = SpineFrame::SPINE;
+        d_spine_path.back().section = k_spine;
 
         if (!sp || sp->is_empty()) {
             // No spine — go directly to LEFT.
             auto sz = d_spine_path.back().deep->d_left.size();
-            d_spine_path.back().section = SpineFrame::LEFT;
+            d_spine_path.back().section = k_left;
             d_spine_path.back().index   = sz - 1;
             descend_elem_right(d_spine_path.back().deep->d_left.back());
             return;
@@ -159,8 +165,7 @@ class FingerTree5Iterator {
                 descend_elem_right(s.d_elem);
             },
             [this](const typename FT::DeepPtr& d) {
-                d_spine_path.push_back(
-                    {d, SpineFrame::RIGHT, d->d_right.size() - 1});
+                d_spine_path.push_back({d, k_right, d->d_right.size() - 1});
                 descend_elem_right(d_spine_path.back().deep->d_right.back());
             }
         }, sp->d_repr);
@@ -174,7 +179,7 @@ class FingerTree5Iterator {
         while (!d_spine_path.empty()) {
             auto& top = d_spine_path.back();
 
-            if (top.section == SpineFrame::LEFT) {
+            if (top.section == k_left) {
                 if (top.index + 1 < top.deep->d_left.size()) {
                     ++top.index;
                     descend_elem_left(top.deep->d_left[top.index]);
@@ -185,9 +190,9 @@ class FingerTree5Iterator {
                 return;
             }
 
-            if (top.section == SpineFrame::SPINE) {
+            if (top.section == k_spine) {
                 // Returned from the spine subtree — move to RIGHT.
-                top.section = SpineFrame::RIGHT;
+                top.section = k_right;
                 top.index   = 0;
                 descend_elem_left(top.deep->d_right[0]);
                 return;
@@ -215,7 +220,7 @@ class FingerTree5Iterator {
         while (!d_spine_path.empty()) {
             auto& top = d_spine_path.back();
 
-            if (top.section == SpineFrame::RIGHT) {
+            if (top.section == k_right) {
                 if (top.index > 0) {
                     --top.index;
                     descend_elem_right(top.deep->d_right[top.index]);
@@ -226,10 +231,10 @@ class FingerTree5Iterator {
                 return;
             }
 
-            if (top.section == SpineFrame::SPINE) {
+            if (top.section == k_spine) {
                 // Returned from the spine subtree — move to LEFT (last element).
                 auto sz     = top.deep->d_left.size();
-                top.section = SpineFrame::LEFT;
+                top.section = k_left;
                 top.index   = sz - 1;
                 descend_elem_right(top.deep->d_left.back());
                 return;
@@ -261,8 +266,7 @@ class FingerTree5Iterator {
                 descend_elem_right(s.d_elem);
             },
             [this](const typename FT::DeepPtr& d) {
-                d_spine_path.push_back(
-                    {d, SpineFrame::RIGHT, d->d_right.size() - 1});
+                d_spine_path.push_back({d, k_right, d->d_right.size() - 1});
                 descend_elem_right(d_spine_path.back().deep->d_right.back());
             }
         }, d_root_keepalive->d_repr);
@@ -304,7 +308,7 @@ public:
                 it.descend_elem_left(s.d_elem);
             },
             [&](const typename FT::DeepPtr& d) {
-                it.d_spine_path.push_back({d, SpineFrame::LEFT, 0});
+                it.d_spine_path.push_back({d, k_left, 0});
                 it.descend_elem_left(d->d_left[0]);
             }
         }, tree.d_repr);
@@ -408,10 +412,6 @@ public:
     auto operator==(const FingerTree5Iterator& other) const -> bool {
         return d_absolute_index == other.d_absolute_index;
     }
-
-    auto operator!=(const FingerTree5Iterator& other) const -> bool {
-        return !(*this == other);
-    }
 };
 
 // ============================================================================
@@ -458,14 +458,14 @@ auto end(const FingerTree5<T, Tag, MP>& t)
 namespace smd::tree {
 
 template <typename T, typename TAG_TYPE, typename MEASURE_POLICY>
-inline auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY>::begin() const
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY>::begin() const
     -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>
 {
     return smd::tree::begin(*this);
 }
 
 template <typename T, typename TAG_TYPE, typename MEASURE_POLICY>
-inline auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY>::end() const
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY>::end() const
     -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>
 {
     return smd::tree::end(*this);

@@ -41,18 +41,16 @@ template <typename... Ts>
 struct overloaded : Ts... {
     using Ts::operator()...;
 };
-template <typename... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
 
 // -- Tag operations ----------------------------------------------------------
 
 template <typename Tag>
-inline auto tag_id() -> Tag {
+constexpr auto tag_id() -> Tag {
     return smd::typeclass::monoid_v<Tag>.identity();
 }
 
 template <typename Tag>
-inline auto tag_op(const Tag &a, const Tag &b) -> Tag {
+constexpr auto tag_op(const Tag &a, const Tag &b) -> Tag {
     return smd::typeclass::monoid_v<Tag>.combine(a, b);
 }
 
