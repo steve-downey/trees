@@ -560,7 +560,7 @@ TEST_CASE("FingerTree5 - SpineDepthIsLogarithmic")
             t = t.snoc(i);
 
         auto depth = t.spine_depth();
-        auto bound = std::bit_width(static_cast<std::size_t>(n));
+        std::size_t bound = std::bit_width(static_cast<std::size_t>(n));
         INFO("n=" << n << " spine_depth=" << depth << " bit_width=" << bound);
         CHECK(depth < bound); // strict: depth <= floor(log2(n)) < bit_width(n)
     }

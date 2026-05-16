@@ -3,21 +3,34 @@
 #ifndef INCLUDED_SMD_FIXPOINT_OVERLOADED
 #define INCLUDED_SMD_FIXPOINT_OVERLOADED
 
+// overloaded<Ts...> — aggregate visitor for std::visit.
+//
+// Usage:
+//   std::visit(overloaded{
+//       [](int x)         { ... },
+//       [](std::string s) { ... },
+//   }, v);
+//
+// The consteval catch-all fires a static_assert at compile time if std::visit
+// encounters an alternative not covered by the explicit cases.  This turns
+// variant exhaustiveness into a hard compile error rather than a silent
+// default/no-op.  Adding a new alternative to a variant without handling it
+// everywhere is caught immediately.
+//
+// No explicit deduction guide is needed: C++20 CTAD for aggregates deduces
+// overloaded<F1, F2, ...> from the constructor arguments.
+
 namespace smd::fixpoint {
 
-/** Aggregate that inherits operator() from each of @p Ts.
- * Used with std::visit to combine multiple lambdas into a single visitor
- * without writing a hand-rolled visitor struct.
- * Example: std::visit(overloaded{case1, case2, ...}, variant)
- */
 template <typename... Ts>
 struct overloaded : Ts... {
     using Ts::operator()...;
-};
 
-/** Deduction guide so overloaded{...} works without explicit template args. */
-template <typename... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
+    consteval void operator()(auto) const {
+        static_assert(false,
+                      "overloaded: unhandled variant alternative — add a case");
+    }
+};
 
 } // namespace smd::fixpoint
 
