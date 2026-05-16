@@ -169,8 +169,8 @@ The right test is not just whether a name is theoretically accurate.
 The right test is whether examples like these look sane:
 
 - `#include <beman/<short_name>/traverse.hpp>`
-- `#include <beman/<short_name>/applicative.hpp>`
-- `#include <beman/<short_name>/sequence.hpp>`
+- `#include <beman/<short_name>/transpose.hpp>`
+- `#include <beman/<short_name>/apply.hpp>` or another verb-first support name
 - `#include <beman/<short_name>/finger_tree.hpp>`
 
 or whatever the eventual public surface becomes.
@@ -223,7 +223,7 @@ For each candidate short name, write out at least:
 For example, test shapes like:
 
 - `#include <beman/<short_name>/traverse.hpp>`
-- `#include <beman/<short_name>/applicative.hpp>`
+- `#include <beman/<short_name>/transpose.hpp>`
 - `#include <beman/<short_name>/finger_tree.hpp>`
 - `target_link_libraries(x PRIVATE beman::<short_name>)`
 - `beman::<short_name>::traverse(...)`
@@ -263,7 +263,8 @@ temporary sketch.
 ### 7. Does the name still work if one surface becomes more important?
 
 The chosen name should survive shifts in emphasis between traversal,
-applicative operations, extension-point machinery, and container structures.
+transposition/apply support, bundled customization machinery, and container
+structures.
 
 ## Immediate Naming Task
 
@@ -279,15 +280,15 @@ That should result in:
 
 That output becomes the naming contract for the rest of the migration.
 
-## First-Pass Candidate Short Names
+## Current Candidate Short Names
 
-This is a first-pass shortlist, not a final verdict.
+This is the current shortlist, not a final verdict.
 The goal is to identify names that can plausibly host:
 
 - traversal and applicative-style algorithm headers
-- extension-point machinery
+- bundled customization machinery
 - finger-tree-based containers and wrappers
-- recursive tree surfaces
+- recursive algorithm surfaces
 
 The candidates below are scored qualitatively against the anti-stutter and
 breadth requirements.
@@ -297,9 +298,9 @@ breadth requirements.
 Representative spellings:
 
 - `#include <beman/structure/traverse.hpp>`
-- `#include <beman/structure/applicative.hpp>`
+- `#include <beman/structure/transpose.hpp>`
 - `#include <beman/structure/finger_tree.hpp>`
-- `#include <beman/structure/fixpoint_tree.hpp>`
+- `#include <beman/structure/recursive_fold.hpp>`
 - `beman::structure::traverse(...)`
 - `target_link_libraries(x PRIVATE beman::structure)`
 
@@ -318,14 +319,14 @@ Weaknesses:
 
 Current status:
 
-- preferred first-pass umbrella
+- preferred current umbrella
 
 ### Candidate: `shape`
 
 Representative spellings:
 
 - `#include <beman/shape/traverse.hpp>`
-- `#include <beman/shape/applicative.hpp>`
+- `#include <beman/shape/transpose.hpp>`
 - `#include <beman/shape/finger_tree.hpp>`
 - `beman::shape::traverse(...)`
 
@@ -351,7 +352,7 @@ Representative spellings:
 
 - `#include <beman/functional/traverse.hpp>`
 - `#include <beman/functional/finger_tree.hpp>`
-- `beman::functional::applicative_typeclass<...>`
+- `beman::functional::traverse(...)`
 
 Assessment:
 
@@ -373,18 +374,18 @@ Current status:
 Representative spellings:
 
 - `#include <beman/context/traverse.hpp>`
-- `#include <beman/context/applicative.hpp>`
+- `#include <beman/context/transpose.hpp>`
 - `#include <beman/context/finger_tree.hpp>`
 
 Assessment:
 
-- very good for traversal and applicative operations
+- very good for traversal and transposition operations
 - clean header spellings for the algorithm side
 
 Weaknesses:
 
 - too effect-centric for the container and tree side
-- makes `finger_tree.hpp` and `fixpoint_tree.hpp` feel bolted on
+- makes `finger_tree.hpp` and `recursive_fold.hpp` feel bolted on
 
 Current status:
 
@@ -395,7 +396,7 @@ Current status:
 Representative spellings:
 
 - `#include <beman/tree/finger_tree.hpp>`
-- `#include <beman/tree/fixpoint_tree.hpp>`
+- `#include <beman/tree/recursive_fold.hpp>`
 - `#include <beman/tree/traverse.hpp>`
 
 Assessment:
@@ -406,52 +407,52 @@ Assessment:
 Weaknesses:
 
 - overconstrains the library to one data-structure family
-- makes applicative and traversal headers feel misplaced
+- makes traverse/transpose and recursive-algorithm headers feel misplaced
 - poor fit if non-tree surfaces become first-class
 
 Current status:
 
 - reject as umbrella name
 
-### Candidate: `sequence`
+### Candidate: `transpose`
 
 Representative spellings:
 
-- `#include <beman/sequence/finger_tree.hpp>`
-- `#include <beman/sequence/traverse.hpp>`
-- `#include <beman/sequence/fixpoint_tree.hpp>`
+- `#include <beman/transpose/finger_tree.hpp>`
+- `#include <beman/transpose/traverse.hpp>`
+- `#include <beman/transpose/recursive_fold.hpp>`
 
 Assessment:
 
-- good for persistent sequence containers
-- good fit for random access, rope, and related wrappers
+- very good for the transposition operation itself
+- compact and verb-forward
 
 Weaknesses:
 
-- too narrow for recursive trees
-- traversal and applicative surfaces read as secondary add-ons
+- too narrow for persistent containers and recursive algorithms as a whole
+- makes the library sound like one operation rather than a coordinated family
 
 Current status:
 
 - reject as umbrella name
 
-## First-Pass Naming Recommendation
+## Current Naming Recommendation
 
 If the project needs one umbrella Beman short name today, `structure` is the
-best first-pass choice.
+best current choice.
 
 Reason:
 
 - it is broad enough to hold the coordinated paper set
 - it supports flat public headers cleanly
-- it keeps `traverse.hpp`, `applicative.hpp`, `finger_tree.hpp`, and
-  `fixpoint_tree.hpp` all plausible in one namespace
+- it keeps `traverse.hpp`, `transpose.hpp`, `finger_tree.hpp`, and
+  `recursive_fold.hpp` all plausible in one namespace
 - it avoids the worst forms of Beman path stutter
 
 If a shorter and more theory-forward spelling is preferred, `shape` is the
 best alternate.
 
-## First-Pass Public Header Map
+## Current Public Header Map
 
 This section translates the current `smd` surface into a flatter Beman public
 header set.
@@ -462,25 +463,39 @@ The main rule is:
 - versioned implementation headers stay internal
 - public headers are unversioned and semantic
 - adapter glue should be merged into the public facade where practical rather
-  than exported as separate `*_foldable.hpp` or `*_traversable.hpp` headers
+  than exported as separate `*_foldable.hpp`, `*_traversable.hpp`, or
+  `*_applicative.hpp` headers
+
+The naming bias should now follow the same rule as the paper plan:
+
+- lead with action verbs in front-door algorithm names where possible
+- reserve academic nouns for technical discussion, adapter internals, or
+  specification-facing material
+- prefer `transpose` over `sequence` for structure/context flipping
 
 The examples below use `structure` as the working short name.
 
 ### Likely top-level public algorithm headers
-
-- `include/beman/structure/applicative.hpp`
-  Source starting point: `src/smd/typeclass/applicative.hpp`
-  Notes: likely public as-is, subject to naming cleanup.
 
 - `include/beman/structure/traverse.hpp`
   Source starting point: `src/smd/typeclass/traversable.hpp`
   Notes: rename from the category name to the operation users actually reach
   for.
 
+- `include/beman/structure/transpose.hpp`
+  Source starting point: derived from `src/smd/typeclass/traversable.hpp`
+  Notes: front-door name for the structure/context flipping operation.
+  This should replace `sequence` as the public-facing verb.
+
 - `include/beman/structure/foldable.hpp` or `include/beman/structure/fold.hpp`
   Source starting point: `src/smd/typeclass/foldable.hpp`
   Notes: unresolved; `fold.hpp` is cleaner for users, `foldable.hpp` matches
   the current framework vocabulary.
+
+- `include/beman/structure/apply.hpp` or another verb-first support header
+  Source starting point: `src/smd/typeclass/applicative.hpp`
+  Notes: the mechanism layer still needs `pure`/`apply`-like semantics, but
+  the public-facing header should prefer a verb-shaped name if practical.
 
 - `include/beman/structure/monoid.hpp`
   Source starting point: `src/smd/typeclass/monoid.hpp`
@@ -553,10 +568,17 @@ The examples below use `structure` as the working short name.
 
 ### Recursive-tree public headers
 
-- `include/beman/structure/fixpoint_tree.hpp`
-  Source starting point: `src/smd/tree/fixpoint_tree.hpp`
-  Notes: public viability depends on whether the current expression-specific
-  presentation is generalized into a reusable tree surface.
+- `include/beman/structure/recursive_fold.hpp`
+  Source starting point: `src/smd/tree/fixpoint_tree.hpp` and related fixpoint
+  support headers.
+  Notes: preferred direction is an algorithm-facing public surface rather than
+  a vocabulary type named after fixpoints.
+
+- `include/beman/structure/recursive_build.hpp`
+  Source starting point: `src/smd/tree/fixpoint_tree.hpp` and related fixpoint
+  support headers.
+  Notes: public-facing name for unfold/build style recursive construction if it
+  graduates into the Beman surface.
 
 - `include/beman/structure/binary_tree.hpp`
   Source starting point: `src/smd/tree/binary_tree.hpp`
@@ -585,33 +607,41 @@ Proposed Beman status:
 
 ## Proposed Public Include Tree
 
-This section turns the first-pass header map into a concrete proposed public
+This section turns the current header map into a concrete proposed public
 header tree.
-The point is not that every file below must exist on day one.
-The point is to define the shape the library should be trying to converge on.
+The point is not that every file below must be standardized in one paper.
+The point is to define the shape the reference implementation should present as
+one coherent library.
 
 The example below uses the current preferred umbrella name:
 
 - `structure`
 
-### Target day-one shape
+### Reference core shape
 
 ```text
 include/
   beman/
     structure/
-      applicative.hpp
       traverse.hpp
+      transpose.hpp
       fold.hpp
       monoid.hpp
+      apply.hpp
+      functor.hpp
+      monad.hpp
+      dual_monoid.hpp
       finger_tree.hpp
       random_access.hpp
       rope.hpp
       priority_queue.hpp
       interval_index.hpp
+      binary_tree.hpp
+      fringe_tree.hpp
+      finger_tree_wrappers.hpp
 ```
 
-This is the smallest coherent public tree that still demonstrates the intended
+This is the coherent reference public tree that demonstrates the intended
 shape:
 
 - one umbrella directory
@@ -620,31 +650,19 @@ shape:
 - no adapter-specific public headers where the adapter can be incorporated into
   the main surface
 
-### Likely later public additions
+### Reference recursive-algorithm additions
 
 ```text
 include/
   beman/
     structure/
-      functor.hpp
-      monad.hpp
-      dual_monoid.hpp
-      fixpoint_tree.hpp
-      binary_tree.hpp
-      fringe_tree.hpp
-      finger_tree_wrappers.hpp
+      recursive_fold.hpp
+      recursive_build.hpp
 ```
 
-These are reasonable later additions, but they should not all be treated as
-mandatory day-one exports.
-
-Reason:
-
-- some are framework-facing rather than user-front-door headers
-- some are support headers
-- some depend on whether the public paper story actually needs those surfaces
-- some may stay in `trees` until generalized enough to deserve a stable Beman
-  name
+These should be understood as the intended recursive-algorithm surface for the
+reference implementation, using `fixpoint_tree.hpp` as source material rather
+than as the public header name.
 
 ### Headers that should stay internal from the start
 
@@ -697,29 +715,37 @@ The real distinction is:
 
 ## Suggested Source-to-Header Translation
 
-This is the current best first-pass translation from the `trees` repo into the
+This is the current best working translation from the `trees` repo into the
 proposed public include tree.
 
 ### Algorithm surface
 
-- `src/smd/typeclass/applicative.hpp`
-  becomes public `include/beman/structure/applicative.hpp`
-
 - `src/smd/typeclass/traversable.hpp`
   becomes public `include/beman/structure/traverse.hpp`
+
+- `src/smd/typeclass/traversable.hpp`
+  should also supply or support public `include/beman/structure/transpose.hpp`
+  for the structure/context flipping operation
 
 - `src/smd/typeclass/foldable.hpp`
   becomes public `include/beman/structure/fold.hpp` unless there is a strong
   reason to preserve the framework noun in the filename
 
+- `src/smd/typeclass/applicative.hpp`
+  becomes public `include/beman/structure/apply.hpp` if the verb-first naming
+  rule is carried through literally, or remains a secondary support header if
+  the mechanism surface stays partly technical
+
 - `src/smd/typeclass/monoid.hpp`
   becomes public `include/beman/structure/monoid.hpp`
 
 - `src/smd/typeclass/functor.hpp`
-  is a likely later public header `include/beman/structure/functor.hpp`
+  belongs in the reference public support surface as
+  `include/beman/structure/functor.hpp`
 
 - `src/smd/typeclass/monad.hpp`
-  is a likely later public header `include/beman/structure/monad.hpp`
+  belongs in the reference public support surface as
+  `include/beman/structure/monad.hpp`
 
 - `src/smd/typeclass/dual_monoid.hpp`
   is likely advanced support and should only become public if the user-facing
@@ -762,8 +788,12 @@ proposed public include tree.
 ### Recursive-tree surface
 
 - `src/smd/tree/fixpoint_tree.hpp`
-  is a candidate for public `include/beman/structure/fixpoint_tree.hpp`, but
-  only if generalized beyond the current expression-oriented presentation
+  should not be assumed to become public
+  `include/beman/structure/fixpoint_tree.hpp` as-is.
+  Current preferred direction is to extract recursive algorithms with names
+  like `recursive_fold.hpp` and `recursive_build.hpp`, using fixpoint trees as
+  evidence and implementation support rather than as the front-door vocabulary
+  type.
 
 - `src/smd/tree/binary_tree.hpp`
   is a candidate for public `include/beman/structure/binary_tree.hpp`
@@ -780,31 +810,43 @@ proposed public include tree.
 - `src/smd/tree/*_traversable.hpp`
   should usually fold into the primary public type header or remain internal
 
-## Export Policy for Day One
+## Export Policy for the Reference Implementation
 
-The initial Beman export set should be smaller than the eventual codebase.
+The reference implementation should show the intended library fit as one
+coherent surface even if the standardization work is split across multiple
+papers.
 
-Recommended day-one public exports:
+Recommended public API exports:
 
-- `applicative.hpp`
 - `traverse.hpp`
+- `transpose.hpp`
 - `fold.hpp`
 - `monoid.hpp`
-- `finger_tree.hpp`
-- zero or more capability wrappers that are already clean and reviewable
-
-Recommended not-day-one exports unless specifically needed:
-
+- `apply.hpp`
 - `functor.hpp`
 - `monad.hpp`
 - `dual_monoid.hpp`
-- `finger_tree_wrappers.hpp`
+- `finger_tree.hpp`
+- `random_access.hpp`
+- `rope.hpp`
+- `priority_queue.hpp`
+- `interval_index.hpp`
 - `binary_tree.hpp`
 - `fringe_tree.hpp`
-- `fixpoint_tree.hpp`
+- `finger_tree_wrappers.hpp`
 
-This smaller export set reduces naming churn and lets the Beman public surface
-track the paper set that is actually under active review.
+Recommended recursive-algorithm exports:
+
+- `recursive_fold.hpp`
+- `recursive_build.hpp`
+
+Recommended `detail/` exports:
+
+- `detail/typeclass_base.hpp`
+- `detail/finger_tree_iterator.hpp`
+
+This keeps the codebase honest about how the pieces fit together while still
+allowing the papers to advance in narrower slices.
 
 ## Classification of Current `src/smd/...` Headers
 
@@ -815,19 +857,26 @@ This section classifies the current header inventory into three buckets:
 - stay in `trees`
 
 The intent is not to freeze every judgment permanently.
-The intent is to define a first-pass extraction policy.
+The intent is to define a reference-layout policy.
 
 ### `src/smd/typeclass/`
 
 #### Public facade candidates
 
 - `applicative.hpp`
-  Proposed Beman header: `include/beman/structure/applicative.hpp`
-  Reason: core public algorithm surface.
+  Proposed Beman header: `include/beman/structure/apply.hpp` or secondary
+  support only
+  Reason: mechanism surface still matters, but the front-door naming bias
+  should prefer verbs.
 
 - `traversable.hpp`
   Proposed Beman header: `include/beman/structure/traverse.hpp`
   Reason: central user-facing paper surface.
+
+- `traversable.hpp` also supports
+  `include/beman/structure/transpose.hpp`
+  Reason: public-facing name for structure/context flipping should be
+  `transpose`, not `sequence`.
 
 - `foldable.hpp`
   Proposed Beman header: `include/beman/structure/fold.hpp` or
@@ -839,21 +888,19 @@ The intent is to define a first-pass extraction policy.
   Reason: likely public support concept if fold/traverse exposure keeps it in
   the user story.
 
-#### Later public facade candidates
+#### Public support candidates
 
 - `functor.hpp`
   Proposed Beman header: `include/beman/structure/functor.hpp`
-  Reason: plausible public surface, but not needed to define the first public
-  cut.
+  Reason: plausible public support surface in the coherent reference layout.
 
 - `monad.hpp`
   Proposed Beman header: `include/beman/structure/monad.hpp`
-  Reason: same as above.
+  Reason: companion public support surface in the coherent reference layout.
 
 - `dual_monoid.hpp`
   Proposed Beman header: `include/beman/structure/dual_monoid.hpp`
-  Reason: advanced support header; public only if examples and papers actually
-  need users to name it.
+  Reason: advanced support header that still belongs in the full reference map.
 
 #### `detail/` support candidates
 
@@ -886,25 +933,23 @@ The intent is to define a first-pass extraction policy.
   Proposed Beman header: `include/beman/structure/interval_index.hpp`
   Reason: capability-facing wrapper.
 
-#### Possible later public facade candidates
+#### Additional public and source-material candidates
 
 - `fixpoint_tree.hpp`
-  Proposed Beman header: `include/beman/structure/fixpoint_tree.hpp`
-  Reason: likely only after generalization beyond the current expression-heavy
-  presentation.
+  Proposed Beman status: evidence and extraction source for recursive
+  algorithms, not an assumed front-door Beman header name.
 
 - `binary_tree.hpp`
   Proposed Beman header: `include/beman/structure/binary_tree.hpp`
-  Reason: plausible supporting tree surface if it remains part of the proposal
-  story.
+  Reason: supporting tree surface in the full reference layout.
 
 - `fringe_tree.hpp`
   Proposed Beman header: `include/beman/structure/fringe_tree.hpp`
-  Reason: same as above, but lower priority.
+  Reason: supporting tree surface in the full reference layout.
 
 - `finger_tree_wrappers.hpp`
   Proposed Beman header: `include/beman/structure/finger_tree_wrappers.hpp`
-  Reason: optional umbrella include, not obviously a day-one need.
+  Reason: optional umbrella include that still belongs in the reference map.
 
 #### `detail/` support candidates
 
@@ -1476,34 +1521,32 @@ Migration implication:
 
 - paper drafting needs a dedicated home distinct from library docs
 
-## Recommended Extraction Strategy
+## Recommended Integration Strategy
 
-### Phase 1: repository framing
+### Repository framing
 
 - choose the Beman library identity
 - write representative public include spellings and reject names that stutter
 - stamp `exemplar`
 - establish README, LICENSE, CODEOWNERS, workflow skeleton, and CMake shell
 
-### Phase 2: minimal production surface
+### Core reference surface
 
-- extract the anchor-paper-facing code first
-- add tests and examples that support the anchor story
-- get one coherent library package building cleanly in Beman layout
+- extract the merged anchor-paper-facing code and its companion support pieces
+  into one coherent library package
+- add tests and examples that support the public `traverse`, `transpose`,
+  `fold`, `apply`, and `finger_tree` story
+- keep the reference implementation honest about how the pieces fit together
+  even where papers are narrower
 
-### Phase 3: companion surfaces
-
-- add the extension-point framework pieces
-- add companion tests and examples
-- add paper scaffolding under `papers/`
-
-### Phase 4: container and tree expansion
+### Recursive and container expansion
 
 - extract the persistent measured sequence implementation pieces
-- add any recursive-tree support that belongs in the Beman repo
+- add recursive-algorithm support under names like `recursive_fold.hpp` and
+  `recursive_build.hpp`
 - keep pedagogy-heavy variants in `trees`
 
-### Phase 5: documentation split and stabilization
+### Documentation split and stabilization
 
 - move only production-facing docs into Beman
 - leave design-essay and exploratory docs in `trees`
