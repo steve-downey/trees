@@ -216,10 +216,14 @@ auto digit_init(const Digit<T, Tag> &d) -> Digit<T, Tag> {
 
 // Group a flat sequence of ElemPtrs into Node2/Node3 nodes for the next
 // spine level.  Input size must be >= 2.
+//
+// Input capacity is bounded by 12 (4 right-digit + 4 middle + 4 left-digit
+// in app3's Deep-Deep path).  Output has at most 4 nodes from 12 inputs;
+// capacity 6 gives a safety margin.
 template <typename T, typename Tag>
-auto nodes_from(std::vector<ElemPtr<T, Tag>> elems)
-    -> std::vector<ElemPtr<T, Tag>> {
-    std::vector<ElemPtr<T, Tag>> result;
+auto nodes_from(std::inplace_vector<ElemPtr<T, Tag>, 12> elems)
+    -> std::inplace_vector<ElemPtr<T, Tag>, 6> {
+    std::inplace_vector<ElemPtr<T, Tag>, 6> result;
     auto n = elems.size();
     std::size_t i = 0;
     while (n - i > 4) {
@@ -689,7 +693,8 @@ class FingerTree5 {
 
     // -- app3: Hinze-Paterson concatenation ----------------------------------
 
-    static auto app3(const FingerTree5 &left, std::vector<EP> middle,
+    static auto app3(const FingerTree5 &left,
+                     std::inplace_vector<EP, 6> middle,
                      const FingerTree5 &right) -> FingerTree5 {
         if (left.is_empty()) {
             auto result = right;
@@ -719,8 +724,8 @@ class FingerTree5 {
         const auto &ld = *std::get<DeepPtr>(left.d_repr);
         const auto &rd = *std::get<DeepPtr>(right.d_repr);
 
-        std::vector<EP> combined;
-        combined.reserve(ld.d_right.size() + middle.size() + rd.d_left.size());
+        // combined ≤ 4 (right digit) + 4 (middle) + 4 (left digit) = 12
+        std::inplace_vector<EP, 12> combined;
         for (const auto &ep : ld.d_right)
             combined.push_back(ep);
         for (auto &ep : middle)
@@ -739,6 +744,80 @@ class FingerTree5 {
         if (!new_spine.is_empty())
             sp = std::make_shared<const FingerTree5>(std::move(new_spine));
         return make_deep(ld.d_left, std::move(sp), rd.d_right);
+    }
+
+    // -- Bottom-up construction from a flat ElemPtr sequence -----------------
+    //
+    // Builds a balanced finger tree from a pre-allocated sequence of ElemPtrs
+    // without going through repeated snoc.  The snoc path allocates O(N) Deep
+    // and SpinePtr objects; this path allocates only O(log N) of each.
+    //
+    // The N-element input is split: 2 elements go to the left digit, 2 to the
+    // right digit, and the remaining N-4 elements are grouped into Node2/Node3
+    // objects which are fed into a recursive call.  The recursion depth is
+    // O(log_3 N), and total Elem allocations are 1.5N vs 2N for repeated snoc.
+    //
+    // Small cases (N ≤ 8) are placed directly into left/right digits with an
+    // empty spine, avoiding the node-grouping pass entirely.
+
+    static auto from_elems_impl(std::vector<EP> elems) -> FingerTree5 {
+        const auto n = elems.size();
+        if (n == 0) return empty();
+        if (n == 1) return make_single(std::move(elems[0]));
+
+        if (n <= 8) {
+            // All elements fit into two digits — no spine needed.
+            const auto lsz = std::min(n / 2, std::size_t{4});
+            Digit left_d, right_d;
+            for (std::size_t i = 0; i < lsz; ++i)
+                left_d.push_back(std::move(elems[i]));
+            for (std::size_t i = lsz; i < n; ++i)
+                right_d.push_back(std::move(elems[i]));
+            return make_deep(std::move(left_d), SpinePtr{}, std::move(right_d));
+        }
+
+        // n >= 9: 2 left, 2 right, group middle (n-4) into nodes.
+        Digit left_d, right_d;
+        left_d.push_back(std::move(elems[0]));
+        left_d.push_back(std::move(elems[1]));
+        right_d.push_back(std::move(elems[n - 2]));
+        right_d.push_back(std::move(elems[n - 1]));
+
+        std::vector<EP> nodes;
+        nodes.reserve((n - 4 + 2) / 3);
+        std::size_t i   = 2;
+        const auto  end = n - 2;
+        while (end - i > 4) {
+            nodes.push_back(ft5::make_node3<T, Tag>(
+                std::move(elems[i]), std::move(elems[i + 1]),
+                std::move(elems[i + 2])));
+            i += 3;
+        }
+        switch (end - i) {
+        case 2:
+            nodes.push_back(ft5::make_node2<T, Tag>(
+                std::move(elems[i]), std::move(elems[i + 1])));
+            break;
+        case 3:
+            nodes.push_back(ft5::make_node3<T, Tag>(
+                std::move(elems[i]), std::move(elems[i + 1]),
+                std::move(elems[i + 2])));
+            break;
+        case 4:
+            nodes.push_back(ft5::make_node2<T, Tag>(
+                std::move(elems[i]), std::move(elems[i + 1])));
+            nodes.push_back(ft5::make_node2<T, Tag>(
+                std::move(elems[i + 2]), std::move(elems[i + 3])));
+            break;
+        default:
+            std::unreachable();
+        }
+        auto spine = from_elems_impl(std::move(nodes));
+        SpinePtr sp = spine.is_empty()
+                          ? SpinePtr{}
+                          : std::make_shared<const FingerTree5>(
+                                std::move(spine));
+        return make_deep(std::move(left_d), std::move(sp), std::move(right_d));
     }
 
     // -- Internal flatten / for_each -----------------------------------------
@@ -895,6 +974,15 @@ class FingerTree5 {
         return std::move(v->d_value);
     }
 
+    // head_ref / last_ref: O(1) amortized, return const T& into the leaf.
+    // Safe while *this is alive (the leaf is structurally shared with the
+    // tree).  Avoids copying T for read-only access of large element types.
+    [[nodiscard]] auto head_ref() const -> const T & {
+        auto iv = view_l_internal();
+        assert(iv.has_value() && ft5::is_leaf(iv->d_elem));
+        return ft5::leaf_value(iv->d_elem);
+    }
+
     [[nodiscard]] auto tail() const -> FingerTree5 {
         auto v = view_l();
         return v.has_value() ? std::move(v->d_rest) : empty();
@@ -906,6 +994,12 @@ class FingerTree5 {
         return std::move(v->d_value);
     }
 
+    [[nodiscard]] auto last_ref() const -> const T & {
+        auto iv = view_r_internal();
+        assert(iv.has_value() && ft5::is_leaf(iv->d_elem));
+        return ft5::leaf_value(iv->d_elem);
+    }
+
     [[nodiscard]] auto init() const -> FingerTree5 {
         auto v = view_r();
         return v.has_value() ? std::move(v->d_rest) : empty();
@@ -915,6 +1009,13 @@ class FingerTree5 {
 
     [[nodiscard]] auto flatten() const -> std::vector<T> {
         std::vector<T> out;
+        // Reserve when measure() equals element count (unit measure case).
+        // For custom measures (rope byte count, interval max-end, etc.) this
+        // condition is false and we fall back to push_back reallocation.
+        if constexpr (std::same_as<Tag, std::size_t> &&
+                      std::same_as<Meas, UnitMeasure5<T, std::size_t>>) {
+            out.reserve(measure());
+        }
         flatten_elems(out);
         return out;
     }
@@ -925,10 +1026,13 @@ class FingerTree5 {
     }
 
     [[nodiscard]] static auto from_sequence(std::vector<T> values) -> FingerTree5 {
-        auto result = empty();
+        if (values.empty()) return empty();
+        auto mf = meas_fn();
+        std::vector<EP> elems;
+        elems.reserve(values.size());
         for (auto &v : values)
-            result = result.snoc(std::move(v));
-        return result;
+            elems.push_back(ft5::make_leaf<T, Tag>(mf, std::move(v)));
+        return from_elems_impl(std::move(elems));
     }
 
     // -- append / concat: O(log min(n, m)) -----------------------------------

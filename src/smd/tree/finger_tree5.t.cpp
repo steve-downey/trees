@@ -686,3 +686,28 @@ TEST_CASE("FingerTree5 - ReversedSplitAtMeasure")
     CHECK(sa.d_left.flatten()  == (std::vector<int>{10, 9}));
     CHECK(sa.d_right.flatten() == (std::vector<int>{8, 7, 6, 5, 4, 3, 2, 1}));
 }
+
+TEST_CASE("FingerTree5 - head_ref and last_ref return stable reference")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::from_sequence({10, 20, 30, 40});
+
+    // head_ref/last_ref return const T& into the tree's leaf nodes.
+    const int& h = t.head_ref();
+    const int& l = t.last_ref();
+    CHECK(h == 10);
+    CHECK(l == 40);
+
+    // The references must agree with head()/last() copies.
+    CHECK(h == t.head());
+    CHECK(l == t.last());
+
+    // Verify with string T (no copy needed for large elements).
+    using FS = smd::tree::FingerTree5<std::string>;
+    auto s = FS::from_sequence({"alpha", "beta", "gamma"});
+    CHECK(s.head_ref() == "alpha");
+    CHECK(s.last_ref() == "gamma");
+    CHECK(s.head_ref() == s.head());
+    CHECK(s.last_ref() == s.last());
+}
