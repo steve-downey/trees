@@ -915,6 +915,13 @@ class FingerTree5 {
 
     [[nodiscard]] auto flatten() const -> std::vector<T> {
         std::vector<T> out;
+        // Reserve when measure() equals element count (unit measure case).
+        // For custom measures (rope byte count, interval max-end, etc.) this
+        // condition is false and we fall back to push_back reallocation.
+        if constexpr (std::same_as<Tag, std::size_t> &&
+                      std::same_as<Meas, UnitMeasure5<T, std::size_t>>) {
+            out.reserve(measure());
+        }
         flatten_elems(out);
         return out;
     }
