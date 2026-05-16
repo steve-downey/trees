@@ -541,6 +541,26 @@ reviewers can care about the problem and accept that the mechanism belongs in
 the same paper because it solves a real coherence failure rather than because
 it is theoretically elegant.
 
+Current progression gate:
+the problem statement is already strong enough to motivate the paper.
+What is not yet strong enough is the proof that this particular solution
+surface, with this customization boundary, is the right one to standardize.
+Paper A should therefore be treated as conceptually clear but still dependent
+on finishing enough implementation work to prove:
+
+- that `traverse` and `transpose` really hold together as one coherent user
+  surface rather than as two adjacent conveniences
+- that the same API shape works across multiple structure families and multiple
+  context families without papering over important semantic differences
+- that bundled customization is not merely elegant machinery but the minimum
+  mechanism that keeps primitive and derived operations coherent in practice
+- that the proposal can be taught through concrete code examples rather than
+  through theory-first explanation
+
+Until those proof obligations are met in running code, the paper can be
+outlined and pressure-tested, but it is not truly ready for aggressive forward
+progress.
+
 Review-control guidance for this paper:
 
 - classify the public-facing naming choices as either necessary terminology
@@ -712,6 +732,8 @@ They are working sketches for the current conception of each paper:
 - tentative title
 - abstract shape
 - what the leading Before / After table must accomplish
+- what the first page must prove
+- what the paper should explicitly not try to solve in R0
 
 They should be revised as the proposal set sharpens, but they are meant to be
 concrete enough to guide drafting.
@@ -725,7 +747,8 @@ Shape-Preserving Traversal and Transposition for Contextual Computations
 Alternative title directions:
 
 - Transposing Structures and Computational Contexts
-- Traversal and Bundled Customization for Contextual Values
+- Traversal, Transposition, and Bundled Customization for Contextual Values
+- Traversing Structures with Contextual Results
 
 #### Abstract sketch
 
@@ -788,6 +811,22 @@ that facility coherent, because current practice is fragmented and current
 customization styles do not reliably tie the primitive and derived operations
 together.
 
+#### What the first page must prove
+
+Before the reader reaches design mechanics, the first page must establish four
+things:
+
+- this is a live problem over familiar standard or standard-adjacent types
+- the proposed verbs are `traverse` and `transpose`, not an abstract hierarchy
+  lesson in disguise
+- the proposal is about independent contextual composition, not general
+  sequential chaining
+- bundled customization is part of the solution because coherence fails
+  without it
+
+If the first page does not prove those four points, the paper will be read as a
+mechanism paper in search of a problem.
+
 #### Evidence and examples needed before drafting starts
 
 - at least three examples from different domains that all instantiate the same
@@ -803,6 +842,18 @@ Preferred examples:
 - sender-like async composition
 - SIMD or Zip-like lanewise structure as an explanatory analogy
 
+Evidence still missing before the paper is genuinely ready to progress:
+
+- a small but convincing reference implementation set where the same front-door
+  API works across all chosen examples without ad hoc caveats dominating the
+  story
+- evidence that the customization object boundary survives contact with real
+  examples better than traits-only or hook-per-operation alternatives
+- examples strong enough that the paper can point to the code as proof of the
+  semantics, not just as a sketch of possible semantics
+- enough implementation completeness that reviewer questions about teachability,
+  coherence, and generality can be answered from code rather than from intent
+
 #### Likely objections
 
 - “Why is this not just a helper algorithm over existing containers?”
@@ -811,6 +862,13 @@ Preferred examples:
   chaining?”
 - “Is this too abstract for the standard library?”
 - “Why is the customization mechanism in the same paper?”
+
+#### Explicit non-goals for R0
+
+- standardizing the full algebraic hierarchy
+- solving every naming question for every adjacent abstraction family
+- turning the paper into a generic customization-framework survey
+- making tree containers carry the motivation for the paper
 
 #### What the implementation must show to be acceptable
 
@@ -833,6 +891,28 @@ The implementation should demonstrate:
 - that the examples in the paper are actually representative of the design, not
   hand-picked one-offs
 
+#### What still has to be proved before the paper can really move
+
+The paper is not blocked on discovering the problem.
+It is blocked on proving the solution.
+
+In practical terms, the implementation still needs to get close enough to
+finished that it can serve as evidence for the following claims:
+
+- the public verbs and the customization mechanism belong together as one
+  standardizable unit
+- the proposal works over enough real examples that the design no longer looks
+  like it was tuned around one favored case
+- the semantics are crisp enough in code that the paper can specify them
+  without leaning on hand-wavy rationale
+- the implementation experience does not expose a simpler or more robust public
+  boundary than the one currently planned
+
+That is the real readiness test for Paper A.
+The problem is already visible.
+The remaining work is to make the code prove that the proposed solution shape
+is the right one.
+
 ### Paper C sketch: persistent measured sequence paper
 
 #### Tentative title
@@ -843,6 +923,7 @@ Alternative title directions:
 
 - Concatenable Persistent Sequences with Prefix Search and Split
 - Persistent Sequences with Measured Split and Search
+- Persistent Sequences with Concatenation and Prefix Search
 
 #### Abstract sketch
 
@@ -901,6 +982,23 @@ The standard library lacks a persistent sequence abstraction that combines
 structural sharing, concatenation, and measured split/search in one coherent
 facility, and that missing combination matters in real workloads.
 
+#### What the first page must prove
+
+Before the reader reaches implementation lineage or asymptotic detail, the
+first page must establish four things:
+
+- current standard containers force a trade-off between destructive update and
+  expensive copying
+- persistence is not decoration here; it is the reason old views of a value can
+  remain usable while edits continue
+- concatenation plus prefix split/search is a meaningful capability combination,
+  not a grab-bag of clever operations
+- the proposal is a user-facing sequence abstraction, not a request to bless an
+  exotic implementation family by name
+
+If the first page does not prove those four points, review will collapse into a
+data-structure lineage debate instead of a library-capability discussion.
+
 #### Evidence and examples needed before drafting starts
 
 - a capability matrix against existing standard containers and views
@@ -926,6 +1024,14 @@ Preferred examples:
   abstraction?”
 - “Does this fit ordinary container expectations?”
 
+#### Explicit non-goals for R0
+
+- standardizing finger trees by name as the primary user-facing concept
+- solving every persistent container problem in one proposal
+- making recursive-tree algorithms a prerequisite for understanding the paper
+- overspecifying implementation structure beyond what the abstraction boundary
+  needs
+
 #### What the implementation must show to be acceptable
 
 The implementation should demonstrate:
@@ -950,6 +1056,7 @@ Alternative title directions:
 - Recursive Fold and Rebuild Algorithms for Variant-Based Trees
 - Structure-Directed Recursive Algorithms in C++
 - Reduce/Build Algorithms for Recursive Nodes
+- Recursive Reduce and Build for Tree-Like Structures
 
 #### Abstract sketch
 
@@ -999,6 +1106,22 @@ Recursive trees are an important enough structural family that C++ should offer
 reusable recursive algorithms rather than leaving every recursive-tree design to
 bespoke local folds and rebuild passes.
 
+#### What the first page must prove
+
+Before the reader reaches any concrete representation detail, the first page
+must establish four things:
+
+- recursive structure creates algorithmic reuse opportunities that flat
+  iterator-centric APIs do not capture well
+- the missing library surface is a family of verbs such as reduce, fold,
+  rebuild, or build, not one blessed tree type
+- the motivating examples span more than one recursive-tree representation
+- fixpoint machinery is evidence and implementation support, not the public
+  identity of the proposal
+
+If the first page does not prove those four points, the paper will look either
+too representation-driven or too theoretical.
+
 #### Evidence and examples needed before drafting starts
 
 - clear scoping decision: algorithms first
@@ -1023,6 +1146,13 @@ Preferred examples:
 - “Why isn’t this better left to user code or third-party libraries?”
 - “Is fixpoint machinery necessary, or merely one implementation technique?”
 - “Why not just expose iterators and let algorithms do the rest?”
+
+#### Explicit non-goals for R0
+
+- standardizing one canonical tree vocabulary type
+- requiring one preferred recursive representation strategy
+- solving general graph algorithms under the same proposal umbrella
+- making the paper depend on prior acceptance of the sequence/container paper
 
 #### What the implementation must show to be acceptable
 
@@ -1100,3 +1230,10 @@ coherent mechanism currently available to express it.
 It is to keep the merged anchor paper tight, while letting the persistent
 sequence paper and recursive-algorithm paper each keep one clear reason to
 exist.
+
+Near-term implication:
+Paper A should be tightened as the anchor, but not pushed forward on rhetoric
+alone.
+The main bottleneck is no longer whether the problem exists.
+It is whether the code is finished enough to prove that the proposed verbs,
+semantics, and customization boundary are the right standardization target.
