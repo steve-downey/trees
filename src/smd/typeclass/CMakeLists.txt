@@ -7,6 +7,7 @@ target_sources(
         FILE_SET smd_typeclass_headers
             FILES
                 typeclass_base.hpp
+                dual_monoid.hpp
                 monoid.hpp
                 functor.hpp
                 foldable.hpp
@@ -23,6 +24,7 @@ if(TREE_ENABLE_TESTING)
     add_executable(
         smd_typeclass_tests
         typeclass_base.t.cpp
+        dual_monoid.t.cpp
         functor.t.cpp
         monoid.t.cpp
         applicative.t.cpp
