@@ -378,32 +378,24 @@ class FingerTree5 {
 
     // -- Rebalancing helpers used by view ------------------------------------
 
+    static auto make_digit(std::initializer_list<EP> elems) -> Digit {
+        Digit d;
+        for (const auto &e : elems)
+            d.push_back(e);
+        return d;
+    }
+
     static auto digit_to_tree(const Digit &d) -> FingerTree5 {
         assert(!d.empty());
         switch (d.size()) {
         case 1:
             return make_single(d[0]);
-        case 2: {
-            Digit l, r;
-            l.push_back(d[0]);
-            r.push_back(d[1]);
-            return make_deep(std::move(l), nullptr, std::move(r));
-        }
-        case 3: {
-            Digit l, r;
-            l.push_back(d[0]);
-            l.push_back(d[1]);
-            r.push_back(d[2]);
-            return make_deep(std::move(l), nullptr, std::move(r));
-        }
-        case 4: {
-            Digit l, r;
-            l.push_back(d[0]);
-            l.push_back(d[1]);
-            r.push_back(d[2]);
-            r.push_back(d[3]);
-            return make_deep(std::move(l), nullptr, std::move(r));
-        }
+        case 2:
+            return make_deep(make_digit({d[0]}), SpinePtr{}, make_digit({d[1]}));
+        case 3:
+            return make_deep(make_digit({d[0], d[1]}), SpinePtr{}, make_digit({d[2]}));
+        case 4:
+            return make_deep(make_digit({d[0], d[1]}), SpinePtr{}, make_digit({d[2], d[3]}));
         default:
             std::unreachable();
         }
@@ -500,7 +492,7 @@ class FingerTree5 {
                     l.push_back(std::move(x));
                     Digit r;
                     r.push_back(s.d_elem);
-                    return make_deep(std::move(l), nullptr, std::move(r));
+                    return make_deep(std::move(l), SpinePtr{}, std::move(r));
                 },
                 [&](const DeepPtr &d) -> FingerTree5 {
                     if (d->d_left.size() < 4) {
@@ -537,7 +529,7 @@ class FingerTree5 {
                     l.push_back(s.d_elem);
                     Digit r;
                     r.push_back(std::move(x));
-                    return make_deep(std::move(l), nullptr, std::move(r));
+                    return make_deep(std::move(l), SpinePtr{}, std::move(r));
                 },
                 [&](const DeepPtr &d) -> FingerTree5 {
                     if (d->d_right.size() < 4) {
