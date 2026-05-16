@@ -613,3 +613,76 @@ TEST_CASE("FingerTree5 - LargeTreeRecursionNoStackOverflow")
 
     // Destructor of t runs here — shared_ptr chain unwinds spine_depth() frames.
 }
+
+TEST_CASE("FingerTree5 - ReversedFlattenMatchesReverse")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    for (int n : {1, 2, 5, 10, 50, 100}) {
+        auto t = FT::empty();
+        for (int i = 0; i < n; ++i)
+            t = t.snoc(i);
+
+        auto fwd = t.flatten();
+        std::reverse(fwd.begin(), fwd.end());
+        CHECK(t.reversed().flatten() == fwd);
+    }
+}
+
+TEST_CASE("FingerTree5 - ReversedTwiceIsOriginal")
+{
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    for (int i = 0; i < 20; ++i)
+        t = t.snoc(i);
+
+    CHECK(t.reversed().reversed().flatten() == t.flatten());
+}
+
+TEST_CASE("FingerTree5 - ReversedMeasureOnCommutative")
+{
+    // Unit-count measure is commutative: reversed().measure().value == measure().
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    for (int i = 0; i < 10; ++i)
+        t = t.snoc(i);
+
+    CHECK(t.reversed().measure().value == t.measure());
+}
+
+TEST_CASE("FingerTree5 - ReversedNonCommutativeElementOrder")
+{
+    // Reversed tree has the correct element order regardless of the monoid's
+    // commutativity.  Verify with string elements.
+    using FT = smd::tree::FingerTree5<std::string>;
+
+    auto t = FT::from_sequence({"a", "b", "c", "d", "e"});
+    CHECK(t.reversed().flatten()
+          == (std::vector<std::string>{"e", "d", "c", "b", "a"}));
+}
+
+TEST_CASE("FingerTree5 - ReversedSplitAtMeasure")
+{
+    // split_at_measure on a reversed tree splits from the new left edge
+    // (the old right edge).  split_at_measure places elements strictly
+    // BEFORE the threshold-tripping pivot in d_left; the pivot itself
+    // goes to the front of d_right (consistent with the non-reversed API).
+    //
+    // Reversed: 10 9 8 7 6 5 4 3 2 1
+    // Prefix grows: 1, 2, 3 after element 8.  Pivot = 8.
+    // d_left = {10, 9}   (prefix 2 < 3)
+    // d_right = {8, 7, 6, 5, 4, 3, 2, 1}  (pivot cons'd onto remainder)
+    using FT = smd::tree::FingerTree5<int>;
+
+    auto t = FT::empty();
+    for (int i = 1; i <= 10; ++i)
+        t = t.snoc(i); // 1 2 3 4 5 6 7 8 9 10
+
+    auto rev = t.reversed(); // 10 9 8 7 6 5 4 3 2 1
+    auto sa  = rev.split_at_measure({3U}); // DualMonoid<size_t> threshold
+
+    CHECK(sa.d_left.flatten()  == (std::vector<int>{10, 9}));
+    CHECK(sa.d_right.flatten() == (std::vector<int>{8, 7, 6, 5, 4, 3, 2, 1}));
+}

@@ -15,8 +15,10 @@
 // branch on size() rather than dispatching through a four-way std::visit at
 // every level.
 
+#include <smd/typeclass/dual_monoid.hpp>
 #include <smd/typeclass/monoid.hpp>
 
+#include <algorithm>
 #include <cassert>
 #include <concepts>
 #include <cstddef>
@@ -293,6 +295,18 @@ auto elem_to_digit(const ElemPtr<T, Tag> &ep) -> Digit<T, Tag> {
 template <typename T, typename TAG_TYPE>
 struct UnitMeasure5 {
     auto operator()(const T &) const -> TAG_TYPE { return TAG_TYPE{1}; }
+};
+
+// ReversedMeasure5 wraps an existing measure policy and lifts its output into
+// DualMonoid<Tag>.  Used by FingerTree5::reversed() to build a tree whose
+// prefix measures accumulate under the flipped combine order.
+template <typename Policy>
+struct ReversedMeasure5 {
+    Policy d_inner;
+    template <typename T>
+    auto operator()(const T &x) const {
+        return smd::typeclass::DualMonoid{d_inner(x)};
+    }
 };
 
 // Forward declaration so FingerTree5 can declare begin()/end() members
@@ -995,6 +1009,27 @@ class FingerTree5 {
     {
         return split_at(
             [&threshold](const Tag &prefix) { return prefix >= threshold; });
+    }
+
+    // -- reversed: O(N) eager rebuild ----------------------------------------
+    //
+    // Returns a new tree containing the same elements in reverse order.
+    // The tag type of the result is DualMonoid<Tag>; prefix-accumulated
+    // measures on the reversed tree grow from the new left edge (old right
+    // edge) under the flipped combine order.
+    //
+    // Implementation is Option A from the design doc: flatten, reverse, rebuild.
+    // Cost: O(N) time and O(N) space.  A lazy structural reverse is possible
+    // only for commutative monoids (cached measures would otherwise be wrong);
+    // the eager rebuild is always correct.
+
+    auto reversed() const
+        -> FingerTree5<T, smd::typeclass::DualMonoid<Tag>, ReversedMeasure5<Meas>>
+    {
+        using DT = FingerTree5<T, smd::typeclass::DualMonoid<Tag>, ReversedMeasure5<Meas>>;
+        auto v = flatten();
+        std::reverse(v.begin(), v.end());
+        return DT::from_sequence(std::move(v));
     }
 };
 
