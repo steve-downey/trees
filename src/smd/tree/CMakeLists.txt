@@ -53,6 +53,7 @@ if(TREE_ENABLE_TESTING)
         finger_tree_interval_index.t.cpp
         finger_tree_priority_queue.t.cpp
         finger_tree_random_access.t.cpp
+        finger_tree_random_access_ft5.t.cpp
         finger_tree_rope.t.cpp
         finger_tree_traversable.t.cpp
         finger_tree_wrappers.t.cpp
