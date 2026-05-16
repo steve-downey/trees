@@ -803,25 +803,25 @@ class FingerTree5 {
     using value_type = T;
     using tag_type = Tag;
 
-    static auto empty() -> FingerTree5 { return make_empty(); }
+    [[nodiscard]] static auto empty() -> FingerTree5 { return make_empty(); }
 
-    static auto leaf(T value) -> FingerTree5 {
+    [[nodiscard]] static auto leaf(T value) -> FingerTree5 {
         return make_single(wrap_leaf(std::move(value)));
     }
 
-    auto is_empty() const -> bool {
+    [[nodiscard]] auto is_empty() const -> bool {
         return std::holds_alternative<Empty>(d_repr);
     }
 
-    auto is_leaf() const -> bool {
+    [[nodiscard]] auto is_leaf() const -> bool {
         return std::holds_alternative<Single>(d_repr);
     }
 
-    auto is_branch() const -> bool {
+    [[nodiscard]] auto is_branch() const -> bool {
         return std::holds_alternative<DeepPtr>(d_repr);
     }
 
-    auto measure() const -> Tag {
+    [[nodiscard]] auto measure() const -> Tag {
         return std::visit(
             ft5::overloaded{
                 [](const Empty &) { return ft5::tag_id<Tag>(); },
@@ -830,7 +830,7 @@ class FingerTree5 {
             d_repr);
     }
 
-    auto value() const -> const T & {
+    [[nodiscard]] auto value() const -> const T & {
         assert(is_leaf());
         auto &s = std::get<Single>(d_repr);
         assert(ft5::is_leaf(s.d_elem));
@@ -853,7 +853,7 @@ class FingerTree5 {
     // "FingerTree5 - SpineDepthIsLogarithmic" and exercised at N=10'000 by
     // "FingerTree5 - LargeTreeRecursionNoStackOverflow".
 
-    auto spine_depth() const -> std::size_t {
+    [[nodiscard]] auto spine_depth() const -> std::size_t {
         return std::visit(
             ft5::overloaded{
                 [](const Empty &) -> std::size_t { return 0; },
@@ -878,11 +878,11 @@ class FingerTree5 {
 
     // -- cons / snoc: O(1) amortized -----------------------------------------
 
-    auto cons(T x) const -> FingerTree5 {
+    [[nodiscard]] auto cons(T x) const -> FingerTree5 {
         return cons_internal(wrap_leaf(std::move(x)));
     }
 
-    auto snoc(T x) const -> FingerTree5 {
+    [[nodiscard]] auto snoc(T x) const -> FingerTree5 {
         return snoc_internal(wrap_leaf(std::move(x)));
     }
 
@@ -893,7 +893,7 @@ class FingerTree5 {
         FingerTree5 d_rest;
     };
 
-    auto view_l() const -> std::optional<View> {
+    [[nodiscard]] auto view_l() const -> std::optional<View> {
         auto iv = view_l_internal();
         if (!iv.has_value())
             return std::nullopt;
@@ -901,7 +901,7 @@ class FingerTree5 {
         return View{ft5::leaf_value(iv->d_elem), std::move(iv->d_rest)};
     }
 
-    auto view_r() const -> std::optional<View> {
+    [[nodiscard]] auto view_r() const -> std::optional<View> {
         auto iv = view_r_internal();
         if (!iv.has_value())
             return std::nullopt;
@@ -909,31 +909,31 @@ class FingerTree5 {
         return View{ft5::leaf_value(iv->d_elem), std::move(iv->d_rest)};
     }
 
-    auto head() const -> T {
+    [[nodiscard]] auto head() const -> T {
         auto v = view_l();
         assert(v.has_value());
         return std::move(v->d_value);
     }
 
-    auto tail() const -> FingerTree5 {
+    [[nodiscard]] auto tail() const -> FingerTree5 {
         auto v = view_l();
         return v.has_value() ? std::move(v->d_rest) : empty();
     }
 
-    auto last() const -> T {
+    [[nodiscard]] auto last() const -> T {
         auto v = view_r();
         assert(v.has_value());
         return std::move(v->d_value);
     }
 
-    auto init() const -> FingerTree5 {
+    [[nodiscard]] auto init() const -> FingerTree5 {
         auto v = view_r();
         return v.has_value() ? std::move(v->d_rest) : empty();
     }
 
     // -- flatten / for_each: O(n) --------------------------------------------
 
-    auto flatten() const -> std::vector<T> {
+    [[nodiscard]] auto flatten() const -> std::vector<T> {
         std::vector<T> out;
         flatten_elems(out);
         return out;
@@ -944,7 +944,7 @@ class FingerTree5 {
         for_each_internal(fn);
     }
 
-    static auto from_sequence(std::vector<T> values) -> FingerTree5 {
+    [[nodiscard]] static auto from_sequence(std::vector<T> values) -> FingerTree5 {
         auto result = empty();
         for (auto &v : values)
             result = result.snoc(std::move(v));
@@ -953,12 +953,12 @@ class FingerTree5 {
 
     // -- append / concat: O(log min(n, m)) -----------------------------------
 
-    auto append(const FingerTree5 &right) const -> FingerTree5 {
+    [[nodiscard]] auto append(const FingerTree5 &right) const -> FingerTree5 {
         return app3(*this, {}, right);
     }
 
-    static auto concat(const FingerTree5 &left, const FingerTree5 &right)
-        -> FingerTree5 {
+    [[nodiscard]] static auto concat(const FingerTree5 &left,
+                                     const FingerTree5 &right) -> FingerTree5 {
         return left.append(right);
     }
 
@@ -976,7 +976,7 @@ class FingerTree5 {
     };
 
     template <typename PRED>
-    auto search(PRED &&pred) const -> std::optional<T> {
+    [[nodiscard]] auto search(PRED &&pred) const -> std::optional<T> {
         auto sp = split(std::forward<PRED>(pred));
         if (!sp.has_value())
             return std::nullopt;
@@ -984,7 +984,7 @@ class FingerTree5 {
     }
 
     template <typename PRED>
-    auto split(PRED &&pred) const -> std::optional<Split> {
+    [[nodiscard]] auto split(PRED &&pred) const -> std::optional<Split> {
         auto is = split_impl(pred, ft5::tag_id<Tag>());
         if (!is.has_value())
             return std::nullopt;
@@ -995,7 +995,7 @@ class FingerTree5 {
     }
 
     template <typename PRED>
-    auto split_at(PRED &&pred) const -> SplitAt {
+    [[nodiscard]] auto split_at(PRED &&pred) const -> SplitAt {
         auto sp = split(std::forward<PRED>(pred));
         if (!sp.has_value())
             return SplitAt{*this, empty()};
@@ -1003,7 +1003,7 @@ class FingerTree5 {
                        sp->d_right.cons(std::move(sp->d_pivot))};
     }
 
-    auto split_at_measure(const Tag &threshold) const -> SplitAt
+    [[nodiscard]] auto split_at_measure(const Tag &threshold) const -> SplitAt
         requires requires(const Tag &a, const Tag &b) {
             { a >= b } -> std::convertible_to<bool>;
         }
@@ -1024,7 +1024,7 @@ class FingerTree5 {
     // only for commutative monoids (cached measures would otherwise be wrong);
     // the eager rebuild is always correct.
 
-    auto reversed() const
+    [[nodiscard]] auto reversed() const
         -> FingerTree5<T, smd::typeclass::DualMonoid<Tag>, ReversedMeasure5<Meas>>
     {
         using DT = FingerTree5<T, smd::typeclass::DualMonoid<Tag>, ReversedMeasure5<Meas>>;
