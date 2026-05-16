@@ -99,6 +99,7 @@ auto leaf_value(const ElemPtr<T, Tag> &ep) -> const T & {
 
 template <typename T, typename Tag, typename MeasFn>
 auto make_leaf(MeasFn &&mf, T value) -> ElemPtr<T, Tag> {
+    // value is taken by-value: measured first (lvalue), then moved into Leaf.
     auto m = mf(value);
     return std::make_shared<const Elem<T, Tag>>(
         Elem<T, Tag>{std::move(m),
@@ -257,6 +258,7 @@ auto nodes_from(std::vector<ElemPtr<T, Tag>> elems)
         break;
     default:
         assert(false && "nodes_from: invalid count");
+        std::unreachable();
     }
     return result;
 }
@@ -270,6 +272,7 @@ auto elem_to_digit(const ElemPtr<T, Tag> &ep) -> Digit<T, Tag> {
         overloaded{
             [&](const typename E::Leaf &) {
                 assert(false && "elem_to_digit called on Leaf");
+                std::unreachable();
             },
             [&](const typename E::Node2 &n) {
                 out.push_back(n.a);

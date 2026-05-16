@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <iterator>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace smd::tree {
@@ -86,7 +87,7 @@ class FingerTree5Iterator {
         return std::visit(ft5::overloaded{
             [](const typename E::Leaf&) -> EP {
                 assert(false && "nth_child called on Leaf");
-                return {};
+                std::unreachable();
             },
             [n](const typename E::Node2& nd) -> EP {
                 return n == 0 ? nd.a : nd.b;
@@ -251,6 +252,7 @@ class FingerTree5Iterator {
         }
         // Decremented past begin — undefined behaviour; assert in debug.
         assert(false && "FingerTree5Iterator: decremented begin iterator");
+        std::unreachable();
     }
 
     // -----------------------------------------------------------------------
@@ -261,6 +263,7 @@ class FingerTree5Iterator {
         std::visit(ft5::overloaded{
             [](const typename FT::Empty&) {
                 assert(false && "decremented end() of empty tree");
+                std::unreachable();
             },
             [this](const typename FT::Single& s) {
                 descend_elem_right(s.d_elem);
