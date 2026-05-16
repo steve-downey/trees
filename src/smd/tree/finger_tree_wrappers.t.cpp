@@ -27,7 +27,7 @@ TEST_CASE("FingerTreeWrappersTest - PriorityQueueMinMax") {
 }
 
 TEST_CASE("FingerTreeWrappersTest - RopeConcat") {
-    auto r = smd::tree::FingerTreeRope::from_chunks({"hello", " ", "world"});
+    auto r = smd::tree::FingerTreeRope<>::from_chunks({"hello", " ", "world"});
     CHECK(r.to_string() == "hello world");
     CHECK(r.size_bytes() == 11);
 }

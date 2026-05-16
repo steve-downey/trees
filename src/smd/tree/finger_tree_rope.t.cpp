@@ -15,7 +15,7 @@
 #include <string_view>
 #include <vector>
 
-using Rope = smd::tree::FingerTreeRope;
+using Rope = smd::tree::FingerTreeRope<>;
 
 TEST_CASE("Rope - HeaderIsIdempotent")
 {
