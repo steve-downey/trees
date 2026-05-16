@@ -216,10 +216,14 @@ auto digit_init(const Digit<T, Tag> &d) -> Digit<T, Tag> {
 
 // Group a flat sequence of ElemPtrs into Node2/Node3 nodes for the next
 // spine level.  Input size must be >= 2.
+//
+// Input capacity is bounded by 12 (4 right-digit + 4 middle + 4 left-digit
+// in app3's Deep-Deep path).  Output has at most 4 nodes from 12 inputs;
+// capacity 6 gives a safety margin.
 template <typename T, typename Tag>
-auto nodes_from(std::vector<ElemPtr<T, Tag>> elems)
-    -> std::vector<ElemPtr<T, Tag>> {
-    std::vector<ElemPtr<T, Tag>> result;
+auto nodes_from(std::inplace_vector<ElemPtr<T, Tag>, 12> elems)
+    -> std::inplace_vector<ElemPtr<T, Tag>, 6> {
+    std::inplace_vector<ElemPtr<T, Tag>, 6> result;
     auto n = elems.size();
     std::size_t i = 0;
     while (n - i > 4) {
@@ -689,7 +693,8 @@ class FingerTree5 {
 
     // -- app3: Hinze-Paterson concatenation ----------------------------------
 
-    static auto app3(const FingerTree5 &left, std::vector<EP> middle,
+    static auto app3(const FingerTree5 &left,
+                     std::inplace_vector<EP, 6> middle,
                      const FingerTree5 &right) -> FingerTree5 {
         if (left.is_empty()) {
             auto result = right;
@@ -719,8 +724,8 @@ class FingerTree5 {
         const auto &ld = *std::get<DeepPtr>(left.d_repr);
         const auto &rd = *std::get<DeepPtr>(right.d_repr);
 
-        std::vector<EP> combined;
-        combined.reserve(ld.d_right.size() + middle.size() + rd.d_left.size());
+        // combined ≤ 4 (right digit) + 4 (middle) + 4 (left digit) = 12
+        std::inplace_vector<EP, 12> combined;
         for (const auto &ep : ld.d_right)
             combined.push_back(ep);
         for (auto &ep : middle)
