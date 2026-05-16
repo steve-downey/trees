@@ -295,9 +295,18 @@ struct UnitMeasure5 {
     auto operator()(const T &) const -> TAG_TYPE { return TAG_TYPE{1}; }
 };
 
+// Forward declaration so FingerTree5 can declare begin()/end() members
+// whose return type is FingerTree5Iterator.  The full definition is in
+// finger_tree5_iterator.hpp, included at the bottom of this file.
+template <typename T, typename Tag, typename MP>
+class FingerTree5Iterator;
+
 template <typename T, typename TAG_TYPE = std::size_t,
           typename MEASURE_POLICY = UnitMeasure5<T, TAG_TYPE>>
 class FingerTree5 {
+    template <typename, typename, typename>
+    friend class FingerTree5Iterator; // iterator needs access to Deep, Repr, etc.
+
     using Tag = TAG_TYPE;
     using Meas = MEASURE_POLICY;
     using E = ft5::Elem<T, Tag>;
@@ -842,6 +851,16 @@ class FingerTree5 {
             d_repr);
     }
 
+    // -- begin / end: O(1) or O(N) depending on measure ----------------------
+    //
+    // Returns a bidirectional iterator to the first / past-the-end element.
+    // Defined out-of-line below (after finger_tree5_iterator.hpp is included).
+    // For the default measure <T, std::size_t, UnitMeasure5> the size is
+    // computed in O(1) via measure(); for custom measures it is O(N).
+
+    auto begin() const -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>;
+    auto end()   const -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>;
+
     // -- cons / snoc: O(1) amortized -----------------------------------------
 
     auto cons(T x) const -> FingerTree5 {
@@ -980,5 +999,11 @@ class FingerTree5 {
 };
 
 } // namespace smd::tree
+
+// Iterator support: include after the class so the iterator can reference the
+// complete FingerTree5 type.  This brings FingerTree5Iterator into scope and
+// defines the free begin/end overloads AND the out-of-line definitions of
+// FingerTree5::begin() / FingerTree5::end() declared in the class body above.
+#include <smd/tree/finger_tree5_iterator.hpp>
 
 #endif
