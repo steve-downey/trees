@@ -974,6 +974,15 @@ class FingerTree5 {
         return std::move(v->d_value);
     }
 
+    // head_ref / last_ref: O(1) amortized, return const T& into the leaf.
+    // Safe while *this is alive (the leaf is structurally shared with the
+    // tree).  Avoids copying T for read-only access of large element types.
+    [[nodiscard]] auto head_ref() const -> const T & {
+        auto iv = view_l_internal();
+        assert(iv.has_value() && ft5::is_leaf(iv->d_elem));
+        return ft5::leaf_value(iv->d_elem);
+    }
+
     [[nodiscard]] auto tail() const -> FingerTree5 {
         auto v = view_l();
         return v.has_value() ? std::move(v->d_rest) : empty();
@@ -983,6 +992,12 @@ class FingerTree5 {
         auto v = view_r();
         assert(v.has_value());
         return std::move(v->d_value);
+    }
+
+    [[nodiscard]] auto last_ref() const -> const T & {
+        auto iv = view_r_internal();
+        assert(iv.has_value() && ft5::is_leaf(iv->d_elem));
+        return ft5::leaf_value(iv->d_elem);
     }
 
     [[nodiscard]] auto init() const -> FingerTree5 {
