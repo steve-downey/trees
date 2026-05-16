@@ -15,6 +15,7 @@
 // branch on size() rather than dispatching through a four-way std::visit at
 // every level.
 
+#include <smd/fixpoint/overloaded.hpp>
 #include <smd/typeclass/dual_monoid.hpp>
 #include <smd/typeclass/monoid.hpp>
 
@@ -37,10 +38,7 @@ namespace smd::tree {
 
 namespace ft5 {
 
-template <typename... Ts>
-struct overloaded : Ts... {
-    using Ts::operator()...;
-};
+using smd::fixpoint::overloaded;
 
 // -- Tag operations ----------------------------------------------------------
 
