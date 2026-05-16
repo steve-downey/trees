@@ -250,9 +250,8 @@ behavior and at least one clear usage path.
 
 ### Public API and support headers
 
-- `src/smd/typeclass/traversable.hpp` ->
-  `include/beman/structure/traverse.hpp`
-- `src/smd/typeclass/traversable.hpp` ->
+- split `src/smd/typeclass/traversable.hpp` into:
+  `include/beman/structure/traverse.hpp` and
   `include/beman/structure/transpose.hpp`
 - `src/smd/typeclass/foldable.hpp` ->
   `include/beman/structure/fold.hpp`
@@ -296,9 +295,8 @@ behavior and at least one clear usage path.
 
 ### Tests that move with the component
 
-- `src/smd/typeclass/traversable.t.cpp` ->
-  `tests/beman/structure/traverse.test.cpp`
-- `src/smd/typeclass/traversable.t.cpp` ->
+- split traversal coverage from `src/smd/typeclass/traversable.t.cpp` into:
+  `tests/beman/structure/traverse.test.cpp` and
   `tests/beman/structure/transpose.test.cpp`
 - `src/smd/typeclass/foldable.t.cpp` ->
   `tests/beman/structure/fold.test.cpp`
@@ -349,9 +347,8 @@ Current files affected by that decision:
 
 ### Examples that move with the component
 
-- `src/smd/typeclass/examples/traversable_examples.cpp` ->
-  `examples/traverse_example.cpp`
-- `src/smd/typeclass/examples/traversable_examples.cpp` ->
+- split `src/smd/typeclass/examples/traversable_examples.cpp` into:
+  `examples/traverse_example.cpp` and
   `examples/transpose_example.cpp`
 - `src/smd/typeclass/examples/foldable_examples.cpp` ->
   `examples/fold_example.cpp`

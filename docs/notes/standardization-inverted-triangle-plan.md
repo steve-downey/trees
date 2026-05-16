@@ -471,8 +471,6 @@ Each paper should say:
 
 ## Eighth Layer: P3200 Reservation
 
-## Seventh Layer: P3200 Reservation
-
 `P3200` is currently being held for one of these papers.
 The placeholder associated with that reservation was:
 
@@ -707,7 +705,7 @@ public anchor paper for the coordinated set, and current recommended home for
 Possible title direction:
 
 - A Persistent Measured Sequence for the Standard Library
-- Concatenable Persistent Sequences with Prefix Search and Split
+- Concatenable Persistent Sequences with Prefix Search and Splitting
 
 Role:
 container proposal grounded in finger-tree capabilities.
@@ -854,6 +852,50 @@ Evidence still missing before the paper is genuinely ready to progress:
 - enough implementation completeness that reviewer questions about teachability,
   coherence, and generality can be answered from code rather than from intent
 
+#### Current required example set
+
+Paper A should stop talking about examples in the abstract and commit to a
+small fixed set that the code must make convincing.
+
+Current required set:
+
+- `vector<optional<T>> -> optional<vector<T>>`
+  Purpose: the simplest standard-vocabulary example of shape-preserving
+  traversal and transposition with fallible values.
+
+- a sender-like or async-result example with
+  `vector<sender<T>> <-> sender<vector<T>>`
+  Purpose: show that the same verbs matter for modern deferred or asynchronous
+  composition, not just for vocabulary types that look monadic in hindsight.
+
+- one Zip-like or SIMD-like lanewise example
+  Purpose: make independence concrete and performance-relevant, and show why
+  the proposal is not secretly about ordinary sequential chaining.
+
+The paper can mention other domains, but these three are the minimum proof set.
+If the implementation is not convincing on all three, Paper A is not ready.
+
+#### Implementation checklist before Paper A progression
+
+Before Paper A is pushed forward as a serious proposal draft, the code should
+be able to answer yes to all of the following:
+
+- there is one front-door API story for `traverse`, `transpose`, and lifted
+  contextual application
+- the same API surface works for the `optional`, sender-like, and Zip/SIMD-like
+  examples without bespoke wording for each one
+- the customization object boundary is implemented and exercised across all of
+  those examples
+- shape preservation is visible in tests, not merely claimed in prose
+- the independence semantics are visible in tests or examples, not merely
+  described in rationale
+- the implementation exposes enough primitive/derived structure that the paper
+  can explain why the bundle is necessary
+- no simpler public boundary discovered during implementation has made the
+  current surface look obviously wrong
+- at least one concise code example per domain is clean enough to survive into
+  paper text with only editorial trimming
+
 #### Likely objections
 
 - “Why is this not just a helper algorithm over existing containers?”
@@ -921,7 +963,7 @@ A Persistent Measured Sequence for the Standard Library
 
 Alternative title directions:
 
-- Concatenable Persistent Sequences with Prefix Search and Split
+- Concatenable Persistent Sequences with Prefix Search and Splitting
 - Persistent Sequences with Measured Split and Search
 - Persistent Sequences with Concatenation and Prefix Search
 

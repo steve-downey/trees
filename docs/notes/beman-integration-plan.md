@@ -207,6 +207,19 @@ For each candidate public header, decide:
 This naming pass should happen before large-scale file moves.
 Otherwise the repo will get reorganized twice.
 
+## Documentation Language Guidance
+
+The repository-facing documentation should follow the same noun guidance as the
+paper-planning note.
+
+For README and user-facing documentation:
+
+- prefer nouns like `outcome`, `fallible value`, and `contextual result` for
+  the inner computational or fallible types
+- avoid using `box` as the default teaching noun
+- keep the repository README and examples aligned with the verb-first surface:
+  `traverse`, `transpose`, `apply`, `reduce`, and `build` where appropriate
+
 ## Naming Evaluation Rubric
 
 Candidate Beman names should be evaluated against concrete examples rather than
@@ -721,11 +734,9 @@ proposed public include tree.
 ### Algorithm surface
 
 - `src/smd/typeclass/traversable.hpp`
-  becomes public `include/beman/structure/traverse.hpp`
-
-- `src/smd/typeclass/traversable.hpp`
-  should also supply or support public `include/beman/structure/transpose.hpp`
-  for the structure/context flipping operation
+  should be split into public `include/beman/structure/traverse.hpp` and
+  `include/beman/structure/transpose.hpp` for the structure/context flipping
+  operation
 
 - `src/smd/typeclass/foldable.hpp`
   becomes public `include/beman/structure/fold.hpp` unless there is a strong
@@ -873,7 +884,7 @@ The intent is to define a reference-layout policy.
   Proposed Beman header: `include/beman/structure/traverse.hpp`
   Reason: central user-facing paper surface.
 
-- `traversable.hpp` also supports
+- `traversable.hpp` should be split to also support
   `include/beman/structure/transpose.hpp`
   Reason: public-facing name for structure/context flipping should be
   `transpose`, not `sequence`.
