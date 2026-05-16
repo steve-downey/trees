@@ -746,6 +746,80 @@ class FingerTree5 {
         return make_deep(ld.d_left, std::move(sp), rd.d_right);
     }
 
+    // -- Bottom-up construction from a flat ElemPtr sequence -----------------
+    //
+    // Builds a balanced finger tree from a pre-allocated sequence of ElemPtrs
+    // without going through repeated snoc.  The snoc path allocates O(N) Deep
+    // and SpinePtr objects; this path allocates only O(log N) of each.
+    //
+    // The N-element input is split: 2 elements go to the left digit, 2 to the
+    // right digit, and the remaining N-4 elements are grouped into Node2/Node3
+    // objects which are fed into a recursive call.  The recursion depth is
+    // O(log_3 N), and total Elem allocations are 1.5N vs 2N for repeated snoc.
+    //
+    // Small cases (N ≤ 8) are placed directly into left/right digits with an
+    // empty spine, avoiding the node-grouping pass entirely.
+
+    static auto from_elems_impl(std::vector<EP> elems) -> FingerTree5 {
+        const auto n = elems.size();
+        if (n == 0) return empty();
+        if (n == 1) return make_single(std::move(elems[0]));
+
+        if (n <= 8) {
+            // All elements fit into two digits — no spine needed.
+            const auto lsz = std::min(n / 2, std::size_t{4});
+            Digit left_d, right_d;
+            for (std::size_t i = 0; i < lsz; ++i)
+                left_d.push_back(std::move(elems[i]));
+            for (std::size_t i = lsz; i < n; ++i)
+                right_d.push_back(std::move(elems[i]));
+            return make_deep(std::move(left_d), SpinePtr{}, std::move(right_d));
+        }
+
+        // n >= 9: 2 left, 2 right, group middle (n-4) into nodes.
+        Digit left_d, right_d;
+        left_d.push_back(std::move(elems[0]));
+        left_d.push_back(std::move(elems[1]));
+        right_d.push_back(std::move(elems[n - 2]));
+        right_d.push_back(std::move(elems[n - 1]));
+
+        std::vector<EP> nodes;
+        nodes.reserve((n - 4 + 2) / 3);
+        std::size_t i   = 2;
+        const auto  end = n - 2;
+        while (end - i > 4) {
+            nodes.push_back(ft5::make_node3<T, Tag>(
+                std::move(elems[i]), std::move(elems[i + 1]),
+                std::move(elems[i + 2])));
+            i += 3;
+        }
+        switch (end - i) {
+        case 2:
+            nodes.push_back(ft5::make_node2<T, Tag>(
+                std::move(elems[i]), std::move(elems[i + 1])));
+            break;
+        case 3:
+            nodes.push_back(ft5::make_node3<T, Tag>(
+                std::move(elems[i]), std::move(elems[i + 1]),
+                std::move(elems[i + 2])));
+            break;
+        case 4:
+            nodes.push_back(ft5::make_node2<T, Tag>(
+                std::move(elems[i]), std::move(elems[i + 1])));
+            nodes.push_back(ft5::make_node2<T, Tag>(
+                std::move(elems[i + 2]), std::move(elems[i + 3])));
+            break;
+        default:
+            std::unreachable();
+        }
+        auto spine = from_elems_impl(std::move(nodes));
+        SpinePtr sp = spine.is_empty()
+                          ? SpinePtr{}
+                          : std::make_shared<const FingerTree5>(
+                                std::move(spine));
+        return make_deep(std::move(left_d), std::move(sp), std::move(right_d));
+    }
+
     // -- Internal flatten / for_each -----------------------------------------
 
     void flatten_elems(std::vector<T> &out) const {
@@ -937,10 +1011,13 @@ class FingerTree5 {
     }
 
     [[nodiscard]] static auto from_sequence(std::vector<T> values) -> FingerTree5 {
-        auto result = empty();
+        if (values.empty()) return empty();
+        auto mf = meas_fn();
+        std::vector<EP> elems;
+        elems.reserve(values.size());
         for (auto &v : values)
-            result = result.snoc(std::move(v));
-        return result;
+            elems.push_back(ft5::make_leaf<T, Tag>(mf, std::move(v)));
+        return from_elems_impl(std::move(elems));
     }
 
     // -- append / concat: O(log min(n, m)) -----------------------------------
