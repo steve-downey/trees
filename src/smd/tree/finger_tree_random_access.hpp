@@ -50,7 +50,7 @@ class FingerTreeRandomAccess {
 
   public:
     /** Constructs an empty sequence. */
-    FingerTreeRandomAccess() : d_tree(Tree::empty()) {}
+    FingerTreeRandomAccess() : d_tree(Tree{}) {}
 
     /** Constructs from an existing backing tree. */
     explicit FingerTreeRandomAccess(Tree tree) : d_tree(std::move(tree)) {}

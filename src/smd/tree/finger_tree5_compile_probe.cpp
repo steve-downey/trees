@@ -61,7 +61,7 @@ void finger_tree5_probe_unit_measure()
 {
     using FT = smd::tree::FingerTree5<int>;
 
-    auto t = FT::empty();
+    auto t = FT{};
     for (int i = 0; i < 16; ++i)
         t = t.snoc(i);
     for (int i = 0; i < 4; ++i)
@@ -91,7 +91,7 @@ void finger_tree5_probe_custom_measure()
 {
     using FT = smd::tree::FingerTree5<int, WeightTag, WeightMeasure>;
 
-    auto t = FT::empty();
+    auto t = FT{};
     for (int i = 1; i <= 8; ++i)
         t = t.snoc(i);
 

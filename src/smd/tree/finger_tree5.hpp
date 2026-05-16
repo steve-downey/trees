@@ -24,6 +24,8 @@
 #include <concepts>
 #include <cstddef>
 #include <inplace_vector>
+#include <iterator>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -349,9 +351,7 @@ class FingerTree5 {
 
     explicit FingerTree5(Repr r) : d_repr(std::move(r)) {}
 
-    static auto make_empty() -> FingerTree5 {
-        return FingerTree5(Repr{Empty{}});
-    }
+    static auto make_empty() -> FingerTree5 { return {}; }
 
     static auto make_single(EP elem) -> FingerTree5 {
         return FingerTree5(Repr{Single{std::move(elem)}});
@@ -735,9 +735,9 @@ class FingerTree5 {
         auto ns = ft5::nodes_from<T, Tag>(std::move(combined));
 
         auto left_spine =
-            ld.d_spine ? *ld.d_spine : FingerTree5::empty();
+            ld.d_spine ? *ld.d_spine : FingerTree5{};
         auto right_spine =
-            rd.d_spine ? *rd.d_spine : FingerTree5::empty();
+            rd.d_spine ? *rd.d_spine : FingerTree5{};
         auto new_spine =
             FingerTree5::app3(left_spine, std::move(ns), right_spine);
         SpinePtr sp;
@@ -762,7 +762,7 @@ class FingerTree5 {
 
     static auto from_elems_impl(std::vector<EP> elems) -> FingerTree5 {
         const auto n = elems.size();
-        if (n == 0) return empty();
+        if (n == 0) return {};
         if (n == 1) return make_single(std::move(elems[0]));
 
         if (n <= 8) {
@@ -859,18 +859,73 @@ class FingerTree5 {
     //                          PUBLIC INTERFACE
     // ========================================================================
   public:
-    using value_type = T;
-    using tag_type = Tag;
+    // -----------------------------------------------------------------------
+    // Container / ReversibleContainer named requirements
+    // -----------------------------------------------------------------------
 
-    [[nodiscard]] static auto empty() -> FingerTree5 { return make_empty(); }
+    using value_type             = T;
+    using tag_type               = Tag;         // non-standard, FT5-specific
+    using reference              = const T &;   // immutable: all access is const
+    using const_reference        = const T &;
+    using iterator               = FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>;
+    using const_iterator         = iterator;    // immutable: no mutable iteration
+    using reverse_iterator       = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+    using difference_type        = std::ptrdiff_t;
+    using size_type              = std::size_t;
+
+    // -- Construction --------------------------------------------------------
+
+    // Default constructor: variant value-initialises to its first alternative
+    // (Empty), so FingerTree5{} is a valid empty tree — no factory call needed.
+    FingerTree5() = default;
 
     [[nodiscard]] static auto leaf(T value) -> FingerTree5 {
         return make_single(wrap_leaf(std::move(value)));
     }
 
-    [[nodiscard]] auto is_empty() const -> bool {
+    // -- Container query members ---------------------------------------------
+
+    [[nodiscard]] auto empty() const noexcept -> bool {
         return std::holds_alternative<Empty>(d_repr);
     }
+
+    // is_empty() is an alias kept for backward compatibility.
+    [[nodiscard]] auto is_empty() const noexcept -> bool { return empty(); }
+
+    // size() is O(1) for the default unit measure; O(N) for custom measures.
+    [[nodiscard]] auto size() const -> size_type {
+        if constexpr (std::same_as<Tag, std::size_t> &&
+                      std::same_as<Meas, UnitMeasure5<T, std::size_t>>) {
+            return measure();
+        } else {
+            size_type n = 0;
+            for_each([&](const T &) { ++n; });
+            return n;
+        }
+    }
+
+    [[nodiscard]] auto max_size() const noexcept -> size_type {
+        return std::numeric_limits<size_type>::max();
+    }
+
+    void swap(FingerTree5 &other) noexcept { std::swap(d_repr, other.d_repr); }
+
+    friend void swap(FingerTree5 &a, FingerTree5 &b) noexcept { a.swap(b); }
+
+    // element-wise equality; short-circuits on size for unit-measure trees
+    friend auto operator==(const FingerTree5 &lhs,
+                           const FingerTree5 &rhs) -> bool {
+        if constexpr (std::same_as<Tag, std::size_t> &&
+                      std::same_as<Meas, UnitMeasure5<T, std::size_t>>) {
+            if (lhs.measure() != rhs.measure()) return false;
+        }
+        return std::ranges::equal(lhs, rhs);
+    }
+
+    // front / back (SequenceContainer-style convenience; no mutation)
+    [[nodiscard]] auto front() const -> const_reference { return head_ref(); }
+    [[nodiscard]] auto back()  const -> const_reference { return last_ref(); }
 
     [[nodiscard]] auto is_leaf() const -> bool {
         return std::holds_alternative<Single>(d_repr);
@@ -932,8 +987,15 @@ class FingerTree5 {
     // For the default measure <T, std::size_t, UnitMeasure5> the size is
     // computed in O(1) via measure(); for custom measures it is O(N).
 
-    auto begin() const -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>;
-    auto end()   const -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>;
+    auto begin() const -> iterator;
+    auto end()   const -> iterator;
+
+    auto cbegin()  const -> const_iterator  { return begin(); }
+    auto cend()    const -> const_iterator  { return end(); }
+    auto rbegin()  const -> reverse_iterator       { return reverse_iterator(end()); }
+    auto rend()    const -> reverse_iterator       { return reverse_iterator(begin()); }
+    auto crbegin() const -> const_reverse_iterator { return const_reverse_iterator(cend()); }
+    auto crend()   const -> const_reverse_iterator { return const_reverse_iterator(cbegin()); }
 
     // -- cons / snoc: O(1) amortized -----------------------------------------
 
@@ -985,7 +1047,7 @@ class FingerTree5 {
 
     [[nodiscard]] auto tail() const -> FingerTree5 {
         auto v = view_l();
-        return v.has_value() ? std::move(v->d_rest) : empty();
+        return v.has_value() ? std::move(v->d_rest) : FingerTree5{};
     }
 
     [[nodiscard]] auto last() const -> T {
@@ -1002,7 +1064,7 @@ class FingerTree5 {
 
     [[nodiscard]] auto init() const -> FingerTree5 {
         auto v = view_r();
-        return v.has_value() ? std::move(v->d_rest) : empty();
+        return v.has_value() ? std::move(v->d_rest) : FingerTree5{};
     }
 
     // -- flatten / for_each: O(n) --------------------------------------------
@@ -1026,7 +1088,7 @@ class FingerTree5 {
     }
 
     [[nodiscard]] static auto from_sequence(std::vector<T> values) -> FingerTree5 {
-        if (values.empty()) return empty();
+        if (values.empty()) return {};
         auto mf = meas_fn();
         std::vector<EP> elems;
         elems.reserve(values.size());
@@ -1082,7 +1144,7 @@ class FingerTree5 {
     [[nodiscard]] auto split_at(PRED &&pred) const -> SplitAt {
         auto sp = split(std::forward<PRED>(pred));
         if (!sp.has_value())
-            return SplitAt{*this, empty()};
+            return SplitAt{*this, {}};
         return SplitAt{std::move(sp->d_left),
                        sp->d_right.cons(std::move(sp->d_pivot))};
     }

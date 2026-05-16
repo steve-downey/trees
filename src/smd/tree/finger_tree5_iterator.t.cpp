@@ -21,7 +21,7 @@ namespace {
 using FT = smd::tree::FingerTree5<int>;
 
 auto make_tree(int n) -> FT {
-    auto t = FT::empty();
+    auto t = FT{};
     for (int i = 0; i < n; ++i)
         t = t.snoc(i);
     return t;
@@ -46,7 +46,7 @@ TEST_CASE("FingerTree5Iterator - IteratorCategoryIsBidirectional")
 
 TEST_CASE("FingerTree5Iterator - EmptyTreeBeginEqualsEnd")
 {
-    auto t  = FT::empty();
+    auto t  = FT{};
     auto b  = begin(t);
     auto e  = end(t);
     CHECK(b == e);

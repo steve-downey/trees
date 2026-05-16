@@ -47,7 +47,7 @@ TEST_CASE("FingerTree5TraversableTest - TraverseOverLargeTree")
     // Cover the spine-Node3 path: tree large enough that the spine has
     // structure when traverse materializes it.
     using Tree = smd::tree::FingerTree5<int>;
-    auto t = Tree::empty();
+    auto t = Tree{};
     for (int i = 0; i < 100; ++i)
         t = t.snoc(i);
 

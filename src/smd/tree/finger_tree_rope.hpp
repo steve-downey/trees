@@ -80,7 +80,7 @@ class FingerTreeRope {
 
   public:
     /** Constructs an empty rope. */
-    FingerTreeRope() : d_tree(Tree::empty()) {}
+    FingerTreeRope() : d_tree(Tree{}) {}
 
     /** Builds a rope from a vector of pre-formed string chunks; O(n chunks). */
     static auto from_chunks(std::vector<std::string> chunks) -> FingerTreeRope {
