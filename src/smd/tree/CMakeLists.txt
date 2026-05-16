@@ -127,6 +127,7 @@ if(TREE_ENABLE_BENCHMARKS)
     add_executable(
         smd_tree_benchmarks
         finger_tree_compare.bench.cpp
+        finger_tree_std_compare.bench.cpp
     )
 
     target_link_libraries(
