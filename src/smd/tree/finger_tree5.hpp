@@ -216,16 +216,6 @@ auto digit_init(const Digit<T, Tag> &d) -> Digit<T, Tag> {
     return out;
 }
 
-// Copy a Digit into a flat vector for cross-level operations (concat).
-template <typename T, typename Tag>
-auto digit_to_vec(const Digit<T, Tag> &d) -> std::vector<ElemPtr<T, Tag>> {
-    std::vector<ElemPtr<T, Tag>> out;
-    out.reserve(d.size());
-    for (const auto &ep : d)
-        out.push_back(ep);
-    return out;
-}
-
 // Group a flat sequence of ElemPtrs into Node2/Node3 nodes for the next
 // spine level.  Input size must be >= 2.
 template <typename T, typename Tag>
@@ -731,14 +721,14 @@ class FingerTree5 {
         const auto &ld = *std::get<DeepPtr>(left.d_repr);
         const auto &rd = *std::get<DeepPtr>(right.d_repr);
 
-        auto combined = ft5::digit_to_vec<T, Tag>(ld.d_right);
-        combined.insert(combined.end(),
-                        std::make_move_iterator(middle.begin()),
-                        std::make_move_iterator(middle.end()));
-        {
-            auto rl = ft5::digit_to_vec<T, Tag>(rd.d_left);
-            combined.insert(combined.end(), rl.begin(), rl.end());
-        }
+        std::vector<EP> combined;
+        combined.reserve(ld.d_right.size() + middle.size() + rd.d_left.size());
+        for (const auto &ep : ld.d_right)
+            combined.push_back(ep);
+        for (auto &ep : middle)
+            combined.push_back(std::move(ep));
+        for (const auto &ep : rd.d_left)
+            combined.push_back(ep);
         auto ns = ft5::nodes_from<T, Tag>(std::move(combined));
 
         auto left_spine =
