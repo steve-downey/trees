@@ -20,6 +20,7 @@ target_sources(
                 finger_tree5.hpp
                 finger_tree5_foldable.hpp
                 finger_tree5_iterator.hpp
+                finger_tree5_pmr.hpp
                 finger_tree5_traversable.hpp
                 finger_tree_foldable.hpp
                 finger_tree_traversable.hpp
@@ -48,6 +49,7 @@ if(TREE_ENABLE_TESTING)
         finger_tree5.t.cpp
         finger_tree5_foldable.t.cpp
         finger_tree5_iterator.t.cpp
+        finger_tree5_pmr.t.cpp
         finger_tree5_traversable.t.cpp
         finger_tree_foldable.t.cpp
         finger_tree_interval_index.t.cpp

@@ -3,11 +3,13 @@
 
 #include <smd/tree/finger_tree5.hpp>
 #include <smd/tree/finger_tree5.hpp> // Re-inclusion verification
+#include <smd/tree/finger_tree5_pmr.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <bit>
 #include <cstddef>
+#include <memory_resource>
 #include <string>
 #include <vector>
 
@@ -807,4 +809,57 @@ TEST_CASE("FingerTree5 - front() and back() match head_ref() and last_ref()")
     CHECK(t.back()  == 30);
     CHECK(t.front() == t.head_ref());
     CHECK(t.back()  == t.last_ref());
+}
+
+// ============================================================================
+//                       AllocatorAware + PMR tests
+// ============================================================================
+
+TEST_CASE("FingerTree5 - allocator_type alias present and get_allocator() works")
+{
+    using FT   = smd::tree::FingerTree5<int>;
+    using Alloc = FT::allocator_type;
+    static_assert(std::same_as<Alloc, std::allocator<std::byte>>);
+
+    FT t;
+    auto a = t.get_allocator();
+    static_assert(std::same_as<decltype(a), Alloc>);
+    REQUIRE(true);
+}
+
+TEST_CASE("FingerTree5 - allocator-extended constructor")
+{
+    std::allocator<std::byte> alloc;
+    smd::tree::FingerTree5<int> t(alloc);
+    CHECK(t.empty());
+    CHECK(t.get_allocator() == alloc);
+}
+
+TEST_CASE("FingerTree5 - PMR monotonic_buffer_resource")
+{
+    std::array<std::byte, 65536> buf{};
+    std::pmr::monotonic_buffer_resource mr(buf.data(), buf.size());
+
+    using PMR_FT = smd::tree::pmr::FingerTree5<int>;
+
+    // Construct with custom memory resource
+    PMR_FT t(&mr);
+    CHECK(t.empty());
+
+    // All allocations go through the resource
+    auto t2 = PMR_FT::from_sequence({1, 2, 3, 4, 5}, &mr);
+    CHECK(t2.size() == 5U);
+    CHECK(t2.flatten() == (std::vector<int>{1, 2, 3, 4, 5}));
+
+    // Operations using the allocated tree
+    auto t3 = t2.snoc(6);
+    CHECK(t3.size() == 6U);
+}
+
+TEST_CASE("FingerTree5 - PMR bidirectional_range static_assert")
+{
+    using PMR_FT = smd::tree::pmr::FingerTree5<int>;
+    static_assert(std::ranges::bidirectional_range<PMR_FT>);
+    static_assert(std::ranges::sized_range<PMR_FT>);
+    REQUIRE(true);
 }
