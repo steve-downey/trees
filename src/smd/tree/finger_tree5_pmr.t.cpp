@@ -109,3 +109,83 @@ TEST_CASE("pmr::FingerTree5 - pool_resource for node reuse")
     for (int i = 0; i < 100; ++i)
         CHECK(flat[static_cast<std::size_t>(i)] == i);
 }
+
+// ============================================================================
+//              Allocator coherency tests (Lakos rule)
+// ============================================================================
+
+TEST_CASE("pmr::FingerTree5 - extended constructor: same resource shares data")
+{
+    std::pmr::monotonic_buffer_resource mr;
+    auto t = FT::from_sequence({1, 2, 3, 4, 5}, &mr);
+    CHECK(t.get_allocator().resource() == &mr);
+
+    // Uses-allocator extended constructor: same resource → fast share (O(1))
+    FT t2(std::move(t), &mr);
+    CHECK(t2.get_allocator().resource() == &mr);
+    CHECK(t2.flatten() == (std::vector<int>{1, 2, 3, 4, 5}));
+}
+
+TEST_CASE("pmr::FingerTree5 - extended constructor: different resource rebuilds")
+{
+    std::pmr::monotonic_buffer_resource mr1;
+    std::pmr::monotonic_buffer_resource mr2;
+
+    auto t = FT::from_sequence({10, 20, 30}, &mr1);
+    CHECK(t.get_allocator().resource() == &mr1);
+
+    // Different resource: extended constructor rebuilds (O(N)) — no mixing
+    FT t2(std::move(t), &mr2);
+    CHECK(t2.get_allocator().resource() == &mr2);
+    CHECK(t2.flatten() == (std::vector<int>{10, 20, 30}));
+}
+
+TEST_CASE("pmr::FingerTree5 - append: same resource uses structural sharing")
+{
+    std::pmr::monotonic_buffer_resource mr;
+    auto a = FT::from_sequence({1, 2, 3}, &mr);
+    auto b = FT::from_sequence({4, 5, 6}, &mr);
+
+    auto c = a.append(b);
+    CHECK(c.get_allocator().resource() == &mr);
+    CHECK(c.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6}));
+}
+
+TEST_CASE("pmr::FingerTree5 - append: different resources rebuilds right side")
+{
+    std::pmr::monotonic_buffer_resource mr1;
+    std::pmr::monotonic_buffer_resource mr2;
+
+    auto a = FT::from_sequence({1, 2, 3}, &mr1);
+    auto b = FT::from_sequence({4, 5, 6}, &mr2);
+
+    // b is rebuilt using mr1 before concatenation — result is coherent
+    auto c = a.append(b);
+    CHECK(c.get_allocator().resource() == &mr1);
+    CHECK(c.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6}));
+}
+
+TEST_CASE("pmr::FingerTree5 - move assignment: same resource fast path")
+{
+    std::pmr::monotonic_buffer_resource mr;
+    FT t(&mr);
+    auto src = FT::from_sequence({7, 8, 9}, &mr);
+
+    t = std::move(src);
+    CHECK(t.get_allocator().resource() == &mr);
+    CHECK(t.flatten() == (std::vector<int>{7, 8, 9}));
+}
+
+TEST_CASE("pmr::FingerTree5 - copy assignment: different resource rebuilds")
+{
+    std::pmr::monotonic_buffer_resource mr1;
+    std::pmr::monotonic_buffer_resource mr2;
+
+    FT t(&mr1);
+    auto src = FT::from_sequence({11, 22, 33}, &mr2);
+
+    // Copy into t: mr2 elements rebuilt into mr1 — no cross-resource sharing
+    t = src;
+    CHECK(t.get_allocator().resource() == &mr1);
+    CHECK(t.flatten() == (std::vector<int>{11, 22, 33}));
+}

@@ -363,11 +363,28 @@ class FingerTree5 {
 
     // -- Allocation helpers --------------------------------------------------
 
-    // Allocate a new SpinePtr.  The spine FingerTree5 shell (a small variant)
-    // uses make_shared (default allocator); the Deep and Elem nodes inside it
-    // were already allocated with d_alloc.  Full allocator threading into the
-    // SpinePtr control block requires extended-constructor support and is
-    // deferred.
+    // Returns true when both allocators are the same resource.
+    // is_always_equal short-circuits at compile time for stateless allocators
+    // (e.g. std::allocator) so runtime comparison is only done for stateful
+    // ones (e.g. pmr::polymorphic_allocator).
+    static auto alloc_equal(const ALLOCATOR& a, const ALLOCATOR& b) noexcept
+        -> bool {
+        if constexpr (std::allocator_traits<ALLOCATOR>::is_always_equal::value)
+            return true;
+        else
+            return a == b;
+    }
+
+    // Allocate a new SpinePtr.  The FingerTree5 shell (a variant header, ~24
+    // bytes) uses make_shared (default allocator) as a deliberate exception:
+    // - The shell is internal implementation structure, not user data.
+    // - Using allocate_shared would trigger the uses_allocator protocol, which
+    //   calls our coherency-checking extended constructor.  That constructor
+    //   would erroneously try to 'flatten' a spine tree whose elements are
+    //   Node3/Node2 objects (not leaf values), corrupting the tree structure.
+    // - All Elem and Deep nodes (user data and structure) use d_alloc correctly.
+    // - The shell's d_alloc field is set to d_alloc so future operations on the
+    //   spine level use the right resource.
     auto make_spine_ptr(FingerTree5 t) const -> SpinePtr {
         return std::make_shared<const FingerTree5>(std::move(t));
     }
@@ -378,8 +395,8 @@ class FingerTree5 {
 
     static auto make_empty() -> FingerTree5 { return {}; }
 
-    static auto make_single(EP elem) -> FingerTree5 {
-        return FingerTree5(Repr{Single{std::move(elem)}});
+    static auto make_single(const ALLOCATOR& alloc, EP elem) -> FingerTree5 {
+        return FingerTree5(Repr{Single{std::move(elem)}}, alloc);
     }
 
     // Allocator-aware make_deep: uses alloc for the Deep allocation.
@@ -420,7 +437,7 @@ class FingerTree5 {
         assert(!d.empty());
         switch (d.size()) {
         case 1:
-            return make_single(d[0]);
+            return make_single(alloc, d[0]);
         case 2:
             return make_deep(alloc, make_digit({d[0]}), SpinePtr{}, make_digit({d[1]}));
         case 3:
@@ -518,7 +535,7 @@ class FingerTree5 {
     auto cons_internal(EP x) const -> FingerTree5 {
         return std::visit(
             ft5::overloaded{
-                [&](const Empty &) { return make_single(std::move(x)); },
+                [this, &x](const Empty &) { return make_single(d_alloc, std::move(x)); },
                 [&](const Single &s) {
                     Digit l;
                     l.push_back(std::move(x));
@@ -541,7 +558,7 @@ class FingerTree5 {
                         sp = make_spine_ptr(
                             d->d_spine->cons_internal(std::move(node)));
                     else
-                        sp = make_spine_ptr(make_single(std::move(node)));
+                        sp = make_spine_ptr(make_single(d_alloc, std::move(node)));
                     Digit new_left;
                     new_left.push_back(std::move(x));
                     new_left.push_back(d->d_left[0]);
@@ -554,7 +571,7 @@ class FingerTree5 {
     auto snoc_internal(EP x) const -> FingerTree5 {
         return std::visit(
             ft5::overloaded{
-                [&](const Empty &) { return make_single(std::move(x)); },
+                [this, &x](const Empty &) { return make_single(d_alloc, std::move(x)); },
                 [&](const Single &s) {
                     Digit l;
                     l.push_back(s.d_elem);
@@ -577,7 +594,7 @@ class FingerTree5 {
                         sp = make_spine_ptr(
                             d->d_spine->snoc_internal(std::move(node)));
                     else
-                        sp = make_spine_ptr(make_single(std::move(node)));
+                        sp = make_spine_ptr(make_single(d_alloc, std::move(node)));
                     Digit new_right;
                     new_right.push_back(d->d_right[3]);
                     new_right.push_back(std::move(x));
@@ -800,7 +817,7 @@ class FingerTree5 {
                                 std::vector<EP>  elems) -> FingerTree5 {
         const auto n = elems.size();
         if (n == 0) return {};
-        if (n == 1) return make_single(std::move(elems[0]));
+        if (n == 1) return make_single(alloc, std::move(elems[0]));
 
         if (n <= 8) {
             const auto lsz = std::min(n / 2, std::size_t{4});
@@ -919,25 +936,57 @@ class FingerTree5 {
     FingerTree5() = default;
     explicit FingerTree5(const ALLOCATOR& alloc) : d_alloc(alloc) {}
 
-    FingerTree5(const FingerTree5&)            = default;
-    FingerTree5(FingerTree5&&)                 = default;
+    FingerTree5(const FingerTree5&) = default;
+    FingerTree5(FingerTree5&&)      = default;
 
-    // Copy assignment: propagate allocator only if the trait says so.
-    // For pmr::polymorphic_allocator, propagation is false — the existing
-    // allocator is kept and only the tree structure is copied.
+    // Allocator-extended move constructor required by the std::uses_allocator
+    // protocol (trailing form: T(T&&, Alloc)).  Taking alloc by value allows
+    // implicit conversion from rebind_alloc<FingerTree5> → ALLOCATOR, which
+    // is how std::allocate_shared<const FingerTree5> invokes this.
+    //
+    // Coherency rule: if the incoming tree was allocated from the same
+    // resource, its nodes are shared (O(1)).  If from a different resource,
+    // every node is rebuilt using alloc (O(N)) — no dangling cross-resource
+    // pointers are ever created silently.
+    FingerTree5(FingerTree5 other, ALLOCATOR alloc) : d_alloc(std::move(alloc)) {
+        if (alloc_equal(d_alloc, other.d_alloc))
+            d_repr = std::move(other.d_repr);
+        else
+            *this = from_sequence(other.flatten(), d_alloc);
+    }
+
+    // Copy assignment.
+    // Propagating allocators: alloc and data both taken from other.
+    // Non-propagating, same resource: share data (O(1), structural sharing).
+    // Non-propagating, different resource: rebuild data using this allocator
+    //   (O(N)) — allocator coherency is maintained; no cross-resource sharing.
     auto operator=(const FingerTree5& other) & -> FingerTree5& {
-        d_repr = other.d_repr;
         if constexpr (std::allocator_traits<ALLOCATOR>::
-                          propagate_on_container_copy_assignment::value)
+                          propagate_on_container_copy_assignment::value) {
             d_alloc = other.d_alloc;
+            d_repr  = other.d_repr;
+        } else if (alloc_equal(d_alloc, other.d_alloc)) {
+            d_repr = other.d_repr;
+        } else {
+            *this = from_sequence(other.flatten(), d_alloc);
+        }
         return *this;
     }
 
-    auto operator=(FingerTree5&& other) & noexcept -> FingerTree5& {
-        d_repr = std::move(other.d_repr);
+    // Move assignment.
+    // Non-propagating with different resource: falls back to element-wise
+    // rebuild (cannot move cross-resource and stay coherent).  Not noexcept
+    // in that path; noexcept holds for same-resource and always-equal cases.
+    auto operator=(FingerTree5&& other) & -> FingerTree5& {
         if constexpr (std::allocator_traits<ALLOCATOR>::
-                          propagate_on_container_move_assignment::value)
+                          propagate_on_container_move_assignment::value) {
             d_alloc = std::move(other.d_alloc);
+            d_repr  = std::move(other.d_repr);
+        } else if (alloc_equal(d_alloc, other.d_alloc)) {
+            d_repr = std::move(other.d_repr);
+        } else {
+            *this = from_sequence(other.flatten(), d_alloc);
+        }
         return *this;
     }
 
@@ -946,8 +995,9 @@ class FingerTree5 {
     }
 
     [[nodiscard]] static auto leaf(T value) -> FingerTree5 {
-        return make_single(ft5::make_leaf<T, Tag>(ALLOCATOR{}, meas_fn(),
-                                                  std::move(value)));
+        ALLOCATOR alloc{};
+        return make_single(alloc, ft5::make_leaf<T, Tag>(alloc, meas_fn(),
+                                                         std::move(value)));
     }
 
     // -- Container query members ---------------------------------------------
@@ -1177,7 +1227,15 @@ class FingerTree5 {
 
     // -- append / concat: O(log min(n, m)) -----------------------------------
 
+    // append: O(log min(n,m)) when allocators match; O(|right|) rebuild when
+    // they differ.  The rebuild guarantees every node in the result comes from
+    // d_alloc — no silent cross-resource sharing.  To opt into the O(log N)
+    // fast path with a known-safe mixed tree, call app3 directly.
     [[nodiscard]] auto append(const FingerTree5 &right) const -> FingerTree5 {
+        if (!alloc_equal(d_alloc, right.d_alloc)) {
+            auto rebuilt = from_sequence(right.flatten(), d_alloc);
+            return app3(d_alloc, *this, {}, rebuilt);
+        }
         return app3(d_alloc, *this, {}, right);
     }
 
