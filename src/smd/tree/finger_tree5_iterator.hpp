@@ -38,9 +38,9 @@
 
 namespace smd::tree {
 
-template <typename T, typename Tag, typename MP>
+template <typename T, typename Tag, typename MP, typename Alloc>
 class FingerTree5Iterator {
-    using FT = FingerTree5<T, Tag, MP>;
+    using FT = FingerTree5<T, Tag, MP, Alloc>;
     using EP = ft5::ElemPtr<T, Tag>;
     using E  = ft5::Elem<T, Tag>;
 
@@ -421,9 +421,9 @@ public:
 //                       FREE begin / end (ADL-findable)
 // ============================================================================
 
-template <typename T, typename Tag, typename MP>
-auto begin(const FingerTree5<T, Tag, MP>& t)
-    -> FingerTree5Iterator<T, Tag, MP>
+template <typename T, typename Tag, typename MP, typename Alloc>
+auto begin(const FingerTree5<T, Tag, MP, Alloc>& t)
+    -> FingerTree5Iterator<T, Tag, MP, Alloc>
 {
     // Compute tree size: O(1) for default measure, O(N) otherwise.
     std::size_t n = 0;
@@ -433,12 +433,12 @@ auto begin(const FingerTree5<T, Tag, MP>& t)
     } else {
         t.for_each([&](const T&) { ++n; });
     }
-    return FingerTree5Iterator<T, Tag, MP>::make_begin(t, n);
+    return FingerTree5Iterator<T, Tag, MP, Alloc>::make_begin(t, n);
 }
 
-template <typename T, typename Tag, typename MP>
-auto end(const FingerTree5<T, Tag, MP>& t)
-    -> FingerTree5Iterator<T, Tag, MP>
+template <typename T, typename Tag, typename MP, typename Alloc>
+auto end(const FingerTree5<T, Tag, MP, Alloc>& t)
+    -> FingerTree5Iterator<T, Tag, MP, Alloc>
 {
     std::size_t n = 0;
     if constexpr (std::same_as<Tag, std::size_t> &&
@@ -447,7 +447,7 @@ auto end(const FingerTree5<T, Tag, MP>& t)
     } else {
         t.for_each([&](const T&) { ++n; });
     }
-    return FingerTree5Iterator<T, Tag, MP>::make_end(t, n);
+    return FingerTree5Iterator<T, Tag, MP, Alloc>::make_end(t, n);
 }
 
 } // namespace smd::tree
@@ -460,19 +460,46 @@ auto end(const FingerTree5<T, Tag, MP>& t)
 
 namespace smd::tree {
 
-template <typename T, typename TAG_TYPE, typename MEASURE_POLICY>
-auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY>::begin() const
-    -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>
+template <typename T, typename TAG_TYPE, typename MEASURE_POLICY, typename ALLOCATOR>
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::begin() const
+    -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>
 {
     return smd::tree::begin(*this);
 }
 
-template <typename T, typename TAG_TYPE, typename MEASURE_POLICY>
-auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY>::end() const
-    -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY>
+template <typename T, typename TAG_TYPE, typename MEASURE_POLICY, typename ALLOCATOR>
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::end() const
+    -> FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>
 {
     return smd::tree::end(*this);
 }
+
+// Const and reverse iterator accessors — defined here so FingerTree5Iterator
+// is a complete type when std::reverse_iterator is instantiated.
+
+template <typename T, typename TAG_TYPE, typename MEASURE_POLICY, typename ALLOCATOR>
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::cbegin() const
+    -> const_iterator { return begin(); }
+
+template <typename T, typename TAG_TYPE, typename MEASURE_POLICY, typename ALLOCATOR>
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::cend() const
+    -> const_iterator { return end(); }
+
+template <typename T, typename TAG_TYPE, typename MEASURE_POLICY, typename ALLOCATOR>
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::rbegin() const
+    -> reverse_iterator { return reverse_iterator(end()); }
+
+template <typename T, typename TAG_TYPE, typename MEASURE_POLICY, typename ALLOCATOR>
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::rend() const
+    -> reverse_iterator { return reverse_iterator(begin()); }
+
+template <typename T, typename TAG_TYPE, typename MEASURE_POLICY, typename ALLOCATOR>
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::crbegin() const
+    -> const_reverse_iterator { return const_reverse_iterator(cend()); }
+
+template <typename T, typename TAG_TYPE, typename MEASURE_POLICY, typename ALLOCATOR>
+auto FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::crend() const
+    -> const_reverse_iterator { return const_reverse_iterator(cbegin()); }
 
 } // namespace smd::tree
 

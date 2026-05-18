@@ -66,7 +66,7 @@ class FingerTreePriorityQueue {
     explicit FingerTreePriorityQueue(Tree tree) : d_tree(std::move(tree)) {}
 
   public:
-    FingerTreePriorityQueue() : d_tree(Tree::empty()) {}
+    FingerTreePriorityQueue() : d_tree(Tree{}) {}
 
     static auto from_values(std::vector<T> values) -> FingerTreePriorityQueue {
         return FingerTreePriorityQueue{Tree::from_sequence(std::move(values))};

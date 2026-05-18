@@ -63,7 +63,7 @@ class FingerTreeIntervalIndex {
     explicit FingerTreeIntervalIndex(Tree tree) : d_tree(std::move(tree)) {}
 
   public:
-    FingerTreeIntervalIndex() : d_tree(Tree::empty()) {}
+    FingerTreeIntervalIndex() : d_tree(Tree{}) {}
 
     static auto from_intervals(std::vector<Entry> entries)
         -> FingerTreeIntervalIndex {

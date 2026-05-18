@@ -33,7 +33,7 @@ TEST_CASE("FingerTree5FoldableTest - EmptyTreeHasLengthZero")
 {
     using Tree = smd::tree::FingerTree5<int>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
-    auto t = Tree::empty();
+    auto t = Tree{};
     CHECK(foldable.length(t) == 0);
     CHECK(foldable.empty(t));
     CHECK(foldable.to_vector(t) == (std::vector<int>{}));
@@ -46,7 +46,7 @@ TEST_CASE("FingerTree5FoldableTest - LargeTreeWalksAllLeaves")
     using Tree = smd::tree::FingerTree5<int>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
 
-    auto t = Tree::empty();
+    auto t = Tree{};
     for (int i = 1; i <= 100; ++i)
         t = t.snoc(i);
 

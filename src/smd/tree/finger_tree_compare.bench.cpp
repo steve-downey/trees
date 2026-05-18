@@ -66,7 +66,7 @@ using FT5 = smd::tree::FingerTree5<int>;
 
 template <typename Tree>
 auto build_snoc(int n) -> Tree {
-    auto t = Tree::empty();
+    auto t = Tree{};
     for (int i = 0; i < n; ++i)
         t = t.snoc(i);
     return t;
@@ -74,7 +74,7 @@ auto build_snoc(int n) -> Tree {
 
 template <typename Tree>
 auto build_cons(int n) -> Tree {
-    auto t = Tree::empty();
+    auto t = Tree{};
     for (int i = 0; i < n; ++i)
         t = t.cons(i);
     return t;

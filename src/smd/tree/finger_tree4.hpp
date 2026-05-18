@@ -947,6 +947,9 @@ class FingerTree4 {
     //                          PUBLIC INTERFACE
     // ========================================================================
   public:
+    // Default constructor: variant default-initialises to Empty.
+    FingerTree4() = default;
+
     using value_type = T;
     using tag_type = Tag;
 

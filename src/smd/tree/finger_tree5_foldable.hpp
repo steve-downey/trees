@@ -15,12 +15,12 @@ namespace smd {
 /** Foldable typeclass implementation for FingerTree5; uses for_each to
  * traverse leaves in left-to-right order without heap allocation.
  */
-template <class T, class TAG_TYPE, class MEASURE_POLICY>
+template <class T, class TAG_TYPE, class MEASURE_POLICY, class ALLOCATOR>
 struct FingerTree5FoldableImpl {
     template <class F>
     auto
     fold_map(this auto &&, F &&function,
-             const smd::tree::FingerTree5<T, TAG_TYPE, MEASURE_POLICY> &tree)
+             const smd::tree::FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR> &tree)
         -> remove_cvref_t<std::invoke_result_t<F, const T &>> {
         using Result = remove_cvref_t<std::invoke_result_t<F, const T &>>;
 
@@ -34,17 +34,17 @@ struct FingerTree5FoldableImpl {
 };
 
 /** Foldable typeclass map entry for FingerTree5. */
-template <class T, class TAG_TYPE, class MEASURE_POLICY>
+template <class T, class TAG_TYPE, class MEASURE_POLICY, class ALLOCATOR>
 struct FingerTree5FoldableMap
-    : Foldable<FingerTree5FoldableImpl<T, TAG_TYPE, MEASURE_POLICY>> {
-    using FingerTree5FoldableImpl<T, TAG_TYPE, MEASURE_POLICY>::fold_map;
+    : Foldable<FingerTree5FoldableImpl<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>> {
+    using FingerTree5FoldableImpl<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>::fold_map;
 };
 
 /** Registers FingerTree5 as a Foldable for all tag and measure combinations. */
-template <class T, class TAG_TYPE, class MEASURE_POLICY>
+template <class T, class TAG_TYPE, class MEASURE_POLICY, class ALLOCATOR>
 inline constexpr auto
-    foldable_typeclass<smd::tree::FingerTree5<T, TAG_TYPE, MEASURE_POLICY>> =
-        FingerTree5FoldableMap<T, TAG_TYPE, MEASURE_POLICY>{};
+    foldable_typeclass<smd::tree::FingerTree5<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>> =
+        FingerTree5FoldableMap<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>{};
 
 } // namespace smd
 

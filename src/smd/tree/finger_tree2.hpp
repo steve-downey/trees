@@ -701,6 +701,9 @@ class FingerTree2 {
     // -- Result types (declared early for use in private helpers) -----------
 
   public:
+    // Default constructor: variant default-initialises to Empty.
+    FingerTree2() = default;
+
     struct View {
         T d_value;
         FingerTree2 d_rest;
