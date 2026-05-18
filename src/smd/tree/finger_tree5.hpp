@@ -375,18 +375,50 @@ class FingerTree5 {
             return a == b;
     }
 
-    // Allocate a new SpinePtr.  The FingerTree5 shell (a variant header, ~24
-    // bytes) uses make_shared (default allocator) as a deliberate exception:
-    // - The shell is internal implementation structure, not user data.
-    // - Using allocate_shared would trigger the uses_allocator protocol, which
-    //   calls our coherency-checking extended constructor.  That constructor
-    //   would erroneously try to 'flatten' a spine tree whose elements are
-    //   Node3/Node2 objects (not leaf values), corrupting the tree structure.
-    // - All Elem and Deep nodes (user data and structure) use d_alloc correctly.
-    // - The shell's d_alloc field is set to d_alloc so future operations on the
-    //   spine level use the right resource.
-    auto make_spine_ptr(FingerTree5 t) const -> SpinePtr {
-        return std::make_shared<const FingerTree5>(std::move(t));
+    // Allocate a spine shell (the FingerTree5 wrapper that holds a DeepPtr)
+    // entirely from the custom allocator without triggering the uses_allocator
+    // coherency-rebuild protocol.
+    //
+    // The spine shells contain Node2/Node3 elements, not leaf T values, so
+    // flatten()+from_sequence() would reconstruct a structurally different
+    // tree.  The coherency rebuild is therefore incorrect for spine shells
+    // and must be bypassed.
+    //
+    // Technique: placement new into allocator-owned memory, then wrap in a
+    // shared_ptr with a custom deleter.  ::new bypasses uses_allocator_
+    // construction_args (which would otherwise fire the public extended
+    // constructor and run the coherency check).  Both the shell object and
+    // the shared_ptr control block are allocated from alloc.  Two separate
+    // allocations — unavoidable without allocate_shared, which triggers the
+    // unwanted protocol.
+    //
+    // Precondition: t.d_alloc == alloc (always true at call sites; any
+    // future breakage manifests as allocator mismatch rather than silently
+    // corrupting the tree structure).
+    static auto allocate_spine(const ALLOCATOR& alloc, FingerTree5 t) -> SpinePtr {
+        using FTA = typename std::allocator_traits<ALLOCATOR>::
+            template rebind_alloc<FingerTree5>;
+        FTA fta(alloc);
+        FingerTree5* raw = std::allocator_traits<FTA>::allocate(fta, 1);
+        try {
+            ::new(raw) FingerTree5(std::move(t)); // move ctor, no uses_allocator
+        } catch (...) {
+            std::allocator_traits<FTA>::deallocate(fta, raw, 1);
+            throw;
+        }
+        // Control block allocated from fta (custom alloc).
+        return SpinePtr(static_cast<const FingerTree5*>(raw),
+                        [alloc](const FingerTree5* p) mutable {
+                            FTA fa(alloc);
+                            auto* mp = const_cast<FingerTree5*>(p);
+                            std::allocator_traits<FTA>::destroy(fa, mp);
+                            std::allocator_traits<FTA>::deallocate(fa, mp, 1);
+                        },
+                        fta);
+    }
+
+    auto allocate_spine(FingerTree5 t) const -> SpinePtr {
+        return allocate_spine(d_alloc, std::move(t));
     }
 
     auto wrap_leaf(T value) const -> EP {
@@ -458,7 +490,7 @@ class FingerTree5 {
         auto new_left = ft5::elem_to_digit<T, Tag>(vl->d_elem);
         SpinePtr new_spine;
         if (!vl->d_rest.is_empty())
-            new_spine = std::make_shared<const FingerTree5>(std::move(vl->d_rest));
+            new_spine = allocate_spine(alloc, std::move(vl->d_rest));
         return make_deep(alloc, std::move(new_left), std::move(new_spine),
                          std::move(right));
     }
@@ -472,7 +504,7 @@ class FingerTree5 {
         auto new_right = ft5::elem_to_digit<T, Tag>(vr->d_elem);
         SpinePtr new_spine;
         if (!vr->d_rest.is_empty())
-            new_spine = std::make_shared<const FingerTree5>(std::move(vr->d_rest));
+            new_spine = allocate_spine(alloc, std::move(vr->d_rest));
         return make_deep(alloc, std::move(left), std::move(new_spine),
                          std::move(new_right));
     }
@@ -555,10 +587,10 @@ class FingerTree5 {
                         d_alloc, d->d_left[1], d->d_left[2], d->d_left[3]);
                     SpinePtr sp;
                     if (d->d_spine)
-                        sp = make_spine_ptr(
+                        sp = allocate_spine(
                             d->d_spine->cons_internal(std::move(node)));
                     else
-                        sp = make_spine_ptr(make_single(d_alloc, std::move(node)));
+                        sp = allocate_spine(make_single(d_alloc, std::move(node)));
                     Digit new_left;
                     new_left.push_back(std::move(x));
                     new_left.push_back(d->d_left[0]);
@@ -591,10 +623,10 @@ class FingerTree5 {
                         d_alloc, d->d_right[0], d->d_right[1], d->d_right[2]);
                     SpinePtr sp;
                     if (d->d_spine)
-                        sp = make_spine_ptr(
+                        sp = allocate_spine(
                             d->d_spine->snoc_internal(std::move(node)));
                     else
-                        sp = make_spine_ptr(make_single(d_alloc, std::move(node)));
+                        sp = allocate_spine(make_single(d_alloc, std::move(node)));
                     Digit new_right;
                     new_right.push_back(d->d_right[3]);
                     new_right.push_back(std::move(x));
@@ -720,10 +752,10 @@ class FingerTree5 {
 
             SpinePtr sl;
             if (!ss->d_left.is_empty())
-                sl = make_spine_ptr(std::move(ss->d_left));
+                sl = allocate_spine(std::move(ss->d_left));
             SpinePtr sr;
             if (!ss->d_right.is_empty())
-                sr = make_spine_ptr(std::move(ss->d_right));
+                sr = allocate_spine(std::move(ss->d_right));
 
             auto lt = assemble_r(d_alloc, d.d_left, std::move(sl),
                                  std::move(ns.d_left));
@@ -795,7 +827,7 @@ class FingerTree5 {
             FingerTree5::app3(alloc, left_spine, std::move(ns), right_spine);
         SpinePtr sp;
         if (!new_spine.is_empty())
-            sp = std::make_shared<const FingerTree5>(std::move(new_spine));
+            sp = allocate_spine(alloc, std::move(new_spine));
         return make_deep(alloc, ld.d_left, std::move(sp), rd.d_right);
     }
 
@@ -869,7 +901,7 @@ class FingerTree5 {
         auto spine = from_elems_impl(alloc, std::move(nodes));
         SpinePtr sp = spine.is_empty()
                           ? SpinePtr{}
-                          : std::make_shared<const FingerTree5>(std::move(spine));
+                          : allocate_spine(alloc, std::move(spine));
         return make_deep(alloc, std::move(left_d), std::move(sp),
                          std::move(right_d));
     }

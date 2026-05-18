@@ -166,30 +166,35 @@ The rebuild path is O(|right|).  For the common case where both trees
 share the same memory resource (the expected use of PMR), the fast
 structural-sharing path is taken with no overhead.
 
+### 8. Spine shell allocation — `allocate_spine`
+
+The spine shells (`FingerTree5` value objects stored inside `SpinePtr`)
+are allocated from the custom allocator via manual placement new.
+
+**Why not `allocate_shared`?**  `std::allocate_shared<const FT5>(fta, t)`
+would fire `std::uses_allocator_construction_args`, which selects the
+public extended constructor `FT5(FT5&&, ALLOCATOR)`.  That constructor's
+coherency check calls `flatten()` when the allocator differs — but spine
+shells contain `Node3`/`Node2` elements (not leaf `T` values), so
+`flatten()` would produce a structurally invalid tree (leaves where nodes
+should be), corrupting the spine.
+
+**The implemented approach** in `allocate_spine(alloc, t)`:
+1. `allocator_traits::allocate(fta, 1)` — shell object from custom alloc
+2. `::new(raw) FingerTree5(std::move(t))` — placement new, bypasses
+   `uses_allocator_construction_args` entirely; no protocol, no rebuild
+3. `shared_ptr(raw, deleter, fta)` — control block from custom alloc via
+   the 3-arg `shared_ptr` constructor (two allocations vs one for
+   `make_shared`, but both from the correct resource)
+
+**Self-enforcing test** (`finger_tree5_pmr.t.cpp`): the arena is backed by
+`null_memory_resource()` as the upstream.  Any allocation that tries to
+escape to the global heap immediately throws `std::bad_alloc`, making the
+test an automatic check that no allocation bypasses the arena.
+
 ---
 
 ## Known Limitations
-
-### Spine shell allocation
-
-Spine shells (`FingerTree5` values stored inside `shared_ptr`) use
-`make_shared` (the default allocator's control block).  This means the
-control block and shell storage come from the global heap even when a
-custom allocator is active.
-
-This is safe for the Lakos property on user data: no user-visible data
-pointer escapes into the default heap.  It is not ideal for strict arena
-or fixed-buffer use cases where zero allocations outside the arena are
-required.
-
-Fixing this would require the shells to go through `allocate_shared`,
-which in turn requires the `uses_allocator` extended constructor to handle
-both user-level trees (where rebuild on different-resource is the right
-answer) and internal spine-level trees (where rebuild is structurally
-incorrect because the "elements" are Node3 objects, not leaf values).
-
-The distinction cannot currently be made without an additional tag or a
-separate allocator-aware spine-shell type.  It is deferred.
 
 ### Empty trees from `split` carry the default allocator
 

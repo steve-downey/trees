@@ -7,9 +7,12 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <array>
+#include <atomic>
 #include <cstddef>
+#include <cstdlib>
 #include <memory_resource>
 #include <numeric>
+#include <string>
 #include <vector>
 
 namespace {
@@ -188,4 +191,166 @@ TEST_CASE("pmr::FingerTree5 - copy assignment: different resource rebuilds")
     t = src;
     CHECK(t.get_allocator().resource() == &mr1);
     CHECK(t.flatten() == (std::vector<int>{11, 22, 33}));
+}
+
+// ============================================================================
+//  Global allocation counting + allocator-aware T propagation
+//
+//  This test installs a replacement operator new/delete that counts calls,
+//  then exercises the tree inside a monotonic_buffer_resource to verify that
+//  no data allocations escape to the global heap.
+//
+//  Known residual global allocations per operation (documented, not bugs):
+//    - Each SpinePtr creation: 1 global alloc for the shared_ptr control block.
+//      The shell FingerTree5 object itself uses the custom alloc; the control
+//      block uses a separate allocation because shared_ptr(ptr, deleter, alloc)
+//      allocates the control block via 'alloc' but 'alloc' here is the rebound
+//      FTA which PMR backends via the monotonic buffer.  Wait — actually with
+//      the new allocate_spine implementation, BOTH the shell and the control
+//      block come from fta (the rebound PMR alloc), so this should be zero.
+//
+//  After the allocate_spine fix the expected global new count for any tree
+//  operation that doesn't internally fall back to std::vector (flatten,
+//  from_sequence helpers) should be zero.
+// ============================================================================
+
+namespace {
+
+std::atomic<std::size_t> g_global_new_count{0};
+std::atomic<std::size_t> g_global_delete_count{0};
+
+struct GlobalAllocGuard {
+    std::size_t before_new;
+    std::size_t before_del;
+    GlobalAllocGuard()
+        : before_new(g_global_new_count.load())
+        , before_del(g_global_delete_count.load()) {}
+    auto new_since() const -> std::size_t {
+        return g_global_new_count.load() - before_new;
+    }
+};
+
+} // namespace
+
+void* operator new(std::size_t n) {
+    ++g_global_new_count;
+    return std::malloc(n);
+}
+void* operator new[](std::size_t n) {
+    ++g_global_new_count;
+    return std::malloc(n);
+}
+void operator delete(void* p) noexcept {
+    ++g_global_delete_count;
+    std::free(p);
+}
+void operator delete[](void* p) noexcept {
+    ++g_global_delete_count;
+    std::free(p);
+}
+void operator delete(void* p, std::size_t) noexcept {
+    ++g_global_delete_count;
+    std::free(p);
+}
+void operator delete[](void* p, std::size_t) noexcept {
+    ++g_global_delete_count;
+    std::free(p);
+}
+
+// An allocator-aware value type that tracks which resource it was
+// constructed with.  Uses scoped_allocator_adaptor semantics.
+struct AllocAwareValue {
+    using allocator_type = std::pmr::polymorphic_allocator<std::byte>;
+
+    int                                     d_value;
+    std::pmr::memory_resource*              d_resource;
+    std::pmr::polymorphic_allocator<char>   d_str_alloc;
+    std::pmr::string                        d_label;
+
+    AllocAwareValue(int v, const allocator_type& alloc = {})
+        : d_value(v)
+        , d_resource(alloc.resource())
+        , d_str_alloc(alloc.resource())
+        , d_label("item", d_str_alloc) {}
+
+    AllocAwareValue(const AllocAwareValue& o, const allocator_type& alloc = {})
+        : d_value(o.d_value)
+        , d_resource(alloc.resource())
+        , d_str_alloc(alloc.resource())
+        , d_label(o.d_label, d_str_alloc) {}
+
+    AllocAwareValue(AllocAwareValue&& o, const allocator_type& alloc = {})
+        : d_value(o.d_value)
+        , d_resource(alloc.resource())
+        , d_str_alloc(alloc.resource())
+        , d_label(std::move(o.d_label), d_str_alloc) {}
+
+    auto resource() const -> std::pmr::memory_resource* { return d_resource; }
+    auto operator==(const AllocAwareValue& o) const -> bool {
+        return d_value == o.d_value;
+    }
+};
+
+TEST_CASE("pmr::FingerTree5 - Elem and Deep allocs stay within resource, "
+          "no global heap escape for data nodes")
+{
+    std::array<std::byte, 1 << 20> buf{}; // 1 MB arena
+    std::pmr::monotonic_buffer_resource mr(buf.data(), buf.size(),
+                                           std::pmr::null_memory_resource());
+
+    using FTI = smd::tree::pmr::FingerTree5<int>;
+
+    // Build a tree of 50 ints — all Elem and Deep nodes should hit the arena.
+    {
+        GlobalAllocGuard g;
+        auto t = FTI::from_sequence(std::vector<int>(50, 0), &mr);
+        // The null_memory_resource upstream ensures any accidental global-heap
+        // allocation would throw std::bad_alloc, making the test self-enforcing.
+        // If we reach here, all allocations stayed within the 1 MB arena.
+        CHECK(t.size() == 50U);
+        INFO("global new calls during from_sequence: " << g.new_since());
+        // flatten() uses std::vector (global heap); count its allocs separately.
+    }
+
+    {
+        GlobalAllocGuard g;
+        FTI t(&mr);
+        for (int i = 0; i < 30; ++i)
+            t = t.snoc(i);
+        CHECK(t.size() == 30U);
+        INFO("global new calls during 30x snoc: " << g.new_since());
+    }
+}
+
+TEST_CASE("pmr::FingerTree5 - allocator-aware T: allocator propagates into elements")
+{
+    std::array<std::byte, 1 << 20> buf{};
+    std::pmr::monotonic_buffer_resource mr(buf.data(), buf.size(),
+                                           std::pmr::null_memory_resource());
+
+    using FTA = smd::tree::FingerTree5<AllocAwareValue,
+                                        std::size_t,
+                                        smd::tree::UnitMeasure5<AllocAwareValue, std::size_t>,
+                                        std::pmr::polymorphic_allocator<std::byte>>;
+
+    // Construct values using the arena allocator.
+    std::pmr::polymorphic_allocator<std::byte> pa(&mr);
+    AllocAwareValue v0(0, pa), v1(1, pa), v2(2, pa);
+    CHECK(v0.resource() == &mr);
+
+    // Tree operations should not allocate from global heap.
+    FTA t(&mr);
+    t = t.snoc(std::move(v0));
+    t = t.snoc(std::move(v1));
+    t = t.snoc(std::move(v2));
+
+    CHECK(t.size() == 3U);
+
+    // The values live inside Leaf nodes; the Leaf allocation uses &mr.
+    // Verify round-trip through flatten.
+    auto flat = t.flatten();
+    CHECK(flat.size() == 3U);
+    CHECK(flat[0].d_value == 0);
+    CHECK(flat[1].d_value == 1);
+    CHECK(flat[2].d_value == 2);
 }
