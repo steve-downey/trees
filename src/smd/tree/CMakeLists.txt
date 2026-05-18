@@ -81,6 +81,33 @@ if(TREE_ENABLE_TESTING)
 
     catch_discover_tests(smd_tree_tests)
 
+    # -- PMR allocation probe -------------------------------------------------
+    #
+    # Standalone executable: no test framework, replaces operator new/delete
+    # globally to count allocations.  Verifies that FingerTree5 operations
+    # with a PMR allocator produce zero global heap allocations.
+    #
+    # Uses null_memory_resource as the upstream for the monotonic buffer;
+    # any allocation that leaks through the PMR system throws bad_alloc.
+    #
+    # Must NOT be compiled with AddressSanitizer: Asan wraps operator
+    # new/delete and may produce false non-zero counts.  The target is
+    # compiled for Debug and RelWithDebInfo only; CTest runs it via the
+    # RelWithDebInfo binary which has optimisations but no sanitizer.
+    add_executable(smd_tree_pmr_probe finger_tree5_pmr_probe.cpp)
+    target_link_libraries(smd_tree_pmr_probe PRIVATE smd::tree)
+    target_compile_features(smd_tree_pmr_probe PRIVATE cxx_std_26)
+    # No sanitizer flags on this target.
+    target_compile_options(smd_tree_pmr_probe PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang>:-fno-sanitize=all>)
+    target_link_options(smd_tree_pmr_probe PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang>:-fno-sanitize=all>)
+    add_test(
+        NAME   "FingerTree5 PMR allocation probe"
+        COMMAND "$<TARGET_FILE:smd_tree_pmr_probe>"
+        CONFIGURATIONS RelWithDebInfo Debug
+    )
+
     # -- Compile-time regression probes ---------------------------------------
     #
     # One translation unit per tree variant, each instantiating all major

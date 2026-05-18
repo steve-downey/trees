@@ -325,10 +325,17 @@ class FingerTree5 {
     template <typename, typename, typename, typename>
     friend class FingerTree5Iterator; // iterator needs access to Deep, Repr, etc.
 
-    using Tag = TAG_TYPE;
+    using Tag  = TAG_TYPE;
     using Meas = MEASURE_POLICY;
-    using E = ft5::Elem<T, Tag>;
-    using EP = ft5::ElemPtr<T, Tag>;
+    using E    = ft5::Elem<T, Tag>;
+    using EP   = ft5::ElemPtr<T, Tag>;
+
+    // ElemPtr vector using the rebind-allocated allocator so temporary
+    // scaffolding vectors (from_sequence, from_elems_impl) don't hit the
+    // global heap when a custom allocator is in use.
+    using EpAlloc = typename std::allocator_traits<ALLOCATOR>::
+        template rebind_alloc<EP>;
+    using EpVec   = std::vector<EP, EpAlloc>;
     using Digit = ft5::Digit<T, Tag>;
 
     using SpinePtr = std::shared_ptr<const FingerTree5>;
@@ -843,8 +850,8 @@ class FingerTree5 {
     // Small cases (N ≤ 8) are placed directly into left/right digits with an
     // empty spine, avoiding the node-grouping pass entirely.
 
-    static auto from_elems_impl(const ALLOCATOR& alloc,
-                                std::vector<EP>  elems) -> FingerTree5 {
+    static auto from_elems_impl(const ALLOCATOR& alloc, EpVec elems)
+        -> FingerTree5 {
         const auto n = elems.size();
         if (n == 0) return FingerTree5(alloc);
         if (n == 1) return make_single(alloc, std::move(elems[0]));
@@ -867,7 +874,7 @@ class FingerTree5 {
         right_d.push_back(std::move(elems[n - 2]));
         right_d.push_back(std::move(elems[n - 1]));
 
-        std::vector<EP> nodes;
+        EpVec nodes{EpAlloc(alloc)};
         nodes.reserve((n - 4 + 2) / 3);
         std::size_t i   = 2;
         const auto  end = n - 2;
@@ -1239,19 +1246,22 @@ class FingerTree5 {
 
     // Build from a vector using the default allocator (static; use the
     // allocator-extended overload below for a custom allocator).
-    [[nodiscard]] static auto from_sequence(std::vector<T> values) -> FingerTree5 {
-        return from_sequence(std::move(values), ALLOCATOR{});
+    [[nodiscard]] static auto from_sequence(const std::vector<T>& values)
+        -> FingerTree5 {
+        return from_sequence(values, ALLOCATOR{});
     }
 
-    // Allocator-extended from_sequence: all node allocations use alloc.
-    [[nodiscard]] static auto from_sequence(std::vector<T> values,
+    // Allocator-extended from_sequence: all node and scaffolding allocations
+    // use alloc.  Takes values by const ref so the input vector is not copied;
+    // each element is individually copied into its Leaf node via make_leaf.
+    [[nodiscard]] static auto from_sequence(const std::vector<T>& values,
                                             const ALLOCATOR& alloc) -> FingerTree5 {
         if (values.empty()) return FingerTree5(alloc);
         auto mf = meas_fn();
-        std::vector<EP> elems;
+        EpVec elems{EpAlloc(alloc)};
         elems.reserve(values.size());
-        for (auto &v : values)
-            elems.push_back(ft5::make_leaf<T, Tag>(alloc, mf, std::move(v)));
+        for (const auto &v : values)
+            elems.push_back(ft5::make_leaf<T, Tag>(alloc, mf, v));
         return from_elems_impl(alloc, std::move(elems));
     }
 
