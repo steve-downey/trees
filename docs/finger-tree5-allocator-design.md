@@ -196,18 +196,6 @@ test an automatic check that no allocation bypasses the arena.
 
 ## Known Limitations
 
-### Empty trees from `split` carry the default allocator
-
-`split_impl` returns `InternalSplit` with `make_empty()` (`FingerTree5{}`)
-as the left or right half.  These empty trees have `d_alloc = ALLOCATOR{}`
-(default) rather than `d_alloc = this->d_alloc`.  Any subsequent mutation
-on an empty split result (e.g., `split_result.d_left.snoc(x)`) will
-allocate from the default resource.
-
-This is a correctness gap for strict arena usage; it is documented but not
-yet fixed.  The fix is to thread `d_alloc` through all `make_empty()`
-calls in `split_impl`.
-
 ### Static `leaf()` and `from_sequence()` factories use `ALLOCATOR{}`
 
 ```cpp

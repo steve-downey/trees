@@ -354,3 +354,41 @@ TEST_CASE("pmr::FingerTree5 - allocator-aware T: allocator propagates into eleme
     CHECK(flat[1].d_value == 1);
     CHECK(flat[2].d_value == 2);
 }
+
+TEST_CASE("pmr::FingerTree5 - allocator propagates through view/tail/init/split results")
+{
+    std::pmr::monotonic_buffer_resource mr;
+    auto t = FT::from_sequence({1, 2, 3, 4, 5}, &mr);
+    CHECK(t.get_allocator().resource() == &mr);
+
+    // tail/init must propagate allocator
+    auto tl = t.tail();
+    CHECK(tl.get_allocator().resource() == &mr);
+    CHECK(tl.size() == 4U);
+
+    auto in = t.init();
+    CHECK(in.get_allocator().resource() == &mr);
+
+    // view_l / view_r rest must propagate
+    auto vl = t.view_l();
+    REQUIRE(vl.has_value());
+    CHECK(vl->d_rest.get_allocator().resource() == &mr);
+
+    // tail of a 1-element tree gives an empty tree with the resource
+    auto single = FT::from_sequence({42}, &mr);
+    auto empty_tail = single.tail();
+    CHECK(empty_tail.empty());
+    CHECK(empty_tail.get_allocator().resource() == &mr);
+
+    // split results carry the allocator
+    auto sp = t.split([](std::size_t p) { return p >= 3; });
+    REQUIRE(sp.has_value());
+    CHECK(sp->d_left.get_allocator().resource() == &mr);
+    CHECK(sp->d_right.get_allocator().resource() == &mr);
+
+    // split_at when predicate never fires: right is empty, must carry alloc
+    auto sa = t.split_at([](std::size_t) { return false; });
+    CHECK(sa.d_left.get_allocator().resource() == &mr);
+    CHECK(sa.d_right.empty());
+    CHECK(sa.d_right.get_allocator().resource() == &mr);
+}

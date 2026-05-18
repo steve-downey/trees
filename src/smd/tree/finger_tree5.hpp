@@ -425,8 +425,6 @@ class FingerTree5 {
         return ft5::make_leaf<T, Tag>(d_alloc, meas_fn(), std::move(value));
     }
 
-    static auto make_empty() -> FingerTree5 { return {}; }
-
     static auto make_single(const ALLOCATOR& alloc, EP elem) -> FingerTree5 {
         return FingerTree5(Repr{Single{std::move(elem)}}, alloc);
     }
@@ -523,7 +521,7 @@ class FingerTree5 {
                     return std::nullopt;
                 },
                 [this](const Single &s) -> std::optional<InternalView> {
-                    return InternalView{s.d_elem, {}};
+                    return InternalView{s.d_elem, FingerTree5(d_alloc)};
                 },
                 [this](const DeepPtr &d) -> std::optional<InternalView> {
                     EP h = d->d_left.front();
@@ -546,7 +544,7 @@ class FingerTree5 {
                     return std::nullopt;
                 },
                 [this](const Single &s) -> std::optional<InternalView> {
-                    return InternalView{s.d_elem, {}};
+                    return InternalView{s.d_elem, FingerTree5(d_alloc)};
                 },
                 [this](const DeepPtr &d) -> std::optional<InternalView> {
                     EP l = d->d_right.back();
@@ -716,7 +714,7 @@ class FingerTree5 {
 
         if (auto *s = std::get_if<Single>(&d_repr)) {
             if (pred(ft5::tag_op<Tag>(prefix, s->d_elem->d_measure)))
-                return InternalSplit{make_empty(), s->d_elem, make_empty()};
+                return InternalSplit{FingerTree5(d_alloc), s->d_elem, FingerTree5(d_alloc)};
             return std::nullopt;
         }
 
@@ -728,7 +726,7 @@ class FingerTree5 {
             if (!ds.has_value())
                 return std::nullopt;
             auto lt = ds->d_left.has_value() ? digit_to_tree(d_alloc, *ds->d_left)
-                                              : FingerTree5{};
+                                              : FingerTree5(d_alloc);
             auto rt = assemble_l(d_alloc, std::move(ds->d_right), d.d_spine,
                                  d.d_right);
             return InternalSplit{std::move(lt), std::move(ds->d_pivot),
@@ -771,7 +769,7 @@ class FingerTree5 {
         auto lt = assemble_r(d_alloc, d.d_left, d.d_spine,
                              std::move(ds->d_left));
         auto rt = ds->d_right.has_value() ? digit_to_tree(d_alloc, *ds->d_right)
-                                           : FingerTree5{};
+                                           : FingerTree5(d_alloc);
         return InternalSplit{std::move(lt), std::move(ds->d_pivot),
                              std::move(rt)};
     }
@@ -820,9 +818,9 @@ class FingerTree5 {
         auto ns = ft5::nodes_from<T, Tag>(alloc, std::move(combined));
 
         auto left_spine =
-            ld.d_spine ? *ld.d_spine : FingerTree5{};
+            ld.d_spine ? *ld.d_spine : FingerTree5(alloc);
         auto right_spine =
-            rd.d_spine ? *rd.d_spine : FingerTree5{};
+            rd.d_spine ? *rd.d_spine : FingerTree5(alloc);
         auto new_spine =
             FingerTree5::app3(alloc, left_spine, std::move(ns), right_spine);
         SpinePtr sp;
@@ -848,7 +846,7 @@ class FingerTree5 {
     static auto from_elems_impl(const ALLOCATOR& alloc,
                                 std::vector<EP>  elems) -> FingerTree5 {
         const auto n = elems.size();
-        if (n == 0) return {};
+        if (n == 0) return FingerTree5(alloc);
         if (n == 1) return make_single(alloc, std::move(elems[0]));
 
         if (n <= 8) {
@@ -1199,7 +1197,7 @@ class FingerTree5 {
 
     [[nodiscard]] auto tail() const -> FingerTree5 {
         auto v = view_l();
-        return v.has_value() ? std::move(v->d_rest) : FingerTree5{};
+        return v.has_value() ? std::move(v->d_rest) : FingerTree5(d_alloc);
     }
 
     [[nodiscard]] auto last() const -> T {
@@ -1216,7 +1214,7 @@ class FingerTree5 {
 
     [[nodiscard]] auto init() const -> FingerTree5 {
         auto v = view_r();
-        return v.has_value() ? std::move(v->d_rest) : FingerTree5{};
+        return v.has_value() ? std::move(v->d_rest) : FingerTree5(d_alloc);
     }
 
     // -- flatten / for_each: O(n) --------------------------------------------
@@ -1248,7 +1246,7 @@ class FingerTree5 {
     // Allocator-extended from_sequence: all node allocations use alloc.
     [[nodiscard]] static auto from_sequence(std::vector<T> values,
                                             const ALLOCATOR& alloc) -> FingerTree5 {
-        if (values.empty()) return {};
+        if (values.empty()) return FingerTree5(alloc);
         auto mf = meas_fn();
         std::vector<EP> elems;
         elems.reserve(values.size());
@@ -1312,7 +1310,7 @@ class FingerTree5 {
     [[nodiscard]] auto split_at(PRED &&pred) const -> SplitAt {
         auto sp = split(std::forward<PRED>(pred));
         if (!sp.has_value())
-            return SplitAt{*this, {}};
+            return SplitAt{*this, FingerTree5(d_alloc)};
         return SplitAt{std::move(sp->d_left),
                        sp->d_right.cons(std::move(sp->d_pivot))};
     }
@@ -1339,12 +1337,13 @@ class FingerTree5 {
     // the eager rebuild is always correct.
 
     [[nodiscard]] auto reversed() const
-        -> FingerTree5<T, smd::typeclass::DualMonoid<Tag>, ReversedMeasure5<Meas>>
+        -> FingerTree5<T, smd::typeclass::DualMonoid<Tag>, ReversedMeasure5<Meas>, ALLOCATOR>
     {
-        using DT = FingerTree5<T, smd::typeclass::DualMonoid<Tag>, ReversedMeasure5<Meas>>;
+        using DT = FingerTree5<T, smd::typeclass::DualMonoid<Tag>,
+                                ReversedMeasure5<Meas>, ALLOCATOR>;
         auto v = flatten();
         std::reverse(v.begin(), v.end());
-        return DT::from_sequence(std::move(v));
+        return DT::from_sequence(std::move(v), d_alloc);
     }
 };
 
