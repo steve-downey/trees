@@ -1,0 +1,7 @@
+- [No co-author in commits](feedback_no_coauthor.md) — don't add Co-Authored-By unless explicitly asked (see exception below)
+- [Co-Authored-By IS used in this project](feedback_coauthor_in_this_project.md) — user invoked codestyle.org which mandates the trailer
+- [Steve Downey career history](user_career.md) — SUNY Purchase → Cohane Rafferty → MIAC → JPMorgan → Netfolio → Bloomberg 2003–present
+- [Treat warnings as errors](feedback_warnings.md) — fix all warnings; only -Wmaybe-uninitialized is a known false positive
+- [FT5 campaign complete](project_ft5_campaign_complete.md) — Phases 1–4 done, pushed, 488 tests; all campaign worktrees merged
+- [Beman extraction pending](project_beman_extraction_pending.md) — 7 pre-requisites before any file moves; plans in docs/notes/
+- [FT5 technical state](project_ft5_technical_state.md) — key design decisions, template signature, known limitations post Phase 4
