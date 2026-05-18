@@ -1,0 +1,566 @@
+#+TITLE: Proposal Strategy: From Design Thesis to Standardization Papers
+#+AUTHOR: Steve Downey
+#+DATE: 2026-05-18
+#+LANGUAGE: en
+#+STARTUP: showall
+#+OPTIONS: toc:2 num:nil ^:nil
+
+* Summary
+
+Three coordinated C++ standardization papers are being prepared.
+
+*Paper A* (anchor, recommended home for P3200): a merged traversal-plus-customization paper proposing shape-preserving traversal and structure/context transposition, together with the bundled-customization mechanism needed to keep the primitive and derived operations coherent.
+
+*Paper C*: a persistent measured sequence container — the capability set implemented by finger-tree-like structures — proposed as a standalone ~Container~ and ~ReversibleContainer~.
+
+*Paper D*: a recursive-tree algorithms paper, framed as an algorithms proposal rather than as a blessed tree-vocabulary type.
+
+*Current honest state*:
+Paper C's implementation is substantially complete through a multi-phase development campaign (Container, AllocatorAware, PMR compliance, proven zero global heap allocations under a PMR allocator).
+Paper A is blocked not on the problem statement but on the implementation: the required three-domain example set (optional-like, sender-like, SIMD/zip-like) must work through the same front-door API before the paper can credibly advance.
+Paper D is still the least fixed in scope.
+
+The papers are intended for coordinated release, each independently reviewable, under the P3200 reservation assigned to Paper A.
+
+* Broad thesis
+
+The C++ standard library has strong support for sequence-oriented generic programming centered on external iteration.
+That support remains valuable.
+But it is not the only credible foundation for generic algorithms.
+
+For recursive, persistent, and effect-aware structures, a different center of gravity is often better:
+
+- internal traversal rather than external cursor choreography
+- structural reconstruction rather than elementwise mutation
+- explicit adaptation objects rather than duck-typed naming conventions
+- minimal primitive adaptation plus derived defaults
+- overrideable derived operations when the default is not efficient enough
+
+The design space is mature enough to talk about standardization.
+The goal is not to replace STL-style iteration.
+The goal is to standardize a complementary generic style for structures and algorithms that do not fit the iterator model especially well.
+
+* The three papers and the anchor
+
+** Paper A: Traversal, transposition, and bundled customization
+
+*Core claim*: C++ needs a standard way to express shape-preserving traversal and transposition between a structure and a computational context, and it needs a bundled customization mechanism strong enough to keep the primitive and derived operations coherent.
+
+*Why Paper A is the anchor*: It addresses a live problem over familiar or standard-adjacent components, explains why the rest of the design exists, and does not require prior sympathy for trees or recursive representations.
+Placing the traversal problem in the same paper as the mechanism debate forces reviewers to evaluate them together, which is the correct framing: the mechanism exists because the problem requires it, not the other way around.
+
+Recommended home for P3200.
+
+Motivating examples — all three required before the paper is ready:
+
+- ~vector<optional<T>> -> optional<vector<T>>~
+- ~vector<sender<T>> <-> sender<vector<T>>~
+- ~vector<simd<T>> <-> simd<vector<T>>~ as a lanewise/independent-composition analogy
+
+*What Paper A should not do*: standardize the full algebraic hierarchy, introduce tree containers as its primary reason to exist, or become a survey of every nearby abstraction family.
+
+** Paper C: Persistent measured sequence
+
+*Core claim*: The standard library lacks a persistent sequence abstraction combining structural sharing, concatenation, and measured split/search in one coherent facility, and that missing combination matters in real workloads.
+
+*Why Paper C stands alone*: The container abstraction is independently motivated.
+A capable standard-library user can want this without needing to understand traversal algebra.
+The paper must be reviewable as a container proposal even if Paper A stalls.
+
+*What Paper C should not do*: standardize finger trees by name as the primary user-facing concept, or make the recursive-algorithms paper a prerequisite.
+
+** Paper D: Recursive tree algorithms
+
+*Core claim*: Recursive trees expose generic algorithmic structure not well captured by sequence-centric iterator models alone, and C++ would benefit more from reusable recursive algorithms than from prematurely standardizing one blessed tree vocabulary type.
+
+*Why Paper D is an algorithms paper*: The fixpoint machinery is evidence and implementation support, not the public identity of the proposal.
+
+*What Paper D should not do*: standardize one canonical tree vocabulary type, or make itself dependent on prior acceptance of Paper C.
+
+* Current implementation readiness
+
+** Paper C: substantially complete
+
+The ~FingerTree5~ implementation has completed a four-phase development campaign.
+The current implementation:
+
+- satisfies the C++ Container and ReversibleContainer named requirements, verified by ~static_assert~ against ~bidirectional_range~, ~sized_range~, and ~common_range~
+- is AllocatorAware with Lakos-rule coherency: combining trees from different memory resources rebuilds rather than silently mixing pointers, the correct behavior for mmap'd files, shared memory, and fixed-buffer arenas
+- demonstrates zero global heap allocations under a PMR allocator, proven by a standalone executable that replaces ~operator new~/~delete~ globally and runs 18 operations against a ~null_memory_resource~-backed arena
+- provides all four capability wrappers (RandomAccess, Rope, PriorityQueue, IntervalIndex) tested against std library equivalents in a six-category benchmark suite
+- uses bottom-up bulk construction with ~44% fewer allocations than repeated ~snoc~
+
+What remains for Paper C is the standardization-facing presentation layer, not the implementation.
+
+** Paper A: blocked on the required example set
+
+The typeclass-object pattern is implemented and working for all structures in the repository: trees, vectors, and the ~ZipList~ applicative (which demonstrates the zero-allocation infinite-sequence / lanewise-composition semantics that makes the SIMD/zip example compelling).
+The three lookup modes — implicit variable template, explicit object argument, and NTTP-pinned — are all implemented and tested.
+
+What is not yet done is the three-domain front-door API proof:
+
+- the optional-like fallible-value example must work through the same ~traverse~/~transpose~ API as the tree example
+- the sender-like deferred/async example must work through the same API
+- the SIMD/zip lanewise example must work through the same API, not merely be mentioned as an analogy
+
+Until those three share one coherent front-door surface in running code, Paper A cannot prove that the proposed verbs and customization boundary are the right standardization target rather than a design tuned around already-implemented cases.
+
+Paper A can be outlined and pressure-tested now.
+It should not be pushed forward aggressively until the code delivers the three-domain proof.
+
+** Paper D: still being shaped
+
+The fixpoint tree implementation (~fixpoint_tree.hpp~, ~cata.hpp~, ~fix.hpp~, ~box.hpp~) exists as strong internal evidence.
+The paper scope — recursive-fold and recursive-build as public verbs — needs interface design work before the Beman extraction can create the relevant headers.
+
+* Near-term decisions and current biases
+
+These decisions control how the paper sequence narrows.
+They are documented here because later sections depend on them.
+
+*Decision 1: Is the merged traversal/customization paper the anchor?*
+Current bias: yes.
+Leading with the mechanism alone risks "mechanism in search of a problem."
+Leading with traversal/transposition as the visible problem, with the mechanism packaged as the enabling solution, gives the paper a clear user-facing story.
+
+*Decision 2: Is the sequence paper called "finger tree" or something else?*
+Current bias: prefer capability-oriented naming over implementation-oriented naming.
+Finger trees remain the key technical lineage, but the paper title should focus on what the abstraction does.
+Candidate directions: persistent measured sequence; concatenable persistent sequence; split/search sequence with accumulated measure.
+
+*Decision 3: Is fixpoint tree a major example or just internal design support?*
+Not yet settled.
+Current lean: primary motivating example and implementation support for Paper D, not the public vocabulary type.
+
+*Decision 4: How much algebraic naming appears in titles and lead sections?*
+Current bias: keep algebraic names in the technical and core discussion.
+Prefer C++-native problem statements in titles, abstracts, and early motivation.
+~traverse~ and ~transpose~ are the front-door verbs.
+Monoid, applicative, and traversable are specification vocabulary.
+
+* Publication and coordination strategy
+
+The intended publication model is:
+
+- publish the papers as a coordinated set
+- let each paper name the others explicitly as related work or in-flight support
+- avoid hard normative dependence where possible
+- allow progress on any paper if another becomes controversial or delayed
+
+Each paper should contain a short section of the form:
+- what this paper covers on its own
+- what companion papers provide if adopted
+- what remains valid even if companion papers do not progress at the same pace
+
+P3200 is assigned to Paper A.
+The historical placeholder was "Trees for the standard library" but no D3200R0 or P3200R0 was published under that title.
+The number should be assigned to the anchor paper — currently Paper A — before publication logistics require a concrete assignment.
+
+* Architectural claims supporting the thesis
+
+Several architectural claims hang together.
+They should remain conceptually connected even if standardized in separate papers.
+
+** 1. Bundled customization objects are the right mechanism for traversal-like families
+
+The typeclass-object pattern provides a bundle of related operations rather than one CPO per operation, derivable defaults from a small primitive core, explicit adaptation of types that do not share member names, static dispatch with open extension, and explicit override points for better implementations.
+
+This is not only a dispatch mechanism.
+It is also an adaptation framework in the same general spirit as iterator facades and ~view_interface~: implement a small semantic core, get a coherent surface, override where needed.
+
+If traversal is proposed without this bundled mechanism, review pressure will likely drift toward trait-only or ~tag_invoke~-heavy designs that do not hold the applicative family together well enough.
+
+** 2. The naming problem should be split, not globally solved
+
+Abstract generic operations need stable names.
+Concrete domains need names that fit local semantics.
+The active repository position already separates these: abstract names live in the adaptation layer, domain names live on concrete types, generic code targets the adaptation layer rather than the type's end-user surface.
+This avoids forcing misleading duck-typed names like ~transform~ onto every type that supports a functor-like mapping operation.
+
+** 3. Traversal and effect transposition are the most compelling user-facing story
+
+The strongest motivation is not the abstract typeclass hierarchy by itself.
+It is the problem of transposing structure and context while preserving shape.
+~vector<sender<T>> <-> sender<vector<T>>~ and ~vector<optional<T>> -> optional<vector<T>>~ are the clearest current examples.
+
+The public operation should be described in terms of transposition, not "sequencing," when the operation flips ~structure<context<T>>~ into ~context<structure<T>>~.
+In C++, "sequence" already carries too much noun-shaped container baggage.
+
+** 4. Persistent measured sequences are a meaningful standard-library target
+
+Finger trees matter not because they are elegant or old, but because they are a mature implementation family for persistent sequence structure, amortized front/back edits, efficient concatenation, splitting by accumulated measure, and generic support for indexed or weighted search.
+The user-facing case should be stated in terms of capabilities rather than in terms of "standardize finger trees by name."
+
+** 5. Recursive tree structures benefit from the same machinery
+
+Fixpoint trees and related recursive structures are strong internal evidence that the same adaptation model scales beyond flat sequences.
+They are important as motivating examples for traversal and fold structure, proof that internal iteration is a real generic style in C++, and evidence that the typeclass-object pattern is not sequence-only.
+The strongest near-term pitch is algorithmic: recursive fold/rebuild operations over variant-based recursive nodes.
+
+** 6. "Box" should not be the public mental model
+
+For contextual value types like ~optional~, ~expected~, and ~StatusOr~-style results, the public story should prefer terms like fallible value, outcome, and contextual result.
+"Box" suggests containment and range-like structure, inviting false equivalences.
+
+* Review-control strategy
+
+Each paper should explicitly classify its decisions rather than leaving every design choice looking equally open to debate.
+
+The classification:
+
+- arbitrary but necessary
+- motivated trade-offs
+- direct consequences of the primary design goal
+- intentionally deferred or delegated to companion papers
+
+For major design areas, include short sections of the form:
+- Design decision
+- Alternatives considered
+- Why this choice for this revision
+- What remains intentionally open or deferred
+
+Each paper's abstract and early Before/After material must answer two questions before the reader reaches design mechanics:
+
+- what real problem exists today
+- what kind of operation is being proposed to solve it
+
+The abstract and early motivation must be strong enough to bring the proposal back to the front of the reader's mind after a gap of weeks or months.
+
+** Paper-set application
+
+The same strategy should be applied across the coordinated set, not just within one paper.
+Each paper should say:
+
+- which decisions are local to this paper
+- which trade-offs are accepted because of this paper's scope
+- which issues are intentionally handled in a companion paper
+- which issues are left open because they are not necessary to make progress
+
+* Paper boundaries and managed overlap
+
+Because the papers ship together, overlap is not only acceptable but necessary.
+The key is disciplined overlap.
+
+The merged anchor paper internalizes the traversal-problem/mechanism debate.
+The companion papers rely on that result without restating the entire mechanism debate.
+
+** Shared background that may appear across papers
+
+- the distinction between abstract adapter vocabulary and domain-specific names
+- the primitive/derived split
+- the value of overrideable defaults
+- examples showing structure/context transposition
+
+** Material that should stay mostly in Paper A
+
+- why transposition of structure and context is a real standard-library problem
+- sender, optional, and SIMD-flavored motivation
+- user-facing vocabulary and semantics of traversal/transpose operations
+- the public-facing case that this solves something useful today
+- why traits-only or one-CPO-per-operation designs are insufficient for applicative coherence
+- the minimal bundled-customization machinery needed to make the API credible
+
+** Material that should stay mostly in Paper C
+
+- semantic contract of the persistent measured sequence
+- complexity guarantees
+- iterator/container compliance
+- measured split/search operations
+- relation to other standard containers and views
+
+** Material that should stay mostly in Paper D
+
+- recursive-structure motivation
+- fixpoint evidence and recursive-node design issues
+- tree-specific algorithms and recursive traversal semantics
+- evidence that internal iteration is a serious generic style in C++
+
+* Per-paper scope and plans
+
+** Paper A plan: traversal, transposition, and bundled customization
+
+Primary claim:
+C++ needs a standard way to express shape-preserving traversal and transposition between a structure and a computational context, and it needs a bundled customization mechanism strong enough to keep the primitive and derived operations coherent.
+
+Essential sections:
+
+1. Problem statement grounded in current components.
+2. Examples showing independent contextual composition.
+3. User-facing operations: traverse, transpose, and lifted contextual application.
+4. Why traits-only and one-CPO-per-operation customization are not strong enough.
+5. Bundled customization objects and primitive/derived coherence.
+6. Semantics: independence vs sequencing.
+7. Why the abstraction is broader than any one domain.
+
+Success criterion: reviewers can care about the problem and accept that the mechanism belongs in the same paper because it solves a real coherence failure rather than because it is theoretically elegant.
+
+Current progression gate: the problem statement is already strong enough.
+What is not yet strong enough is the proof that this particular solution surface, with this customization boundary, is the right one to standardize.
+Paper A is conceptually clear but dependent on finishing the three-domain implementation proof.
+
+Public naming guidance:
+
+- prefer action verbs in the front-door API and motivation
+- use ~transpose~ rather than ~sequence~ for structure/context flipping
+- avoid "box" as the leading noun for contextual result types
+- treat category-theory nouns as specification/rationale vocabulary, not as the lead teaching surface
+
+** Paper C plan: persistent measured sequence
+
+Primary claim:
+The standard library lacks a persistent sequence abstraction combining structural sharing, concatenation, and measured split/search in one coherent facility, and that missing combination matters in real workloads.
+
+Essential sections:
+
+1. User problem and capability matrix.
+2. Public semantics of the sequence abstraction.
+3. Complexity and iterator/container model.
+4. Measure-based split and search.
+5. Persistent semantics and structural sharing.
+6. Implementation notes and relationship to finger trees.
+
+Success criterion: the paper is reviewable as a container proposal even if the rest of the paper set moves more slowly.
+
+Review-control guidance:
+
+- classify user-visible semantic choices separately from implementation-lineage choices
+- make clear which operations are fundamental to the abstraction and which are convenience or integration features
+- identify any arbitrary-but-necessary API choices early so they do not become proxy debates about the whole container
+
+** Paper D plan: recursive tree algorithms
+
+Primary claim:
+Recursive trees expose generic structure and traversal problems not naturally captured by sequence-centric iterator models alone, and C++ would benefit more from reusable recursive algorithms than from prematurely standardizing one blessed tree vocabulary type.
+
+Essential sections:
+
+1. Why recursive structure deserves direct treatment.
+2. Recursive algorithm family: reduce/build/fold/rebuild style operations.
+3. Relationship to internal traversal and reconstruction.
+4. Adaptation and traversal integration where useful.
+5. Examples from fixpoint and immutable tree representations.
+
+Success criterion: the paper clarifies the recursive-tree side of the design as an algorithms proposal without requiring agreement on one canonical tree layout.
+
+* Current paper sketches
+
+These are working sketches, not draft papers.
+
+** Paper A sketch
+
+*** Tentative title
+
+Shape-Preserving Traversal and Transposition for Contextual Computations.
+
+Alternative directions:
+- Transposing Structures and Computational Contexts
+- Traversal, Transposition, and Bundled Customization for Contextual Values
+- Traversing Structures with Contextual Results
+
+*** Abstract sketch
+
+C++ has vocabulary types and computational contexts that are individually well understood, but it lacks a uniform way to traverse a structure while producing contextual results and then transpose the result into a single outer context.
+This problem appears today in combinations such as containers of optionals, containers of senders, and lanewise or zipped structured computation.
+
+This paper proposes a shape-preserving traversal facility together with transpose operations that convert a structure of contextual values into a contextual structure.
+The proposal is based on independent contextual composition rather than on general sequential dependence.
+
+The paper also proposes a bundled customization model, because current trait-only and per-operation customization techniques are not strong enough to bundle applicative primitives and derived operations coherently.
+
+*** Leading Before/After table
+
+| Before                                                          | After                                              |
+|-----------------------------------------------------------------+----------------------------------------------------|
+| Ad hoc loops for ~vector<optional<T>>~ or similar              | One traversal operation over a familiar structure  |
+| Manual state threading or repeated early-exit logic             | One transpose operation                            |
+| Bespoke code to convert ~structure<context<T>>~ to the inverse | The same shape preserved on success                |
+| No common abstraction for shape-preserving contextual traversal | The context moved to the outside in one expression |
+| No coherent way to bundle customization primitives and derived  | One bundled customization object                   |
+
+*** Core claim
+
+C++ needs a standard way to express shape-preserving traversal and transposition of contextual values, and it needs a bundled customization mechanism to make that facility coherent, because current practice is fragmented and current customization styles do not reliably tie the primitive and derived operations together.
+
+*** What the first page must prove
+
+Before the reader reaches design mechanics, the first page must establish:
+
+- this is a live problem over familiar standard or standard-adjacent types
+- the proposed verbs are ~traverse~ and ~transpose~, not an abstract hierarchy lesson in disguise
+- the proposal is about independent contextual composition, not general sequential chaining
+- bundled customization is part of the solution because coherence fails without it
+
+*** Required example set
+
+All three must work through one front-door API:
+
+- ~vector<optional<T>> -> optional<vector<T>>~: the simplest standard-vocabulary example of shape-preserving traversal with fallible values
+- a sender-like or async-result example with ~vector<sender<T>> <-> sender<vector<T>>~: the same verbs for modern deferred composition
+- a Zip-like or SIMD-like lanewise example: independence made concrete and performance-relevant
+
+*** Likely objections
+
+- "Why is this not just a helper algorithm over existing containers?"
+- "Why isn't this ~transform~, ~ranges~, or ~zip~ by another name?"
+- "Why is applicative-style structure needed instead of ordinary sequential chaining?"
+- "Is this too abstract for the standard library?"
+- "Why is the customization mechanism in the same paper?"
+
+*** Explicit non-goals for R0
+
+- standardizing the full algebraic hierarchy
+- solving every naming question for every adjacent abstraction family
+- turning the paper into a generic customization-framework survey
+- making tree containers carry the motivation for the paper
+
+** Paper C sketch
+
+*** Tentative title
+
+A Persistent Measured Sequence for the Standard Library.
+
+Alternative directions:
+- Concatenable Persistent Sequences with Prefix Search and Splitting
+- Persistent Sequences with Measured Split and Search
+
+*** Abstract sketch
+
+The standard library provides strong support for mutable flat sequences, but it does not provide a persistent sequence abstraction that combines efficient front and back operations, concatenation, and splitting or searching by accumulated measure.
+Standard containers primarily assume destructive update: mutation invalidates existing views of the value unless the user pays with copying, coordination, or bespoke sharing schemes.
+
+This paper proposes a persistent measured sequence abstraction with efficient concatenation, prefix-based search, and split operations.
+
+*Implementation note*: A production-quality reference implementation is complete.
+The implementation satisfies the C++ Container and ReversibleContainer named requirements, is AllocatorAware with PMR support, and demonstrates zero global heap allocations under a custom memory resource via a self-enforcing standalone proof executable.
+Four capability wrappers (RandomAccess, Rope, PriorityQueue, IntervalIndex) are implemented and benchmarked against std library equivalents.
+
+*** Leading Before/After table
+
+| Before                                                              | After                                           |
+|---------------------------------------------------------------------+-------------------------------------------------|
+| ~vector~, ~deque~, list-like containers, ropes, each partly useful  | One persistent sequence abstraction             |
+| Destructive updates that invalidate existing views                  | Explicit support for structural sharing         |
+| Deep copies where persistence would be valuable                     | Concatenation and measured split/search         |
+| No standard abstraction combining concatenation with prefix search  | A clear capability combination not in std today |
+
+*** Core claim
+
+The standard library lacks a persistent sequence abstraction combining structural sharing, concatenation, and measured split/search in one coherent facility, and that missing combination matters in real workloads.
+
+*** What the first page must prove
+
+- current standard containers force a trade-off between destructive update and expensive copying
+- persistence is not decoration; it is the reason old views of a value can remain usable while edits continue
+- concatenation plus prefix split/search is a meaningful capability combination, not a grab-bag
+- the proposal is a user-facing sequence abstraction, not a request to bless an exotic implementation family by name
+
+*** Likely objections
+
+- "Why is this not served well enough by ~vector~, ~deque~, ~list~, rope-like library types, or views?"
+- "Why should persistence be in the standard library?"
+- "Is the measured split/search story too specialized?"
+- "Is the proposal exposing an implementation lineage instead of a user-facing abstraction?"
+- "Does this fit ordinary container expectations?"
+
+*** Explicit non-goals for R0
+
+- standardizing finger trees by name as the primary user-facing concept
+- solving every persistent container problem in one proposal
+- making recursive-tree algorithms a prerequisite for understanding the paper
+- overspecifying implementation structure beyond what the abstraction boundary needs
+
+** Paper D sketch
+
+*** Tentative title
+
+Recursive Tree Algorithms for the Standard Library.
+
+Alternative directions:
+- Recursive Fold and Rebuild Algorithms for Variant-Based Trees
+- Structure-Directed Recursive Algorithms in C++
+
+*** Abstract sketch
+
+Recursive tree structures are common in parsing, transformation pipelines, symbolic representations, and hierarchical data processing, but the standard library offers little direct support for generic algorithms centered on recursive structure rather than on flat external iteration.
+
+This paper proposes a focused family of recursive algorithms over recursive, variant-based node structures.
+The unifying theme is that recursive trees are more naturally served by structure-directed traversal and reconstruction than by cursor-oriented generic interfaces alone.
+
+*** Leading Before/After table
+
+| Before                                                           | After                                          |
+|------------------------------------------------------------------+------------------------------------------------|
+| Recursive structures handled through bespoke one-off algorithms  | One reusable algorithm family over trees       |
+| Iterator-centric interfaces that expose traversal mechanics      | Structure-directed traversal or reconstruction |
+| Limited reuse across different recursive tree representations    | A generic story across more than one tree type |
+
+*** Core claim
+
+Recursive trees are an important enough structural family that C++ should offer reusable recursive algorithms rather than leaving every recursive-tree design to bespoke local folds and rebuild passes.
+
+*** What the first page must prove
+
+- recursive structure creates algorithmic reuse opportunities that flat iterator-centric APIs do not capture well
+- the missing library surface is a family of verbs — reduce, fold, rebuild, build — not one blessed tree type
+- the motivating examples span more than one recursive-tree representation
+- fixpoint machinery is evidence and implementation support, not the public identity of the proposal
+
+*** Likely objections
+
+- "Why does the standard library need recursive algorithms here at all?"
+- "Is this too theoretical or too representation-driven?"
+- "Why isn't this better left to user code or third-party libraries?"
+- "Is fixpoint machinery necessary, or merely one implementation technique?"
+- "Why not just expose iterators and let algorithms do the rest?"
+
+*** Explicit non-goals for R0
+
+- standardizing one canonical tree vocabulary type
+- requiring one preferred recursive representation strategy
+- solving general graph algorithms under the same proposal umbrella
+- making the paper depend on prior acceptance of Paper C
+
+* Acceptance-oriented implementation guidance
+
+Because a Beman Project implementation is assumed to track the papers, the bar for implementation evidence is not "does something compile and run?"
+The more important question is what the implementation must make clear to be convincing in standardization review.
+
+Across the coordinated set, the implementation work should show:
+
+- that the proposed APIs are coherent and teachable
+- that the examples used in the papers are representative rather than narrow demonstrations
+- that customization and adaptation scale beyond one hand-crafted example
+- that primitive/derived decompositions are practical rather than merely elegant
+- that important semantics — shape preservation, persistence, explicit override — are visible in use
+- that the design remains stable enough under evolution to support paper review across revisions
+
+*For Paper C specifically*, the implementation is now ahead of what most review checklist items require.
+The remaining work is standardization-facing presentation (before/after tables, capability matrix against std containers, clean complexity story) and Beman extraction with stable public names.
+
+*For Paper A specifically*, the implementation gap is the three-domain proof.
+The problem statement is already strong.
+The remaining work is to close the gap between "this works for trees and vectors" and "this works for optional, sender-like, and SIMD/zip-like contexts through one front-door API."
+Until that gap is closed, Paper A can be outlined but cannot be credibly submitted.
+
+* P3200 reservation
+
+P3200 is currently being held for one of these papers.
+The historical placeholder was "Trees for the standard library" but no D3200R0 or P3200R0 was published under that title.
+
+The number must be assigned to the anchor paper before publication logistics require a concrete assignment.
+
+*Current recommendation*: assign P3200 to the merged traversal/customization paper (Paper A).
+
+Reasons:
+
+- it has the clearest "problem exists today" story
+- it can stand on current standard and standard-adjacent components
+- it explains why bundled customization is part of the solution rather than an optional afterthought
+- it gives the coordinated set a public-facing center that is not dependent on immediate sympathy for tree containers
+
+Why not assign P3200 to Paper C:
+Paper C is currently less universal in its motivation.
+Assigning P3200 to Paper C would make the number's historical placeholder text ("Trees for the standard library") misleadingly concrete.
+
+Why not assign P3200 to Paper D:
+Paper D is still the least fixed in scope and the most likely to evolve substantially before publication.
