@@ -801,7 +801,7 @@ The same ~foldable_typeclass~, ~traversable_typeclass~, and generic ~traverse~ f
 
 - ~BinaryTree<T>~ ([[orgit-file:src/smd/tree/binary_tree.hpp][=binary_tree.hpp=]]): ~shared_ptr~-based tree, values at every node.
 - ~FringeTree<T>~ ([[orgit-file:src/smd/tree/fringe_tree.hpp][=fringe_tree.hpp=]]): ~variant~-based (Empty | Leaf | Branch), values at leaves.
-- ~FingerTree<T>~ ([[orgit-file:src/smd/tree/finger_tree.hpp][=finger_tree.hpp=]]): Hinze-Paterson 2-3 finger tree with monoid-cached measures --- O(1) amortized cons/snoc, O(log n) split, O(log min(n,m)) concatenation [cite:@hinze2006fingertrees].
+- ~FingerTree<T>~ ([[orgit-file:src/smd/tree/finger_tree5.hpp][=finger_tree5.hpp=]]): Hinze-Paterson 2-3 finger tree with monoid-cached measures --- O(1) amortized cons/snoc, O(log n) split, O(log min(n,m)) concatenation [cite:@hinze2006fingertrees].
 
 An algorithm written against ~foldable_typeclass<T>~ works on all of them.
 The call site does not change when the representation changes.
