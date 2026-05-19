@@ -21,8 +21,8 @@ auto blog_numeric_limits_parallel() -> bool {
     }
 
     const auto &functor = smd::functor_typeclass<std::optional<int>>;
-    auto mapped = functor.fmap([](int x) { return x + 1; },
-                               std::optional<int>{41});
+    auto mapped =
+        functor.fmap([](int x) { return x + 1; }, std::optional<int>{41});
     if (!mapped.has_value() || *mapped != 42) {
         return false;
     }
@@ -37,8 +37,7 @@ auto blog_three_lookup_modes() -> bool {
     auto seq = Sequence{{1, 2, 3}};
 
     const auto &foldable = smd::foldable_typeclass<Sequence>;
-    auto implicit_sum =
-        foldable.fold_map([](int x) { return x; }, seq);
+    auto implicit_sum = foldable.fold_map([](int x) { return x; }, seq);
     if (implicit_sum != 6) {
         return false;
     }
@@ -56,8 +55,8 @@ auto blog_three_lookup_modes() -> bool {
 auto blog_derived_operations() -> bool {
     const auto &functor = smd::functor_typeclass<std::optional<int>>;
 
-    auto mapped = functor.fmap([](int x) { return x * 2; },
-                               std::optional<int>{5});
+    auto mapped =
+        functor.fmap([](int x) { return x * 2; }, std::optional<int>{5});
     if (!mapped.has_value() || *mapped != 10) {
         return false;
     }

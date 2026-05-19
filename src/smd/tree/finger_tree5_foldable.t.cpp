@@ -11,8 +11,7 @@
 #include <string>
 #include <vector>
 
-TEST_CASE("FingerTree5FoldableTest - LengthAndToVector")
-{
+TEST_CASE("FingerTree5FoldableTest - LengthAndToVector") {
     using Tree = smd::tree::FingerTree5<int>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
     auto t = Tree::from_sequence({1, 2, 3, 4, 5});
@@ -20,8 +19,7 @@ TEST_CASE("FingerTree5FoldableTest - LengthAndToVector")
     CHECK(foldable.to_vector(t) == (std::vector<int>{1, 2, 3, 4, 5}));
 }
 
-TEST_CASE("FingerTree5FoldableTest - FoldMapAccumulates")
-{
+TEST_CASE("FingerTree5FoldableTest - FoldMapAccumulates") {
     using Tree = smd::tree::FingerTree5<int>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
     auto t = Tree::from_sequence({1, 2, 3});
@@ -29,8 +27,7 @@ TEST_CASE("FingerTree5FoldableTest - FoldMapAccumulates")
     CHECK(sum == 6);
 }
 
-TEST_CASE("FingerTree5FoldableTest - EmptyTreeHasLengthZero")
-{
+TEST_CASE("FingerTree5FoldableTest - EmptyTreeHasLengthZero") {
     using Tree = smd::tree::FingerTree5<int>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
     auto t = Tree{};
@@ -39,8 +36,7 @@ TEST_CASE("FingerTree5FoldableTest - EmptyTreeHasLengthZero")
     CHECK(foldable.to_vector(t) == (std::vector<int>{}));
 }
 
-TEST_CASE("FingerTree5FoldableTest - LargeTreeWalksAllLeaves")
-{
+TEST_CASE("FingerTree5FoldableTest - LargeTreeWalksAllLeaves") {
     // Ensures the recursive Elem unpack inside for_each reaches every leaf
     // even after the spine takes on Node3 structure.
     using Tree = smd::tree::FingerTree5<int>;
@@ -55,8 +51,7 @@ TEST_CASE("FingerTree5FoldableTest - LargeTreeWalksAllLeaves")
     CHECK(foldable.length(t) == 100);
 }
 
-TEST_CASE("FingerTree5FoldableTest - StringFoldMap")
-{
+TEST_CASE("FingerTree5FoldableTest - StringFoldMap") {
     using Tree = smd::tree::FingerTree5<std::string>;
     const auto &foldable = smd::foldable_typeclass<Tree>;
     auto t = Tree::from_sequence({"a", "b", "c", "d"});

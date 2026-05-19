@@ -13,8 +13,8 @@
 #include <variant>
 
 using smd::fixpoint::Box;
-using smd::fixpoint::fold_fix;
 using smd::fixpoint::Fix;
+using smd::fixpoint::fold_fix;
 using smd::fixpoint::make_box;
 using smd::fixpoint::overloaded;
 using smd::fixpoint::refold;

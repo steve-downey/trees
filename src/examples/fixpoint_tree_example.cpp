@@ -93,12 +93,12 @@ ExprTree const_node(int v) { return wrap_fix<ExprF>(Const<ExprTree>{v}); }
 
 ExprTree add_node(ExprTree l, ExprTree r) {
     return wrap_fix<ExprF>(Add<ExprTree>{make_box<ExprTree>(std::move(l)),
-                                        make_box<ExprTree>(std::move(r))});
+                                         make_box<ExprTree>(std::move(r))});
 }
 
 ExprTree mul_node(ExprTree l, ExprTree r) {
     return wrap_fix<ExprF>(Mul<ExprTree>{make_box<ExprTree>(std::move(l)),
-                                        make_box<ExprTree>(std::move(r))});
+                                         make_box<ExprTree>(std::move(r))});
 }
 
 // 7. Usage: building and evaluating

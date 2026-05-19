@@ -47,7 +47,8 @@ auto check_applicative_homomorphism_law(const FUNCTION &function,
 }
 
 /** Verify that `invoke(f, u, v)` agrees with the desugared `ap`/`pure` form
- * for a binary @p function applied to effectful arguments @p first and @p second.
+ * for a binary @p function applied to effectful arguments @p first and @p
+ * second.
  * @tparam CONTEXT the applicative context whose typeclass is under test
  */
 template <class CONTEXT, class FUNCTION>
@@ -111,7 +112,8 @@ struct Sequence {
 
 using smd::typeclass::Count;
 
-/** Convenience alias so tests can write `Vector<int>` instead of `std::vector<int>`. */
+/** Convenience alias so tests can write `Vector<int>` instead of
+ * `std::vector<int>`. */
 template <class VALUE_TYPE>
 using Vector = std::vector<VALUE_TYPE>;
 
@@ -119,7 +121,8 @@ using Vector = std::vector<VALUE_TYPE>;
 
 namespace smd {
 
-/** Applicative implementation for Identity<V>: pure wraps, apply unwraps and invokes. */
+/** Applicative implementation for Identity<V>: pure wraps, apply unwraps and
+ * invokes. */
 template <class VALUE_TYPE>
 struct TestIdentityApplicativeImpl {
     template <class VALUE>
@@ -153,7 +156,8 @@ inline constexpr auto
     applicative_typeclass<smd::typeclass::test::Identity<VALUE_TYPE>> =
         TestIdentityApplicativeMap<VALUE_TYPE>{};
 
-/** Applicative implementation for BareIdentity<V>: apply uses forwarding references. */
+/** Applicative implementation for BareIdentity<V>: apply uses forwarding
+ * references. */
 template <class VALUE_TYPE>
 struct BareIdentityApplicativeImpl {
     template <class VALUE>
@@ -188,7 +192,8 @@ inline constexpr auto
     applicative_typeclass<smd::typeclass::test::BareIdentity<VALUE_TYPE>> =
         BareIdentityApplicativeMap<VALUE_TYPE>{};
 
-/** Foldable implementation for Sequence<V>: fold_map walks values left-to-right. */
+/** Foldable implementation for Sequence<V>: fold_map walks values
+ * left-to-right. */
 template <class VALUE_TYPE>
 struct TestSequenceFoldableImpl {
     template <class FUNCTION>
@@ -217,8 +222,8 @@ inline constexpr auto
     foldable_typeclass<smd::typeclass::test::Sequence<VALUE_TYPE>> =
         TestSequenceFoldableMap<VALUE_TYPE>{};
 
-/** Traversable implementation for Identity<V>: traverse applies f to the single value
- * and wraps the result back in Identity inside the applicative effect.
+/** Traversable implementation for Identity<V>: traverse applies f to the single
+ * value and wraps the result back in Identity inside the applicative effect.
  */
 template <class VALUE_TYPE>
 struct TestIdentityTraversableImpl {

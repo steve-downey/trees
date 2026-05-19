@@ -19,8 +19,8 @@ namespace smd::tree {
 
 template <typename PAYLOAD_TYPE>
 struct Interval {
-    std::size_t  d_start;
-    std::size_t  d_end;
+    std::size_t d_start;
+    std::size_t d_end;
     PAYLOAD_TYPE d_payload;
 };
 
@@ -149,9 +149,9 @@ struct FingerTreeIntervalIndexFoldableMap
 };
 
 template <class PAYLOAD_TYPE, class Tree>
-inline constexpr auto foldable_typeclass<
-    smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE, Tree>> =
-    FingerTreeIntervalIndexFoldableMap<PAYLOAD_TYPE, Tree>{};
+inline constexpr auto
+    foldable_typeclass<smd::tree::FingerTreeIntervalIndex<PAYLOAD_TYPE, Tree>> =
+        FingerTreeIntervalIndexFoldableMap<PAYLOAD_TYPE, Tree>{};
 
 template <class PAYLOAD_TYPE, class Tree>
 struct FingerTreeIntervalIndexTraversableImpl {

@@ -17,13 +17,9 @@
 
 using Seq = smd::tree::FingerTreeRandomAccess<int>;
 
-TEST_CASE("RandomAccess - HeaderIsIdempotent")
-{
-    REQUIRE(true);
-}
+TEST_CASE("RandomAccess - HeaderIsIdempotent") { REQUIRE(true); }
 
-TEST_CASE("RandomAccess - Empty")
-{
+TEST_CASE("RandomAccess - Empty") {
     auto seq = Seq();
     CHECK(seq.empty());
     CHECK(seq.size() == 0U);
@@ -31,8 +27,7 @@ TEST_CASE("RandomAccess - Empty")
     CHECK_FALSE(seq.at(0).has_value());
 }
 
-TEST_CASE("RandomAccess - PushBackSweep")
-{
+TEST_CASE("RandomAccess - PushBackSweep") {
     // Sweep through spine-transition sizes: 1-4 (digit only), 5-8 (Deep
     // empty spine), 9-12 (first spine node), 50+ (spine itself Deep), 200+
     auto seq = Seq();
@@ -47,8 +42,7 @@ TEST_CASE("RandomAccess - PushBackSweep")
         REQUIRE(v[static_cast<std::size_t>(i)] == i);
 }
 
-TEST_CASE("RandomAccess - PushFrontSweep")
-{
+TEST_CASE("RandomAccess - PushFrontSweep") {
     auto seq = Seq();
     for (int i = 0; i < 300; ++i) {
         seq = seq.push_front(i);
@@ -61,8 +55,7 @@ TEST_CASE("RandomAccess - PushFrontSweep")
         CHECK(v[static_cast<std::size_t>(i)] == 299 - i);
 }
 
-TEST_CASE("RandomAccess - AtOutOfBounds")
-{
+TEST_CASE("RandomAccess - AtOutOfBounds") {
     auto seq = Seq::from_sequence({10, 20, 30});
     CHECK(*seq.at(0) == 10);
     CHECK(*seq.at(2) == 30);
@@ -70,8 +63,7 @@ TEST_CASE("RandomAccess - AtOutOfBounds")
     CHECK_FALSE(seq.at(999).has_value());
 }
 
-TEST_CASE("RandomAccess - InsertAtMiddle")
-{
+TEST_CASE("RandomAccess - InsertAtMiddle") {
     // Build sequence, then insert at middle across spine transitions
     auto seq = Seq();
     for (int i = 0; i < 100; ++i)
@@ -90,8 +82,7 @@ TEST_CASE("RandomAccess - InsertAtMiddle")
     REQUIRE(seq.size() == 151U);
 }
 
-TEST_CASE("RandomAccess - EraseAtMiddle")
-{
+TEST_CASE("RandomAccess - EraseAtMiddle") {
     std::vector<int> expected(200);
     std::iota(expected.begin(), expected.end(), 0);
     auto seq = Seq::from_sequence(expected);
@@ -99,16 +90,14 @@ TEST_CASE("RandomAccess - EraseAtMiddle")
     // Erase from middle repeatedly
     for (int i = 0; i < 100; ++i) {
         auto mid = seq.size() / 2;
-        expected.erase(expected.begin() +
-                       static_cast<std::ptrdiff_t>(mid));
+        expected.erase(expected.begin() + static_cast<std::ptrdiff_t>(mid));
         seq = seq.erase(mid);
     }
     CHECK(seq.size() == 100U);
     CHECK(seq.to_vector() == expected);
 }
 
-TEST_CASE("RandomAccess - UpdateSweep")
-{
+TEST_CASE("RandomAccess - UpdateSweep") {
     auto seq = Seq::from_sequence({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
     for (std::size_t i = 0; i < 12; ++i)
         seq = seq.update(i, static_cast<int>(i * 100));
@@ -117,8 +106,7 @@ TEST_CASE("RandomAccess - UpdateSweep")
         CHECK(*seq.at(i) == static_cast<int>(i * 100));
 }
 
-TEST_CASE("RandomAccess - SpineTransitionAt9")
-{
+TEST_CASE("RandomAccess - SpineTransitionAt9") {
     // The underlying finger tree transitions to a spine node at ~9 elements.
     // Verify operations work correctly at this boundary.
     auto seq = Seq();
@@ -137,8 +125,7 @@ TEST_CASE("RandomAccess - SpineTransitionAt9")
     CHECK(*seq.at(9) == 19);
 }
 
-TEST_CASE("RandomAccess - LargeStress")
-{
+TEST_CASE("RandomAccess - LargeStress") {
     // Build 1000 elements, then random insert/erase cycle
     std::vector<int> mirror;
     auto seq = Seq();
@@ -169,8 +156,7 @@ TEST_CASE("RandomAccess - LargeStress")
     CHECK(seq.to_vector() == mirror);
 }
 
-TEST_CASE("RandomAccess - Persistence")
-{
+TEST_CASE("RandomAccess - Persistence") {
     auto seq1 = Seq::from_sequence({1, 2, 3, 4, 5});
     auto seq2 = seq1.push_back(6);
     auto seq3 = seq1.push_front(0);
@@ -182,8 +168,7 @@ TEST_CASE("RandomAccess - Persistence")
     CHECK(seq4.to_vector() == std::vector<int>{1, 2, 4, 5});
 }
 
-TEST_CASE("RandomAccess - FoldableTypeclass")
-{
+TEST_CASE("RandomAccess - FoldableTypeclass") {
     auto seq = Seq::from_sequence({1, 2, 3, 4});
     const auto &foldable = smd::foldable_typeclass<Seq>;
 
@@ -191,12 +176,11 @@ TEST_CASE("RandomAccess - FoldableTypeclass")
     CHECK(foldable.length(seq) == 4U);
 }
 
-TEST_CASE("RandomAccess - TraversableTypeclass")
-{
+TEST_CASE("RandomAccess - TraversableTypeclass") {
     auto seq = Seq::from_sequence({1, 2, 3});
 
-    auto success = smd::traverse(
-        [](int v) -> std::optional<int> { return v * 10; }, seq);
+    auto success =
+        smd::traverse([](int v) -> std::optional<int> { return v * 10; }, seq);
     REQUIRE(success.has_value());
     CHECK(success->to_vector() == std::vector<int>{10, 20, 30});
 

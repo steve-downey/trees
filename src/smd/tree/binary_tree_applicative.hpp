@@ -13,7 +13,7 @@
 namespace smd {
 
 /** Applicative typeclass instance for BinaryTree<T> with shape-aware semantics.
- * 
+ *
  * pure(v) produces a single leaf. apply recurses pairwise over matching tree
  * structure: a leaf function distributes over the argument's shape; a leaf
  * argument distributes over the function's shape; when both have children,
@@ -97,7 +97,8 @@ struct BinaryTreeApplicativeMap : Applicative<BinaryTreeApplicativeImpl<T>> {
     using BinaryTreeApplicativeImpl<T>::pure;
 };
 
-/** Registers BinaryTreeApplicativeMap as the Applicative instance for BinaryTree<T>. */
+/** Registers BinaryTreeApplicativeMap as the Applicative instance for
+ * BinaryTree<T>. */
 template <class T>
 inline constexpr auto applicative_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeApplicativeMap<T>{};

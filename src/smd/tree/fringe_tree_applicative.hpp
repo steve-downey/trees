@@ -12,7 +12,7 @@
 namespace smd {
 
 /** Applicative typeclass instance for FringeTree<T> with shape-aware semantics.
- * 
+ *
  * pure(v) produces a single leaf. apply recurses pairwise: a leaf function
  * distributes over the argument's shape, a leaf argument distributes over the
  * function's shape, and two branches recurse on matching sides. Empty operands
@@ -75,7 +75,8 @@ struct FringeTreeApplicativeMap : Applicative<FringeTreeApplicativeImpl<T>> {
     using FringeTreeApplicativeImpl<T>::pure;
 };
 
-/** Registers FringeTreeApplicativeMap as the Applicative instance for FringeTree<T>. */
+/** Registers FringeTreeApplicativeMap as the Applicative instance for
+ * FringeTree<T>. */
 template <class T>
 inline constexpr auto applicative_typeclass<smd::tree::FringeTree<T>> =
     FringeTreeApplicativeMap<T>{};

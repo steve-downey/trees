@@ -12,9 +12,9 @@
 
 namespace smd {
 
-/** Traversable typeclass instance for Fix<ExprF> (the fixpoint expression tree).
- * Treats ExprConst leaf doubles as the traversal element type. traverse maps
- * each constant value through the applicative and rebuilds an Expr in that
+/** Traversable typeclass instance for Fix<ExprF> (the fixpoint expression
+ * tree). Treats ExprConst leaf doubles as the traversal element type. traverse
+ * maps each constant value through the applicative and rebuilds an Expr in that
  * context; Add and Mul nodes combine their traversed children with the
  * appropriate builder (add_expr / mul_expr) inside the applicative.
  */
@@ -67,7 +67,8 @@ struct FixpointTreeTraversableMap : Traversable<FixpointTreeTraversableImpl> {
     using FixpointTreeTraversableImpl::traverse;
 };
 
-/** Registers FixpointTreeTraversableMap as the Traversable instance for Fix<ExprF>. */
+/** Registers FixpointTreeTraversableMap as the Traversable instance for
+ * Fix<ExprF>. */
 template <>
 inline constexpr auto
     traversable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =

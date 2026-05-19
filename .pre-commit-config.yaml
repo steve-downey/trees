@@ -3,6 +3,8 @@
 exclude: >
   (?x)^(
     (?:trees/)?vendor/.* |
+    (?:trees/)?docs/.* |
+    (?:trees/)?reveal.js/.* |
     (?:trees/)?infra/.* |
     (?:trees/)?docs/reference/.* |
     (?:trees/)?docs/live-src-main(?:-built-targets)?\.md |

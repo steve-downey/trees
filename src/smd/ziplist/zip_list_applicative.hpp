@@ -51,7 +51,7 @@ auto zip_list_result_size(const FIRST &first, const REST &...rest)
 
 /** Applicative typeclass instance for zip_list<T> with positional (zip)
  * semantics.
- * 
+ *
  * pure(x) = infinite repetition of x (zip_list::repeat(x)).
  * apply(fs, xs) zips functions and arguments positionally, truncating to the
  * length of the shortest finite operand. If all operands are infinite the
@@ -68,10 +68,12 @@ struct ZipListApplicativeImpl {
     }
 
     /**
-     * @brief Zip functions and arguments positionally; truncate to shortest finite.
+     * @brief Zip functions and arguments positionally; truncate to shortest
+     * finite.
      * @param functions zip_list of callables
      * @param arguments zip_list of arguments
-     * @return zip_list of results; infinite only when both operands are infinite
+     * @return zip_list of results; infinite only when both operands are
+     * infinite
      */
     template <class F, class A>
     auto apply(this auto &&, const zip_list<F> &functions,
@@ -143,7 +145,8 @@ struct ZipListApplicativeMap : Applicative<ZipListApplicativeImpl<T>> {
     using ZipListApplicativeImpl<T>::pure;
 };
 
-/** Registers ZipListApplicativeMap as the Applicative instance for zip_list<T>. */
+/** Registers ZipListApplicativeMap as the Applicative instance for zip_list<T>.
+ */
 template <class T>
 inline constexpr auto applicative_typeclass<zip_list<T>> =
     ZipListApplicativeMap<T>{};

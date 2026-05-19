@@ -55,18 +55,18 @@
 namespace {
 
 std::atomic<std::size_t> g_new_count{0};
-bool                     g_tracking{false};
+bool g_tracking{false};
 
 // Pod result store — avoids std::vector (which would itself allocate).
 struct Result {
-    char        name[80];
+    char name[80];
     std::size_t new_count;
-    bool        pass;
+    bool pass;
 };
 
 constexpr int k_max_results = 64;
-Result        g_results[k_max_results];
-int           g_n_results = 0;
+Result g_results[k_max_results];
+int g_n_results = 0;
 
 } // namespace
 
@@ -77,22 +77,26 @@ int           g_n_results = 0;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmismatched-new-delete"
 
-void* operator new(std::size_t n) {
-    if (g_tracking) ++g_new_count;
-    void* p = std::malloc(n);
-    if (!p) throw std::bad_alloc{};
+void *operator new(std::size_t n) {
+    if (g_tracking)
+        ++g_new_count;
+    void *p = std::malloc(n);
+    if (!p)
+        throw std::bad_alloc{};
     return p;
 }
-void* operator new[](std::size_t n) {
-    if (g_tracking) ++g_new_count;
-    void* p = std::malloc(n);
-    if (!p) throw std::bad_alloc{};
+void *operator new[](std::size_t n) {
+    if (g_tracking)
+        ++g_new_count;
+    void *p = std::malloc(n);
+    if (!p)
+        throw std::bad_alloc{};
     return p;
 }
-void operator delete(void* p) noexcept { std::free(p); }
-void operator delete[](void* p) noexcept { std::free(p); }
-void operator delete(void* p, std::size_t) noexcept { std::free(p); }
-void operator delete[](void* p, std::size_t) noexcept { std::free(p); }
+void operator delete(void *p) noexcept { std::free(p); }
+void operator delete[](void *p) noexcept { std::free(p); }
+void operator delete(void *p, std::size_t) noexcept { std::free(p); }
+void operator delete[](void *p, std::size_t) noexcept { std::free(p); }
 
 #pragma GCC diagnostic pop
 
@@ -106,18 +110,18 @@ namespace {
 // The null_memory_resource upstream will throw bad_alloc if fn() triggers
 // any PMR upstream access, making the probe self-terminating on violations.
 template <typename F>
-void check(const char* name, F&& fn) {
-    auto before    = g_new_count.load();
-    g_tracking     = true;
+void check(const char *name, F &&fn) {
+    auto before = g_new_count.load();
+    g_tracking = true;
     fn();
-    g_tracking     = false;
-    auto count     = g_new_count.load() - before;
+    g_tracking = false;
+    auto count = g_new_count.load() - before;
 
     assert(g_n_results < k_max_results);
-    auto& r = g_results[g_n_results++];
+    auto &r = g_results[g_n_results++];
     std::snprintf(r.name, sizeof(r.name), "%s", name);
     r.new_count = count;
-    r.pass      = (count == 0);
+    r.pass = (count == 0);
 }
 
 } // namespace
@@ -126,8 +130,7 @@ void check(const char* name, F&& fn) {
 //                              Probe cases
 // ============================================================================
 
-int main()
-{
+int main() {
     using FT = smd::tree::pmr::FingerTree5<int>;
 
     // 4 MB arena; null_memory_resource upstream so any overflow is fatal.
@@ -139,12 +142,15 @@ int main()
 
     // Input vector for from_sequence checks (global heap, before tracking).
     std::vector<int> v50(50), v100(100), v500(500);
-    for (int i = 0; i < 50;  ++i) v50[i]  = i;
-    for (int i = 0; i < 100; ++i) v100[i] = i;
-    for (int i = 0; i < 500; ++i) v500[i] = i;
+    for (int i = 0; i < 50; ++i)
+        v50[i] = i;
+    for (int i = 0; i < 100; ++i)
+        v100[i] = i;
+    for (int i = 0; i < 500; ++i)
+        v500[i] = i;
 
     // Two pre-built trees (outside tracking).
-    auto base50  = FT::from_sequence(v50,  &mr);
+    auto base50 = FT::from_sequence(v50, &mr);
     auto base100 = FT::from_sequence(v100, &mr);
 
     // -----------------------------------------------------------------------
@@ -153,12 +159,14 @@ int main()
 
     check("from_sequence(50, pmr)", [&] {
         auto t = FT::from_sequence(v50, &mr);
-        volatile auto s = t.size(); (void)s;
+        volatile auto s = t.size();
+        (void)s;
     });
 
     check("from_sequence(500, pmr)", [&] {
         auto t = FT::from_sequence(v500, &mr);
-        volatile auto s = t.size(); (void)s;
+        volatile auto s = t.size();
+        (void)s;
     });
 
     // -----------------------------------------------------------------------
@@ -167,12 +175,14 @@ int main()
 
     check("snoc on 100-elem tree", [&] {
         auto t = base100.snoc(999);
-        volatile auto s = t.size(); (void)s;
+        volatile auto s = t.size();
+        (void)s;
     });
 
     check("cons on 100-elem tree", [&] {
         auto t = base100.cons(-1);
-        volatile auto s = t.size(); (void)s;
+        volatile auto s = t.size();
+        (void)s;
     });
 
     // Build a longer tree incrementally (exercises spine overflow).
@@ -180,8 +190,10 @@ int main()
         auto t0 = FT::from_sequence(v100, &mr);
         check("50x snoc (spine overflow path)", [&] {
             auto t = t0;
-            for (int i = 0; i < 50; ++i) t = t.snoc(i);
-            volatile auto s = t.size(); (void)s;
+            for (int i = 0; i < 50; ++i)
+                t = t.snoc(i);
+            volatile auto s = t.size();
+            (void)s;
         });
     }
 
@@ -191,20 +203,24 @@ int main()
 
     check("view_l on 100-elem tree", [&] {
         auto v = base100.view_l();
-        volatile bool b = v.has_value(); (void)b;
+        volatile bool b = v.has_value();
+        (void)b;
         if (v) {
-            volatile auto s = v->d_rest.size(); (void)s;
+            volatile auto s = v->d_rest.size();
+            (void)s;
         }
     });
 
     check("tail on 100-elem tree", [&] {
         auto t = base100.tail();
-        volatile auto s = t.size(); (void)s;
+        volatile auto s = t.size();
+        (void)s;
     });
 
     check("init on 100-elem tree", [&] {
         auto t = base100.init();
-        volatile auto s = t.size(); (void)s;
+        volatile auto s = t.size();
+        (void)s;
     });
 
     {
@@ -214,7 +230,8 @@ int main()
         auto single = FT::from_sequence(std::vector<int>{42}, &mr);
         check("tail on 1-elem tree (empty result)", [&] {
             auto t = single.tail();
-            volatile bool e = t.empty(); (void)e;
+            volatile bool e = t.empty();
+            (void)e;
         });
     }
 
@@ -224,12 +241,14 @@ int main()
 
     check("append same-resource (50+50)", [&] {
         auto t = base50.append(base50);
-        volatile auto s = t.size(); (void)s;
+        volatile auto s = t.size();
+        (void)s;
     });
 
     check("append same-resource (100+100)", [&] {
         auto t = base100.append(base100);
-        volatile auto s = t.size(); (void)s;
+        volatile auto s = t.size();
+        (void)s;
     });
 
     // -----------------------------------------------------------------------
@@ -238,21 +257,24 @@ int main()
 
     check("split at midpoint (100 elems)", [&] {
         auto sp = base100.split([](std::size_t p) { return p >= 50; });
-        volatile bool b = sp.has_value(); (void)b;
+        volatile bool b = sp.has_value();
+        (void)b;
     });
 
     check("split_at (predicate never fires)", [&] {
         auto sa = base100.split_at([](std::size_t) { return false; });
         volatile auto sl = sa.d_left.size();
         volatile bool er = sa.d_right.empty();
-        (void)sl; (void)er;
+        (void)sl;
+        (void)er;
     });
 
     check("split_at (predicate always fires)", [&] {
         auto sa = base100.split_at([](std::size_t) { return true; });
         volatile bool el = sa.d_left.empty();
         volatile auto sr = sa.d_right.size();
-        (void)el; (void)sr;
+        (void)el;
+        (void)sr;
     });
 
     // -----------------------------------------------------------------------
@@ -260,13 +282,15 @@ int main()
     // -----------------------------------------------------------------------
 
     check("measure() on 100-elem tree", [&] {
-        volatile auto m = base100.measure(); (void)m;
+        volatile auto m = base100.measure();
+        (void)m;
     });
 
     check("head_ref() / last_ref()", [&] {
         volatile int h = base100.head_ref();
         volatile int l = base100.last_ref();
-        (void)h; (void)l;
+        (void)h;
+        (void)l;
     });
 
     // -----------------------------------------------------------------------
@@ -274,8 +298,9 @@ int main()
     // -----------------------------------------------------------------------
 
     check("copy construction (same resource)", [&] {
-        FT copy = base100;         // same resource: shares d_repr, O(1)
-        volatile auto s = copy.size(); (void)s;
+        FT copy = base100; // same resource: shares d_repr, O(1)
+        volatile auto s = copy.size();
+        (void)s;
     });
 
     {
@@ -284,7 +309,8 @@ int main()
         check("move assignment (same resource)", [&] {
             FT t(&mr);
             t = std::move(src);
-            volatile auto s = t.size(); (void)s;
+            volatile auto s = t.size();
+            (void)s;
         });
     }
 
@@ -298,13 +324,12 @@ int main()
     std::fprintf(stdout, "%s\n", std::string(70, '-').c_str());
 
     for (int i = 0; i < g_n_results; ++i) {
-        const auto& r = g_results[i];
+        const auto &r = g_results[i];
         if (r.pass) {
-            std::fprintf(stdout, "  PASS  %-48s  %zu\n",
-                         r.name, r.new_count);
+            std::fprintf(stdout, "  PASS  %-48s  %zu\n", r.name, r.new_count);
         } else {
-            std::fprintf(stdout, "  FAIL  %-48s  %zu  (expected 0)\n",
-                         r.name, r.new_count);
+            std::fprintf(stdout, "  FAIL  %-48s  %zu  (expected 0)\n", r.name,
+                         r.new_count);
             all_pass = false;
         }
     }

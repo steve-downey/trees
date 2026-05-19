@@ -37,8 +37,8 @@ auto blog_foldable_showcase() -> bool {
         return false;
     }
 
-    auto sum = foldable.fold_left(
-        tree, 0.0, [](double acc, double x) { return acc + x; });
+    auto sum = foldable.fold_left(tree, 0.0,
+                                  [](double acc, double x) { return acc + x; });
     if (sum != 10.0) {
         return false;
     }
@@ -62,8 +62,8 @@ auto blog_foldable_showcase() -> bool {
 
 // blog-traverse-validate-begin
 auto blog_traverse_validate() -> bool {
-    auto tree = mul_expr(add_expr(const_expr(1.0), const_expr(2.0)),
-                         const_expr(3.0));
+    auto tree =
+        mul_expr(add_expr(const_expr(1.0), const_expr(2.0)), const_expr(3.0));
 
     auto validated = smd::traverse(
         [](double x) -> std::optional<double> {
@@ -78,8 +78,8 @@ auto blog_traverse_validate() -> bool {
         return false;
     }
 
-    auto bad_tree = mul_expr(add_expr(const_expr(-1.0), const_expr(2.0)),
-                             const_expr(3.0));
+    auto bad_tree =
+        mul_expr(add_expr(const_expr(-1.0), const_expr(2.0)), const_expr(3.0));
 
     auto bad_result = smd::traverse(
         [](double x) -> std::optional<double> {
@@ -93,8 +93,8 @@ auto blog_traverse_validate() -> bool {
 
 // blog-traverse-relabel-begin
 auto blog_traverse_relabel() -> bool {
-    auto tree = mul_expr(add_expr(const_expr(1.0), const_expr(2.0)),
-                         const_expr(3.0));
+    auto tree =
+        mul_expr(add_expr(const_expr(1.0), const_expr(2.0)), const_expr(3.0));
 
     auto doubled = smd::traverse(
         [](double x) -> std::optional<double> {

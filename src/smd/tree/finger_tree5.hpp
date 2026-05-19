@@ -98,9 +98,10 @@ auto leaf_value(const ElemPtr<T, Tag> &ep) -> const T & {
 }
 
 template <typename T, typename Tag, typename Alloc, typename MeasFn>
-auto make_leaf(const Alloc& alloc, MeasFn &&mf, T value) -> ElemPtr<T, Tag> {
+auto make_leaf(const Alloc &alloc, MeasFn &&mf, T value) -> ElemPtr<T, Tag> {
     // value is taken by-value: measured first (lvalue), then moved into Leaf.
-    using EA = typename std::allocator_traits<Alloc>::template rebind_alloc<Elem<T, Tag>>;
+    using EA = typename std::allocator_traits<Alloc>::template rebind_alloc<
+        Elem<T, Tag>>;
     EA ea(alloc);
     auto m = mf(value);
     return std::allocate_shared<const Elem<T, Tag>>(
@@ -109,62 +110,62 @@ auto make_leaf(const Alloc& alloc, MeasFn &&mf, T value) -> ElemPtr<T, Tag> {
 }
 
 template <typename T, typename Tag, typename Alloc>
-auto make_node2(const Alloc& alloc, ElemPtr<T, Tag> a, ElemPtr<T, Tag> b)
+auto make_node2(const Alloc &alloc, ElemPtr<T, Tag> a, ElemPtr<T, Tag> b)
     -> ElemPtr<T, Tag> {
-    using EA = typename std::allocator_traits<Alloc>::template rebind_alloc<Elem<T, Tag>>;
+    using EA = typename std::allocator_traits<Alloc>::template rebind_alloc<
+        Elem<T, Tag>>;
     EA ea(alloc);
     auto m = tag_op<Tag>(a->d_measure, b->d_measure);
     return std::allocate_shared<const Elem<T, Tag>>(
-        ea, Elem<T, Tag>{std::move(m),
-                         typename Elem<T, Tag>::Node2{std::move(a), std::move(b)}});
+        ea, Elem<T, Tag>{std::move(m), typename Elem<T, Tag>::Node2{
+                                           std::move(a), std::move(b)}});
 }
 
 template <typename T, typename Tag, typename Alloc>
-auto make_node3(const Alloc& alloc, ElemPtr<T, Tag> a, ElemPtr<T, Tag> b,
+auto make_node3(const Alloc &alloc, ElemPtr<T, Tag> a, ElemPtr<T, Tag> b,
                 ElemPtr<T, Tag> c) -> ElemPtr<T, Tag> {
-    using EA = typename std::allocator_traits<Alloc>::template rebind_alloc<Elem<T, Tag>>;
+    using EA = typename std::allocator_traits<Alloc>::template rebind_alloc<
+        Elem<T, Tag>>;
     EA ea(alloc);
     auto m = tag_op<Tag>(tag_op<Tag>(a->d_measure, b->d_measure), c->d_measure);
     return std::allocate_shared<const Elem<T, Tag>>(
         ea, Elem<T, Tag>{std::move(m),
-                         typename Elem<T, Tag>::Node3{std::move(a), std::move(b),
-                                                      std::move(c)}});
+                         typename Elem<T, Tag>::Node3{
+                             std::move(a), std::move(b), std::move(c)}});
 }
 
 template <typename T, typename Tag>
 void flatten_elem(const ElemPtr<T, Tag> &ep, std::vector<T> &out) {
     using E = Elem<T, Tag>;
-    std::visit(
-        overloaded{
-            [&](const typename E::Leaf &lf) { out.push_back(lf.d_value); },
-            [&](const typename E::Node2 &n) {
-                flatten_elem(n.a, out);
-                flatten_elem(n.b, out);
-            },
-            [&](const typename E::Node3 &n) {
-                flatten_elem(n.a, out);
-                flatten_elem(n.b, out);
-                flatten_elem(n.c, out);
-            }},
-        ep->d_data);
+    std::visit(overloaded{[&](const typename E::Leaf &lf) {
+                              out.push_back(lf.d_value);
+                          },
+                          [&](const typename E::Node2 &n) {
+                              flatten_elem(n.a, out);
+                              flatten_elem(n.b, out);
+                          },
+                          [&](const typename E::Node3 &n) {
+                              flatten_elem(n.a, out);
+                              flatten_elem(n.b, out);
+                              flatten_elem(n.c, out);
+                          }},
+               ep->d_data);
 }
 
 template <typename T, typename Tag, typename F>
 void for_each_elem(const ElemPtr<T, Tag> &ep, const F &fn) {
     using E = Elem<T, Tag>;
-    std::visit(
-        overloaded{
-            [&](const typename E::Leaf &lf) { fn(lf.d_value); },
-            [&](const typename E::Node2 &n) {
-                for_each_elem(n.a, fn);
-                for_each_elem(n.b, fn);
-            },
-            [&](const typename E::Node3 &n) {
-                for_each_elem(n.a, fn);
-                for_each_elem(n.b, fn);
-                for_each_elem(n.c, fn);
-            }},
-        ep->d_data);
+    std::visit(overloaded{[&](const typename E::Leaf &lf) { fn(lf.d_value); },
+                          [&](const typename E::Node2 &n) {
+                              for_each_elem(n.a, fn);
+                              for_each_elem(n.b, fn);
+                          },
+                          [&](const typename E::Node3 &n) {
+                              for_each_elem(n.a, fn);
+                              for_each_elem(n.b, fn);
+                              for_each_elem(n.c, fn);
+                          }},
+               ep->d_data);
 }
 
 // -- Digit: 1..4 ElemPtrs in an inplace_vector -------------------------------
@@ -230,30 +231,31 @@ auto digit_init(const Digit<T, Tag> &d) -> Digit<T, Tag> {
 // in app3's Deep-Deep path).  Output has at most 4 nodes from 12 inputs;
 // capacity 6 gives a safety margin.
 template <typename T, typename Tag, typename Alloc>
-auto nodes_from(const Alloc& alloc, std::inplace_vector<ElemPtr<T, Tag>, 12> elems)
+auto nodes_from(const Alloc &alloc,
+                std::inplace_vector<ElemPtr<T, Tag>, 12> elems)
     -> std::inplace_vector<ElemPtr<T, Tag>, 6> {
     std::inplace_vector<ElemPtr<T, Tag>, 6> result;
     auto n = elems.size();
     std::size_t i = 0;
     while (n - i > 4) {
-        result.push_back(
-            make_node3<T, Tag>(alloc, std::move(elems[i]), std::move(elems[i + 1]),
-                               std::move(elems[i + 2])));
+        result.push_back(make_node3<T, Tag>(alloc, std::move(elems[i]),
+                                            std::move(elems[i + 1]),
+                                            std::move(elems[i + 2])));
         i += 3;
     }
     switch (n - i) {
     case 2:
-        result.push_back(
-            make_node2<T, Tag>(alloc, std::move(elems[i]), std::move(elems[i + 1])));
+        result.push_back(make_node2<T, Tag>(alloc, std::move(elems[i]),
+                                            std::move(elems[i + 1])));
         break;
     case 3:
-        result.push_back(
-            make_node3<T, Tag>(alloc, std::move(elems[i]), std::move(elems[i + 1]),
-                               std::move(elems[i + 2])));
+        result.push_back(make_node3<T, Tag>(alloc, std::move(elems[i]),
+                                            std::move(elems[i + 1]),
+                                            std::move(elems[i + 2])));
         break;
     case 4:
-        result.push_back(
-            make_node2<T, Tag>(alloc, std::move(elems[i]), std::move(elems[i + 1])));
+        result.push_back(make_node2<T, Tag>(alloc, std::move(elems[i]),
+                                            std::move(elems[i + 1])));
         result.push_back(make_node2<T, Tag>(alloc, std::move(elems[i + 2]),
                                             std::move(elems[i + 3])));
         break;
@@ -269,22 +271,20 @@ template <typename T, typename Tag>
 auto elem_to_digit(const ElemPtr<T, Tag> &ep) -> Digit<T, Tag> {
     using E = Elem<T, Tag>;
     Digit<T, Tag> out;
-    std::visit(
-        overloaded{
-            [&](const typename E::Leaf &) {
-                assert(false && "elem_to_digit called on Leaf");
-                std::unreachable();
-            },
-            [&](const typename E::Node2 &n) {
-                out.push_back(n.a);
-                out.push_back(n.b);
-            },
-            [&](const typename E::Node3 &n) {
-                out.push_back(n.a);
-                out.push_back(n.b);
-                out.push_back(n.c);
-            }},
-        ep->d_data);
+    std::visit(overloaded{[&](const typename E::Leaf &) {
+                              assert(false && "elem_to_digit called on Leaf");
+                              std::unreachable();
+                          },
+                          [&](const typename E::Node2 &n) {
+                              out.push_back(n.a);
+                              out.push_back(n.b);
+                          },
+                          [&](const typename E::Node3 &n) {
+                              out.push_back(n.a);
+                              out.push_back(n.b);
+                              out.push_back(n.c);
+                          }},
+               ep->d_data);
     return out;
 }
 
@@ -323,19 +323,20 @@ template <typename T, typename TAG_TYPE = std::size_t,
           typename ALLOCATOR = std::allocator<std::byte>>
 class FingerTree5 {
     template <typename, typename, typename, typename>
-    friend class FingerTree5Iterator; // iterator needs access to Deep, Repr, etc.
+    friend class FingerTree5Iterator; // iterator needs access to Deep, Repr,
+                                      // etc.
 
-    using Tag  = TAG_TYPE;
+    using Tag = TAG_TYPE;
     using Meas = MEASURE_POLICY;
-    using E    = ft5::Elem<T, Tag>;
-    using EP   = ft5::ElemPtr<T, Tag>;
+    using E = ft5::Elem<T, Tag>;
+    using EP = ft5::ElemPtr<T, Tag>;
 
     // ElemPtr vector using the rebind-allocated allocator so temporary
     // scaffolding vectors (from_sequence, from_elems_impl) don't hit the
     // global heap when a custom allocator is in use.
-    using EpAlloc = typename std::allocator_traits<ALLOCATOR>::
-        template rebind_alloc<EP>;
-    using EpVec   = std::vector<EP, EpAlloc>;
+    using EpAlloc =
+        typename std::allocator_traits<ALLOCATOR>::template rebind_alloc<EP>;
+    using EpVec = std::vector<EP, EpAlloc>;
     using Digit = ft5::Digit<T, Tag>;
 
     using SpinePtr = std::shared_ptr<const FingerTree5>;
@@ -363,7 +364,7 @@ class FingerTree5 {
     [[no_unique_address]] ALLOCATOR d_alloc;
 
     // Private constructor used by factory helpers; sets both repr and alloc.
-    FingerTree5(Repr r, const ALLOCATOR& alloc)
+    FingerTree5(Repr r, const ALLOCATOR &alloc)
         : d_repr(std::move(r)), d_alloc(alloc) {}
 
     explicit FingerTree5(Repr r) : d_repr(std::move(r)) {}
@@ -374,7 +375,7 @@ class FingerTree5 {
     // is_always_equal short-circuits at compile time for stateless allocators
     // (e.g. std::allocator) so runtime comparison is only done for stateful
     // ones (e.g. pmr::polymorphic_allocator).
-    static auto alloc_equal(const ALLOCATOR& a, const ALLOCATOR& b) noexcept
+    static auto alloc_equal(const ALLOCATOR &a, const ALLOCATOR &b) noexcept
         -> bool {
         if constexpr (std::allocator_traits<ALLOCATOR>::is_always_equal::value)
             return true;
@@ -402,26 +403,29 @@ class FingerTree5 {
     // Precondition: t.d_alloc == alloc (always true at call sites; any
     // future breakage manifests as allocator mismatch rather than silently
     // corrupting the tree structure).
-    static auto allocate_spine(const ALLOCATOR& alloc, FingerTree5 t) -> SpinePtr {
-        using FTA = typename std::allocator_traits<ALLOCATOR>::
-            template rebind_alloc<FingerTree5>;
+    static auto allocate_spine(const ALLOCATOR &alloc, FingerTree5 t)
+        -> SpinePtr {
+        using FTA = typename std::allocator_traits<
+            ALLOCATOR>::template rebind_alloc<FingerTree5>;
         FTA fta(alloc);
-        FingerTree5* raw = std::allocator_traits<FTA>::allocate(fta, 1);
+        FingerTree5 *raw = std::allocator_traits<FTA>::allocate(fta, 1);
         try {
-            ::new(raw) FingerTree5(std::move(t)); // move ctor, no uses_allocator
+            ::new (raw)
+                FingerTree5(std::move(t)); // move ctor, no uses_allocator
         } catch (...) {
             std::allocator_traits<FTA>::deallocate(fta, raw, 1);
             throw;
         }
         // Control block allocated from fta (custom alloc).
-        return SpinePtr(static_cast<const FingerTree5*>(raw),
-                        [alloc](const FingerTree5* p) mutable {
-                            FTA fa(alloc);
-                            auto* mp = const_cast<FingerTree5*>(p);
-                            std::allocator_traits<FTA>::destroy(fa, mp);
-                            std::allocator_traits<FTA>::deallocate(fa, mp, 1);
-                        },
-                        fta);
+        return SpinePtr(
+            static_cast<const FingerTree5 *>(raw),
+            [alloc](const FingerTree5 *p) mutable {
+                FTA fa(alloc);
+                auto *mp = const_cast<FingerTree5 *>(p);
+                std::allocator_traits<FTA>::destroy(fa, mp);
+                std::allocator_traits<FTA>::deallocate(fa, mp, 1);
+            },
+            fta);
     }
 
     auto allocate_spine(FingerTree5 t) const -> SpinePtr {
@@ -432,28 +436,28 @@ class FingerTree5 {
         return ft5::make_leaf<T, Tag>(d_alloc, meas_fn(), std::move(value));
     }
 
-    static auto make_single(const ALLOCATOR& alloc, EP elem) -> FingerTree5 {
+    static auto make_single(const ALLOCATOR &alloc, EP elem) -> FingerTree5 {
         return FingerTree5(Repr{Single{std::move(elem)}}, alloc);
     }
 
     // Allocator-aware make_deep: uses alloc for the Deep allocation.
-    static auto make_deep(const ALLOCATOR& alloc, Digit left, SpinePtr spine,
+    static auto make_deep(const ALLOCATOR &alloc, Digit left, SpinePtr spine,
                           Digit right) -> FingerTree5 {
-        using DA = typename std::allocator_traits<ALLOCATOR>::
-            template rebind_alloc<Deep>;
+        using DA = typename std::allocator_traits<
+            ALLOCATOR>::template rebind_alloc<Deep>;
         DA da(alloc);
         auto m = ft5::tag_op<Tag>(
             ft5::tag_op<Tag>(ft5::digit_measure(left),
                              spine ? spine->measure() : ft5::tag_id<Tag>()),
             ft5::digit_measure(right));
-        return FingerTree5(
-            Repr{std::allocate_shared<const Deep>(
-                da, Deep{std::move(m), std::move(left), std::move(spine),
-                         std::move(right)})},
-            alloc);
+        return FingerTree5(Repr{std::allocate_shared<const Deep>(
+                               da, Deep{std::move(m), std::move(left),
+                                        std::move(spine), std::move(right)})},
+                           alloc);
     }
 
-    // Convenience overload for call sites that already have an allocator in scope.
+    // Convenience overload for call sites that already have an allocator in
+    // scope.
     auto make_deep(Digit left, SpinePtr spine, Digit right) const
         -> FingerTree5 {
         return make_deep(d_alloc, std::move(left), std::move(spine),
@@ -469,25 +473,28 @@ class FingerTree5 {
         return d;
     }
 
-    static auto digit_to_tree(const ALLOCATOR& alloc,
-                               const Digit &d) -> FingerTree5 {
+    static auto digit_to_tree(const ALLOCATOR &alloc, const Digit &d)
+        -> FingerTree5 {
         assert(!d.empty());
         switch (d.size()) {
         case 1:
             return make_single(alloc, d[0]);
         case 2:
-            return make_deep(alloc, make_digit({d[0]}), SpinePtr{}, make_digit({d[1]}));
+            return make_deep(alloc, make_digit({d[0]}), SpinePtr{},
+                             make_digit({d[1]}));
         case 3:
-            return make_deep(alloc, make_digit({d[0], d[1]}), SpinePtr{}, make_digit({d[2]}));
+            return make_deep(alloc, make_digit({d[0], d[1]}), SpinePtr{},
+                             make_digit({d[2]}));
         case 4:
-            return make_deep(alloc, make_digit({d[0], d[1]}), SpinePtr{}, make_digit({d[2], d[3]}));
+            return make_deep(alloc, make_digit({d[0], d[1]}), SpinePtr{},
+                             make_digit({d[2], d[3]}));
         default:
             std::unreachable();
         }
     }
 
-    static auto deep_l(const ALLOCATOR& alloc, SpinePtr spine,
-                       Digit right) -> FingerTree5 {
+    static auto deep_l(const ALLOCATOR &alloc, SpinePtr spine, Digit right)
+        -> FingerTree5 {
         if (!spine || spine->is_empty())
             return digit_to_tree(alloc, right);
         auto vl = spine->view_l_internal();
@@ -500,8 +507,8 @@ class FingerTree5 {
                          std::move(right));
     }
 
-    static auto deep_r(const ALLOCATOR& alloc, Digit left,
-                       SpinePtr spine) -> FingerTree5 {
+    static auto deep_r(const ALLOCATOR &alloc, Digit left, SpinePtr spine)
+        -> FingerTree5 {
         if (!spine || spine->is_empty())
             return digit_to_tree(alloc, left);
         auto vr = spine->view_r_internal();
@@ -534,12 +541,12 @@ class FingerTree5 {
                     EP h = d->d_left.front();
                     if (d->d_left.size() > 1) {
                         auto t = ft5::digit_tail<T, Tag>(d->d_left);
-                        return InternalView{
-                            h, make_deep(d_alloc, std::move(t), d->d_spine,
-                                         d->d_right)};
+                        return InternalView{h,
+                                            make_deep(d_alloc, std::move(t),
+                                                      d->d_spine, d->d_right)};
                     }
-                    return InternalView{h,
-                                        deep_l(d_alloc, d->d_spine, d->d_right)};
+                    return InternalView{
+                        h, deep_l(d_alloc, d->d_spine, d->d_right)};
                 }},
             d_repr);
     }
@@ -557,9 +564,9 @@ class FingerTree5 {
                     EP l = d->d_right.back();
                     if (d->d_right.size() > 1) {
                         auto i = ft5::digit_init<T, Tag>(d->d_right);
-                        return InternalView{
-                            l, make_deep(d_alloc, d->d_left, d->d_spine,
-                                         std::move(i))};
+                        return InternalView{l, make_deep(d_alloc, d->d_left,
+                                                         d->d_spine,
+                                                         std::move(i))};
                     }
                     return InternalView{l,
                                         deep_r(d_alloc, d->d_left, d->d_spine)};
@@ -572,7 +579,9 @@ class FingerTree5 {
     auto cons_internal(EP x) const -> FingerTree5 {
         return std::visit(
             ft5::overloaded{
-                [this, &x](const Empty &) { return make_single(d_alloc, std::move(x)); },
+                [this, &x](const Empty &) {
+                    return make_single(d_alloc, std::move(x));
+                },
                 [&](const Single &s) {
                     Digit l;
                     l.push_back(std::move(x));
@@ -582,12 +591,12 @@ class FingerTree5 {
                 },
                 [&](const DeepPtr &d) -> FingerTree5 {
                     if (d->d_left.size() < 4) {
-                        return make_deep(
-                            ft5::digit_with_pushed_front<T, Tag>(
-                                d->d_left, std::move(x)),
-                            d->d_spine, d->d_right);
+                        return make_deep(ft5::digit_with_pushed_front<T, Tag>(
+                                             d->d_left, std::move(x)),
+                                         d->d_spine, d->d_right);
                     }
-                    // Left digit is full: take last 3 as a Node3, push down spine.
+                    // Left digit is full: take last 3 as a Node3, push down
+                    // spine.
                     auto node = ft5::make_node3<T, Tag>(
                         d_alloc, d->d_left[1], d->d_left[2], d->d_left[3]);
                     SpinePtr sp;
@@ -595,7 +604,8 @@ class FingerTree5 {
                         sp = allocate_spine(
                             d->d_spine->cons_internal(std::move(node)));
                     else
-                        sp = allocate_spine(make_single(d_alloc, std::move(node)));
+                        sp = allocate_spine(
+                            make_single(d_alloc, std::move(node)));
                     Digit new_left;
                     new_left.push_back(std::move(x));
                     new_left.push_back(d->d_left[0]);
@@ -608,7 +618,9 @@ class FingerTree5 {
     auto snoc_internal(EP x) const -> FingerTree5 {
         return std::visit(
             ft5::overloaded{
-                [this, &x](const Empty &) { return make_single(d_alloc, std::move(x)); },
+                [this, &x](const Empty &) {
+                    return make_single(d_alloc, std::move(x));
+                },
                 [&](const Single &s) {
                     Digit l;
                     l.push_back(s.d_elem);
@@ -618,12 +630,12 @@ class FingerTree5 {
                 },
                 [&](const DeepPtr &d) -> FingerTree5 {
                     if (d->d_right.size() < 4) {
-                        return make_deep(
-                            d->d_left, d->d_spine,
-                            ft5::digit_with_pushed_back<T, Tag>(
-                                d->d_right, std::move(x)));
+                        return make_deep(d->d_left, d->d_spine,
+                                         ft5::digit_with_pushed_back<T, Tag>(
+                                             d->d_right, std::move(x)));
                     }
-                    // Right digit is full: take first 3 as a Node3, push down spine.
+                    // Right digit is full: take first 3 as a Node3, push down
+                    // spine.
                     auto node = ft5::make_node3<T, Tag>(
                         d_alloc, d->d_right[0], d->d_right[1], d->d_right[2]);
                     SpinePtr sp;
@@ -631,7 +643,8 @@ class FingerTree5 {
                         sp = allocate_spine(
                             d->d_spine->snoc_internal(std::move(node)));
                     else
-                        sp = allocate_spine(make_single(d_alloc, std::move(node)));
+                        sp = allocate_spine(
+                            make_single(d_alloc, std::move(node)));
                     Digit new_right;
                     new_right.push_back(d->d_right[3]);
                     new_right.push_back(std::move(x));
@@ -697,7 +710,7 @@ class FingerTree5 {
         return std::move(*ds);
     }
 
-    static auto assemble_l(const ALLOCATOR& alloc, std::optional<Digit> left_d,
+    static auto assemble_l(const ALLOCATOR &alloc, std::optional<Digit> left_d,
                            SpinePtr spine, Digit right) -> FingerTree5 {
         if (left_d.has_value())
             return make_deep(alloc, std::move(*left_d), std::move(spine),
@@ -705,7 +718,7 @@ class FingerTree5 {
         return deep_l(alloc, std::move(spine), std::move(right));
     }
 
-    static auto assemble_r(const ALLOCATOR& alloc, Digit left, SpinePtr spine,
+    static auto assemble_r(const ALLOCATOR &alloc, Digit left, SpinePtr spine,
                            std::optional<Digit> right_d) -> FingerTree5 {
         if (right_d.has_value())
             return make_deep(alloc, std::move(left), std::move(spine),
@@ -721,7 +734,8 @@ class FingerTree5 {
 
         if (auto *s = std::get_if<Single>(&d_repr)) {
             if (pred(ft5::tag_op<Tag>(prefix, s->d_elem->d_measure)))
-                return InternalSplit{FingerTree5(d_alloc), s->d_elem, FingerTree5(d_alloc)};
+                return InternalSplit{FingerTree5(d_alloc), s->d_elem,
+                                     FingerTree5(d_alloc)};
             return std::nullopt;
         }
 
@@ -732,16 +746,16 @@ class FingerTree5 {
             auto ds = split_digit(pred, prefix, d.d_left);
             if (!ds.has_value())
                 return std::nullopt;
-            auto lt = ds->d_left.has_value() ? digit_to_tree(d_alloc, *ds->d_left)
-                                              : FingerTree5(d_alloc);
+            auto lt = ds->d_left.has_value()
+                          ? digit_to_tree(d_alloc, *ds->d_left)
+                          : FingerTree5(d_alloc);
             auto rt = assemble_l(d_alloc, std::move(ds->d_right), d.d_spine,
                                  d.d_right);
             return InternalSplit{std::move(lt), std::move(ds->d_pivot),
                                  std::move(rt)};
         }
 
-        auto spine_m =
-            d.d_spine ? d.d_spine->measure() : ft5::tag_id<Tag>();
+        auto spine_m = d.d_spine ? d.d_spine->measure() : ft5::tag_id<Tag>();
         auto vm = ft5::tag_op<Tag>(vl, spine_m);
         if (pred(vm)) {
             if (!d.d_spine || d.d_spine->is_empty())
@@ -751,8 +765,7 @@ class FingerTree5 {
             if (!ss.has_value())
                 return std::nullopt;
 
-            auto node_prefix =
-                ft5::tag_op<Tag>(vl, ss->d_left.measure());
+            auto node_prefix = ft5::tag_op<Tag>(vl, ss->d_left.measure());
             auto ns = split_within_elem(pred, node_prefix, ss->d_pivot);
 
             SpinePtr sl;
@@ -773,17 +786,17 @@ class FingerTree5 {
         auto ds = split_digit(pred, vm, d.d_right);
         if (!ds.has_value())
             return std::nullopt;
-        auto lt = assemble_r(d_alloc, d.d_left, d.d_spine,
-                             std::move(ds->d_left));
+        auto lt =
+            assemble_r(d_alloc, d.d_left, d.d_spine, std::move(ds->d_left));
         auto rt = ds->d_right.has_value() ? digit_to_tree(d_alloc, *ds->d_right)
-                                           : FingerTree5(d_alloc);
+                                          : FingerTree5(d_alloc);
         return InternalSplit{std::move(lt), std::move(ds->d_pivot),
                              std::move(rt)};
     }
 
     // -- app3: Hinze-Paterson concatenation ----------------------------------
 
-    static auto app3(const ALLOCATOR& alloc, const FingerTree5 &left,
+    static auto app3(const ALLOCATOR &alloc, const FingerTree5 &left,
                      std::inplace_vector<EP, 6> middle,
                      const FingerTree5 &right) -> FingerTree5 {
         if (left.is_empty()) {
@@ -824,10 +837,8 @@ class FingerTree5 {
             combined.push_back(ep);
         auto ns = ft5::nodes_from<T, Tag>(alloc, std::move(combined));
 
-        auto left_spine =
-            ld.d_spine ? *ld.d_spine : FingerTree5(alloc);
-        auto right_spine =
-            rd.d_spine ? *rd.d_spine : FingerTree5(alloc);
+        auto left_spine = ld.d_spine ? *ld.d_spine : FingerTree5(alloc);
+        auto right_spine = rd.d_spine ? *rd.d_spine : FingerTree5(alloc);
         auto new_spine =
             FingerTree5::app3(alloc, left_spine, std::move(ns), right_spine);
         SpinePtr sp;
@@ -850,11 +861,13 @@ class FingerTree5 {
     // Small cases (N ≤ 8) are placed directly into left/right digits with an
     // empty spine, avoiding the node-grouping pass entirely.
 
-    static auto from_elems_impl(const ALLOCATOR& alloc, EpVec elems)
+    static auto from_elems_impl(const ALLOCATOR &alloc, EpVec elems)
         -> FingerTree5 {
         const auto n = elems.size();
-        if (n == 0) return FingerTree5(alloc);
-        if (n == 1) return make_single(alloc, std::move(elems[0]));
+        if (n == 0)
+            return FingerTree5(alloc);
+        if (n == 1)
+            return make_single(alloc, std::move(elems[0]));
 
         if (n <= 8) {
             const auto lsz = std::min(n / 2, std::size_t{4});
@@ -876,27 +889,27 @@ class FingerTree5 {
 
         EpVec nodes{EpAlloc(alloc)};
         nodes.reserve((n - 4 + 2) / 3);
-        std::size_t i   = 2;
-        const auto  end = n - 2;
+        std::size_t i = 2;
+        const auto end = n - 2;
         while (end - i > 4) {
-            nodes.push_back(ft5::make_node3<T, Tag>(
-                alloc, std::move(elems[i]), std::move(elems[i + 1]),
-                std::move(elems[i + 2])));
+            nodes.push_back(ft5::make_node3<T, Tag>(alloc, std::move(elems[i]),
+                                                    std::move(elems[i + 1]),
+                                                    std::move(elems[i + 2])));
             i += 3;
         }
         switch (end - i) {
         case 2:
-            nodes.push_back(ft5::make_node2<T, Tag>(
-                alloc, std::move(elems[i]), std::move(elems[i + 1])));
+            nodes.push_back(ft5::make_node2<T, Tag>(alloc, std::move(elems[i]),
+                                                    std::move(elems[i + 1])));
             break;
         case 3:
-            nodes.push_back(ft5::make_node3<T, Tag>(
-                alloc, std::move(elems[i]), std::move(elems[i + 1]),
-                std::move(elems[i + 2])));
+            nodes.push_back(ft5::make_node3<T, Tag>(alloc, std::move(elems[i]),
+                                                    std::move(elems[i + 1]),
+                                                    std::move(elems[i + 2])));
             break;
         case 4:
-            nodes.push_back(ft5::make_node2<T, Tag>(
-                alloc, std::move(elems[i]), std::move(elems[i + 1])));
+            nodes.push_back(ft5::make_node2<T, Tag>(alloc, std::move(elems[i]),
+                                                    std::move(elems[i + 1])));
             nodes.push_back(ft5::make_node2<T, Tag>(
                 alloc, std::move(elems[i + 2]), std::move(elems[i + 3])));
             break;
@@ -914,36 +927,36 @@ class FingerTree5 {
     // -- Internal flatten / for_each -----------------------------------------
 
     void flatten_elems(std::vector<T> &out) const {
-        std::visit(
-            ft5::overloaded{
-                [](const Empty &) {},
-                [&](const Single &s) { ft5::flatten_elem(s.d_elem, out); },
-                [&](const DeepPtr &d) {
-                    for (const auto &ep : d->d_left)
-                        ft5::flatten_elem(ep, out);
-                    if (d->d_spine)
-                        d->d_spine->flatten_elems(out);
-                    for (const auto &ep : d->d_right)
-                        ft5::flatten_elem(ep, out);
-                }},
-            d_repr);
+        std::visit(ft5::overloaded{[](const Empty &) {},
+                                   [&](const Single &s) {
+                                       ft5::flatten_elem(s.d_elem, out);
+                                   },
+                                   [&](const DeepPtr &d) {
+                                       for (const auto &ep : d->d_left)
+                                           ft5::flatten_elem(ep, out);
+                                       if (d->d_spine)
+                                           d->d_spine->flatten_elems(out);
+                                       for (const auto &ep : d->d_right)
+                                           ft5::flatten_elem(ep, out);
+                                   }},
+                   d_repr);
     }
 
     template <typename F>
     void for_each_internal(const F &fn) const {
-        std::visit(
-            ft5::overloaded{
-                [](const Empty &) {},
-                [&](const Single &s) { ft5::for_each_elem(s.d_elem, fn); },
-                [&](const DeepPtr &d) {
-                    for (const auto &ep : d->d_left)
-                        ft5::for_each_elem(ep, fn);
-                    if (d->d_spine)
-                        d->d_spine->for_each_internal(fn);
-                    for (const auto &ep : d->d_right)
-                        ft5::for_each_elem(ep, fn);
-                }},
-            d_repr);
+        std::visit(ft5::overloaded{[](const Empty &) {},
+                                   [&](const Single &s) {
+                                       ft5::for_each_elem(s.d_elem, fn);
+                                   },
+                                   [&](const DeepPtr &d) {
+                                       for (const auto &ep : d->d_left)
+                                           ft5::for_each_elem(ep, fn);
+                                       if (d->d_spine)
+                                           d->d_spine->for_each_internal(fn);
+                                       for (const auto &ep : d->d_right)
+                                           ft5::for_each_elem(ep, fn);
+                                   }},
+                   d_repr);
     }
 
     // ========================================================================
@@ -954,27 +967,28 @@ class FingerTree5 {
     // Container / ReversibleContainer named requirements
     // -----------------------------------------------------------------------
 
-    using value_type             = T;
-    using tag_type               = Tag;         // non-standard, FT5-specific
-    using reference              = const T &;   // immutable: all access is const
-    using const_reference        = const T &;
-    using allocator_type         = ALLOCATOR;
-    using iterator               = FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>;
-    using const_iterator         = iterator;    // immutable: no mutable iteration
-    using reverse_iterator       = std::reverse_iterator<iterator>;
+    using value_type = T;
+    using tag_type = Tag;        // non-standard, FT5-specific
+    using reference = const T &; // immutable: all access is const
+    using const_reference = const T &;
+    using allocator_type = ALLOCATOR;
+    using iterator =
+        FingerTree5Iterator<T, TAG_TYPE, MEASURE_POLICY, ALLOCATOR>;
+    using const_iterator = iterator; // immutable: no mutable iteration
+    using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    using difference_type        = std::ptrdiff_t;
-    using size_type              = std::size_t;
+    using difference_type = std::ptrdiff_t;
+    using size_type = std::size_t;
 
     // -- Construction --------------------------------------------------------
 
     // Default constructor: variant value-initialises to its first alternative
     // (Empty), so FingerTree5{} is a valid empty tree — no factory call needed.
     FingerTree5() = default;
-    explicit FingerTree5(const ALLOCATOR& alloc) : d_alloc(alloc) {}
+    explicit FingerTree5(const ALLOCATOR &alloc) : d_alloc(alloc) {}
 
-    FingerTree5(const FingerTree5&) = default;
-    FingerTree5(FingerTree5&&)      = default;
+    FingerTree5(const FingerTree5 &) = default;
+    FingerTree5(FingerTree5 &&) = default;
 
     // Allocator-extended move constructor required by the std::uses_allocator
     // protocol (trailing form: T(T&&, Alloc)).  Taking alloc by value allows
@@ -985,7 +999,8 @@ class FingerTree5 {
     // resource, its nodes are shared (O(1)).  If from a different resource,
     // every node is rebuilt using alloc (O(N)) — no dangling cross-resource
     // pointers are ever created silently.
-    FingerTree5(FingerTree5 other, ALLOCATOR alloc) : d_alloc(std::move(alloc)) {
+    FingerTree5(FingerTree5 other, ALLOCATOR alloc)
+        : d_alloc(std::move(alloc)) {
         if (alloc_equal(d_alloc, other.d_alloc))
             d_repr = std::move(other.d_repr);
         else
@@ -997,11 +1012,11 @@ class FingerTree5 {
     // Non-propagating, same resource: share data (O(1), structural sharing).
     // Non-propagating, different resource: rebuild data using this allocator
     //   (O(N)) — allocator coherency is maintained; no cross-resource sharing.
-    auto operator=(const FingerTree5& other) & -> FingerTree5& {
+    auto operator=(const FingerTree5 &other) & -> FingerTree5 & {
         if constexpr (std::allocator_traits<ALLOCATOR>::
                           propagate_on_container_copy_assignment::value) {
             d_alloc = other.d_alloc;
-            d_repr  = other.d_repr;
+            d_repr = other.d_repr;
         } else if (alloc_equal(d_alloc, other.d_alloc)) {
             d_repr = other.d_repr;
         } else {
@@ -1014,11 +1029,11 @@ class FingerTree5 {
     // Non-propagating with different resource: falls back to element-wise
     // rebuild (cannot move cross-resource and stay coherent).  Not noexcept
     // in that path; noexcept holds for same-resource and always-equal cases.
-    auto operator=(FingerTree5&& other) & -> FingerTree5& {
+    auto operator=(FingerTree5 &&other) & -> FingerTree5 & {
         if constexpr (std::allocator_traits<ALLOCATOR>::
                           propagate_on_container_move_assignment::value) {
             d_alloc = std::move(other.d_alloc);
-            d_repr  = std::move(other.d_repr);
+            d_repr = std::move(other.d_repr);
         } else if (alloc_equal(d_alloc, other.d_alloc)) {
             d_repr = std::move(other.d_repr);
         } else {
@@ -1033,8 +1048,8 @@ class FingerTree5 {
 
     [[nodiscard]] static auto leaf(T value) -> FingerTree5 {
         ALLOCATOR alloc{};
-        return make_single(alloc, ft5::make_leaf<T, Tag>(alloc, meas_fn(),
-                                                         std::move(value)));
+        return make_single(
+            alloc, ft5::make_leaf<T, Tag>(alloc, meas_fn(), std::move(value)));
     }
 
     // -- Container query members ---------------------------------------------
@@ -1069,18 +1084,19 @@ class FingerTree5 {
     // element-wise equality; short-circuits on size for unit-measure trees
     // Hidden friend: element-wise equality via flatten() avoids requiring the
     // iterator to be complete at class-body parse time.
-    friend auto operator==(const FingerTree5 &lhs,
-                           const FingerTree5 &rhs) -> bool {
+    friend auto operator==(const FingerTree5 &lhs, const FingerTree5 &rhs)
+        -> bool {
         if constexpr (std::same_as<Tag, std::size_t> &&
                       std::same_as<Meas, UnitMeasure5<T, std::size_t>>) {
-            if (lhs.measure() != rhs.measure()) return false;
+            if (lhs.measure() != rhs.measure())
+                return false;
         }
         return lhs.flatten() == rhs.flatten();
     }
 
     // front / back (SequenceContainer-style convenience; no mutation)
     [[nodiscard]] auto front() const -> const_reference { return head_ref(); }
-    [[nodiscard]] auto back()  const -> const_reference { return last_ref(); }
+    [[nodiscard]] auto back() const -> const_reference { return last_ref(); }
 
     [[nodiscard]] auto is_leaf() const -> bool {
         return std::holds_alternative<Single>(d_repr);
@@ -1112,26 +1128,25 @@ class FingerTree5 {
     // Deep with no spine, 1 + spine->spine_depth() otherwise).
     //
     // Structural invariant: spine_depth() <= floor(log2(N)) for any N-element
-    // tree.  Proof sketch: an element at spine level d is a Node covering >= 2^d
-    // leaves, so a non-empty spine at level d requires N >= 2^d.
+    // tree.  Proof sketch: an element at spine level d is a Node covering >=
+    // 2^d leaves, so a non-empty spine at level d requires N >= 2^d.
     //
     // Consequence: every recursive call chain in this class — flatten_elems,
-    // for_each_internal, view_l/r spine-borrowing, and the shared_ptr destructor
-    // cascade — is bounded by O(log N) frames and cannot stack-overflow for any
-    // tree that can physically exist.  This bound is tested by
-    // "FingerTree5 - SpineDepthIsLogarithmic" and exercised at N=10'000 by
-    // "FingerTree5 - LargeTreeRecursionNoStackOverflow".
+    // for_each_internal, view_l/r spine-borrowing, and the shared_ptr
+    // destructor cascade — is bounded by O(log N) frames and cannot
+    // stack-overflow for any tree that can physically exist.  This bound is
+    // tested by "FingerTree5 - SpineDepthIsLogarithmic" and exercised at
+    // N=10'000 by "FingerTree5 - LargeTreeRecursionNoStackOverflow".
 
     [[nodiscard]] auto spine_depth() const -> std::size_t {
         return std::visit(
-            ft5::overloaded{
-                [](const Empty &) -> std::size_t { return 0; },
-                [](const Single &) -> std::size_t { return 0; },
-                [](const DeepPtr &d) -> std::size_t {
-                    if (!d->d_spine || d->d_spine->is_empty())
-                        return 1;
-                    return 1 + d->d_spine->spine_depth();
-                }},
+            ft5::overloaded{[](const Empty &) -> std::size_t { return 0; },
+                            [](const Single &) -> std::size_t { return 0; },
+                            [](const DeepPtr &d) -> std::size_t {
+                                if (!d->d_spine || d->d_spine->is_empty())
+                                    return 1;
+                                return 1 + d->d_spine->spine_depth();
+                            }},
             d_repr);
     }
 
@@ -1143,16 +1158,16 @@ class FingerTree5 {
     // computed in O(1) via measure(); for custom measures it is O(N).
 
     auto begin() const -> iterator;
-    auto end()   const -> iterator;
+    auto end() const -> iterator;
 
     // Definitions are out-of-line in finger_tree5_iterator.hpp (iterator must
     // be a complete type for std::reverse_iterator instantiation).
-    auto cbegin()  const -> const_iterator;
-    auto cend()    const -> const_iterator;
-    auto rbegin()  const -> reverse_iterator;
-    auto rend()    const -> reverse_iterator;
+    auto cbegin() const -> const_iterator;
+    auto cend() const -> const_iterator;
+    auto rbegin() const -> reverse_iterator;
+    auto rend() const -> reverse_iterator;
     auto crbegin() const -> const_reverse_iterator;
-    auto crend()   const -> const_reverse_iterator;
+    auto crend() const -> const_reverse_iterator;
 
     // -- cons / snoc: O(1) amortized -----------------------------------------
 
@@ -1246,7 +1261,7 @@ class FingerTree5 {
 
     // Build from a vector using the default allocator (static; use the
     // allocator-extended overload below for a custom allocator).
-    [[nodiscard]] static auto from_sequence(const std::vector<T>& values)
+    [[nodiscard]] static auto from_sequence(const std::vector<T> &values)
         -> FingerTree5 {
         return from_sequence(values, ALLOCATOR{});
     }
@@ -1254,9 +1269,11 @@ class FingerTree5 {
     // Allocator-extended from_sequence: all node and scaffolding allocations
     // use alloc.  Takes values by const ref so the input vector is not copied;
     // each element is individually copied into its Leaf node via make_leaf.
-    [[nodiscard]] static auto from_sequence(const std::vector<T>& values,
-                                            const ALLOCATOR& alloc) -> FingerTree5 {
-        if (values.empty()) return FingerTree5(alloc);
+    [[nodiscard]] static auto from_sequence(const std::vector<T> &values,
+                                            const ALLOCATOR &alloc)
+        -> FingerTree5 {
+        if (values.empty())
+            return FingerTree5(alloc);
         auto mf = meas_fn();
         EpVec elems{EpAlloc(alloc)};
         elems.reserve(values.size());
@@ -1311,8 +1328,7 @@ class FingerTree5 {
         if (!is.has_value())
             return std::nullopt;
         assert(ft5::is_leaf(is->d_pivot));
-        return Split{std::move(is->d_left),
-                     ft5::leaf_value(is->d_pivot),
+        return Split{std::move(is->d_left), ft5::leaf_value(is->d_pivot),
                      std::move(is->d_right)};
     }
 
@@ -1341,16 +1357,16 @@ class FingerTree5 {
     // measures on the reversed tree grow from the new left edge (old right
     // edge) under the flipped combine order.
     //
-    // Implementation is Option A from the design doc: flatten, reverse, rebuild.
-    // Cost: O(N) time and O(N) space.  A lazy structural reverse is possible
-    // only for commutative monoids (cached measures would otherwise be wrong);
-    // the eager rebuild is always correct.
+    // Implementation is Option A from the design doc: flatten, reverse,
+    // rebuild. Cost: O(N) time and O(N) space.  A lazy structural reverse is
+    // possible only for commutative monoids (cached measures would otherwise be
+    // wrong); the eager rebuild is always correct.
 
     [[nodiscard]] auto reversed() const
-        -> FingerTree5<T, smd::typeclass::DualMonoid<Tag>, ReversedMeasure5<Meas>, ALLOCATOR>
-    {
+        -> FingerTree5<T, smd::typeclass::DualMonoid<Tag>,
+                       ReversedMeasure5<Meas>, ALLOCATOR> {
         using DT = FingerTree5<T, smd::typeclass::DualMonoid<Tag>,
-                                ReversedMeasure5<Meas>, ALLOCATOR>;
+                               ReversedMeasure5<Meas>, ALLOCATOR>;
         auto v = flatten();
         std::reverse(v.begin(), v.end());
         return DT::from_sequence(std::move(v), d_alloc);

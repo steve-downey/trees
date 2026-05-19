@@ -18,21 +18,16 @@
 using Index = smd::tree::FingerTreeIntervalIndex<std::string>;
 using Entry = smd::tree::Interval<std::string>;
 
-TEST_CASE("IntervalIndex - HeaderIsIdempotent")
-{
-    REQUIRE(true);
-}
+TEST_CASE("IntervalIndex - HeaderIsIdempotent") { REQUIRE(true); }
 
-TEST_CASE("IntervalIndex - Empty")
-{
+TEST_CASE("IntervalIndex - Empty") {
     Index idx;
     CHECK(idx.query_point(0U).empty());
     CHECK(idx.query_point(100U).empty());
     CHECK(idx.query_overlap(0U, 100U).empty());
 }
 
-TEST_CASE("IntervalIndex - SingleInterval")
-{
+TEST_CASE("IntervalIndex - SingleInterval") {
     auto idx = Index::from_intervals({Entry{5U, 10U, "A"}});
     CHECK(idx.query_point(4U).empty());
     CHECK(idx.query_point(5U) == std::vector<std::string>{"A"});
@@ -40,8 +35,7 @@ TEST_CASE("IntervalIndex - SingleInterval")
     CHECK(idx.query_point(10U).empty());
 }
 
-TEST_CASE("IntervalIndex - ThreeOverlapping")
-{
+TEST_CASE("IntervalIndex - ThreeOverlapping") {
     auto idx = Index::from_intervals(
         {Entry{0U, 5U, "A"}, Entry{3U, 10U, "B"}, Entry{8U, 12U, "C"}});
 
@@ -53,8 +47,7 @@ TEST_CASE("IntervalIndex - ThreeOverlapping")
     CHECK(idx.query_point(12U).empty());
 }
 
-TEST_CASE("IntervalIndex - OverlapQuery")
-{
+TEST_CASE("IntervalIndex - OverlapQuery") {
     auto idx = Index::from_intervals(
         {Entry{0U, 5U, "A"}, Entry{3U, 10U, "B"}, Entry{8U, 12U, "C"}});
 
@@ -65,11 +58,9 @@ TEST_CASE("IntervalIndex - OverlapQuery")
           std::vector<std::string>{"A", "B", "C"});
 }
 
-TEST_CASE("IntervalIndex - BoundaryConditions")
-{
+TEST_CASE("IntervalIndex - BoundaryConditions") {
     // Half-open intervals: [start, end)
-    auto idx = Index::from_intervals(
-        {Entry{0U, 5U, "A"}, Entry{5U, 10U, "B"}});
+    auto idx = Index::from_intervals({Entry{0U, 5U, "A"}, Entry{5U, 10U, "B"}});
 
     // Point 5 is in B (start of B) but not in A (end of A)
     CHECK(idx.query_point(5U) == std::vector<std::string>{"B"});
@@ -81,31 +72,26 @@ TEST_CASE("IntervalIndex - BoundaryConditions")
     CHECK(idx.query_overlap(5U, 6U) == std::vector<std::string>{"B"});
 }
 
-TEST_CASE("IntervalIndex - IncrementalInsert")
-{
+TEST_CASE("IntervalIndex - IncrementalInsert") {
     auto idx = Index();
     idx = idx.insert(Entry{0U, 10U, "first"});
     CHECK(idx.query_point(5U) == std::vector<std::string>{"first"});
 
     idx = idx.insert(Entry{5U, 15U, "second"});
-    CHECK(idx.query_point(7U) ==
-          std::vector<std::string>{"first", "second"});
+    CHECK(idx.query_point(7U) == std::vector<std::string>{"first", "second"});
 
     idx = idx.insert(Entry{20U, 30U, "third"});
     CHECK(idx.query_point(25U) == std::vector<std::string>{"third"});
-    CHECK(idx.query_point(7U) ==
-          std::vector<std::string>{"first", "second"});
+    CHECK(idx.query_point(7U) == std::vector<std::string>{"first", "second"});
 }
 
-TEST_CASE("IntervalIndex - SpineTransition")
-{
+TEST_CASE("IntervalIndex - SpineTransition") {
     // Build 20 non-overlapping intervals → spine structure
     std::vector<Entry> intervals;
     for (int i = 0; i < 20; ++i)
-        intervals.push_back(
-            Entry{static_cast<std::size_t>(i * 10),
-                  static_cast<std::size_t>(i * 10 + 5),
-                  "I" + std::to_string(i)});
+        intervals.push_back(Entry{static_cast<std::size_t>(i * 10),
+                                  static_cast<std::size_t>(i * 10 + 5),
+                                  "I" + std::to_string(i)});
 
     auto idx = Index::from_intervals(intervals);
 
@@ -121,30 +107,26 @@ TEST_CASE("IntervalIndex - SpineTransition")
     CHECK(idx.query_point(17U).empty());
 }
 
-TEST_CASE("IntervalIndex - ManyOverlapsAtSamePoint")
-{
+TEST_CASE("IntervalIndex - ManyOverlapsAtSamePoint") {
     // 15 intervals all covering point 50
     std::vector<Entry> intervals;
     for (int i = 0; i < 15; ++i)
-        intervals.push_back(
-            Entry{static_cast<std::size_t>(50 - i),
-                  static_cast<std::size_t>(50 + i + 1),
-                  "V" + std::to_string(i)});
+        intervals.push_back(Entry{static_cast<std::size_t>(50 - i),
+                                  static_cast<std::size_t>(50 + i + 1),
+                                  "V" + std::to_string(i)});
 
     auto idx = Index::from_intervals(intervals);
     auto result = idx.query_point(50U);
     CHECK(result.size() == 15U);
 }
 
-TEST_CASE("IntervalIndex - LargeVsBruteForce")
-{
+TEST_CASE("IntervalIndex - LargeVsBruteForce") {
     // Build 200 intervals, verify queries match brute-force
     std::vector<Entry> intervals;
     for (int i = 0; i < 200; ++i)
-        intervals.push_back(
-            Entry{static_cast<std::size_t>(i * 3),
-                  static_cast<std::size_t>(i * 3 + 10),
-                  "E" + std::to_string(i)});
+        intervals.push_back(Entry{static_cast<std::size_t>(i * 3),
+                                  static_cast<std::size_t>(i * 3 + 10),
+                                  "E" + std::to_string(i)});
 
     auto idx = Index::from_intervals(intervals);
 
@@ -162,8 +144,7 @@ TEST_CASE("IntervalIndex - LargeVsBruteForce")
     }
 }
 
-TEST_CASE("IntervalIndex - Persistence")
-{
+TEST_CASE("IntervalIndex - Persistence") {
     auto idx1 = Index::from_intervals({Entry{0U, 10U, "A"}});
     auto idx2 = idx1.insert(Entry{5U, 15U, "B"});
 
@@ -171,8 +152,7 @@ TEST_CASE("IntervalIndex - Persistence")
     CHECK(idx2.query_point(7U) == std::vector<std::string>{"A", "B"});
 }
 
-TEST_CASE("IntervalIndex - FoldableTypeclass")
-{
+TEST_CASE("IntervalIndex - FoldableTypeclass") {
     auto idx = Index::from_intervals(
         {Entry{0U, 5U, "A"}, Entry{3U, 10U, "B"}, Entry{8U, 12U, "C"}});
     const auto &foldable = smd::foldable_typeclass<Index>;
@@ -182,8 +162,7 @@ TEST_CASE("IntervalIndex - FoldableTypeclass")
     CHECK(foldable.length(idx) == 3U);
 }
 
-TEST_CASE("IntervalIndex - TraversableTypeclass")
-{
+TEST_CASE("IntervalIndex - TraversableTypeclass") {
     auto idx = Index::from_intervals(
         {Entry{0U, 5U, "A"}, Entry{3U, 10U, "B"}, Entry{8U, 12U, "C"}});
 

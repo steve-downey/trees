@@ -4,8 +4,8 @@
 // Exercises FingerTreePriorityQueue with an explicitly FT5-backed tree and
 // cross-checks FT2-backed vs FT5-backed output for semantic equivalence.
 
-#include <smd/tree/finger_tree_priority_queue.hpp>
 #include <smd/tree/finger_tree2.hpp>
+#include <smd/tree/finger_tree_priority_queue.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -20,8 +20,7 @@ using FT2PQ = smd::tree::FingerTreePriorityQueue<
     int, smd::tree::FingerTree2<int, smd::tree::PriorityTag<int>,
                                 smd::tree::PriorityMeasure<int>>>;
 
-TEST_CASE("PriorityQueueFT5 - PushAndMinMax")
-{
+TEST_CASE("PriorityQueueFT5 - PushAndMinMax") {
     auto pq = FT5PQ{};
     for (int v : {5, 1, 3, 9, 2})
         pq = pq.push(v);
@@ -30,8 +29,7 @@ TEST_CASE("PriorityQueueFT5 - PushAndMinMax")
     CHECK(pq.max() == std::optional{9});
 }
 
-TEST_CASE("PriorityQueueFT5 - PopMin")
-{
+TEST_CASE("PriorityQueueFT5 - PopMin") {
     auto pq = FT5PQ::from_values({3, 1, 4, 1, 5, 9, 2, 6});
 
     auto r1 = pq.pop_min();
@@ -43,8 +41,7 @@ TEST_CASE("PriorityQueueFT5 - PopMin")
     CHECK(r2->first == 1);
 }
 
-TEST_CASE("PriorityQueueFT5 - PopMax")
-{
+TEST_CASE("PriorityQueueFT5 - PopMax") {
     auto pq = FT5PQ::from_values({3, 1, 4, 1, 5, 9, 2, 6});
 
     auto r = pq.pop_max();
@@ -52,8 +49,7 @@ TEST_CASE("PriorityQueueFT5 - PopMax")
     CHECK(r->first == 9);
 }
 
-TEST_CASE("PriorityQueueFT5 - CrossCheckWithFT2")
-{
+TEST_CASE("PriorityQueueFT5 - CrossCheckWithFT2") {
     std::vector<int> vals = {7, 2, 9, 1, 5, 3, 8, 4, 6};
 
     auto ft5 = FT5PQ::from_values(vals);

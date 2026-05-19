@@ -50,18 +50,16 @@ constexpr MonadOnlyMap<int> monad_only_int{};
 
 TEST_CASE("MonadTypeclassTest - BindOptionalPresent") {
     const auto &monad = smd::monad_typeclass<std::optional<int>>;
-    auto result = monad.bind(
-        std::optional<int>{5},
-        [](int x) { return std::optional<int>{x * 2}; });
+    auto result = monad.bind(std::optional<int>{5},
+                             [](int x) { return std::optional<int>{x * 2}; });
     REQUIRE(result.has_value());
     CHECK(*result == 10);
 }
 
 TEST_CASE("MonadTypeclassTest - BindOptionalAbsent") {
     const auto &monad = smd::monad_typeclass<std::optional<int>>;
-    auto result = monad.bind(
-        std::optional<int>{},
-        [](int x) { return std::optional<int>{x * 2}; });
+    auto result = monad.bind(std::optional<int>{},
+                             [](int x) { return std::optional<int>{x * 2}; });
     CHECK_FALSE(result.has_value());
 }
 
@@ -101,7 +99,9 @@ TEST_CASE("MonadTypeclassTest - JoinOptionalInnerAbsent") {
 TEST_CASE("MonadTypeclassTest - LeftIdentityLaw") {
     // bind(pure(a), f) == f(a)
     const auto &monad = smd::monad_typeclass<std::optional<int>>;
-    auto f = [](int x) { return std::optional<std::string>{std::to_string(x)}; };
+    auto f = [](int x) {
+        return std::optional<std::string>{std::to_string(x)};
+    };
     int a = 42;
 
     auto lhs = monad.bind(monad.pure(a), f);
@@ -114,8 +114,7 @@ TEST_CASE("MonadTypeclassTest - RightIdentityLaw") {
     const auto &monad = smd::monad_typeclass<std::optional<int>>;
     std::optional<int> ma{99};
 
-    auto result = monad.bind(ma,
-        [](int x) { return std::optional<int>{x}; });
+    auto result = monad.bind(ma, [](int x) { return std::optional<int>{x}; });
     CHECK(result == ma);
 }
 
@@ -123,8 +122,7 @@ TEST_CASE("MonadTypeclassTest - RightIdentityLawAbsent") {
     const auto &monad = smd::monad_typeclass<std::optional<int>>;
     std::optional<int> ma{};
 
-    auto result = monad.bind(ma,
-        [](int x) { return std::optional<int>{x}; });
+    auto result = monad.bind(ma, [](int x) { return std::optional<int>{x}; });
     CHECK(result == ma);
 }
 
@@ -190,8 +188,7 @@ TEST_CASE("MonadTypeclassTest - SynthesizedApplyOptionalArgumentAbsent") {
 
 TEST_CASE("MonadOnlyTest - BindBreathing") {
     auto result = monad_only_int.bind(
-        MonadOnly<int>{5},
-        [](int x) { return MonadOnly<int>{x * 3}; });
+        MonadOnly<int>{5}, [](int x) { return MonadOnly<int>{x * 3}; });
     CHECK(result == MonadOnly<int>{15});
 }
 
@@ -223,8 +220,8 @@ TEST_CASE("MonadOnlyTest - LeftIdentityLaw") {
 
 TEST_CASE("MonadOnlyTest - RightIdentityLaw") {
     MonadOnly<int> ma{42};
-    auto result = monad_only_int.bind(ma,
-        [](int x) { return MonadOnly<int>{x}; });
+    auto result =
+        monad_only_int.bind(ma, [](int x) { return MonadOnly<int>{x}; });
     CHECK(result == ma);
 }
 
@@ -234,9 +231,8 @@ TEST_CASE("MonadOnlyTest - AssociativityLaw") {
     auto g = [](int x) { return MonadOnly<int>{x * 2}; };
 
     auto lhs = monad_only_int.bind(monad_only_int.bind(ma, f), g);
-    auto rhs = monad_only_int.bind(ma, [&](int a) {
-        return monad_only_int.bind(f(a), g);
-    });
+    auto rhs = monad_only_int.bind(
+        ma, [&](int a) { return monad_only_int.bind(f(a), g); });
     CHECK(lhs == rhs);
 }
 
@@ -245,7 +241,9 @@ TEST_CASE("MonadOnlyTest - AssociativityLaw") {
 TEST_CASE("MonadTypeclassTest - KleisliComposition") {
     const auto &monad = smd::monad_typeclass<std::optional<int>>;
     auto f = [](int x) { return std::optional<int>{x + 1}; };
-    auto g = [](int x) { return std::optional<std::string>{std::to_string(x)}; };
+    auto g = [](int x) {
+        return std::optional<std::string>{std::to_string(x)};
+    };
 
     auto composed = monad.kleisli(f, g);
     auto result = composed(9);
@@ -256,7 +254,9 @@ TEST_CASE("MonadTypeclassTest - KleisliComposition") {
 TEST_CASE("MonadTypeclassTest - KleisliCompositionShortCircuit") {
     const auto &monad = smd::monad_typeclass<std::optional<int>>;
     auto f = [](int) { return std::optional<int>{}; };
-    auto g = [](int x) { return std::optional<std::string>{std::to_string(x)}; };
+    auto g = [](int x) {
+        return std::optional<std::string>{std::to_string(x)};
+    };
 
     auto composed = monad.kleisli(f, g);
     auto result = composed(9);
@@ -266,9 +266,8 @@ TEST_CASE("MonadTypeclassTest - KleisliCompositionShortCircuit") {
 // -- Free-function API --
 
 TEST_CASE("MonadFreeFunctionTest - MBind") {
-    auto result = smd::mbind(
-        std::optional<int>{5},
-        [](int x) { return std::optional<int>{x * 2}; });
+    auto result = smd::mbind(std::optional<int>{5},
+                             [](int x) { return std::optional<int>{x * 2}; });
     REQUIRE(result.has_value());
     CHECK(*result == 10);
 }
@@ -284,10 +283,9 @@ TEST_CASE("MonadFreeFunctionTest - Join") {
 
 TEST_CASE("MonadTypeclassTest - BindWithExplicitMap") {
     const auto &monad = smd::monad_typeclass<std::optional<int>>;
-    auto result = monad.bind_with(
-        monad,
-        std::optional<int>{5},
-        [](int x) { return std::optional<int>{x + 1}; });
+    auto result = monad.bind_with(monad, std::optional<int>{5}, [](int x) {
+        return std::optional<int>{x + 1};
+    });
     REQUIRE(result.has_value());
     CHECK(*result == 6);
 }

@@ -59,7 +59,7 @@ class FingerTreeRope {
             return {*this, FingerTreeRope{}};
 
         auto left_prefix_bytes = split->d_left.measure();
-        auto local             = pos - left_prefix_bytes;
+        auto local = pos - left_prefix_bytes;
 
         const auto &pivot = split->d_pivot;
         assert(local < pivot.size());
@@ -113,23 +113,27 @@ class FingerTreeRope {
         return out;
     }
 
-    /** Returns a new rope with @p text inserted at byte position @p pos; O(log n). */
-    auto insert(std::size_t pos, std::string_view text) const -> FingerTreeRope {
+    /** Returns a new rope with @p text inserted at byte position @p pos; O(log
+     * n). */
+    auto insert(std::size_t pos, std::string_view text) const
+        -> FingerTreeRope {
         auto [left, right] = split_chars(pos);
-        auto middle        = from_text(text);
-        return FingerTreeRope{
-            Tree::concat(Tree::concat(left.d_tree, middle.d_tree), right.d_tree)};
+        auto middle = from_text(text);
+        return FingerTreeRope{Tree::concat(
+            Tree::concat(left.d_tree, middle.d_tree), right.d_tree)};
     }
 
-    /** Returns a new rope with @p count bytes removed starting at @p pos; O(log n). */
+    /** Returns a new rope with @p count bytes removed starting at @p pos; O(log
+     * n). */
     auto erase(std::size_t pos, std::size_t count) const -> FingerTreeRope {
-        auto [left, rest]  = split_chars(pos);
+        auto [left, rest] = split_chars(pos);
         auto [drop, right] = rest.split_chars(count);
         static_cast<void>(drop);
         return FingerTreeRope{Tree::concat(left.d_tree, right.d_tree)};
     }
 
-    /** Returns a new rope with @p count bytes at @p pos replaced by @p text; O(log n). */
+    /** Returns a new rope with @p count bytes at @p pos replaced by @p text;
+     * O(log n). */
     auto replace(std::size_t pos, std::size_t count,
                  std::string_view text) const -> FingerTreeRope {
         return erase(pos, count).insert(pos, text);

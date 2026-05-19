@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <smd/tree/finger_tree5_pmr.hpp>
-#include <smd/tree/finger_tree5_pmr.hpp>  // Re-inclusion verification
+#include <smd/tree/finger_tree5_pmr.hpp> // Re-inclusion verification
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -24,20 +24,18 @@ using FT = smd::tree::pmr::FingerTree5<int>;
 static_assert(std::ranges::bidirectional_range<FT>);
 static_assert(std::ranges::sized_range<FT>);
 static_assert(std::same_as<FT::allocator_type,
-                            std::pmr::polymorphic_allocator<std::byte>>);
+                           std::pmr::polymorphic_allocator<std::byte>>);
 
 TEST_CASE("pmr::FingerTree5 - HeaderIsIdempotent") { REQUIRE(true); }
 
-TEST_CASE("pmr::FingerTree5 - default construction uses default resource")
-{
+TEST_CASE("pmr::FingerTree5 - default construction uses default resource") {
     FT t;
     CHECK(t.empty());
     CHECK(t.size() == 0U);
     CHECK(t.get_allocator().resource() == std::pmr::get_default_resource());
 }
 
-TEST_CASE("pmr::FingerTree5 - monotonic_buffer_resource")
-{
+TEST_CASE("pmr::FingerTree5 - monotonic_buffer_resource") {
     std::array<std::byte, 65536> buf{};
     std::pmr::monotonic_buffer_resource mr(buf.data(), buf.size());
 
@@ -55,8 +53,7 @@ TEST_CASE("pmr::FingerTree5 - monotonic_buffer_resource")
         CHECK(flat[static_cast<std::size_t>(i)] == i + 1);
 }
 
-TEST_CASE("pmr::FingerTree5 - cons/snoc use custom resource")
-{
+TEST_CASE("pmr::FingerTree5 - cons/snoc use custom resource") {
     std::pmr::monotonic_buffer_resource mr;
     FT t(&mr);
 
@@ -68,8 +65,7 @@ TEST_CASE("pmr::FingerTree5 - cons/snoc use custom resource")
     CHECK(t.last() == 49);
 }
 
-TEST_CASE("pmr::FingerTree5 - split and append work")
-{
+TEST_CASE("pmr::FingerTree5 - split and append work") {
     std::pmr::monotonic_buffer_resource mr;
     auto t = FT::from_sequence({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, &mr);
 
@@ -80,8 +76,7 @@ TEST_CASE("pmr::FingerTree5 - split and append work")
     CHECK(sp->d_right.size() == 5U);
 }
 
-TEST_CASE("pmr::FingerTree5 - Container requirements satisfied")
-{
+TEST_CASE("pmr::FingerTree5 - Container requirements satisfied") {
     std::pmr::monotonic_buffer_resource mr;
     auto a = FT::from_sequence({1, 2, 3}, &mr);
     auto b = FT::from_sequence({1, 2, 3}, &mr);
@@ -99,8 +94,7 @@ TEST_CASE("pmr::FingerTree5 - Container requirements satisfied")
     CHECK(rev == (std::vector<int>{6, 5, 4}));
 }
 
-TEST_CASE("pmr::FingerTree5 - pool_resource for node reuse")
-{
+TEST_CASE("pmr::FingerTree5 - pool_resource for node reuse") {
     std::pmr::unsynchronized_pool_resource pool;
     auto t = FT::from_sequence({}, &pool);
 
@@ -117,8 +111,8 @@ TEST_CASE("pmr::FingerTree5 - pool_resource for node reuse")
 //              Allocator coherency tests (Lakos rule)
 // ============================================================================
 
-TEST_CASE("pmr::FingerTree5 - extended constructor: same resource shares data")
-{
+TEST_CASE(
+    "pmr::FingerTree5 - extended constructor: same resource shares data") {
     std::pmr::monotonic_buffer_resource mr;
     auto t = FT::from_sequence({1, 2, 3, 4, 5}, &mr);
     CHECK(t.get_allocator().resource() == &mr);
@@ -129,8 +123,8 @@ TEST_CASE("pmr::FingerTree5 - extended constructor: same resource shares data")
     CHECK(t2.flatten() == (std::vector<int>{1, 2, 3, 4, 5}));
 }
 
-TEST_CASE("pmr::FingerTree5 - extended constructor: different resource rebuilds")
-{
+TEST_CASE(
+    "pmr::FingerTree5 - extended constructor: different resource rebuilds") {
     std::pmr::monotonic_buffer_resource mr1;
     std::pmr::monotonic_buffer_resource mr2;
 
@@ -143,8 +137,7 @@ TEST_CASE("pmr::FingerTree5 - extended constructor: different resource rebuilds"
     CHECK(t2.flatten() == (std::vector<int>{10, 20, 30}));
 }
 
-TEST_CASE("pmr::FingerTree5 - append: same resource uses structural sharing")
-{
+TEST_CASE("pmr::FingerTree5 - append: same resource uses structural sharing") {
     std::pmr::monotonic_buffer_resource mr;
     auto a = FT::from_sequence({1, 2, 3}, &mr);
     auto b = FT::from_sequence({4, 5, 6}, &mr);
@@ -154,8 +147,8 @@ TEST_CASE("pmr::FingerTree5 - append: same resource uses structural sharing")
     CHECK(c.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6}));
 }
 
-TEST_CASE("pmr::FingerTree5 - append: different resources rebuilds right side")
-{
+TEST_CASE(
+    "pmr::FingerTree5 - append: different resources rebuilds right side") {
     std::pmr::monotonic_buffer_resource mr1;
     std::pmr::monotonic_buffer_resource mr2;
 
@@ -168,8 +161,7 @@ TEST_CASE("pmr::FingerTree5 - append: different resources rebuilds right side")
     CHECK(c.flatten() == (std::vector<int>{1, 2, 3, 4, 5, 6}));
 }
 
-TEST_CASE("pmr::FingerTree5 - move assignment: same resource fast path")
-{
+TEST_CASE("pmr::FingerTree5 - move assignment: same resource fast path") {
     std::pmr::monotonic_buffer_resource mr;
     FT t(&mr);
     auto src = FT::from_sequence({7, 8, 9}, &mr);
@@ -179,8 +171,7 @@ TEST_CASE("pmr::FingerTree5 - move assignment: same resource fast path")
     CHECK(t.flatten() == (std::vector<int>{7, 8, 9}));
 }
 
-TEST_CASE("pmr::FingerTree5 - copy assignment: different resource rebuilds")
-{
+TEST_CASE("pmr::FingerTree5 - copy assignment: different resource rebuilds") {
     std::pmr::monotonic_buffer_resource mr1;
     std::pmr::monotonic_buffer_resource mr2;
 
@@ -223,8 +214,8 @@ struct GlobalAllocGuard {
     std::size_t before_new;
     std::size_t before_del;
     GlobalAllocGuard()
-        : before_new(g_global_new_count.load())
-        , before_del(g_global_delete_count.load()) {}
+        : before_new(g_global_new_count.load()),
+          before_del(g_global_delete_count.load()) {}
     auto new_since() const -> std::size_t {
         return g_global_new_count.load() - before_new;
     }
@@ -232,27 +223,27 @@ struct GlobalAllocGuard {
 
 } // namespace
 
-void* operator new(std::size_t n) {
+void *operator new(std::size_t n) {
     ++g_global_new_count;
     return std::malloc(n);
 }
-void* operator new[](std::size_t n) {
+void *operator new[](std::size_t n) {
     ++g_global_new_count;
     return std::malloc(n);
 }
-void operator delete(void* p) noexcept {
+void operator delete(void *p) noexcept {
     ++g_global_delete_count;
     std::free(p);
 }
-void operator delete[](void* p) noexcept {
+void operator delete[](void *p) noexcept {
     ++g_global_delete_count;
     std::free(p);
 }
-void operator delete(void* p, std::size_t) noexcept {
+void operator delete(void *p, std::size_t) noexcept {
     ++g_global_delete_count;
     std::free(p);
 }
-void operator delete[](void* p, std::size_t) noexcept {
+void operator delete[](void *p, std::size_t) noexcept {
     ++g_global_delete_count;
     std::free(p);
 }
@@ -262,38 +253,32 @@ void operator delete[](void* p, std::size_t) noexcept {
 struct AllocAwareValue {
     using allocator_type = std::pmr::polymorphic_allocator<std::byte>;
 
-    int                                     d_value;
-    std::pmr::memory_resource*              d_resource;
-    std::pmr::polymorphic_allocator<char>   d_str_alloc;
-    std::pmr::string                        d_label;
+    int d_value;
+    std::pmr::memory_resource *d_resource;
+    std::pmr::polymorphic_allocator<char> d_str_alloc;
+    std::pmr::string d_label;
 
-    AllocAwareValue(int v, const allocator_type& alloc = {})
-        : d_value(v)
-        , d_resource(alloc.resource())
-        , d_str_alloc(alloc.resource())
-        , d_label("item", d_str_alloc) {}
+    AllocAwareValue(int v, const allocator_type &alloc = {})
+        : d_value(v), d_resource(alloc.resource()),
+          d_str_alloc(alloc.resource()), d_label("item", d_str_alloc) {}
 
-    AllocAwareValue(const AllocAwareValue& o, const allocator_type& alloc = {})
-        : d_value(o.d_value)
-        , d_resource(alloc.resource())
-        , d_str_alloc(alloc.resource())
-        , d_label(o.d_label, d_str_alloc) {}
+    AllocAwareValue(const AllocAwareValue &o, const allocator_type &alloc = {})
+        : d_value(o.d_value), d_resource(alloc.resource()),
+          d_str_alloc(alloc.resource()), d_label(o.d_label, d_str_alloc) {}
 
-    AllocAwareValue(AllocAwareValue&& o, const allocator_type& alloc = {})
-        : d_value(o.d_value)
-        , d_resource(alloc.resource())
-        , d_str_alloc(alloc.resource())
-        , d_label(std::move(o.d_label), d_str_alloc) {}
+    AllocAwareValue(AllocAwareValue &&o, const allocator_type &alloc = {})
+        : d_value(o.d_value), d_resource(alloc.resource()),
+          d_str_alloc(alloc.resource()),
+          d_label(std::move(o.d_label), d_str_alloc) {}
 
-    auto resource() const -> std::pmr::memory_resource* { return d_resource; }
-    auto operator==(const AllocAwareValue& o) const -> bool {
+    auto resource() const -> std::pmr::memory_resource * { return d_resource; }
+    auto operator==(const AllocAwareValue &o) const -> bool {
         return d_value == o.d_value;
     }
 };
 
 TEST_CASE("pmr::FingerTree5 - Elem and Deep allocs stay within resource, "
-          "no global heap escape for data nodes")
-{
+          "no global heap escape for data nodes") {
     std::array<std::byte, 1 << 20> buf{}; // 1 MB arena
     std::pmr::monotonic_buffer_resource mr(buf.data(), buf.size(),
                                            std::pmr::null_memory_resource());
@@ -305,11 +290,13 @@ TEST_CASE("pmr::FingerTree5 - Elem and Deep allocs stay within resource, "
         GlobalAllocGuard g;
         auto t = FTI::from_sequence(std::vector<int>(50, 0), &mr);
         // The null_memory_resource upstream ensures any accidental global-heap
-        // allocation would throw std::bad_alloc, making the test self-enforcing.
-        // If we reach here, all allocations stayed within the 1 MB arena.
+        // allocation would throw std::bad_alloc, making the test
+        // self-enforcing. If we reach here, all allocations stayed within the 1
+        // MB arena.
         CHECK(t.size() == 50U);
         INFO("global new calls during from_sequence: " << g.new_since());
-        // flatten() uses std::vector (global heap); count its allocs separately.
+        // flatten() uses std::vector (global heap); count its allocs
+        // separately.
     }
 
     {
@@ -322,16 +309,16 @@ TEST_CASE("pmr::FingerTree5 - Elem and Deep allocs stay within resource, "
     }
 }
 
-TEST_CASE("pmr::FingerTree5 - allocator-aware T: allocator propagates into elements")
-{
+TEST_CASE("pmr::FingerTree5 - allocator-aware T: allocator propagates into "
+          "elements") {
     std::array<std::byte, 1 << 20> buf{};
     std::pmr::monotonic_buffer_resource mr(buf.data(), buf.size(),
                                            std::pmr::null_memory_resource());
 
-    using FTA = smd::tree::FingerTree5<AllocAwareValue,
-                                        std::size_t,
-                                        smd::tree::UnitMeasure5<AllocAwareValue, std::size_t>,
-                                        std::pmr::polymorphic_allocator<std::byte>>;
+    using FTA = smd::tree::FingerTree5<
+        AllocAwareValue, std::size_t,
+        smd::tree::UnitMeasure5<AllocAwareValue, std::size_t>,
+        std::pmr::polymorphic_allocator<std::byte>>;
 
     // Construct values using the arena allocator.
     std::pmr::polymorphic_allocator<std::byte> pa(&mr);
@@ -355,8 +342,8 @@ TEST_CASE("pmr::FingerTree5 - allocator-aware T: allocator propagates into eleme
     CHECK(flat[2].d_value == 2);
 }
 
-TEST_CASE("pmr::FingerTree5 - allocator propagates through view/tail/init/split results")
-{
+TEST_CASE("pmr::FingerTree5 - allocator propagates through "
+          "view/tail/init/split results") {
     std::pmr::monotonic_buffer_resource mr;
     auto t = FT::from_sequence({1, 2, 3, 4, 5}, &mr);
     CHECK(t.get_allocator().resource() == &mr);

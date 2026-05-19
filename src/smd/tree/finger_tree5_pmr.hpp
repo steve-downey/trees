@@ -1,9 +1,10 @@
-// src/smd/tree/finger_tree5_pmr.hpp                                    -*-C++-*-
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// src/smd/tree/finger_tree5_pmr.hpp -*-C++-*- SPDX-License-Identifier:
+// Apache-2.0 WITH LLVM-exception
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE5_PMR
 #define INCLUDED_SMD_TREE_FINGER_TREE5_PMR
 
-// Convenience aliases for FingerTree5 backed by std::pmr::polymorphic_allocator.
+// Convenience aliases for FingerTree5 backed by
+// std::pmr::polymorphic_allocator.
 //
 // Usage:
 //   #include <smd/tree/finger_tree5_pmr.hpp>
@@ -23,8 +24,7 @@
 
 namespace smd::tree::pmr {
 
-template <typename T,
-          typename TAG_TYPE       = std::size_t,
+template <typename T, typename TAG_TYPE = std::size_t,
           typename MEASURE_POLICY = UnitMeasure5<T, TAG_TYPE>>
 using FingerTree5 =
     smd::tree::FingerTree5<T, TAG_TYPE, MEASURE_POLICY,

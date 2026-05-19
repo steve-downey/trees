@@ -30,8 +30,9 @@ struct Functor : protected Impl<C> {
     }
 };
 
-/** Concept-map lookup object for the Functor typeclass (older conceptmap surface).
- * Defaults to `std::false_type`; specialize for each supported container type.
+/** Concept-map lookup object for the Functor typeclass (older conceptmap
+ * surface). Defaults to `std::false_type`; specialize for each supported
+ * container type.
  */
 template <typename C>
 auto functor_concept_map = std::false_type{};

@@ -19,7 +19,8 @@ namespace smd {
  */
 template <class VIEW>
 struct ListRangeFoldableImpl {
-    /** Map @p function over all elements and combine results via their Monoid. */
+    /** Map @p function over all elements and combine results via their Monoid.
+     */
     template <class FUNCTION>
     auto fold_map(this auto &&self, FUNCTION &&function,
                   const smd::ranges::list_range<VIEW> &values) {
@@ -117,7 +118,8 @@ struct ListRangeFoldableMap : Foldable<ListRangeFoldableImpl<VIEW>> {
     using ListRangeFoldableImpl<VIEW>::to_vector;
 };
 
-/** Registers ListRangeFoldableMap as the Foldable instance for list_range<VIEW>. */
+/** Registers ListRangeFoldableMap as the Foldable instance for
+ * list_range<VIEW>. */
 template <class VIEW>
 inline constexpr auto foldable_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeFoldableMap<VIEW>{};

@@ -4,32 +4,28 @@
 // Exercises FingerTreeRope with an explicitly FT5-backed tree and cross-checks
 // FT2-backed vs FT5-backed output for semantic equivalence.
 
-#include <smd/tree/finger_tree_rope.hpp>
 #include <smd/tree/finger_tree2.hpp>
+#include <smd/tree/finger_tree_rope.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <string>
 #include <vector>
 
-using FT5Rope = smd::tree::FingerTreeRope<
-    smd::tree::FingerTree5<std::string, std::size_t,
-                           smd::tree::RopeChunkMeasure>>;
+using FT5Rope = smd::tree::FingerTreeRope<smd::tree::FingerTree5<
+    std::string, std::size_t, smd::tree::RopeChunkMeasure>>;
 
-using FT2Rope = smd::tree::FingerTreeRope<
-    smd::tree::FingerTree2<std::string, std::size_t,
-                           smd::tree::RopeChunkMeasure>>;
+using FT2Rope = smd::tree::FingerTreeRope<smd::tree::FingerTree2<
+    std::string, std::size_t, smd::tree::RopeChunkMeasure>>;
 
-TEST_CASE("RopeFT5 - FromTextAndToString")
-{
+TEST_CASE("RopeFT5 - FromTextAndToString") {
     auto r = FT5Rope::from_text("hello world", 4);
     CHECK(r.to_string() == "hello world");
     CHECK(r.size_bytes() == 11U);
 }
 
-TEST_CASE("RopeFT5 - InsertAndErase")
-{
-    auto r   = FT5Rope::from_text("hello world");
+TEST_CASE("RopeFT5 - InsertAndErase") {
+    auto r = FT5Rope::from_text("hello world");
     auto ins = r.insert(5, ", dear");
     CHECK(ins.to_string() == "hello, dear world");
 
@@ -37,15 +33,13 @@ TEST_CASE("RopeFT5 - InsertAndErase")
     CHECK(era.to_string() == "hello world");
 }
 
-TEST_CASE("RopeFT5 - Replace")
-{
-    auto r   = FT5Rope::from_text("foo bar baz");
+TEST_CASE("RopeFT5 - Replace") {
+    auto r = FT5Rope::from_text("foo bar baz");
     auto rep = r.replace(4, 3, "qux");
     CHECK(rep.to_string() == "foo qux baz");
 }
 
-TEST_CASE("RopeFT5 - CrossCheckWithFT2")
-{
+TEST_CASE("RopeFT5 - CrossCheckWithFT2") {
     std::string text = "The quick brown fox jumps over the lazy dog";
 
     auto ft5 = FT5Rope::from_text(text, 8);

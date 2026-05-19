@@ -57,8 +57,9 @@ struct Traversable : protected Impl {
     // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46 end
 
     // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79
-    /** Sequences a container of effectful values into a single effect containing
-     * the container. The element type must itself be an applicative context.
+    /** Sequences a container of effectful values into a single effect
+     * containing the container. The element type must itself be an applicative
+     * context.
      */
     template <class T>
     auto sequence(this auto &&self, T &&value) {
@@ -70,8 +71,8 @@ struct Traversable : protected Impl {
     }
     // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79 end
 
-    /** Traverses using a different traversable instance; applicative is inferred
-     * from the return type of `function`.
+    /** Traverses using a different traversable instance; applicative is
+     * inferred from the return type of `function`.
      */
     template <class TRAVERSABLE_MAP, class T, class F>
     auto traverse_with(this auto &&, const TRAVERSABLE_MAP &traversable_map,
@@ -92,8 +93,8 @@ struct Traversable : protected Impl {
             applicative_map, std::forward<F>(function), std::forward<T>(value));
     }
 
-    /** Sequences using a different traversable instance; applicative is inferred
-     * from the container's element type.
+    /** Sequences using a different traversable instance; applicative is
+     * inferred from the container's element type.
      */
     template <class TRAVERSABLE_MAP, class T>
     auto sequence_with(this auto &&self, const TRAVERSABLE_MAP &traversable_map,
@@ -106,7 +107,8 @@ struct Traversable : protected Impl {
     // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11 end
 };
 
-/** Typeclass lookup variable for Traversable; specialize for each container type. */
+/** Typeclass lookup variable for Traversable; specialize for each container
+ * type. */
 template <class T>
 inline constexpr auto traversable_typeclass = std::false_type{};
 

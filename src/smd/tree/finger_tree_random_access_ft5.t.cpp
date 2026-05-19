@@ -4,8 +4,8 @@
 // Exercises FingerTreeRandomAccess with an explicitly FT5-backed tree,
 // and cross-checks FT2-backed vs FT5-backed output for semantic equivalence.
 
+#include <smd/tree/finger_tree2.hpp> // for cross-check test
 #include <smd/tree/finger_tree_random_access.hpp>
-#include <smd/tree/finger_tree2.hpp>  // for cross-check test
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -23,15 +23,13 @@ using FT2Seq = smd::tree::FingerTreeRandomAccess<
     int, smd::tree::FingerTree2<int, std::size_t,
                                 smd::tree::UnitMeasure2<int, std::size_t>>>;
 
-TEST_CASE("RandomAccessFT5 - EmptyAndSize")
-{
+TEST_CASE("RandomAccessFT5 - EmptyAndSize") {
     FT5Seq seq;
     CHECK(seq.empty());
     CHECK(seq.size() == 0U);
 }
 
-TEST_CASE("RandomAccessFT5 - PushBackAndAt")
-{
+TEST_CASE("RandomAccessFT5 - PushBackAndAt") {
     auto seq = FT5Seq{};
     for (int i = 0; i < 10; ++i)
         seq = seq.push_back(i);
@@ -43,8 +41,7 @@ TEST_CASE("RandomAccessFT5 - PushBackAndAt")
     CHECK(!seq.at(10).has_value());
 }
 
-TEST_CASE("RandomAccessFT5 - PushFront")
-{
+TEST_CASE("RandomAccessFT5 - PushFront") {
     auto seq = FT5Seq{};
     for (int i = 0; i < 5; ++i)
         seq = seq.push_front(i); // 4 3 2 1 0
@@ -52,8 +49,7 @@ TEST_CASE("RandomAccessFT5 - PushFront")
     CHECK(seq.to_vector() == (std::vector<int>{4, 3, 2, 1, 0}));
 }
 
-TEST_CASE("RandomAccessFT5 - InsertAndErase")
-{
+TEST_CASE("RandomAccessFT5 - InsertAndErase") {
     auto seq = FT5Seq::from_sequence({1, 2, 4, 5});
     auto ins = seq.insert(2, 3); // {1, 2, 3, 4, 5}
     CHECK(ins.to_vector() == (std::vector<int>{1, 2, 3, 4, 5}));
@@ -62,28 +58,25 @@ TEST_CASE("RandomAccessFT5 - InsertAndErase")
     CHECK(era.to_vector() == (std::vector<int>{1, 2, 4, 5}));
 }
 
-TEST_CASE("RandomAccessFT5 - Update")
-{
+TEST_CASE("RandomAccessFT5 - Update") {
     auto seq = FT5Seq::from_sequence({1, 2, 3, 4, 5});
     auto upd = seq.update(2, 99);
     CHECK(upd.to_vector() == (std::vector<int>{1, 2, 99, 4, 5}));
 }
 
-TEST_CASE("RandomAccessFT5 - LargeTree")
-{
+TEST_CASE("RandomAccessFT5 - LargeTree") {
     // Exercises spine structure (> 4 elements forces a non-trivial spine).
     auto seq = FT5Seq{};
     for (int i = 0; i < 300; ++i)
         seq = seq.push_back(i);
 
     CHECK(seq.size() == 300U);
-    CHECK(seq.at(0)   == std::optional{0});
+    CHECK(seq.at(0) == std::optional{0});
     CHECK(seq.at(150) == std::optional{150});
     CHECK(seq.at(299) == std::optional{299});
 }
 
-TEST_CASE("RandomAccessFT5 - CrossCheckWithFT2")
-{
+TEST_CASE("RandomAccessFT5 - CrossCheckWithFT2") {
     // Build the same content with FT5-backed and FT2-backed wrappers,
     // then verify all operations return equivalent results.
     constexpr int kN = 50;

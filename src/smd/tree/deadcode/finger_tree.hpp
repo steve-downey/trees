@@ -97,7 +97,8 @@ struct UnitMeasure {
     }
 };
 
-/** Measure policy that lifts the cached measure stored inside a Node variant. */
+/** Measure policy that lifts the cached measure stored inside a Node variant.
+ */
 template <typename NODE_T, typename TAG_TYPE>
 struct NodeMeasure {
     auto operator()(const NODE_T &node) const -> TAG_TYPE {
@@ -113,7 +114,8 @@ struct NodeMeasure {
  * @tparam MEASURE_POLICY Callable that maps a @p T value to a @p TAG_TYPE
  *                        measure; must be default-constructible.
  * @tparam DEPTH          NTTP used to break polymorphic recursion; the spine is
- *                        a @c FingerTree<Node<T>, TAG_TYPE, NodeMeasure, DEPTH+1>.
+ *                        a @c FingerTree<Node<T>, TAG_TYPE, NodeMeasure,
+ * DEPTH+1>.
  *
  * Complexity:
  * - cons/snoc:        O(1) amortized
@@ -778,7 +780,8 @@ class FingerTree {
     /** The monoid measure type annotating each node. */
     using tag_type = Tag;
 
-    /** Result of view_l() / view_r(): the exposed element and the remaining tree. */
+    /** Result of view_l() / view_r(): the exposed element and the remaining
+     * tree. */
     struct View {
         T d_value;
         FingerTree d_rest;
@@ -965,7 +968,8 @@ class FingerTree {
             d_repr);
     }
 
-    /** Returns the single element stored in a leaf tree; asserts if not a leaf. */
+    /** Returns the single element stored in a leaf tree; asserts if not a leaf.
+     */
     auto value() const -> const T & {
         assert(is_leaf());
         return std::get<Single>(d_repr).d_value;
@@ -1110,7 +1114,8 @@ class FingerTree {
                    d_repr);
     }
 
-    /** Decomposes into (head, tail); returns nullopt on an empty tree; O(1) amortized. */
+    /** Decomposes into (head, tail); returns nullopt on an empty tree; O(1)
+     * amortized. */
     auto view_l() const -> std::optional<View> {
         return std::visit(
             detail::overloaded{
@@ -1132,7 +1137,8 @@ class FingerTree {
             d_repr);
     }
 
-    /** Decomposes into (init, last); returns nullopt on an empty tree; O(1) amortized. */
+    /** Decomposes into (init, last); returns nullopt on an empty tree; O(1)
+     * amortized. */
     auto view_r() const -> std::optional<View> {
         return std::visit(detail::overloaded{
                               [](const Empty &) -> std::optional<View> {
@@ -1161,7 +1167,8 @@ class FingerTree {
         return std::move(v->d_value);
     }
 
-    /** Returns the tree without its first element; returns empty if already empty. */
+    /** Returns the tree without its first element; returns empty if already
+     * empty. */
     auto tail() const -> FingerTree {
         auto v = view_l();
         return v.has_value() ? std::move(v->d_rest) : empty();
@@ -1174,13 +1181,15 @@ class FingerTree {
         return std::move(v->d_value);
     }
 
-    /** Returns the tree without its last element; returns empty if already empty. */
+    /** Returns the tree without its last element; returns empty if already
+     * empty. */
     auto init() const -> FingerTree {
         auto v = view_r();
         return v.has_value() ? std::move(v->d_rest) : empty();
     }
 
-    /** Returns the pivot value from split(@p predicate), or nullopt; O(log n). */
+    /** Returns the pivot value from split(@p predicate), or nullopt; O(log n).
+     */
     template <typename PREDICATE>
     auto search(PREDICATE &&predicate) const -> std::optional<T> {
         auto sp = split(std::forward<PREDICATE>(predicate));

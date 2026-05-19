@@ -16,7 +16,7 @@ namespace smd {
 
 /** Applicative typeclass instance for list_range<VIEW> with Cartesian-product
  * (nondeterminism / list-monad) semantics.
- * 
+ *
  * pure(x) = {x} (singleton range).
  * apply(fs, xs) = {f(x) | f <- fs, x <- xs} — every function applied to
  * every argument, producing all combinations in fs-major order.
@@ -69,7 +69,8 @@ struct ListRangeApplicativeMap : Applicative<ListRangeApplicativeImpl<VIEW>> {
     using ListRangeApplicativeImpl<VIEW>::pure;
 };
 
-/** Registers ListRangeApplicativeMap as the Applicative instance for list_range<VIEW>. */
+/** Registers ListRangeApplicativeMap as the Applicative instance for
+ * list_range<VIEW>. */
 template <class VIEW>
 inline constexpr auto applicative_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeApplicativeMap<VIEW>{};

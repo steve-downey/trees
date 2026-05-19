@@ -11,18 +11,15 @@
 #include <optional>
 #include <vector>
 
-TEST_CASE("FingerTree5TraversableTest - TraverseOptionalSucceeds")
-{
+TEST_CASE("FingerTree5TraversableTest - TraverseOptionalSucceeds") {
     using Tree = smd::tree::FingerTree5<int>;
     auto t = Tree::from_sequence({1, 2, 3});
-    auto result =
-        smd::traverse([](int x) { return std::optional{x * 10}; }, t);
+    auto result = smd::traverse([](int x) { return std::optional{x * 10}; }, t);
     REQUIRE(result.has_value());
     CHECK(result->flatten() == (std::vector<int>{10, 20, 30}));
 }
 
-TEST_CASE("FingerTree5TraversableTest - TraverseOptionalFailsOnNullopt")
-{
+TEST_CASE("FingerTree5TraversableTest - TraverseOptionalFailsOnNullopt") {
     using Tree = smd::tree::FingerTree5<int>;
     auto t = Tree::from_sequence({1, 2, 3});
     auto result = smd::traverse(
@@ -33,8 +30,7 @@ TEST_CASE("FingerTree5TraversableTest - TraverseOptionalFailsOnNullopt")
     CHECK_FALSE(result.has_value());
 }
 
-TEST_CASE("FingerTree5TraversableTest - TraversePreservesShape")
-{
+TEST_CASE("FingerTree5TraversableTest - TraversePreservesShape") {
     using Tree = smd::tree::FingerTree5<int>;
     auto t = Tree::from_sequence({10, 20, 30, 40});
     auto result = smd::traverse([](int x) { return std::optional{x + 1}; }, t);
@@ -42,8 +38,7 @@ TEST_CASE("FingerTree5TraversableTest - TraversePreservesShape")
     CHECK(result->flatten() == (std::vector<int>{11, 21, 31, 41}));
 }
 
-TEST_CASE("FingerTree5TraversableTest - TraverseOverLargeTree")
-{
+TEST_CASE("FingerTree5TraversableTest - TraverseOverLargeTree") {
     // Cover the spine-Node3 path: tree large enough that the spine has
     // structure when traverse materializes it.
     using Tree = smd::tree::FingerTree5<int>;

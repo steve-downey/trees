@@ -32,7 +32,8 @@ struct ListRangeFunctorMap : Functor<ListRangeFunctorImpl<VIEW>> {
     using ListRangeFunctorImpl<VIEW>::fmap;
 };
 
-/** Registers ListRangeFunctorMap as the Functor instance for list_range<VIEW>. */
+/** Registers ListRangeFunctorMap as the Functor instance for list_range<VIEW>.
+ */
 template <class VIEW>
 inline constexpr auto functor_typeclass<smd::ranges::list_range<VIEW>> =
     ListRangeFunctorMap<VIEW>{};

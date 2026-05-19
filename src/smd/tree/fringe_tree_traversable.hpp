@@ -64,7 +64,8 @@ struct FringeTreeTraversableMap : Traversable<FringeTreeTraversableImpl<T>> {
     using FringeTreeTraversableImpl<T>::traverse;
 };
 
-/** Registers FringeTreeTraversableMap as the Traversable instance for FringeTree<T>. */
+/** Registers FringeTreeTraversableMap as the Traversable instance for
+ * FringeTree<T>. */
 template <class T>
 inline constexpr auto traversable_typeclass<smd::tree::FringeTree<T>> =
     FringeTreeTraversableMap<T>{};

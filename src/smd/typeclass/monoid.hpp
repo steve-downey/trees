@@ -27,7 +27,8 @@ namespace smd::typeclass {
 template <class VALUE_TYPE>
 struct Monoid;
 
-/** Canonical lookup object for Monoid<VALUE_TYPE>; used by generic algorithms. */
+/** Canonical lookup object for Monoid<VALUE_TYPE>; used by generic algorithms.
+ */
 template <class VALUE_TYPE>
 inline constexpr Monoid<VALUE_TYPE> monoid_v = Monoid<VALUE_TYPE>{};
 

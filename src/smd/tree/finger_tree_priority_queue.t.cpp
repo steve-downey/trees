@@ -184,7 +184,7 @@ TEST_CASE("FingerTreePriorityQueueTest - Empty") {
 TEST_CASE("FingerTreePriorityQueueTest - PopMinAllSorted") {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
-    auto q = Queue::from_values({9, 3, 7, 1, 5, 8, 2, 6, 4, 10,
+    auto q = Queue::from_values({9,  3,  7,  1,  5,  8,  2,  6,  4,  10,
                                  15, 13, 11, 14, 12, 20, 18, 16, 19, 17});
     std::vector<int> extracted;
     while (!q.empty()) {
@@ -202,7 +202,7 @@ TEST_CASE("FingerTreePriorityQueueTest - PopMinAllSorted") {
 TEST_CASE("FingerTreePriorityQueueTest - PopMaxAllReverseSorted") {
     using Queue = smd::tree::FingerTreePriorityQueue<int>;
 
-    auto q = Queue::from_values({9, 3, 7, 1, 5, 8, 2, 6, 4, 10,
+    auto q = Queue::from_values({9,  3,  7,  1,  5,  8,  2,  6,  4,  10,
                                  15, 13, 11, 14, 12, 20, 18, 16, 19, 17});
     std::vector<int> extracted;
     while (!q.empty()) {

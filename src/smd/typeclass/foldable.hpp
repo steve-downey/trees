@@ -356,7 +356,8 @@ struct Foldable : protected Impl {
     // a6d2c8f3-1e7b-4a5d-b9f4-3c8e2a7d1b09 end
     // e3a1b1a2-6adf-4cb9-8c85-c0e39a7b98f2 end
 
-    /** Returns the first element satisfying `predicate`, or an empty optional. */
+    /** Returns the first element satisfying `predicate`, or an empty optional.
+     */
     template <class T, class PREDICATE>
     auto find_first(this auto &&self, T &&value, PREDICATE &&predicate) {
         const auto result = self.fold_map(
@@ -373,7 +374,8 @@ struct Foldable : protected Impl {
     }
 };
 
-/** Typeclass lookup variable for Foldable; specialize for each container type. */
+/** Typeclass lookup variable for Foldable; specialize for each container type.
+ */
 template <class T>
 inline constexpr auto foldable_typeclass = std::false_type{};
 

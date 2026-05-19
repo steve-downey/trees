@@ -8,7 +8,8 @@
 //
 //   cd .build/build-clang
 //   ninja smd_tree_benchmarks
-//   ./RelWithDebInfo/smd_tree_benchmarks --benchmark-samples 100 --benchmark-warmup-time 1
+//   ./RelWithDebInfo/smd_tree_benchmarks --benchmark-samples 100
+//   --benchmark-warmup-time 1
 //
 // To run a single section:
 //   ./RelWithDebInfo/smd_tree_benchmarks "Bench snoc" --benchmark-samples 50
@@ -128,30 +129,30 @@ auto sum_for_each(const Tree &t) -> int {
 // ============================================================================
 
 TEST_CASE("Bench A snoc") {
-    BENCHMARK("FT2 100")    { return build_snoc<FT2>(100).measure(); };
-    BENCHMARK("FT3 100")    { return build_snoc<FT3>(100).measure(); };
-    BENCHMARK("FT4 100")    { return build_snoc<FT4>(100).measure(); };
-    BENCHMARK("FT5 100")    { return build_snoc<FT5>(100).measure(); };
+    BENCHMARK("FT2 100") { return build_snoc<FT2>(100).measure(); };
+    BENCHMARK("FT3 100") { return build_snoc<FT3>(100).measure(); };
+    BENCHMARK("FT4 100") { return build_snoc<FT4>(100).measure(); };
+    BENCHMARK("FT5 100") { return build_snoc<FT5>(100).measure(); };
 
-    BENCHMARK("FT2 1000")   { return build_snoc<FT2>(1000).measure(); };
-    BENCHMARK("FT3 1000")   { return build_snoc<FT3>(1000).measure(); };
-    BENCHMARK("FT4 1000")   { return build_snoc<FT4>(1000).measure(); };
-    BENCHMARK("FT5 1000")   { return build_snoc<FT5>(1000).measure(); };
+    BENCHMARK("FT2 1000") { return build_snoc<FT2>(1000).measure(); };
+    BENCHMARK("FT3 1000") { return build_snoc<FT3>(1000).measure(); };
+    BENCHMARK("FT4 1000") { return build_snoc<FT4>(1000).measure(); };
+    BENCHMARK("FT5 1000") { return build_snoc<FT5>(1000).measure(); };
 
-    BENCHMARK("FT2 10000")  { return build_snoc<FT2>(10000).measure(); };
-    BENCHMARK("FT3 10000")  { return build_snoc<FT3>(10000).measure(); };
-    BENCHMARK("FT4 10000")  { return build_snoc<FT4>(10000).measure(); };
-    BENCHMARK("FT5 10000")  { return build_snoc<FT5>(10000).measure(); };
+    BENCHMARK("FT2 10000") { return build_snoc<FT2>(10000).measure(); };
+    BENCHMARK("FT3 10000") { return build_snoc<FT3>(10000).measure(); };
+    BENCHMARK("FT4 10000") { return build_snoc<FT4>(10000).measure(); };
+    BENCHMARK("FT5 10000") { return build_snoc<FT5>(10000).measure(); };
 
-    BENCHMARK("FT2 100000")  { return build_snoc<FT2>(100000).measure(); };
-    BENCHMARK("FT3 100000")  { return build_snoc<FT3>(100000).measure(); };
-    BENCHMARK("FT4 100000")  { return build_snoc<FT4>(100000).measure(); };
-    BENCHMARK("FT5 100000")  { return build_snoc<FT5>(100000).measure(); };
+    BENCHMARK("FT2 100000") { return build_snoc<FT2>(100000).measure(); };
+    BENCHMARK("FT3 100000") { return build_snoc<FT3>(100000).measure(); };
+    BENCHMARK("FT4 100000") { return build_snoc<FT4>(100000).measure(); };
+    BENCHMARK("FT5 100000") { return build_snoc<FT5>(100000).measure(); };
 
-    BENCHMARK("FT2 300000")  { return build_snoc<FT2>(300000).measure(); };
-    BENCHMARK("FT3 300000")  { return build_snoc<FT3>(300000).measure(); };
-    BENCHMARK("FT4 300000")  { return build_snoc<FT4>(300000).measure(); };
-    BENCHMARK("FT5 300000")  { return build_snoc<FT5>(300000).measure(); };
+    BENCHMARK("FT2 300000") { return build_snoc<FT2>(300000).measure(); };
+    BENCHMARK("FT3 300000") { return build_snoc<FT3>(300000).measure(); };
+    BENCHMARK("FT4 300000") { return build_snoc<FT4>(300000).measure(); };
+    BENCHMARK("FT5 300000") { return build_snoc<FT5>(300000).measure(); };
 
     // FT3 omitted at 1M/3M: O(N) thunk destructor chain → SIGSEGV.
     // See "Bench A snoc FT3 large-N crash" below.
@@ -173,30 +174,30 @@ TEST_CASE("Bench A snoc FT3 large-N crash") {
 }
 
 TEST_CASE("Bench A cons") {
-    BENCHMARK("FT2 100")    { return build_cons<FT2>(100).measure(); };
-    BENCHMARK("FT3 100")    { return build_cons<FT3>(100).measure(); };
-    BENCHMARK("FT4 100")    { return build_cons<FT4>(100).measure(); };
-    BENCHMARK("FT5 100")    { return build_cons<FT5>(100).measure(); };
+    BENCHMARK("FT2 100") { return build_cons<FT2>(100).measure(); };
+    BENCHMARK("FT3 100") { return build_cons<FT3>(100).measure(); };
+    BENCHMARK("FT4 100") { return build_cons<FT4>(100).measure(); };
+    BENCHMARK("FT5 100") { return build_cons<FT5>(100).measure(); };
 
-    BENCHMARK("FT2 1000")   { return build_cons<FT2>(1000).measure(); };
-    BENCHMARK("FT3 1000")   { return build_cons<FT3>(1000).measure(); };
-    BENCHMARK("FT4 1000")   { return build_cons<FT4>(1000).measure(); };
-    BENCHMARK("FT5 1000")   { return build_cons<FT5>(1000).measure(); };
+    BENCHMARK("FT2 1000") { return build_cons<FT2>(1000).measure(); };
+    BENCHMARK("FT3 1000") { return build_cons<FT3>(1000).measure(); };
+    BENCHMARK("FT4 1000") { return build_cons<FT4>(1000).measure(); };
+    BENCHMARK("FT5 1000") { return build_cons<FT5>(1000).measure(); };
 
-    BENCHMARK("FT2 10000")  { return build_cons<FT2>(10000).measure(); };
-    BENCHMARK("FT3 10000")  { return build_cons<FT3>(10000).measure(); };
-    BENCHMARK("FT4 10000")  { return build_cons<FT4>(10000).measure(); };
-    BENCHMARK("FT5 10000")  { return build_cons<FT5>(10000).measure(); };
+    BENCHMARK("FT2 10000") { return build_cons<FT2>(10000).measure(); };
+    BENCHMARK("FT3 10000") { return build_cons<FT3>(10000).measure(); };
+    BENCHMARK("FT4 10000") { return build_cons<FT4>(10000).measure(); };
+    BENCHMARK("FT5 10000") { return build_cons<FT5>(10000).measure(); };
 
-    BENCHMARK("FT2 100000")  { return build_cons<FT2>(100000).measure(); };
-    BENCHMARK("FT3 100000")  { return build_cons<FT3>(100000).measure(); };
-    BENCHMARK("FT4 100000")  { return build_cons<FT4>(100000).measure(); };
-    BENCHMARK("FT5 100000")  { return build_cons<FT5>(100000).measure(); };
+    BENCHMARK("FT2 100000") { return build_cons<FT2>(100000).measure(); };
+    BENCHMARK("FT3 100000") { return build_cons<FT3>(100000).measure(); };
+    BENCHMARK("FT4 100000") { return build_cons<FT4>(100000).measure(); };
+    BENCHMARK("FT5 100000") { return build_cons<FT5>(100000).measure(); };
 
-    BENCHMARK("FT2 300000")  { return build_cons<FT2>(300000).measure(); };
-    BENCHMARK("FT3 300000")  { return build_cons<FT3>(300000).measure(); };
-    BENCHMARK("FT4 300000")  { return build_cons<FT4>(300000).measure(); };
-    BENCHMARK("FT5 300000")  { return build_cons<FT5>(300000).measure(); };
+    BENCHMARK("FT2 300000") { return build_cons<FT2>(300000).measure(); };
+    BENCHMARK("FT3 300000") { return build_cons<FT3>(300000).measure(); };
+    BENCHMARK("FT4 300000") { return build_cons<FT4>(300000).measure(); };
+    BENCHMARK("FT5 300000") { return build_cons<FT5>(300000).measure(); };
 
     // FT3 omitted at 1M/3M: O(N) thunk destructor chain → SIGSEGV.
     // See "Bench A cons FT3 large-N crash" below.
@@ -222,15 +223,17 @@ TEST_CASE("Bench A cons FT3 large-N crash") {
 // flatten/for_each are single-pass and bypass view entirely.
 // ============================================================================
 
-// FT3-only: forcing the spine during view_l/drain triggers the O(N) thunk chain.
-// The crash threshold on an 8MB stack is ~N=100K (25K recursive forcing frames).
-// Isolate so this does not abort the other trees.
+// FT3-only: forcing the spine during view_l/drain triggers the O(N) thunk
+// chain. The crash threshold on an 8MB stack is ~N=100K (25K recursive forcing
+// frames). Isolate so this does not abort the other trees.
 TEST_CASE("Bench B drain FT3 large-N crash") {
-    BENCHMARK_ADVANCED("FT3 drain_l 100000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT3 drain_l 100000")(
+        Catch::Benchmark::Chronometer meter) {
         auto t = build_snoc<FT3>(100000);
         meter.measure([&] { return drain_l(t); });
     };
-    BENCHMARK_ADVANCED("FT3 flatten 100000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT3 flatten 100000")(
+        Catch::Benchmark::Chronometer meter) {
         auto t = build_snoc<FT3>(100000);
         meter.measure([&] { return sum_flatten(t); });
     };
@@ -510,7 +513,8 @@ TEST_CASE("Bench B flatten") {
         auto t = build_snoc<FT2>(100000);
         meter.measure([&] { return sum_flatten(t); });
     };
-    // FT3 omitted: flatten forces the O(N) spine thunk chain → SIGSEGV at ~100K.
+    // FT3 omitted: flatten forces the O(N) spine thunk chain → SIGSEGV at
+    // ~100K.
     BENCHMARK_ADVANCED("FT4 100000")(Catch::Benchmark::Chronometer meter) {
         auto t = build_snoc<FT4>(100000);
         meter.measure([&] { return sum_flatten(t); });
@@ -619,7 +623,8 @@ TEST_CASE("Bench B for_each") {
         auto t = build_snoc<FT2>(100000);
         meter.measure([&] { return sum_for_each(t); });
     };
-    // FT3 omitted: for_each forces the O(N) spine thunk chain → SIGSEGV at ~100K.
+    // FT3 omitted: for_each forces the O(N) spine thunk chain → SIGSEGV at
+    // ~100K.
     BENCHMARK_ADVANCED("FT4 100000")(Catch::Benchmark::Chronometer meter) {
         auto t = build_snoc<FT4>(100000);
         meter.measure([&] { return sum_for_each(t); });
@@ -765,46 +770,54 @@ TEST_CASE("Bench C append") {
         meter.measure([&] { return a.append(b).measure(); });
     };
 
-    BENCHMARK_ADVANCED("FT2 100000+100000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT2 100000+100000")(
+        Catch::Benchmark::Chronometer meter) {
         auto a = build_snoc<FT2>(100000);
         auto b = build_snoc<FT2>(100000);
         meter.measure([&] { return a.append(b).measure(); });
     };
     // FT3 included: app3 is lazy — no spine thunks are forced during append.
     // The result's measure() reads cached values only.
-    BENCHMARK_ADVANCED("FT3 100000+100000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT3 100000+100000")(
+        Catch::Benchmark::Chronometer meter) {
         auto a = build_snoc<FT3>(100000);
         auto b = build_snoc<FT3>(100000);
         meter.measure([&] { return a.append(b).measure(); });
     };
-    BENCHMARK_ADVANCED("FT4 100000+100000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT4 100000+100000")(
+        Catch::Benchmark::Chronometer meter) {
         auto a = build_snoc<FT4>(100000);
         auto b = build_snoc<FT4>(100000);
         meter.measure([&] { return a.append(b).measure(); });
     };
-    BENCHMARK_ADVANCED("FT5 100000+100000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT5 100000+100000")(
+        Catch::Benchmark::Chronometer meter) {
         auto a = build_snoc<FT5>(100000);
         auto b = build_snoc<FT5>(100000);
         meter.measure([&] { return a.append(b).measure(); });
     };
 
-    BENCHMARK_ADVANCED("FT2 300000+300000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT2 300000+300000")(
+        Catch::Benchmark::Chronometer meter) {
         auto a = build_snoc<FT2>(300000);
         auto b = build_snoc<FT2>(300000);
         meter.measure([&] { return a.append(b).measure(); });
     };
     // FT3 included: lazy app3 creates a new lazy spine (no forcing, no crash).
-    BENCHMARK_ADVANCED("FT3 300000+300000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT3 300000+300000")(
+        Catch::Benchmark::Chronometer meter) {
         auto a = build_snoc<FT3>(300000);
         auto b = build_snoc<FT3>(300000);
         meter.measure([&] { return a.append(b).measure(); });
     };
-    BENCHMARK_ADVANCED("FT4 300000+300000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT4 300000+300000")(
+        Catch::Benchmark::Chronometer meter) {
         auto a = build_snoc<FT4>(300000);
         auto b = build_snoc<FT4>(300000);
         meter.measure([&] { return a.append(b).measure(); });
     };
-    BENCHMARK_ADVANCED("FT5 300000+300000")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("FT5 300000+300000")(
+        Catch::Benchmark::Chronometer meter) {
         auto a = build_snoc<FT5>(300000);
         auto b = build_snoc<FT5>(300000);
         meter.measure([&] { return a.append(b).measure(); });

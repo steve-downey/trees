@@ -3,7 +3,8 @@
 #ifndef INCLUDED_SMD_TREE_FINGER_TREE4
 #define INCLUDED_SMD_TREE_FINGER_TREE4
 
-// Hinze-Paterson 2-3 finger tree — uniform-elem (fixpoint-style) implementation.
+// Hinze-Paterson 2-3 finger tree — uniform-elem (fixpoint-style)
+// implementation.
 //
 // The element type Elem<T, Tag> is self-recursive: an Elem is either a Leaf
 // holding a T, or a Node2/Node3 holding 2-3 child ElemPtrs.  This lets the
@@ -14,7 +15,8 @@
 //   - One template instantiation per (T, Tag, Measure) triple, any depth
 //   - No kMaxDepth limit, no silent data loss
 //   - No TagPred type erasure needed (Tag is uniform across levels)
-//   - Extra shared_ptr indirection per Elem child (pointer chase per tree level)
+//   - Extra shared_ptr indirection per Elem child (pointer chase per tree
+//   level)
 
 #include <smd/typeclass/monoid.hpp>
 
@@ -100,9 +102,8 @@ auto leaf_value(const ElemPtr<T, Tag> &ep) -> const T & {
 template <typename T, typename Tag, typename MeasFn>
 auto make_leaf(MeasFn &&mf, T value) -> ElemPtr<T, Tag> {
     auto m = mf(value);
-    return std::make_shared<const Elem<T, Tag>>(
-        Elem<T, Tag>{std::move(m),
-                     typename Elem<T, Tag>::Leaf{std::move(value)}});
+    return std::make_shared<const Elem<T, Tag>>(Elem<T, Tag>{
+        std::move(m), typename Elem<T, Tag>::Leaf{std::move(value)}});
 }
 
 template <typename T, typename Tag>
@@ -117,10 +118,9 @@ template <typename T, typename Tag>
 auto make_node3(ElemPtr<T, Tag> a, ElemPtr<T, Tag> b, ElemPtr<T, Tag> c)
     -> ElemPtr<T, Tag> {
     auto m = tag_op<Tag>(tag_op<Tag>(a->d_measure, b->d_measure), c->d_measure);
-    return std::make_shared<const Elem<T, Tag>>(
-        Elem<T, Tag>{std::move(m),
-                     typename Elem<T, Tag>::Node3{std::move(a), std::move(b),
-                                                  std::move(c)}});
+    return std::make_shared<const Elem<T, Tag>>(Elem<T, Tag>{
+        std::move(m), typename Elem<T, Tag>::Node3{std::move(a), std::move(b),
+                                                   std::move(c)}});
 }
 
 // Get children of a Node elem as a vector.
@@ -146,37 +146,35 @@ auto elem_children(const ElemPtr<T, Tag> &ep) -> std::vector<ElemPtr<T, Tag>> {
 template <typename T, typename Tag>
 void flatten_elem(const ElemPtr<T, Tag> &ep, std::vector<T> &out) {
     using E = Elem<T, Tag>;
-    std::visit(
-        overloaded{
-            [&](const typename E::Leaf &lf) { out.push_back(lf.d_value); },
-            [&](const typename E::Node2 &n) {
-                flatten_elem(n.a, out);
-                flatten_elem(n.b, out);
-            },
-            [&](const typename E::Node3 &n) {
-                flatten_elem(n.a, out);
-                flatten_elem(n.b, out);
-                flatten_elem(n.c, out);
-            }},
-        ep->d_data);
+    std::visit(overloaded{[&](const typename E::Leaf &lf) {
+                              out.push_back(lf.d_value);
+                          },
+                          [&](const typename E::Node2 &n) {
+                              flatten_elem(n.a, out);
+                              flatten_elem(n.b, out);
+                          },
+                          [&](const typename E::Node3 &n) {
+                              flatten_elem(n.a, out);
+                              flatten_elem(n.b, out);
+                              flatten_elem(n.c, out);
+                          }},
+               ep->d_data);
 }
 
 template <typename T, typename Tag, typename F>
 void for_each_elem(const ElemPtr<T, Tag> &ep, const F &fn) {
     using E = Elem<T, Tag>;
-    std::visit(
-        overloaded{
-            [&](const typename E::Leaf &lf) { fn(lf.d_value); },
-            [&](const typename E::Node2 &n) {
-                for_each_elem(n.a, fn);
-                for_each_elem(n.b, fn);
-            },
-            [&](const typename E::Node3 &n) {
-                for_each_elem(n.a, fn);
-                for_each_elem(n.b, fn);
-                for_each_elem(n.c, fn);
-            }},
-        ep->d_data);
+    std::visit(overloaded{[&](const typename E::Leaf &lf) { fn(lf.d_value); },
+                          [&](const typename E::Node2 &n) {
+                              for_each_elem(n.a, fn);
+                              for_each_elem(n.b, fn);
+                          },
+                          [&](const typename E::Node3 &n) {
+                              for_each_elem(n.a, fn);
+                              for_each_elem(n.b, fn);
+                              for_each_elem(n.c, fn);
+                          }},
+               ep->d_data);
 }
 
 // -- Digit: 1-4 ElemPtrs ----------------------------------------------------
@@ -222,9 +220,8 @@ auto digit_measure(const Digit<T, Tag> &d) -> Tag {
                 return tag_op<Tag>(x.a->d_measure, x.b->d_measure);
             },
             [](const Three<T, Tag> &x) -> Tag {
-                return tag_op<Tag>(
-                    tag_op<Tag>(x.a->d_measure, x.b->d_measure),
-                    x.c->d_measure);
+                return tag_op<Tag>(tag_op<Tag>(x.a->d_measure, x.b->d_measure),
+                                   x.c->d_measure);
             },
             [](const Four<T, Tag> &x) -> Tag {
                 return tag_op<Tag>(
@@ -237,8 +234,8 @@ auto digit_measure(const Digit<T, Tag> &d) -> Tag {
 
 template <typename T, typename Tag>
 auto digit_head(const Digit<T, Tag> &d) -> const EP<T, Tag> & {
-    return std::visit(
-        [](const auto &x) -> const EP<T, Tag> & { return x.a; }, d);
+    return std::visit([](const auto &x) -> const EP<T, Tag> & { return x.a; },
+                      d);
 }
 
 template <typename T, typename Tag>
@@ -255,62 +252,59 @@ auto digit_last(const Digit<T, Tag> &d) -> const EP<T, Tag> & {
 template <typename T, typename Tag>
 auto digit_tail(const Digit<T, Tag> &d) -> std::optional<Digit<T, Tag>> {
     return std::visit(
-        overloaded{
-            [](const One<T, Tag> &) -> std::optional<Digit<T, Tag>> {
-                return std::nullopt;
-            },
-            [](const Two<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
-                return One<T, Tag>{x.b};
-            },
-            [](const Three<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
-                return Two<T, Tag>{x.b, x.c};
-            },
-            [](const Four<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
-                return Three<T, Tag>{x.b, x.c, x.d};
-            }},
+        overloaded{[](const One<T, Tag> &) -> std::optional<Digit<T, Tag>> {
+                       return std::nullopt;
+                   },
+                   [](const Two<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
+                       return One<T, Tag>{x.b};
+                   },
+                   [](const Three<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
+                       return Two<T, Tag>{x.b, x.c};
+                   },
+                   [](const Four<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
+                       return Three<T, Tag>{x.b, x.c, x.d};
+                   }},
         d);
 }
 
 template <typename T, typename Tag>
 auto digit_init(const Digit<T, Tag> &d) -> std::optional<Digit<T, Tag>> {
     return std::visit(
-        overloaded{
-            [](const One<T, Tag> &) -> std::optional<Digit<T, Tag>> {
-                return std::nullopt;
-            },
-            [](const Two<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
-                return One<T, Tag>{x.a};
-            },
-            [](const Three<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
-                return Two<T, Tag>{x.a, x.b};
-            },
-            [](const Four<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
-                return Three<T, Tag>{x.a, x.b, x.c};
-            }},
+        overloaded{[](const One<T, Tag> &) -> std::optional<Digit<T, Tag>> {
+                       return std::nullopt;
+                   },
+                   [](const Two<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
+                       return One<T, Tag>{x.a};
+                   },
+                   [](const Three<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
+                       return Two<T, Tag>{x.a, x.b};
+                   },
+                   [](const Four<T, Tag> &x) -> std::optional<Digit<T, Tag>> {
+                       return Three<T, Tag>{x.a, x.b, x.c};
+                   }},
         d);
 }
 
 template <typename T, typename Tag>
 void digit_push_into(const Digit<T, Tag> &d,
                      std::vector<ElemPtr<T, Tag>> &out) {
-    std::visit(
-        overloaded{[&](const One<T, Tag> &x) { out.push_back(x.a); },
-                   [&](const Two<T, Tag> &x) {
-                       out.push_back(x.a);
-                       out.push_back(x.b);
-                   },
-                   [&](const Three<T, Tag> &x) {
-                       out.push_back(x.a);
-                       out.push_back(x.b);
-                       out.push_back(x.c);
-                   },
-                   [&](const Four<T, Tag> &x) {
-                       out.push_back(x.a);
-                       out.push_back(x.b);
-                       out.push_back(x.c);
-                       out.push_back(x.d);
-                   }},
-        d);
+    std::visit(overloaded{[&](const One<T, Tag> &x) { out.push_back(x.a); },
+                          [&](const Two<T, Tag> &x) {
+                              out.push_back(x.a);
+                              out.push_back(x.b);
+                          },
+                          [&](const Three<T, Tag> &x) {
+                              out.push_back(x.a);
+                              out.push_back(x.b);
+                              out.push_back(x.c);
+                          },
+                          [&](const Four<T, Tag> &x) {
+                              out.push_back(x.a);
+                              out.push_back(x.b);
+                              out.push_back(x.c);
+                              out.push_back(x.d);
+                          }},
+               d);
 }
 
 template <typename T, typename Tag>
@@ -322,24 +316,23 @@ auto digit_to_vec(const Digit<T, Tag> &d) -> std::vector<ElemPtr<T, Tag>> {
 
 template <typename T, typename Tag, typename F>
 void digit_for_each(const Digit<T, Tag> &d, const F &fn) {
-    std::visit(
-        overloaded{[&](const One<T, Tag> &x) { fn(x.a); },
-                   [&](const Two<T, Tag> &x) {
-                       fn(x.a);
-                       fn(x.b);
-                   },
-                   [&](const Three<T, Tag> &x) {
-                       fn(x.a);
-                       fn(x.b);
-                       fn(x.c);
-                   },
-                   [&](const Four<T, Tag> &x) {
-                       fn(x.a);
-                       fn(x.b);
-                       fn(x.c);
-                       fn(x.d);
-                   }},
-        d);
+    std::visit(overloaded{[&](const One<T, Tag> &x) { fn(x.a); },
+                          [&](const Two<T, Tag> &x) {
+                              fn(x.a);
+                              fn(x.b);
+                          },
+                          [&](const Three<T, Tag> &x) {
+                              fn(x.a);
+                              fn(x.b);
+                              fn(x.c);
+                          },
+                          [&](const Four<T, Tag> &x) {
+                              fn(x.a);
+                              fn(x.b);
+                              fn(x.c);
+                              fn(x.d);
+                          }},
+               d);
 }
 
 template <typename T, typename Tag>
@@ -353,11 +346,10 @@ auto vec_to_digit(std::vector<ElemPtr<T, Tag>> v)
     case 2:
         return Two<T, Tag>{std::move(v[0]), std::move(v[1])};
     case 3:
-        return Three<T, Tag>{std::move(v[0]), std::move(v[1]),
-                             std::move(v[2])};
+        return Three<T, Tag>{std::move(v[0]), std::move(v[1]), std::move(v[2])};
     case 4:
-        return Four<T, Tag>{std::move(v[0]), std::move(v[1]),
-                            std::move(v[2]), std::move(v[3])};
+        return Four<T, Tag>{std::move(v[0]), std::move(v[1]), std::move(v[2]),
+                            std::move(v[3])};
     default:
         assert(false && "vec_to_digit: size must be 0-4");
         return std::nullopt;
@@ -369,17 +361,16 @@ template <typename T, typename Tag>
 auto elem_to_digit(const ElemPtr<T, Tag> &ep) -> Digit<T, Tag> {
     using E = Elem<T, Tag>;
     return std::visit(
-        overloaded{
-            [](const typename E::Leaf &) -> Digit<T, Tag> {
-                assert(false && "elem_to_digit called on Leaf");
-                return One<T, Tag>{{}};
-            },
-            [](const typename E::Node2 &n) -> Digit<T, Tag> {
-                return Two<T, Tag>{n.a, n.b};
-            },
-            [](const typename E::Node3 &n) -> Digit<T, Tag> {
-                return Three<T, Tag>{n.a, n.b, n.c};
-            }},
+        overloaded{[](const typename E::Leaf &) -> Digit<T, Tag> {
+                       assert(false && "elem_to_digit called on Leaf");
+                       return One<T, Tag>{{}};
+                   },
+                   [](const typename E::Node2 &n) -> Digit<T, Tag> {
+                       return Two<T, Tag>{n.a, n.b};
+                   },
+                   [](const typename E::Node3 &n) -> Digit<T, Tag> {
+                       return Three<T, Tag>{n.a, n.b, n.c};
+                   }},
         ep->d_data);
 }
 
@@ -391,9 +382,9 @@ auto nodes_from(std::vector<ElemPtr<T, Tag>> elems)
     auto n = elems.size();
     std::size_t i = 0;
     while (n - i > 4) {
-        result.push_back(
-            make_node3<T, Tag>(std::move(elems[i]), std::move(elems[i + 1]),
-                               std::move(elems[i + 2])));
+        result.push_back(make_node3<T, Tag>(std::move(elems[i]),
+                                            std::move(elems[i + 1]),
+                                            std::move(elems[i + 2])));
         i += 3;
     }
     switch (n - i) {
@@ -402,9 +393,9 @@ auto nodes_from(std::vector<ElemPtr<T, Tag>> elems)
             make_node2<T, Tag>(std::move(elems[i]), std::move(elems[i + 1])));
         break;
     case 3:
-        result.push_back(
-            make_node3<T, Tag>(std::move(elems[i]), std::move(elems[i + 1]),
-                               std::move(elems[i + 2])));
+        result.push_back(make_node3<T, Tag>(std::move(elems[i]),
+                                            std::move(elems[i + 1]),
+                                            std::move(elems[i + 2])));
         break;
     case 4:
         result.push_back(
@@ -563,10 +554,9 @@ class FingerTree4 {
                     auto t = ft4::digit_tail(d->d_left);
                     if (t.has_value())
                         return InternalView{
-                            h, make_deep(std::move(*t), d->d_spine,
-                                         d->d_right)};
-                    return InternalView{h,
-                                        deep_l(d->d_spine, d->d_right)};
+                            h,
+                            make_deep(std::move(*t), d->d_spine, d->d_right)};
+                    return InternalView{h, deep_l(d->d_spine, d->d_right)};
                 }},
             d_repr);
     }
@@ -585,10 +575,8 @@ class FingerTree4 {
                     auto i = ft4::digit_init(d->d_right);
                     if (i.has_value())
                         return InternalView{
-                            l, make_deep(d->d_left, d->d_spine,
-                                         std::move(*i))};
-                    return InternalView{l,
-                                        deep_r(d->d_left, d->d_spine)};
+                            l, make_deep(d->d_left, d->d_spine, std::move(*i))};
+                    return InternalView{l, deep_r(d->d_left, d->d_spine)};
                 }},
             d_repr);
     }
@@ -617,8 +605,7 @@ class FingerTree4 {
                             },
                             [&](const Three<T> &dig) {
                                 return make_deep(
-                                    Four<T>{std::move(x), dig.a, dig.b,
-                                            dig.c},
+                                    Four<T>{std::move(x), dig.a, dig.b, dig.c},
                                     d->d_spine, d->d_right);
                             },
                             [&](const Four<T> &dig) -> FingerTree4 {
@@ -663,8 +650,7 @@ class FingerTree4 {
                             [&](const Three<T> &dig) {
                                 return make_deep(
                                     d->d_left, d->d_spine,
-                                    Four<T>{dig.a, dig.b, dig.c,
-                                            std::move(x)});
+                                    Four<T>{dig.a, dig.b, dig.c, std::move(x)});
                             },
                             [&](const Four<T> &dig) -> FingerTree4 {
                                 auto node = ft4::make_node3<T, Tag>(
@@ -718,8 +704,7 @@ class FingerTree4 {
         const auto &rd = *std::get<DeepPtr>(right.d_repr);
 
         auto combined = ft4::digit_to_vec(ld.d_right);
-        combined.insert(combined.end(),
-                        std::make_move_iterator(middle.begin()),
+        combined.insert(combined.end(), std::make_move_iterator(middle.begin()),
                         std::make_move_iterator(middle.end()));
         {
             auto rl = ft4::digit_to_vec(rd.d_left);
@@ -727,10 +712,8 @@ class FingerTree4 {
         }
         auto ns = ft4::nodes_from<T, Tag>(std::move(combined));
 
-        auto left_spine =
-            ld.d_spine ? *ld.d_spine : FingerTree4::empty();
-        auto right_spine =
-            rd.d_spine ? *rd.d_spine : FingerTree4::empty();
+        auto left_spine = ld.d_spine ? *ld.d_spine : FingerTree4::empty();
+        auto right_spine = rd.d_spine ? *rd.d_spine : FingerTree4::empty();
         auto new_spine =
             FingerTree4::app3(left_spine, std::move(ns), right_spine);
         SpinePtr sp;
@@ -760,21 +743,20 @@ class FingerTree4 {
         auto elems = ft4::digit_to_vec(d);
         auto running = prefix;
         for (std::size_t i = 0; i < elems.size(); ++i) {
-            running =
-                ft4::tag_op<Tag>(running, elems[i]->d_measure);
+            running = ft4::tag_op<Tag>(running, elems[i]->d_measure);
             if (pred(running)) {
                 std::optional<Digit> left_d;
                 std::optional<Digit> right_d;
                 if (i > 0) {
-                    std::vector<EP> lv(
-                        elems.begin(),
-                        elems.begin() + static_cast<std::ptrdiff_t>(i));
+                    std::vector<EP> lv(elems.begin(),
+                                       elems.begin() +
+                                           static_cast<std::ptrdiff_t>(i));
                     left_d = ft4::vec_to_digit<T, Tag>(std::move(lv));
                 }
                 if (i + 1 < elems.size()) {
-                    std::vector<EP> rv(
-                        elems.begin() + static_cast<std::ptrdiff_t>(i + 1),
-                        elems.end());
+                    std::vector<EP> rv(elems.begin() +
+                                           static_cast<std::ptrdiff_t>(i + 1),
+                                       elems.end());
                     right_d = ft4::vec_to_digit<T, Tag>(std::move(rv));
                 }
                 return DigitSplit{std::move(left_d), std::move(elems[i]),
@@ -784,28 +766,27 @@ class FingerTree4 {
         return std::nullopt;
     }
 
-    // Search among children of a Node elem to find the child where pred triggers.
+    // Search among children of a Node elem to find the child where pred
+    // triggers.
     static auto split_within_elem(const Pred &pred, Tag prefix,
                                   const EP &node_ep) -> DigitSplit {
         auto children = ft4::elem_children(node_ep);
         auto running = prefix;
         for (std::size_t i = 0; i < children.size(); ++i) {
-            running =
-                ft4::tag_op<Tag>(running, children[i]->d_measure);
+            running = ft4::tag_op<Tag>(running, children[i]->d_measure);
             if (pred(running)) {
                 std::optional<Digit> left_d;
                 std::optional<Digit> right_d;
                 if (i > 0) {
-                    std::vector<EP> lv(
-                        children.begin(),
-                        children.begin() + static_cast<std::ptrdiff_t>(i));
+                    std::vector<EP> lv(children.begin(),
+                                       children.begin() +
+                                           static_cast<std::ptrdiff_t>(i));
                     left_d = ft4::vec_to_digit<T, Tag>(std::move(lv));
                 }
                 if (i + 1 < children.size()) {
-                    std::vector<EP> rv(
-                        children.begin() +
-                            static_cast<std::ptrdiff_t>(i + 1),
-                        children.end());
+                    std::vector<EP> rv(children.begin() +
+                                           static_cast<std::ptrdiff_t>(i + 1),
+                                       children.end());
                     right_d = ft4::vec_to_digit<T, Tag>(std::move(rv));
                 }
                 return DigitSplit{std::move(left_d), std::move(children[i]),
@@ -829,22 +810,19 @@ class FingerTree4 {
 
         const auto &d = *std::get<DeepPtr>(d_repr);
 
-        auto vl =
-            ft4::tag_op<Tag>(prefix, ft4::digit_measure(d.d_left));
+        auto vl = ft4::tag_op<Tag>(prefix, ft4::digit_measure(d.d_left));
         if (pred(vl)) {
             auto ds = split_digit(pred, prefix, d.d_left);
             if (!ds.has_value())
                 return std::nullopt;
             auto lt = ds->d_left.has_value() ? digit_to_tree(*ds->d_left)
-                                              : make_empty();
-            auto rt = assemble_l(std::move(ds->d_right), d.d_spine,
-                                 d.d_right);
+                                             : make_empty();
+            auto rt = assemble_l(std::move(ds->d_right), d.d_spine, d.d_right);
             return InternalSplit{std::move(lt), std::move(ds->d_pivot),
                                  std::move(rt)};
         }
 
-        auto spine_m =
-            d.d_spine ? d.d_spine->measure() : ft4::tag_id<Tag>();
+        auto spine_m = d.d_spine ? d.d_spine->measure() : ft4::tag_id<Tag>();
         auto vm = ft4::tag_op<Tag>(vl, spine_m);
         if (pred(vm)) {
             if (!d.d_spine || d.d_spine->is_empty())
@@ -857,23 +835,20 @@ class FingerTree4 {
             if (!ss.has_value())
                 return std::nullopt;
 
-            auto node_prefix =
-                ft4::tag_op<Tag>(vl, ss->d_left.measure());
+            auto node_prefix = ft4::tag_op<Tag>(vl, ss->d_left.measure());
             auto ns = split_within_elem(pred, node_prefix, ss->d_pivot);
 
             SpinePtr sl;
             if (!ss->d_left.is_empty())
-                sl = std::make_shared<const FingerTree4>(
-                    std::move(ss->d_left));
+                sl = std::make_shared<const FingerTree4>(std::move(ss->d_left));
             SpinePtr sr;
             if (!ss->d_right.is_empty())
-                sr = std::make_shared<const FingerTree4>(
-                    std::move(ss->d_right));
+                sr =
+                    std::make_shared<const FingerTree4>(std::move(ss->d_right));
 
-            auto lt =
-                assemble_r(d.d_left, std::move(sl), std::move(ns.d_left));
-            auto rt = assemble_l(std::move(ns.d_right), std::move(sr),
-                                 d.d_right);
+            auto lt = assemble_r(d.d_left, std::move(sl), std::move(ns.d_left));
+            auto rt =
+                assemble_l(std::move(ns.d_right), std::move(sr), d.d_right);
             return InternalSplit{std::move(lt), std::move(ns.d_pivot),
                                  std::move(rt)};
         }
@@ -883,7 +858,7 @@ class FingerTree4 {
             return std::nullopt;
         auto lt = assemble_r(d.d_left, d.d_spine, std::move(ds->d_left));
         auto rt = ds->d_right.has_value() ? digit_to_tree(*ds->d_right)
-                                           : make_empty();
+                                          : make_empty();
         return InternalSplit{std::move(lt), std::move(ds->d_pivot),
                              std::move(rt)};
     }
@@ -912,14 +887,14 @@ class FingerTree4 {
                 [](const Empty &) {},
                 [&](const Single &s) { ft4::flatten_elem(s.d_elem, out); },
                 [&](const DeepPtr &d) {
-                    ft4::digit_for_each(
-                        d->d_left,
-                        [&](const EP &ep) { ft4::flatten_elem(ep, out); });
+                    ft4::digit_for_each(d->d_left, [&](const EP &ep) {
+                        ft4::flatten_elem(ep, out);
+                    });
                     if (d->d_spine)
                         d->d_spine->flatten_elems(out);
-                    ft4::digit_for_each(
-                        d->d_right,
-                        [&](const EP &ep) { ft4::flatten_elem(ep, out); });
+                    ft4::digit_for_each(d->d_right, [&](const EP &ep) {
+                        ft4::flatten_elem(ep, out);
+                    });
                 }},
             d_repr);
     }
@@ -931,14 +906,14 @@ class FingerTree4 {
                 [](const Empty &) {},
                 [&](const Single &s) { ft4::for_each_elem(s.d_elem, fn); },
                 [&](const DeepPtr &d) {
-                    ft4::digit_for_each(
-                        d->d_left,
-                        [&](const EP &ep) { ft4::for_each_elem(ep, fn); });
+                    ft4::digit_for_each(d->d_left, [&](const EP &ep) {
+                        ft4::for_each_elem(ep, fn);
+                    });
                     if (d->d_spine)
                         d->d_spine->for_each_internal(fn);
-                    ft4::digit_for_each(
-                        d->d_right,
-                        [&](const EP &ep) { ft4::for_each_elem(ep, fn); });
+                    ft4::digit_for_each(d->d_right, [&](const EP &ep) {
+                        ft4::for_each_elem(ep, fn);
+                    });
                 }},
             d_repr);
     }
@@ -1100,8 +1075,7 @@ class FingerTree4 {
         if (!is.has_value())
             return std::nullopt;
         assert(ft4::is_leaf(is->d_pivot));
-        return Split{std::move(is->d_left),
-                     ft4::leaf_value(is->d_pivot),
+        return Split{std::move(is->d_left), ft4::leaf_value(is->d_pivot),
                      std::move(is->d_right)};
     }
 

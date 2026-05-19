@@ -11,19 +11,17 @@
 using smd::typeclass::DualMonoid;
 using smd::typeclass::monoid_v;
 
-TEST_CASE("DualMonoid - IdentityIsIdentity")
-{
+TEST_CASE("DualMonoid - IdentityIsIdentity") {
     // combine(identity, x) == x  and  combine(x, identity) == x
     const auto &m = monoid_v<DualMonoid<std::string>>;
-    DualMonoid<std::string> id  = m.identity();
+    DualMonoid<std::string> id = m.identity();
     DualMonoid<std::string> val = {"hello"};
 
     CHECK(m.combine(id, val) == val);
     CHECK(m.combine(val, id) == val);
 }
 
-TEST_CASE("DualMonoid - FlipsArguments")
-{
+TEST_CASE("DualMonoid - FlipsArguments") {
     // DualMonoid<string> reverses the concatenation order.
     const auto &m = monoid_v<DualMonoid<std::string>>;
     DualMonoid<std::string> a = {"ab"};
@@ -36,8 +34,7 @@ TEST_CASE("DualMonoid - FlipsArguments")
     CHECK(m.combine(a, b).value == "cdab");
 }
 
-TEST_CASE("DualMonoid - AssociativityHolds")
-{
+TEST_CASE("DualMonoid - AssociativityHolds") {
     // Even though combine is flipped, associativity is preserved because
     // M itself is associative.
     const auto &m = monoid_v<DualMonoid<std::string>>;
@@ -50,11 +47,10 @@ TEST_CASE("DualMonoid - AssociativityHolds")
     CHECK(lhs == rhs);
 }
 
-TEST_CASE("DualMonoid - DoubleDualMatchesOriginal")
-{
+TEST_CASE("DualMonoid - DoubleDualMatchesOriginal") {
     // DualMonoid<DualMonoid<M>>.combine is operationally equivalent to
     // M.combine: the two flips cancel out.
-    const auto &m  = monoid_v<std::string>;
+    const auto &m = monoid_v<std::string>;
     const auto &dm = monoid_v<DualMonoid<std::string>>;
     const auto &ddm = monoid_v<DualMonoid<DualMonoid<std::string>>>;
 
@@ -67,17 +63,16 @@ TEST_CASE("DualMonoid - DoubleDualMatchesOriginal")
     CHECK(m.combine(a, b) == "abcd");
 
     // DualMonoid: "cd" + "ab" = "cdab"
-    CHECK(dm.combine(DualMonoid<std::string>{a}, DualMonoid<std::string>{b}).value
-          == "cdab");
+    CHECK(dm.combine(DualMonoid<std::string>{a}, DualMonoid<std::string>{b})
+              .value == "cdab");
 
     // DoubleDual: flips back — "ab" + "cd" = "abcd"
     CHECK(ddm.combine(dda, ddb).value.value == "abcd");
 }
 
-TEST_CASE("DualMonoid - ForwardsSizeGeq")
-{
+TEST_CASE("DualMonoid - ForwardsSizeGeq") {
     // DualMonoid<std::size_t> forwards operator>= from std::size_t.
-    DualMonoid<std::size_t> big  = {10U};
+    DualMonoid<std::size_t> big = {10U};
     DualMonoid<std::size_t> small_ = {3U};
     CHECK(big >= small_);
     CHECK(!(small_ >= big));

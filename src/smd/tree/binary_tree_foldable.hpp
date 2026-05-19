@@ -46,7 +46,8 @@ struct BinaryTreeFoldableMap : Foldable<BinaryTreeFoldableImpl<T>> {
     using BinaryTreeFoldableImpl<T>::fold_map;
 };
 
-/** Registers BinaryTreeFoldableMap as the Foldable instance for BinaryTree<T>. */
+/** Registers BinaryTreeFoldableMap as the Foldable instance for BinaryTree<T>.
+ */
 template <class T>
 inline constexpr auto foldable_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeFoldableMap<T>{};

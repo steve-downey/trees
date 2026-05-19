@@ -83,7 +83,8 @@ struct ListRangeTraversableMap : Traversable<ListRangeTraversableImpl<VIEW>> {
     using ListRangeTraversableImpl<VIEW>::traverse;
 };
 
-/** Registers ListRangeTraversableMap as the Traversable instance for list_range<VIEW>. */
+/** Registers ListRangeTraversableMap as the Traversable instance for
+ * list_range<VIEW>. */
 template <class VIEW>
     requires std::ranges::forward_range<VIEW>
 inline constexpr auto traversable_typeclass<smd::ranges::list_range<VIEW>> =

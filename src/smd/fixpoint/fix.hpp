@@ -8,7 +8,7 @@
 namespace smd::fixpoint {
 
 /** Fixed-point combinator that ties the recursive knot for a functor @p F.
- * 
+ *
  * Fix<F> is the iso-recursive type satisfying Fix<F> ≅ F<Fix<F>>.
  * The single data member @c inner holds one unwrapped layer; wrap/unwrap
  * are the iso-recursive isomorphism boundary.

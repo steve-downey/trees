@@ -122,7 +122,8 @@ auto measured_memoize(Measure measure, Callable &&c, Args &&...args) {
             [[nodiscard]] auto cached_measure() const -> const Measure & {
                 return d_measure;
             }
-            /** Force evaluation (or return cached value) of the deferred callable. */
+            /** Force evaluation (or return cached value) of the deferred
+             * callable. */
             [[nodiscard]] auto force() const -> decltype(auto) {
                 return d_force();
             }

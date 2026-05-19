@@ -98,12 +98,16 @@ if(TREE_ENABLE_TESTING)
     target_link_libraries(smd_tree_pmr_probe PRIVATE smd::tree)
     target_compile_features(smd_tree_pmr_probe PRIVATE cxx_std_26)
     # No sanitizer flags on this target.
-    target_compile_options(smd_tree_pmr_probe PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang>:-fno-sanitize=all>)
-    target_link_options(smd_tree_pmr_probe PRIVATE
-        $<$<CXX_COMPILER_ID:GNU,Clang>:-fno-sanitize=all>)
+    target_compile_options(
+        smd_tree_pmr_probe
+        PRIVATE $<$<CXX_COMPILER_ID:GNU,Clang>:-fno-sanitize=all>
+    )
+    target_link_options(
+        smd_tree_pmr_probe
+        PRIVATE $<$<CXX_COMPILER_ID:GNU,Clang>:-fno-sanitize=all>
+    )
     add_test(
-        NAME   "FingerTree5 PMR allocation probe"
+        NAME "FingerTree5 PMR allocation probe"
         COMMAND "$<TARGET_FILE:smd_tree_pmr_probe>"
         CONFIGURATIONS RelWithDebInfo Debug
     )
@@ -138,7 +142,8 @@ if(TREE_ENABLE_TESTING)
     # instantiations and the DWARF reflects the true instantiation count.
 
     add_library(
-        smd_tree_compile_probes OBJECT
+        smd_tree_compile_probes
+        OBJECT
         finger_tree2_compile_probe.cpp
         finger_tree3_compile_probe.cpp
         finger_tree4_compile_probe.cpp

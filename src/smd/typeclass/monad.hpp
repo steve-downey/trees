@@ -36,26 +36,20 @@ struct Monad : protected Impl {
     // ap mf mx = mf >>= \f -> mx >>= \a -> pure (f a)
     template <class MF, class MA>
     auto apply(this auto &&self, MF &&mf, MA &&ma) {
-        return self.bind(
-            std::forward<MF>(mf),
-            [&self, &ma](auto &&f) {
-                return self.bind(
-                    ma,
-                    [&self, &f](auto &&a) {
-                        return self.pure(
-                            std::invoke(std::forward<decltype(f)>(f),
-                                        std::forward<decltype(a)>(a)));
-                    });
+        return self.bind(std::forward<MF>(mf), [&self, &ma](auto &&f) {
+            return self.bind(ma, [&self, &f](auto &&a) {
+                return self.pure(std::invoke(std::forward<decltype(f)>(f),
+                                             std::forward<decltype(a)>(a)));
             });
+        });
     }
 
     // join: flatten nested monad.
     // join mma = mma >>= id
     template <class MMA>
     auto join(this auto &&self, MMA &&mma) {
-        return self.bind(
-            std::forward<MMA>(mma),
-            [](auto &&inner) { return inner; });
+        return self.bind(std::forward<MMA>(mma),
+                         [](auto &&inner) { return inner; });
     }
 
     // kleisli: forward Kleisli composition (>=>).
@@ -63,15 +57,13 @@ struct Monad : protected Impl {
     template <class F, class G>
     auto kleisli(this auto &&self, F f, G g) {
         return [&self, f = std::move(f), g = std::move(g)](auto &&a) {
-            return self.bind(
-                f(std::forward<decltype(a)>(a)), g);
+            return self.bind(f(std::forward<decltype(a)>(a)), g);
         };
     }
 
     // bind_with: explicit monad object override.
     template <class MONAD_MAP, class MA, class F>
-    auto bind_with(this auto &&, const MONAD_MAP &monad_map,
-                   MA &&ma, F &&f) {
+    auto bind_with(this auto &&, const MONAD_MAP &monad_map, MA &&ma, F &&f) {
         return monad_map.bind(std::forward<MA>(ma), std::forward<F>(f));
     }
 };
@@ -90,14 +82,13 @@ struct OptionalMonadImpl {
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value)
         -> std::optional<remove_cvref_t<VALUE>> {
-        return applicative_typeclass<std::optional<VALUE_TYPE>>
-            .pure(std::forward<VALUE>(value));
+        return applicative_typeclass<std::optional<VALUE_TYPE>>.pure(
+            std::forward<VALUE>(value));
     }
 
     template <class A, class F>
     auto bind(this auto &&, const std::optional<A> &ma, F &&f) {
-        using Result =
-            remove_cvref_t<std::invoke_result_t<F, const A &>>;
+        using Result = remove_cvref_t<std::invoke_result_t<F, const A &>>;
         if (!ma)
             return Result{};
         return Result{std::invoke(std::forward<F>(f), *ma)};
@@ -126,14 +117,13 @@ struct BemanOptionalMonadImpl {
     template <class VALUE>
     auto pure(this auto &&, VALUE &&value)
         -> beman::optional::optional<remove_cvref_t<VALUE>> {
-        return applicative_typeclass<beman::optional::optional<VALUE_TYPE>>
-            .pure(std::forward<VALUE>(value));
+        return applicative_typeclass<beman::optional::optional<VALUE_TYPE>>.pure(
+            std::forward<VALUE>(value));
     }
 
     template <class A, class F>
     auto bind(this auto &&, const beman::optional::optional<A> &ma, F &&f) {
-        using Result =
-            remove_cvref_t<std::invoke_result_t<F, const A &>>;
+        using Result = remove_cvref_t<std::invoke_result_t<F, const A &>>;
         if (!ma)
             return Result{};
         return Result{std::invoke(std::forward<F>(f), *ma)};
@@ -143,8 +133,7 @@ struct BemanOptionalMonadImpl {
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                            std::optional<VALUE_TYPE>>)
-struct BemanOptionalMonadMap
-    : Monad<BemanOptionalMonadImpl<VALUE_TYPE>> {
+struct BemanOptionalMonadMap : Monad<BemanOptionalMonadImpl<VALUE_TYPE>> {
     using BemanOptionalMonadImpl<VALUE_TYPE>::bind;
     using BemanOptionalMonadImpl<VALUE_TYPE>::pure;
 };
@@ -153,9 +142,8 @@ struct BemanOptionalMonadMap
 template <class VALUE_TYPE>
     requires(!std::same_as<beman::optional::optional<VALUE_TYPE>,
                            std::optional<VALUE_TYPE>>)
-inline constexpr auto
-    monad_typeclass<beman::optional::optional<VALUE_TYPE>> =
-        BemanOptionalMonadMap<VALUE_TYPE>{};
+inline constexpr auto monad_typeclass<beman::optional::optional<VALUE_TYPE>> =
+    BemanOptionalMonadMap<VALUE_TYPE>{};
 
 // -- Free-function API --
 

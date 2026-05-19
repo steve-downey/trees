@@ -9,13 +9,9 @@
 #include <cstddef>
 #include <vector>
 
-TEST_CASE("FingerTree3 - HeaderIsIdempotent")
-{
-    REQUIRE(true);
-}
+TEST_CASE("FingerTree3 - HeaderIsIdempotent") { REQUIRE(true); }
 
-TEST_CASE("FingerTree3 - EmptyAndLeaf")
-{
+TEST_CASE("FingerTree3 - EmptyAndLeaf") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto e = FT::empty();
@@ -28,8 +24,7 @@ TEST_CASE("FingerTree3 - EmptyAndLeaf")
     CHECK(l.measure() == 1U);
 }
 
-TEST_CASE("FingerTree3 - ConsSnoc")
-{
+TEST_CASE("FingerTree3 - ConsSnoc") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto t = FT::empty();
@@ -46,8 +41,7 @@ TEST_CASE("FingerTree3 - ConsSnoc")
         CHECK(v[static_cast<std::size_t>(i)] == i);
 }
 
-TEST_CASE("FingerTree3 - LazyBuildIsCheap")
-{
+TEST_CASE("FingerTree3 - LazyBuildIsCheap") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto t = FT::empty();
@@ -61,8 +55,7 @@ TEST_CASE("FingerTree3 - LazyBuildIsCheap")
         CHECK(v[static_cast<std::size_t>(i)] == i);
 }
 
-TEST_CASE("FingerTree3 - ViewLR")
-{
+TEST_CASE("FingerTree3 - ViewLR") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto t = FT::from_sequence({10, 20, 30, 40, 50});
@@ -77,8 +70,7 @@ TEST_CASE("FingerTree3 - ViewLR")
     CHECK(vr->d_rest.measure() == 4U);
 }
 
-TEST_CASE("FingerTree3 - Append")
-{
+TEST_CASE("FingerTree3 - Append") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto left = FT::from_sequence({1, 2, 3, 4, 5});
@@ -89,8 +81,7 @@ TEST_CASE("FingerTree3 - Append")
           std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
 }
 
-TEST_CASE("FingerTree3 - Split")
-{
+TEST_CASE("FingerTree3 - Split") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto t = FT::empty();
@@ -104,8 +95,7 @@ TEST_CASE("FingerTree3 - Split")
     CHECK(sp->d_right.measure() == 74U);
 }
 
-TEST_CASE("FingerTree3 - SplitAtMeasure")
-{
+TEST_CASE("FingerTree3 - SplitAtMeasure") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto t = FT::empty();
@@ -117,8 +107,7 @@ TEST_CASE("FingerTree3 - SplitAtMeasure")
     CHECK(sa.d_right.measure() == 50U);
 }
 
-TEST_CASE("FingerTree3 - Persistence")
-{
+TEST_CASE("FingerTree3 - Persistence") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto t1 = FT::from_sequence({1, 2, 3});
@@ -130,8 +119,7 @@ TEST_CASE("FingerTree3 - Persistence")
     CHECK(t3.flatten() == std::vector<int>{1, 2, 3, 4});
 }
 
-TEST_CASE("FingerTree3 - ForEach")
-{
+TEST_CASE("FingerTree3 - ForEach") {
     using FT = smd::tree::FingerTree3<int>;
 
     auto t = FT::from_sequence({1, 2, 3, 4, 5});

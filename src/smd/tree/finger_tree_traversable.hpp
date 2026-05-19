@@ -7,8 +7,8 @@
 // - Materialization: traverse materializes the tree via flatten() into a
 // vector.
 // - Preservation: monoid measure semantics are preserved through the traversal.
-// - Reconstruction: results are rebuilt via FingerTree2<U>::from_sequence() with
-// same measure policy.
+// - Reconstruction: results are rebuilt via FingerTree2<U>::from_sequence()
+// with same measure policy.
 // - Applicative semantics: all traversals follow left-to-right order
 // independent of tree structure.
 //
@@ -70,7 +70,8 @@ struct FingerTreeTraversableMap
     using FingerTreeTraversableImpl<T, TAG_TYPE, MEASURE_POLICY>::traverse;
 };
 
-/** Registers FingerTree as a Traversable for all tag and measure combinations. */
+/** Registers FingerTree as a Traversable for all tag and measure combinations.
+ */
 template <class T, class TAG_TYPE, class MEASURE_POLICY>
 inline constexpr auto
     traversable_typeclass<smd::tree::FingerTree2<T, TAG_TYPE, MEASURE_POLICY>> =

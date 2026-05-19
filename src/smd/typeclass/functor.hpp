@@ -44,7 +44,8 @@ struct Functor : protected Impl {
     // e4c7a3f1-8b2d-4e1a-b6f4-1c8d7a5e3b02 end
 };
 
-/** Typeclass lookup variable for Functor; specialize for each container type. */
+/** Typeclass lookup variable for Functor; specialize for each container type.
+ */
 template <class T>
 inline constexpr auto functor_typeclass = std::false_type{};
 

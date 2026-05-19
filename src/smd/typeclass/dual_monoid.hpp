@@ -25,12 +25,14 @@ namespace smd::typeclass {
 template <typename M>
 struct DualMonoid {
     M value;
-    friend auto operator==(const DualMonoid &, const DualMonoid &) -> bool
-        = default;
+    friend auto operator==(const DualMonoid &, const DualMonoid &)
+        -> bool = default;
 
     // Forward >= from M so split_at_measure compiles on reversed trees.
     friend auto operator>=(const DualMonoid &lhs, const DualMonoid &rhs) -> bool
-        requires requires(const M &a, const M &b) { { a >= b } -> std::convertible_to<bool>; }
+        requires requires(const M &a, const M &b) {
+            { a >= b } -> std::convertible_to<bool>;
+        }
     {
         return lhs.value >= rhs.value;
     }

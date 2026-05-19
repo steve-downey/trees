@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dotfiles_magic",
+      "type": "shell",
+      "linux": {
+        "command": "bash -c \"test -f ~/dotfiles-magic/dotfiles_magic_task.sh && ~/dotfiles-magic/dotfiles_magic_task.sh --quiet || echo '[INFO] dotfiles_magic_task.sh not found, skipping' >&2\""
+      },
+      "group": "build",
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": true,
+        "panel": "shared"
+      }
+    }
+  ]
+}

@@ -8,8 +8,9 @@
 // The Tree template parameter accepts any fully-specialised finger tree type
 // whose measure is an element count (size_t, UnitMeasure):
 //
-//   FingerTreeRandomAccess<int>                  // FT5-backed (default, correct at all sizes)
-//   FingerTreeRandomAccess<int, FingerTree2<int>> // FT2-backed (kMaxDepth hazard at N > ~2000)
+//   FingerTreeRandomAccess<int>                  // FT5-backed (default,
+//   correct at all sizes) FingerTreeRandomAccess<int, FingerTree2<int>> //
+//   FT2-backed (kMaxDepth hazard at N > ~2000)
 //
 // This mirrors std::stack<T, Container>: the element type T plus an optional
 // fully-specialised backing tree.  Reason for the full-specialisation approach
@@ -43,8 +44,8 @@ namespace smd::tree {
  * - size / empty:                 O(1)
  * - to_vector:                    O(n)
  */
-template <typename T,
-          typename Tree = FingerTree5<T, std::size_t, UnitMeasure5<T, std::size_t>>>
+template <typename T, typename Tree = FingerTree5<T, std::size_t,
+                                                  UnitMeasure5<T, std::size_t>>>
 class FingerTreeRandomAccess {
     Tree d_tree;
 
@@ -66,7 +67,8 @@ class FingerTreeRandomAccess {
     /** Returns true if the sequence is empty; O(1). */
     auto empty() const -> bool { return d_tree.is_empty(); }
 
-    /** Returns the element at @p index, or nullopt if out of range; O(log n). */
+    /** Returns the element at @p index, or nullopt if out of range; O(log n).
+     */
     auto at(std::size_t index) const -> std::optional<T> {
         if (index >= size())
             return std::nullopt;
@@ -77,17 +79,20 @@ class FingerTreeRandomAccess {
         return sp->d_pivot;
     }
 
-    /** Returns a new sequence with @p value appended at the back; O(1) amortized. */
+    /** Returns a new sequence with @p value appended at the back; O(1)
+     * amortized. */
     auto push_back(T value) const -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(d_tree.snoc(std::move(value)));
     }
 
-    /** Returns a new sequence with @p value prepended at the front; O(1) amortized. */
+    /** Returns a new sequence with @p value prepended at the front; O(1)
+     * amortized. */
     auto push_front(T value) const -> FingerTreeRandomAccess {
         return FingerTreeRandomAccess(d_tree.cons(std::move(value)));
     }
 
-    /** Returns a new sequence with @p value inserted before @p index; O(log n). */
+    /** Returns a new sequence with @p value inserted before @p index; O(log n).
+     */
     auto insert(std::size_t index, T value) const -> FingerTreeRandomAccess {
         auto parts = d_tree.split_at(
             [index](std::size_t prefix) { return prefix > index; });
@@ -109,8 +114,8 @@ class FingerTreeRandomAccess {
         return FingerTreeRandomAccess(Tree::concat(sp->d_left, sp->d_right));
     }
 
-    /** Returns a new sequence with position @p index replaced by @p value; O(log n).
-     *  Returns @c *this unchanged if @p index is out of range.
+    /** Returns a new sequence with position @p index replaced by @p value;
+     * O(log n). Returns @c *this unchanged if @p index is out of range.
      */
     auto update(std::size_t index, T value) const -> FingerTreeRandomAccess {
         if (index >= size())

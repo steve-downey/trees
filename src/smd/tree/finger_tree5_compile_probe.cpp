@@ -18,11 +18,14 @@
 // Measuring compile time (from .build/build-gcc-16):
 //
 //   touch ../../src/smd/tree/finger_tree5_compile_probe.cpp
-//   time ninja -j1 src/smd/tree/CMakeFiles/smd_tree_compile_probes.dir/Debug/finger_tree5_compile_probe.cpp.o
+//   time ninja -j1
+//   src/smd/tree/CMakeFiles/smd_tree_compile_probes.dir/Debug/finger_tree5_compile_probe.cpp.o
 //
 // Counting DWARF class-type entries:
 //
-//   readelf --debug-dump=info src/smd/tree/CMakeFiles/smd_tree_compile_probes.dir/Debug/finger_tree5_compile_probe.cpp.o | grep -c DW_TAG_class_type
+//   readelf --debug-dump=info
+//   src/smd/tree/CMakeFiles/smd_tree_compile_probes.dir/Debug/finger_tree5_compile_probe.cpp.o
+//   | grep -c DW_TAG_class_type
 //
 // GCC per-phase time breakdown (add temporarily; produces verbose output):
 //   target_compile_options(smd_tree_compile_probes PRIVATE -ftime-report)
@@ -35,7 +38,8 @@ namespace {
 
 struct WeightTag {
     int value;
-    friend auto operator==(const WeightTag &, const WeightTag &) -> bool = default;
+    friend auto operator==(const WeightTag &, const WeightTag &)
+        -> bool = default;
     friend auto operator>=(WeightTag a, WeightTag b) -> bool {
         return a.value >= b.value;
     }
@@ -57,8 +61,7 @@ struct Monoid<WeightTag> {
 };
 } // namespace smd::typeclass
 
-void finger_tree5_probe_unit_measure()
-{
+void finger_tree5_probe_unit_measure() {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -67,10 +70,10 @@ void finger_tree5_probe_unit_measure()
     for (int i = 0; i < 4; ++i)
         t = t.cons(-i);
 
-    auto m  = t.measure();
-    auto d  = t.spine_depth();
-    auto v  = t.flatten();
-    auto h  = t.head();
+    auto m = t.measure();
+    auto d = t.spine_depth();
+    auto v = t.flatten();
+    auto h = t.head();
     auto la = t.last();
     auto vl = t.view_l();
     auto vr = t.view_r();
@@ -80,15 +83,26 @@ void finger_tree5_probe_unit_measure()
     auto sa = t.split_at_measure(std::size_t{10});
     auto sp = t.split([](std::size_t p) { return p > 5; });
     auto sr = t.search([](std::size_t p) { return p > 5; });
-    int  sum = 0;
+    int sum = 0;
     t.for_each([&](int x) { sum += x; });
 
-    (void)m;  (void)d;  (void)v;  (void)h;  (void)la; (void)vl; (void)vr;
-    (void)ta; (void)in; (void)ap; (void)sa; (void)sp; (void)sr; (void)sum;
+    (void)m;
+    (void)d;
+    (void)v;
+    (void)h;
+    (void)la;
+    (void)vl;
+    (void)vr;
+    (void)ta;
+    (void)in;
+    (void)ap;
+    (void)sa;
+    (void)sp;
+    (void)sr;
+    (void)sum;
 }
 
-void finger_tree5_probe_custom_measure()
-{
+void finger_tree5_probe_custom_measure() {
     using FT = smd::tree::FingerTree5<int, WeightTag, WeightMeasure>;
 
     auto t = FT{};
@@ -97,8 +111,11 @@ void finger_tree5_probe_custom_measure()
 
     auto sa = t.split_at_measure(WeightTag{15});
     auto ap = t.append(t);
-    auto v  = t.flatten();
+    auto v = t.flatten();
     auto sp = t.split([](WeightTag p) { return p.value > 10; });
 
-    (void)sa; (void)ap; (void)v; (void)sp;
+    (void)sa;
+    (void)ap;
+    (void)v;
+    (void)sp;
 }

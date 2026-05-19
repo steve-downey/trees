@@ -120,7 +120,8 @@ struct Applicative : protected Impl {
     /** Lifts `function` into the applicative and applies it to one or more
      * effectful arguments left-to-right, producing a single effectful result.
      * @param function  A plain callable; it is wrapped with `pure` internally.
-     * @param first_argument  First effectful argument (e.g., optional or vector).
+     * @param first_argument  First effectful argument (e.g., optional or
+     * vector).
      * @param rest_arguments  Additional effectful arguments, if any.
      */
     template <class FUNCTION, class FIRST_ARGUMENT, class... REST_ARGUMENTS>
@@ -174,7 +175,8 @@ struct Applicative : protected Impl {
     }
 
   public:
-    /** Single-argument fmap via invoke; applies `function` to one effectful arg. */
+    /** Single-argument fmap via invoke; applies `function` to one effectful
+     * arg. */
     template <class FUNCTION, class ARGUMENT>
     auto map(this auto &&self, FUNCTION &&function, ARGUMENT &&argument) {
         return self.invoke(std::forward<FUNCTION>(function),
@@ -207,7 +209,8 @@ struct Applicative : protected Impl {
                            std::forward<SECOND_ARGUMENT>(second_argument));
     }
 
-    /** Sequences two effectful values; returns the second, ignoring the first. */
+    /** Sequences two effectful values; returns the second, ignoring the first.
+     */
     template <class FIRST_ARGUMENT, class SECOND_ARGUMENT>
     auto discard_first(this auto &&self, FIRST_ARGUMENT &&first_argument,
                        SECOND_ARGUMENT &&second_argument) {
@@ -219,7 +222,8 @@ struct Applicative : protected Impl {
             std::forward<SECOND_ARGUMENT>(second_argument));
     }
 
-    /** Sequences two effectful values; returns the first, ignoring the second. */
+    /** Sequences two effectful values; returns the first, ignoring the second.
+     */
     template <class FIRST_ARGUMENT, class SECOND_ARGUMENT>
     auto discard_second(this auto &&self, FIRST_ARGUMENT &&first_argument,
                         SECOND_ARGUMENT &&second_argument) {

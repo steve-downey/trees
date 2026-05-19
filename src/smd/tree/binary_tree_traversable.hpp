@@ -113,7 +113,8 @@ struct BinaryTreeTraversableMap : Traversable<BinaryTreeTraversableImpl<T>> {
     using BinaryTreeTraversableImpl<T>::traverse;
 };
 
-/** Registers BinaryTreeTraversableMap as the Traversable instance for BinaryTree<T>. */
+/** Registers BinaryTreeTraversableMap as the Traversable instance for
+ * BinaryTree<T>. */
 template <class T>
 inline constexpr auto traversable_typeclass<smd::tree::BinaryTree<T>> =
     BinaryTreeTraversableMap<T>{};

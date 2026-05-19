@@ -47,7 +47,8 @@ struct FringeTreeFoldableMap : Foldable<FringeTreeFoldableImpl<T>> {
     using FringeTreeFoldableImpl<T>::fold_map;
 };
 
-/** Registers FringeTreeFoldableMap as the Foldable instance for FringeTree<T>. */
+/** Registers FringeTreeFoldableMap as the Foldable instance for FringeTree<T>.
+ */
 template <class T>
 inline constexpr auto foldable_typeclass<smd::tree::FringeTree<T>> =
     FringeTreeFoldableMap<T>{};

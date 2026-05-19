@@ -11,7 +11,13 @@ target_sources(
 install(TARGETS smd.fixpoint FILE_SET smd_fixpoint_headers)
 
 if(TREE_ENABLE_TESTING)
-    add_executable(smd_fixpoint_tests box.t.cpp fix.t.cpp cata.t.cpp overloaded.t.cpp)
+    add_executable(
+        smd_fixpoint_tests
+        box.t.cpp
+        fix.t.cpp
+        cata.t.cpp
+        overloaded.t.cpp
+    )
 
     target_link_libraries(
         smd_fixpoint_tests

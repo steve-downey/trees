@@ -14,7 +14,7 @@
 namespace smd::tree {
 
 /** Persistent balanced binary tree representing a sequence of leaf values.
- * 
+ *
  * The tree has three variants: Empty (no elements), Leaf (one element), and
  * Branch (two subtrees). Values live exclusively at leaves; branches carry
  * only structure and a cached measure (leaf count). This design supports
@@ -39,7 +39,8 @@ class FringeTree {
   public:
     using value_type = T;
 
-    /** A deconstructed view of the front or back element plus the remaining tree. */
+    /** A deconstructed view of the front or back element plus the remaining
+     * tree. */
     struct View {
         T d_value;
         FringeTree d_rest;

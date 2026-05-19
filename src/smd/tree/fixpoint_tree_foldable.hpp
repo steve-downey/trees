@@ -59,7 +59,8 @@ struct FixpointTreeFoldableMap : Foldable<FixpointTreeFoldableImpl> {
 };
 
 // c4d9f2a7-6b1e-4c3f-8a5d-2e7b9c1f4a83
-/** Registers FixpointTreeFoldableMap as the Foldable instance for Fix<ExprF>. */
+/** Registers FixpointTreeFoldableMap as the Foldable instance for Fix<ExprF>.
+ */
 template <>
 inline constexpr auto foldable_typeclass<smd::fixpoint::Fix<smd::tree::ExprF>> =
     FixpointTreeFoldableMap{};

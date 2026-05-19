@@ -146,19 +146,19 @@ inline auto tag_op(const Tag &a, const Tag &b) -> Tag {
 template <typename T, typename Tag, typename MeasFn>
 auto digit_measure(const Digit<T> &d, MeasFn &&mf) -> Tag {
     return std::visit(
-        overloaded{
-            [&](const One<T> &x) -> Tag { return mf(x.a); },
-            [&](const Two<T> &x) -> Tag {
-                return tag_op<Tag>(mf(x.a), mf(x.b));
-            },
-            [&](const Three<T> &x) -> Tag {
-                return tag_op<Tag>(tag_op<Tag>(mf(x.a), mf(x.b)), mf(x.c));
-            },
-            [&](const Four<T> &x) -> Tag {
-                return tag_op<Tag>(
-                    tag_op<Tag>(tag_op<Tag>(mf(x.a), mf(x.b)), mf(x.c)),
-                    mf(x.d));
-            }},
+        overloaded{[&](const One<T> &x) -> Tag { return mf(x.a); },
+                   [&](const Two<T> &x) -> Tag {
+                       return tag_op<Tag>(mf(x.a), mf(x.b));
+                   },
+                   [&](const Three<T> &x) -> Tag {
+                       return tag_op<Tag>(tag_op<Tag>(mf(x.a), mf(x.b)),
+                                          mf(x.c));
+                   },
+                   [&](const Four<T> &x) -> Tag {
+                       return tag_op<Tag>(
+                           tag_op<Tag>(tag_op<Tag>(mf(x.a), mf(x.b)), mf(x.c)),
+                           mf(x.d));
+                   }},
         d);
 }
 
@@ -180,38 +180,36 @@ auto digit_last(const Digit<T> &d) -> const T & {
 template <typename T>
 auto digit_tail(const Digit<T> &d) -> std::optional<Digit<T>> {
     return std::visit(
-        overloaded{
-            [](const One<T> &) -> std::optional<Digit<T>> {
-                return std::nullopt;
-            },
-            [](const Two<T> &x) -> std::optional<Digit<T>> {
-                return One<T>{x.b};
-            },
-            [](const Three<T> &x) -> std::optional<Digit<T>> {
-                return Two<T>{x.b, x.c};
-            },
-            [](const Four<T> &x) -> std::optional<Digit<T>> {
-                return Three<T>{x.b, x.c, x.d};
-            }},
+        overloaded{[](const One<T> &) -> std::optional<Digit<T>> {
+                       return std::nullopt;
+                   },
+                   [](const Two<T> &x) -> std::optional<Digit<T>> {
+                       return One<T>{x.b};
+                   },
+                   [](const Three<T> &x) -> std::optional<Digit<T>> {
+                       return Two<T>{x.b, x.c};
+                   },
+                   [](const Four<T> &x) -> std::optional<Digit<T>> {
+                       return Three<T>{x.b, x.c, x.d};
+                   }},
         d);
 }
 
 template <typename T>
 auto digit_init(const Digit<T> &d) -> std::optional<Digit<T>> {
     return std::visit(
-        overloaded{
-            [](const One<T> &) -> std::optional<Digit<T>> {
-                return std::nullopt;
-            },
-            [](const Two<T> &x) -> std::optional<Digit<T>> {
-                return One<T>{x.a};
-            },
-            [](const Three<T> &x) -> std::optional<Digit<T>> {
-                return Two<T>{x.a, x.b};
-            },
-            [](const Four<T> &x) -> std::optional<Digit<T>> {
-                return Three<T>{x.a, x.b, x.c};
-            }},
+        overloaded{[](const One<T> &) -> std::optional<Digit<T>> {
+                       return std::nullopt;
+                   },
+                   [](const Two<T> &x) -> std::optional<Digit<T>> {
+                       return One<T>{x.a};
+                   },
+                   [](const Three<T> &x) -> std::optional<Digit<T>> {
+                       return Two<T>{x.a, x.b};
+                   },
+                   [](const Four<T> &x) -> std::optional<Digit<T>> {
+                       return Three<T>{x.a, x.b, x.c};
+                   }},
         d);
 }
 
@@ -293,14 +291,13 @@ auto node_measure(const Node<T, Tag> &n) -> Tag {
 
 template <typename T, typename Tag>
 auto node_to_digit(const Node<T, Tag> &n) -> Digit<T> {
-    return std::visit(
-        overloaded{[](const Node2<T, Tag> &x) -> Digit<T> {
-                       return Two<T>{x.a, x.b};
-                   },
-                   [](const Node3<T, Tag> &x) -> Digit<T> {
-                       return Three<T>{x.a, x.b, x.c};
-                   }},
-        n);
+    return std::visit(overloaded{[](const Node2<T, Tag> &x) -> Digit<T> {
+                                     return Two<T>{x.a, x.b};
+                                 },
+                                 [](const Node3<T, Tag> &x) -> Digit<T> {
+                                     return Three<T>{x.a, x.b, x.c};
+                                 }},
+                      n);
 }
 
 template <typename T, typename Tag>
@@ -433,9 +430,9 @@ class FingerTree2 {
                            FingerTree2<NodeT, Tag, NodeMeasure, DEPTH + 1>,
                            void>;
 
-    using SpinePtr = std::conditional_t<(DEPTH < kMaxDepth),
-                                        std::shared_ptr<const SpineTree>,
-                                        std::monostate>;
+    using SpinePtr =
+        std::conditional_t<(DEPTH < kMaxDepth),
+                           std::shared_ptr<const SpineTree>, std::monostate>;
 
     static auto meas_fn() -> Meas { return Meas{}; }
     static auto tag_value(const T &v) -> Tag { return meas_fn()(v); }
@@ -476,8 +473,7 @@ class FingerTree2 {
                 return std::make_shared<const SpineTree>(
                     SpineTree::leaf(std::move(node)));
             }
-            return std::make_shared<const SpineTree>(
-                sp->cons(std::move(node)));
+            return std::make_shared<const SpineTree>(sp->cons(std::move(node)));
         } else {
             (void)sp;
             (void)node;
@@ -492,8 +488,7 @@ class FingerTree2 {
                 return std::make_shared<const SpineTree>(
                     SpineTree::leaf(std::move(node)));
             }
-            return std::make_shared<const SpineTree>(
-                sp->snoc(std::move(node)));
+            return std::make_shared<const SpineTree>(sp->snoc(std::move(node)));
         } else {
             (void)sp;
             (void)node;
@@ -624,14 +619,14 @@ class FingerTree2 {
 
     static auto digit_leaf_count(const Digit<T> &d) -> std::size_t {
         std::size_t total = 0;
-        ft2::digit_for_each(d, [&](const T &e) { total += elem_leaf_count(e); });
+        ft2::digit_for_each(d,
+                            [&](const T &e) { total += elem_leaf_count(e); });
         return total;
     }
 
     // -- nodes_from for this level -------------------------------------------
 
-    static auto local_nodes(std::vector<T> elems)
-        -> std::vector<NodeT> {
+    static auto local_nodes(std::vector<T> elems) -> std::vector<NodeT> {
         return ft2::nodes_from<T, Tag>(meas_fn(), leaf_count_fn(),
                                        std::move(elems));
     }
@@ -689,8 +684,7 @@ class FingerTree2 {
             return make_deep(ld.d_left, std::move(sp), rd.d_right);
         } else {
             auto result = left.flatten();
-            result.insert(result.end(),
-                          std::make_move_iterator(middle.begin()),
+            result.insert(result.end(), std::make_move_iterator(middle.begin()),
                           std::make_move_iterator(middle.end()));
             auto rv = right.flatten();
             result.insert(result.end(), rv.begin(), rv.end());
@@ -782,8 +776,8 @@ class FingerTree2 {
                     return std::nullopt;
                 auto lt = ds->d_left.has_value() ? digit_to_tree(*ds->d_left)
                                                  : make_empty();
-                auto rt = assemble_l(std::move(ds->d_right), d.d_spine,
-                                     d.d_right);
+                auto rt =
+                    assemble_l(std::move(ds->d_right), d.d_spine, d.d_right);
                 return Split{std::move(lt), std::move(ds->d_pivot),
                              std::move(rt)};
             }
@@ -797,13 +791,11 @@ class FingerTree2 {
                     return pred(ft2::tag_op<Tag>(vl, t));
                 };
                 ft2::TagPred<Tag> erased_sp(spine_pred);
-                auto ss =
-                    d.d_spine->split_impl(erased_sp, ft2::tag_id<Tag>());
+                auto ss = d.d_spine->split_impl(erased_sp, ft2::tag_id<Tag>());
                 if (!ss.has_value())
                     return std::nullopt;
 
-                auto node_prefix =
-                    ft2::tag_op<Tag>(vl, ss->d_left.measure());
+                auto node_prefix = ft2::tag_op<Tag>(vl, ss->d_left.measure());
                 auto nd = ft2::node_to_digit(ss->d_pivot);
                 auto ns = split_digit(pred, node_prefix, nd);
                 if (!ns.has_value())
@@ -820,9 +812,8 @@ class FingerTree2 {
 
                 auto lt =
                     assemble_r(d.d_left, std::move(sl), std::move(ns->d_left));
-                auto rt =
-                    assemble_l(std::move(ns->d_right), std::move(sr),
-                               d.d_right);
+                auto rt = assemble_l(std::move(ns->d_right), std::move(sr),
+                                     d.d_right);
                 return Split{std::move(lt), std::move(ns->d_pivot),
                              std::move(rt)};
             }
@@ -830,12 +821,10 @@ class FingerTree2 {
             auto ds = split_digit(pred, vm, d.d_right);
             if (!ds.has_value())
                 return std::nullopt;
-            auto lt =
-                assemble_r(d.d_left, d.d_spine, std::move(ds->d_left));
+            auto lt = assemble_r(d.d_left, d.d_spine, std::move(ds->d_left));
             auto rt = ds->d_right.has_value() ? digit_to_tree(*ds->d_right)
                                               : make_empty();
-            return Split{std::move(lt), std::move(ds->d_pivot),
-                         std::move(rt)};
+            return Split{std::move(lt), std::move(ds->d_pivot), std::move(rt)};
         } else {
             auto vec = flatten();
             auto running = prefix;
@@ -890,8 +879,7 @@ class FingerTree2 {
         if constexpr (DEPTH < kMaxDepth) {
             if (spine_is_empty(sp))
                 return;
-            sp->for_each(
-                [&](const NodeT &n) { ft2::node_for_each(n, fn); });
+            sp->for_each([&](const NodeT &n) { ft2::node_for_each(n, fn); });
         }
     }
 
@@ -966,13 +954,13 @@ class FingerTree2 {
                             },
                             [&](const Three<T> &dig) {
                                 return make_deep(
-                                    Four<T>{std::move(x), dig.a, dig.b,
-                                            dig.c},
+                                    Four<T>{std::move(x), dig.a, dig.b, dig.c},
                                     d->d_spine, d->d_right);
                             },
                             [&](const Four<T> &dig) -> FingerTree2 {
                                 auto node = ft2::make_node3<T, Tag>(
-                                    meas_fn(), leaf_count_fn(), dig.b, dig.c, dig.d);
+                                    meas_fn(), leaf_count_fn(), dig.b, dig.c,
+                                    dig.d);
                                 auto sp =
                                     spine_cons(d->d_spine, std::move(node));
                                 return make_deep(Two<T>{std::move(x), dig.a},
@@ -1008,12 +996,12 @@ class FingerTree2 {
                             [&](const Three<T> &dig) {
                                 return make_deep(
                                     d->d_left, d->d_spine,
-                                    Four<T>{dig.a, dig.b, dig.c,
-                                            std::move(x)});
+                                    Four<T>{dig.a, dig.b, dig.c, std::move(x)});
                             },
                             [&](const Four<T> &dig) -> FingerTree2 {
                                 auto node = ft2::make_node3<T, Tag>(
-                                    meas_fn(), leaf_count_fn(), dig.a, dig.b, dig.c);
+                                    meas_fn(), leaf_count_fn(), dig.a, dig.b,
+                                    dig.c);
                                 auto sp =
                                     spine_snoc(d->d_spine, std::move(node));
                                 return make_deep(d->d_left, std::move(sp),
@@ -1028,21 +1016,21 @@ class FingerTree2 {
 
     auto view_l() const -> std::optional<View> {
         return std::visit(
-            ft2::overloaded{
-                [](const Empty &) -> std::optional<View> {
-                    return std::nullopt;
-                },
-                [](const Single &s) -> std::optional<View> {
-                    return View{s.d_value, make_empty()};
-                },
-                [](const DeepPtr &d) -> std::optional<View> {
-                    auto h = ft2::digit_head(d->d_left);
-                    auto t = ft2::digit_tail(d->d_left);
-                    if (t.has_value())
-                        return View{h, make_deep(std::move(*t), d->d_spine,
-                                                 d->d_right)};
-                    return View{h, deep_l(d->d_spine, d->d_right)};
-                }},
+            ft2::overloaded{[](const Empty &) -> std::optional<View> {
+                                return std::nullopt;
+                            },
+                            [](const Single &s) -> std::optional<View> {
+                                return View{s.d_value, make_empty()};
+                            },
+                            [](const DeepPtr &d) -> std::optional<View> {
+                                auto h = ft2::digit_head(d->d_left);
+                                auto t = ft2::digit_tail(d->d_left);
+                                if (t.has_value())
+                                    return View{h, make_deep(std::move(*t),
+                                                             d->d_spine,
+                                                             d->d_right)};
+                                return View{h, deep_l(d->d_spine, d->d_right)};
+                            }},
             d_repr);
     }
 
@@ -1050,21 +1038,21 @@ class FingerTree2 {
 
     auto view_r() const -> std::optional<View> {
         return std::visit(
-            ft2::overloaded{
-                [](const Empty &) -> std::optional<View> {
-                    return std::nullopt;
-                },
-                [](const Single &s) -> std::optional<View> {
-                    return View{s.d_value, make_empty()};
-                },
-                [](const DeepPtr &d) -> std::optional<View> {
-                    auto l = ft2::digit_last(d->d_right);
-                    auto i = ft2::digit_init(d->d_right);
-                    if (i.has_value())
-                        return View{l, make_deep(d->d_left, d->d_spine,
-                                                 std::move(*i))};
-                    return View{l, deep_r(d->d_left, d->d_spine)};
-                }},
+            ft2::overloaded{[](const Empty &) -> std::optional<View> {
+                                return std::nullopt;
+                            },
+                            [](const Single &s) -> std::optional<View> {
+                                return View{s.d_value, make_empty()};
+                            },
+                            [](const DeepPtr &d) -> std::optional<View> {
+                                auto l = ft2::digit_last(d->d_right);
+                                auto i = ft2::digit_init(d->d_right);
+                                if (i.has_value())
+                                    return View{l,
+                                                make_deep(d->d_left, d->d_spine,
+                                                          std::move(*i))};
+                                return View{l, deep_r(d->d_left, d->d_spine)};
+                            }},
             d_repr);
     }
 
@@ -1111,16 +1099,14 @@ class FingerTree2 {
 
     template <typename F>
     void for_each(F &&fn) const {
-        std::visit(
-            ft2::overloaded{
-                [](const Empty &) {},
-                [&](const Single &s) { fn(s.d_value); },
-                [&](const DeepPtr &d) {
-                    ft2::digit_for_each(d->d_left, fn);
-                    spine_for_each(d->d_spine, fn);
-                    ft2::digit_for_each(d->d_right, fn);
-                }},
-            d_repr);
+        std::visit(ft2::overloaded{[](const Empty &) {},
+                                   [&](const Single &s) { fn(s.d_value); },
+                                   [&](const DeepPtr &d) {
+                                       ft2::digit_for_each(d->d_left, fn);
+                                       spine_for_each(d->d_spine, fn);
+                                       ft2::digit_for_each(d->d_right, fn);
+                                   }},
+                   d_repr);
     }
 
     // -- append / concat: O(log min(n,m)) ------------------------------------

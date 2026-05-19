@@ -46,13 +46,9 @@ struct Monoid<Weighted> {
 
 } // namespace smd::typeclass
 
-TEST_CASE("FingerTree5 - HeaderIsIdempotent")
-{
-    REQUIRE(true);
-}
+TEST_CASE("FingerTree5 - HeaderIsIdempotent") { REQUIRE(true); }
 
-TEST_CASE("FingerTree5 - Empty")
-{
+TEST_CASE("FingerTree5 - Empty") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -63,8 +59,7 @@ TEST_CASE("FingerTree5 - Empty")
     CHECK(t.flatten().empty());
 }
 
-TEST_CASE("FingerTree5 - Leaf")
-{
+TEST_CASE("FingerTree5 - Leaf") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::leaf(42);
@@ -76,16 +71,14 @@ TEST_CASE("FingerTree5 - Leaf")
     CHECK(t.flatten() == std::vector<int>{42});
 }
 
-TEST_CASE("FingerTree5 - DefaultTagIsSizeT")
-{
+TEST_CASE("FingerTree5 - DefaultTagIsSizeT") {
     using FT = smd::tree::FingerTree5<int>;
 
     static_assert(std::is_same_v<FT::value_type, int>);
     static_assert(std::is_same_v<FT::tag_type, std::size_t>);
 }
 
-TEST_CASE("FingerTree5 - ConsSnoc")
-{
+TEST_CASE("FingerTree5 - ConsSnoc") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::leaf(5);
@@ -100,8 +93,7 @@ TEST_CASE("FingerTree5 - ConsSnoc")
     CHECK(t3.last() == 7);
 }
 
-TEST_CASE("FingerTree5 - DigitOverflowOnCons")
-{
+TEST_CASE("FingerTree5 - DigitOverflowOnCons") {
     // Exactly exercise the size==4 spill: cons four items, then the fifth
     // forces a Node3 to be pushed down the spine.
     using FT = smd::tree::FingerTree5<int>;
@@ -114,7 +106,7 @@ TEST_CASE("FingerTree5 - DigitOverflowOnCons")
     CHECK(t4.is_branch());
     CHECK(t4.measure() == 5U);
 
-    auto t5 = t4.cons(5);  // Spill: left becomes [5,4], spine gets Node3{3,2,1}
+    auto t5 = t4.cons(5); // Spill: left becomes [5,4], spine gets Node3{3,2,1}
     CHECK(t5.is_branch());
     CHECK(t5.measure() == 6U);
     CHECK(t5.head() == 5);
@@ -123,8 +115,7 @@ TEST_CASE("FingerTree5 - DigitOverflowOnCons")
     CHECK(t5.flatten() == std::vector<int>{5, 4, 3, 2, 1, 0});
 }
 
-TEST_CASE("FingerTree5 - DigitOverflowOnSnoc")
-{
+TEST_CASE("FingerTree5 - DigitOverflowOnSnoc") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -136,8 +127,7 @@ TEST_CASE("FingerTree5 - DigitOverflowOnSnoc")
     CHECK(t.flatten() == std::vector<int>{1, 2, 3, 4, 5});
 }
 
-TEST_CASE("FingerTree5 - ConsOverflow")
-{
+TEST_CASE("FingerTree5 - ConsOverflow") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -154,8 +144,7 @@ TEST_CASE("FingerTree5 - ConsOverflow")
         CHECK(v[static_cast<std::size_t>(i)] == 19 - i);
 }
 
-TEST_CASE("FingerTree5 - SnocLarge")
-{
+TEST_CASE("FingerTree5 - SnocLarge") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -169,8 +158,7 @@ TEST_CASE("FingerTree5 - SnocLarge")
         CHECK(v[static_cast<std::size_t>(i)] == i);
 }
 
-TEST_CASE("FingerTree5 - ViewL")
-{
+TEST_CASE("FingerTree5 - ViewL") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -190,8 +178,7 @@ TEST_CASE("FingerTree5 - ViewL")
     CHECK(v->d_rest.head() == 20);
 }
 
-TEST_CASE("FingerTree5 - ViewR")
-{
+TEST_CASE("FingerTree5 - ViewR") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -205,8 +192,7 @@ TEST_CASE("FingerTree5 - ViewR")
     CHECK(v->d_rest.last() == 40);
 }
 
-TEST_CASE("FingerTree5 - ViewDrainsTreeOrderPreserving")
-{
+TEST_CASE("FingerTree5 - ViewDrainsTreeOrderPreserving") {
     // Repeated view_l on a deeply-spined tree must drain it in insertion order.
     using FT = smd::tree::FingerTree5<int>;
 
@@ -225,8 +211,7 @@ TEST_CASE("FingerTree5 - ViewDrainsTreeOrderPreserving")
     CHECK(t.is_empty());
 }
 
-TEST_CASE("FingerTree5 - HeadTailLastInit")
-{
+TEST_CASE("FingerTree5 - HeadTailLastInit") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::from_sequence({1, 2, 3, 4, 5});
@@ -238,8 +223,7 @@ TEST_CASE("FingerTree5 - HeadTailLastInit")
     CHECK(t.init().measure() == 4U);
 }
 
-TEST_CASE("FingerTree5 - Flatten")
-{
+TEST_CASE("FingerTree5 - Flatten") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -252,8 +236,7 @@ TEST_CASE("FingerTree5 - Flatten")
         CHECK(v[static_cast<std::size_t>(i)] == i);
 }
 
-TEST_CASE("FingerTree5 - ForEach")
-{
+TEST_CASE("FingerTree5 - ForEach") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::from_sequence({1, 2, 3, 4, 5});
@@ -262,8 +245,7 @@ TEST_CASE("FingerTree5 - ForEach")
     CHECK(collected == std::vector<int>{1, 2, 3, 4, 5});
 }
 
-TEST_CASE("FingerTree5 - FromSequenceEmpty")
-{
+TEST_CASE("FingerTree5 - FromSequenceEmpty") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::from_sequence({});
@@ -271,8 +253,7 @@ TEST_CASE("FingerTree5 - FromSequenceEmpty")
     CHECK(t.measure() == 0U);
 }
 
-TEST_CASE("FingerTree5 - PersistenceAfterMutation")
-{
+TEST_CASE("FingerTree5 - PersistenceAfterMutation") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t0 = FT::from_sequence({1, 2, 3});
@@ -284,8 +265,7 @@ TEST_CASE("FingerTree5 - PersistenceAfterMutation")
     CHECK(t2.flatten() == std::vector<int>{1, 2, 3, 4});
 }
 
-TEST_CASE("FingerTree5 - Append")
-{
+TEST_CASE("FingerTree5 - Append") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto left = FT::from_sequence({1, 2, 3, 4, 5});
@@ -299,8 +279,7 @@ TEST_CASE("FingerTree5 - Append")
         CHECK(v[static_cast<std::size_t>(i)] == i + 1);
 }
 
-TEST_CASE("FingerTree5 - AppendLarge")
-{
+TEST_CASE("FingerTree5 - AppendLarge") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto left = FT{};
@@ -319,8 +298,7 @@ TEST_CASE("FingerTree5 - AppendLarge")
         CHECK(v[static_cast<std::size_t>(i)] == i);
 }
 
-TEST_CASE("FingerTree5 - AppendEmpty")
-{
+TEST_CASE("FingerTree5 - AppendEmpty") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::from_sequence({1, 2, 3});
@@ -331,8 +309,7 @@ TEST_CASE("FingerTree5 - AppendEmpty")
     CHECK(e.append(e).is_empty());
 }
 
-TEST_CASE("FingerTree5 - AppendSingle")
-{
+TEST_CASE("FingerTree5 - AppendSingle") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::from_sequence({1, 2, 3});
@@ -342,8 +319,7 @@ TEST_CASE("FingerTree5 - AppendSingle")
     CHECK(s.append(t).flatten() == std::vector<int>{99, 1, 2, 3});
 }
 
-TEST_CASE("FingerTree5 - ConcatMatchesAppend")
-{
+TEST_CASE("FingerTree5 - ConcatMatchesAppend") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto a = FT::from_sequence({1, 2, 3});
@@ -354,8 +330,7 @@ TEST_CASE("FingerTree5 - ConcatMatchesAppend")
     CHECK(via_member == via_static);
 }
 
-TEST_CASE("FingerTree5 - AppendStressCrossSpine")
-{
+TEST_CASE("FingerTree5 - AppendStressCrossSpine") {
     // Cross-spine concatenation: both sides have nontrivial spines.
     using FT = smd::tree::FingerTree5<int>;
 
@@ -375,8 +350,7 @@ TEST_CASE("FingerTree5 - AppendStressCrossSpine")
         CHECK(v[static_cast<std::size_t>(i)] == i);
 }
 
-TEST_CASE("FingerTree5 - Split")
-{
+TEST_CASE("FingerTree5 - Split") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -390,8 +364,7 @@ TEST_CASE("FingerTree5 - Split")
     CHECK(sp->d_right.measure() == 74U);
 }
 
-TEST_CASE("FingerTree5 - SplitAtMeasure")
-{
+TEST_CASE("FingerTree5 - SplitAtMeasure") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -412,8 +385,7 @@ TEST_CASE("FingerTree5 - SplitAtMeasure")
     }
 }
 
-TEST_CASE("FingerTree5 - SplitEmpty")
-{
+TEST_CASE("FingerTree5 - SplitEmpty") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -421,8 +393,7 @@ TEST_CASE("FingerTree5 - SplitEmpty")
     CHECK_FALSE(sp.has_value());
 }
 
-TEST_CASE("FingerTree5 - SplitLeafMatching")
-{
+TEST_CASE("FingerTree5 - SplitLeafMatching") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::leaf(7);
@@ -433,8 +404,7 @@ TEST_CASE("FingerTree5 - SplitLeafMatching")
     CHECK(sp->d_right.is_empty());
 }
 
-TEST_CASE("FingerTree5 - SplitLeafNonMatching")
-{
+TEST_CASE("FingerTree5 - SplitLeafNonMatching") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::leaf(7);
@@ -442,8 +412,7 @@ TEST_CASE("FingerTree5 - SplitLeafNonMatching")
     CHECK_FALSE(sp.has_value());
 }
 
-TEST_CASE("FingerTree5 - SplitNoMatch")
-{
+TEST_CASE("FingerTree5 - SplitNoMatch") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::from_sequence({1, 2, 3, 4, 5});
@@ -451,8 +420,7 @@ TEST_CASE("FingerTree5 - SplitNoMatch")
     CHECK_FALSE(sp.has_value());
 }
 
-TEST_CASE("FingerTree5 - Search")
-{
+TEST_CASE("FingerTree5 - Search") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -464,8 +432,7 @@ TEST_CASE("FingerTree5 - Search")
     CHECK(*found == 10);
 }
 
-TEST_CASE("FingerTree5 - SplitAtPredicateAlwaysTrue")
-{
+TEST_CASE("FingerTree5 - SplitAtPredicateAlwaysTrue") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::from_sequence({1, 2, 3, 4, 5});
@@ -476,8 +443,7 @@ TEST_CASE("FingerTree5 - SplitAtPredicateAlwaysTrue")
     CHECK(sp->d_right.flatten() == std::vector<int>{2, 3, 4, 5});
 }
 
-TEST_CASE("FingerTree5 - SplitRoundTripsViaConcat")
-{
+TEST_CASE("FingerTree5 - SplitRoundTripsViaConcat") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -492,8 +458,7 @@ TEST_CASE("FingerTree5 - SplitRoundTripsViaConcat")
     }
 }
 
-TEST_CASE("FingerTree5 - WeightedSplitAtMeasure")
-{
+TEST_CASE("FingerTree5 - WeightedSplitAtMeasure") {
     using FT = smd::tree::FingerTree5<int, Weighted, WeightedMeasure>;
 
     auto t = FT{};
@@ -511,8 +476,7 @@ TEST_CASE("FingerTree5 - WeightedSplitAtMeasure")
     CHECK(sa.d_right.flatten() == std::vector<int>{6, 7, 8, 9, 10});
 }
 
-TEST_CASE("FingerTree5 - SplitWithStatefulPredicate")
-{
+TEST_CASE("FingerTree5 - SplitWithStatefulPredicate") {
     // Verifies the predicate doesn't get erased to std::function; a
     // capturing/non-copyable callable still threads through end-to-end.
     using FT = smd::tree::FingerTree5<int>;
@@ -533,8 +497,7 @@ TEST_CASE("FingerTree5 - SplitWithStatefulPredicate")
     CHECK(sp->d_left.measure() == 17U);
 }
 
-TEST_CASE("FingerTree5 - StringElements")
-{
+TEST_CASE("FingerTree5 - StringElements") {
     using FT = smd::tree::FingerTree5<std::string>;
 
     auto t = FT::from_sequence({"alpha", "beta", "gamma", "delta"});
@@ -543,8 +506,7 @@ TEST_CASE("FingerTree5 - StringElements")
     CHECK(t.last() == "delta");
 }
 
-TEST_CASE("FingerTree5 - SpineDepthIsLogarithmic")
-{
+TEST_CASE("FingerTree5 - SpineDepthIsLogarithmic") {
     // Verifies the structural invariant: spine_depth() <= floor(log2(N)).
     //
     // Each element at spine level d is a Node covering >= 2^d leaves, so a
@@ -572,8 +534,7 @@ TEST_CASE("FingerTree5 - SpineDepthIsLogarithmic")
     CHECK(FT::leaf(42).spine_depth() == 0U);
 }
 
-TEST_CASE("FingerTree5 - LargeTreeRecursionNoStackOverflow")
-{
+TEST_CASE("FingerTree5 - LargeTreeRecursionNoStackOverflow") {
     // Exercises all O(log N) recursive call chains at N = 10'000.
     // spine_depth() is at most floor(log2(10000)) = 13.
     // The shared_ptr destructor cascade, flatten_elems, for_each_internal,
@@ -591,7 +552,8 @@ TEST_CASE("FingerTree5 - LargeTreeRecursionNoStackOverflow")
         t = t.snoc(i);
 
     REQUIRE(t.measure() == static_cast<std::size_t>(kN));
-    REQUIRE(t.spine_depth() <= std::bit_width(static_cast<std::size_t>(kN)) - 1U);
+    REQUIRE(t.spine_depth() <=
+            std::bit_width(static_cast<std::size_t>(kN)) - 1U);
 
     // flatten: recurses through spine chain then Elem nodes
     auto v = t.flatten();
@@ -613,11 +575,11 @@ TEST_CASE("FingerTree5 - LargeTreeRecursionNoStackOverflow")
     }
     CHECK(count == kN);
 
-    // Destructor of t runs here — shared_ptr chain unwinds spine_depth() frames.
+    // Destructor of t runs here — shared_ptr chain unwinds spine_depth()
+    // frames.
 }
 
-TEST_CASE("FingerTree5 - ReversedFlattenMatchesReverse")
-{
+TEST_CASE("FingerTree5 - ReversedFlattenMatchesReverse") {
     using FT = smd::tree::FingerTree5<int>;
 
     for (int n : {1, 2, 5, 10, 50, 100}) {
@@ -631,8 +593,7 @@ TEST_CASE("FingerTree5 - ReversedFlattenMatchesReverse")
     }
 }
 
-TEST_CASE("FingerTree5 - ReversedTwiceIsOriginal")
-{
+TEST_CASE("FingerTree5 - ReversedTwiceIsOriginal") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -642,9 +603,9 @@ TEST_CASE("FingerTree5 - ReversedTwiceIsOriginal")
     CHECK(t.reversed().reversed().flatten() == t.flatten());
 }
 
-TEST_CASE("FingerTree5 - ReversedMeasureOnCommutative")
-{
-    // Unit-count measure is commutative: reversed().measure().value == measure().
+TEST_CASE("FingerTree5 - ReversedMeasureOnCommutative") {
+    // Unit-count measure is commutative: reversed().measure().value ==
+    // measure().
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT{};
@@ -654,19 +615,17 @@ TEST_CASE("FingerTree5 - ReversedMeasureOnCommutative")
     CHECK(t.reversed().measure().value == t.measure());
 }
 
-TEST_CASE("FingerTree5 - ReversedNonCommutativeElementOrder")
-{
+TEST_CASE("FingerTree5 - ReversedNonCommutativeElementOrder") {
     // Reversed tree has the correct element order regardless of the monoid's
     // commutativity.  Verify with string elements.
     using FT = smd::tree::FingerTree5<std::string>;
 
     auto t = FT::from_sequence({"a", "b", "c", "d", "e"});
-    CHECK(t.reversed().flatten()
-          == (std::vector<std::string>{"e", "d", "c", "b", "a"}));
+    CHECK(t.reversed().flatten() ==
+          (std::vector<std::string>{"e", "d", "c", "b", "a"}));
 }
 
-TEST_CASE("FingerTree5 - ReversedSplitAtMeasure")
-{
+TEST_CASE("FingerTree5 - ReversedSplitAtMeasure") {
     // split_at_measure on a reversed tree splits from the new left edge
     // (the old right edge).  split_at_measure places elements strictly
     // BEFORE the threshold-tripping pivot in d_left; the pivot itself
@@ -682,22 +641,21 @@ TEST_CASE("FingerTree5 - ReversedSplitAtMeasure")
     for (int i = 1; i <= 10; ++i)
         t = t.snoc(i); // 1 2 3 4 5 6 7 8 9 10
 
-    auto rev = t.reversed(); // 10 9 8 7 6 5 4 3 2 1
-    auto sa  = rev.split_at_measure({3U}); // DualMonoid<size_t> threshold
+    auto rev = t.reversed();              // 10 9 8 7 6 5 4 3 2 1
+    auto sa = rev.split_at_measure({3U}); // DualMonoid<size_t> threshold
 
-    CHECK(sa.d_left.flatten()  == (std::vector<int>{10, 9}));
+    CHECK(sa.d_left.flatten() == (std::vector<int>{10, 9}));
     CHECK(sa.d_right.flatten() == (std::vector<int>{8, 7, 6, 5, 4, 3, 2, 1}));
 }
 
-TEST_CASE("FingerTree5 - head_ref and last_ref return stable reference")
-{
+TEST_CASE("FingerTree5 - head_ref and last_ref return stable reference") {
     using FT = smd::tree::FingerTree5<int>;
 
     auto t = FT::from_sequence({10, 20, 30, 40});
 
     // head_ref/last_ref return const T& into the tree's leaf nodes.
-    const int& h = t.head_ref();
-    const int& l = t.last_ref();
+    const int &h = t.head_ref();
+    const int &l = t.last_ref();
     CHECK(h == 10);
     CHECK(l == 40);
 
@@ -722,20 +680,19 @@ static_assert(std::ranges::bidirectional_range<smd::tree::FingerTree5<int>>);
 static_assert(std::ranges::common_range<smd::tree::FingerTree5<int>>);
 static_assert(std::ranges::sized_range<smd::tree::FingerTree5<int>>);
 
-TEST_CASE("FingerTree5 - Container type aliases are present")
-{
+TEST_CASE("FingerTree5 - Container type aliases are present") {
     using FT = smd::tree::FingerTree5<int>;
-    static_assert(std::same_as<FT::value_type,             int>);
-    static_assert(std::same_as<FT::reference,              const int&>);
-    static_assert(std::same_as<FT::const_reference,        const int&>);
-    static_assert(std::same_as<FT::difference_type,        std::ptrdiff_t>);
-    static_assert(std::same_as<FT::size_type,              std::size_t>);
-    static_assert(std::same_as<FT::iterator,               FT::const_iterator>);
+    static_assert(std::same_as<FT::value_type, int>);
+    static_assert(std::same_as<FT::reference, const int &>);
+    static_assert(std::same_as<FT::const_reference, const int &>);
+    static_assert(std::same_as<FT::difference_type, std::ptrdiff_t>);
+    static_assert(std::same_as<FT::size_type, std::size_t>);
+    static_assert(std::same_as<FT::iterator, FT::const_iterator>);
     REQUIRE(true);
 }
 
-TEST_CASE("FingerTree5 - empty() is the Container query, FT{} is default construction")
-{
+TEST_CASE("FingerTree5 - empty() is the Container query, FT{} is default "
+          "construction") {
     using FT = smd::tree::FingerTree5<int>;
     FT t{};
     CHECK(t.empty());
@@ -747,22 +704,19 @@ TEST_CASE("FingerTree5 - empty() is the Container query, FT{} is default constru
     CHECK(t2.size() == 1U);
 }
 
-TEST_CASE("FingerTree5 - size() matches measure() for unit-measure trees")
-{
+TEST_CASE("FingerTree5 - size() matches measure() for unit-measure trees") {
     using FT = smd::tree::FingerTree5<int>;
     auto t = FT::from_sequence({1, 2, 3, 4, 5});
     CHECK(t.size() == 5U);
     CHECK(t.size() == t.measure());
 }
 
-TEST_CASE("FingerTree5 - max_size() is reasonable")
-{
+TEST_CASE("FingerTree5 - max_size() is reasonable") {
     using FT = smd::tree::FingerTree5<int>;
     CHECK(FT{}.max_size() == std::numeric_limits<std::size_t>::max());
 }
 
-TEST_CASE("FingerTree5 - swap() exchanges contents")
-{
+TEST_CASE("FingerTree5 - swap() exchanges contents") {
     using FT = smd::tree::FingerTree5<int>;
     auto a = FT::from_sequence({1, 2, 3});
     auto b = FT::from_sequence({10, 20});
@@ -773,8 +727,7 @@ TEST_CASE("FingerTree5 - swap() exchanges contents")
     CHECK(a.flatten() == (std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("FingerTree5 - operator== compares element-wise")
-{
+TEST_CASE("FingerTree5 - operator== compares element-wise") {
     using FT = smd::tree::FingerTree5<int>;
     auto a = FT::from_sequence({1, 2, 3});
     auto b = FT::from_sequence({1, 2, 3});
@@ -786,38 +739,35 @@ TEST_CASE("FingerTree5 - operator== compares element-wise")
     CHECK(FT{} == FT{});
 }
 
-TEST_CASE("FingerTree5 - cbegin/cend match begin/end")
-{
+TEST_CASE("FingerTree5 - cbegin/cend match begin/end") {
     using FT = smd::tree::FingerTree5<int>;
     auto t = FT::from_sequence({5, 6, 7});
     CHECK(std::ranges::equal(t, std::ranges::subrange(t.cbegin(), t.cend())));
 }
 
-TEST_CASE("FingerTree5 - rbegin/rend iterate in reverse")
-{
+TEST_CASE("FingerTree5 - rbegin/rend iterate in reverse") {
     using FT = smd::tree::FingerTree5<int>;
     auto t = FT::from_sequence({1, 2, 3, 4, 5});
     std::vector<int> rev(t.rbegin(), t.rend());
     CHECK(rev == (std::vector<int>{5, 4, 3, 2, 1}));
 }
 
-TEST_CASE("FingerTree5 - front() and back() match head_ref() and last_ref()")
-{
+TEST_CASE("FingerTree5 - front() and back() match head_ref() and last_ref()") {
     using FT = smd::tree::FingerTree5<int>;
     auto t = FT::from_sequence({10, 20, 30});
     CHECK(t.front() == 10);
-    CHECK(t.back()  == 30);
+    CHECK(t.back() == 30);
     CHECK(t.front() == t.head_ref());
-    CHECK(t.back()  == t.last_ref());
+    CHECK(t.back() == t.last_ref());
 }
 
 // ============================================================================
 //                       AllocatorAware + PMR tests
 // ============================================================================
 
-TEST_CASE("FingerTree5 - allocator_type alias present and get_allocator() works")
-{
-    using FT   = smd::tree::FingerTree5<int>;
+TEST_CASE(
+    "FingerTree5 - allocator_type alias present and get_allocator() works") {
+    using FT = smd::tree::FingerTree5<int>;
     using Alloc = FT::allocator_type;
     static_assert(std::same_as<Alloc, std::allocator<std::byte>>);
 
@@ -827,16 +777,14 @@ TEST_CASE("FingerTree5 - allocator_type alias present and get_allocator() works"
     REQUIRE(true);
 }
 
-TEST_CASE("FingerTree5 - allocator-extended constructor")
-{
+TEST_CASE("FingerTree5 - allocator-extended constructor") {
     std::allocator<std::byte> alloc;
     smd::tree::FingerTree5<int> t(alloc);
     CHECK(t.empty());
     CHECK(t.get_allocator() == alloc);
 }
 
-TEST_CASE("FingerTree5 - PMR monotonic_buffer_resource")
-{
+TEST_CASE("FingerTree5 - PMR monotonic_buffer_resource") {
     std::array<std::byte, 65536> buf{};
     std::pmr::monotonic_buffer_resource mr(buf.data(), buf.size());
 
@@ -856,8 +804,7 @@ TEST_CASE("FingerTree5 - PMR monotonic_buffer_resource")
     CHECK(t3.size() == 6U);
 }
 
-TEST_CASE("FingerTree5 - PMR bidirectional_range static_assert")
-{
+TEST_CASE("FingerTree5 - PMR bidirectional_range static_assert") {
     using PMR_FT = smd::tree::pmr::FingerTree5<int>;
     static_assert(std::ranges::bidirectional_range<PMR_FT>);
     static_assert(std::ranges::sized_range<PMR_FT>);

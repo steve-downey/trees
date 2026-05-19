@@ -4,16 +4,16 @@
 // Exercises FingerTreeIntervalIndex with an explicitly FT5-backed tree and
 // cross-checks FT2-backed vs FT5-backed output for semantic equivalence.
 
-#include <smd/tree/finger_tree_interval_index.hpp>
 #include <smd/tree/finger_tree2.hpp>
+#include <smd/tree/finger_tree_interval_index.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <string>
 #include <vector>
 
-using Entry   = smd::tree::Interval<std::string>;
-using Tag     = smd::tree::IntervalMaxEndTag<std::string>;
+using Entry = smd::tree::Interval<std::string>;
+using Tag = smd::tree::IntervalMaxEndTag<std::string>;
 using Measure = smd::tree::IntervalMeasure<std::string>;
 
 using FT5Idx = smd::tree::FingerTreeIntervalIndex<
@@ -22,8 +22,7 @@ using FT5Idx = smd::tree::FingerTreeIntervalIndex<
 using FT2Idx = smd::tree::FingerTreeIntervalIndex<
     std::string, smd::tree::FingerTree2<Entry, Tag, Measure>>;
 
-TEST_CASE("IntervalIndexFT5 - QueryPoint")
-{
+TEST_CASE("IntervalIndexFT5 - QueryPoint") {
     auto idx = FT5Idx{};
     idx = idx.insert({0, 10, "A"});
     idx = idx.insert({5, 15, "B"});
@@ -40,8 +39,7 @@ TEST_CASE("IntervalIndexFT5 - QueryPoint")
     CHECK(r14[1] == "C");
 }
 
-TEST_CASE("IntervalIndexFT5 - QueryOverlap")
-{
+TEST_CASE("IntervalIndexFT5 - QueryOverlap") {
     auto idx = FT5Idx{};
     idx = idx.insert({0, 5, "A"});
     idx = idx.insert({3, 8, "B"});
@@ -56,10 +54,9 @@ TEST_CASE("IntervalIndexFT5 - QueryOverlap")
     CHECK(r[2] == "C");
 }
 
-TEST_CASE("IntervalIndexFT5 - CrossCheckWithFT2")
-{
-    std::vector<Entry> intervals = {{0, 10, "A"}, {5, 15, "B"}, {3, 8, "C"},
-                                    {12, 20, "D"}, {1, 6, "E"}};
+TEST_CASE("IntervalIndexFT5 - CrossCheckWithFT2") {
+    std::vector<Entry> intervals = {
+        {0, 10, "A"}, {5, 15, "B"}, {3, 8, "C"}, {12, 20, "D"}, {1, 6, "E"}};
 
     auto ft5 = FT5Idx::from_intervals(intervals);
     auto ft2 = FT2Idx::from_intervals(intervals);
@@ -69,8 +66,8 @@ TEST_CASE("IntervalIndexFT5 - CrossCheckWithFT2")
     auto ft2_entries = ft2.entries();
     REQUIRE(ft5_entries.size() == ft2_entries.size());
     for (std::size_t i = 0; i < ft5_entries.size(); ++i) {
-        CHECK(ft5_entries[i].d_start   == ft2_entries[i].d_start);
-        CHECK(ft5_entries[i].d_end     == ft2_entries[i].d_end);
+        CHECK(ft5_entries[i].d_start == ft2_entries[i].d_start);
+        CHECK(ft5_entries[i].d_end == ft2_entries[i].d_end);
         CHECK(ft5_entries[i].d_payload == ft2_entries[i].d_payload);
     }
 

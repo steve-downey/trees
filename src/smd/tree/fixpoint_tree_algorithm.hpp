@@ -22,13 +22,15 @@ template <class T,
 struct validate_impl : smd::remove_cvref_t<decltype(TC)> {
     template <class Pred>
     auto call(Pred &&pred, const T &value) const {
-        using element_type = typename smd::remove_cvref_t<decltype(TC)>::element_type;
-        return this->for_each(value, [&](const element_type &elem)
-                                         -> std::optional<element_type> {
-            if (pred(elem))
-                return {elem};
-            return std::nullopt;
-        });
+        using element_type =
+            typename smd::remove_cvref_t<decltype(TC)>::element_type;
+        return this->for_each(
+            value,
+            [&](const element_type &elem) -> std::optional<element_type> {
+                if (pred(elem))
+                    return {elem};
+                return std::nullopt;
+            });
     }
 };
 
@@ -38,12 +40,11 @@ struct validate_impl : smd::remove_cvref_t<decltype(TC)> {
 template <class T,
           const auto &FC = smd::foldable_typeclass<smd::remove_cvref_t<T>>,
           const auto &TC = smd::traversable_typeclass<smd::remove_cvref_t<T>>>
-struct transform_if_large_impl
-    : smd::remove_cvref_t<decltype(FC)>,
-      smd::remove_cvref_t<decltype(TC)> {
-    using foldable_base    = smd::remove_cvref_t<decltype(FC)>;
+struct transform_if_large_impl : smd::remove_cvref_t<decltype(FC)>,
+                                 smd::remove_cvref_t<decltype(TC)> {
+    using foldable_base = smd::remove_cvref_t<decltype(FC)>;
     using traversable_base = smd::remove_cvref_t<decltype(TC)>;
-    using element_type     = typename traversable_base::element_type;
+    using element_type = typename traversable_base::element_type;
 
     template <class F>
     auto call(std::size_t min_size, F &&f, const T &value) const {
@@ -52,8 +53,10 @@ struct transform_if_large_impl
             return std::optional<T>{};
 
         return this->traversable_base::for_each(
-            value, [&](const element_type &elem)
-                       -> std::optional<element_type> { return {f(elem)}; });
+            value,
+            [&](const element_type &elem) -> std::optional<element_type> {
+                return {f(elem)};
+            });
     }
 };
 

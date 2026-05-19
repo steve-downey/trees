@@ -17,21 +17,16 @@
 
 using Rope = smd::tree::FingerTreeRope<>;
 
-TEST_CASE("Rope - HeaderIsIdempotent")
-{
-    REQUIRE(true);
-}
+TEST_CASE("Rope - HeaderIsIdempotent") { REQUIRE(true); }
 
-TEST_CASE("Rope - Empty")
-{
+TEST_CASE("Rope - Empty") {
     Rope r;
     CHECK(r.size_bytes() == 0U);
     CHECK(r.to_string().empty());
     CHECK(r.chunks().empty());
 }
 
-TEST_CASE("Rope - FromTextSmall")
-{
+TEST_CASE("Rope - FromTextSmall") {
     auto r = Rope::from_text("hello world", 4);
     CHECK(r.size_bytes() == 11U);
     CHECK(r.to_string() == "hello world");
@@ -42,8 +37,7 @@ TEST_CASE("Rope - FromTextSmall")
     CHECK(c[2] == "rld");
 }
 
-TEST_CASE("Rope - FromTextChunkSizes")
-{
+TEST_CASE("Rope - FromTextChunkSizes") {
     std::string text = "abcdefghijklmnopqrstuvwxyz";
 
     auto r1 = Rope::from_text(text, 1);
@@ -61,8 +55,7 @@ TEST_CASE("Rope - FromTextChunkSizes")
     CHECK(rbig.to_string() == text);
 }
 
-TEST_CASE("Rope - InsertAtFront")
-{
+TEST_CASE("Rope - InsertAtFront") {
     auto r = Rope::from_text("world", 4);
     auto r2 = r.insert(0, "hello ");
     CHECK(r2.size_bytes() == 11U);
@@ -70,44 +63,38 @@ TEST_CASE("Rope - InsertAtFront")
     CHECK(r.to_string() == "world");
 }
 
-TEST_CASE("Rope - InsertAtEnd")
-{
+TEST_CASE("Rope - InsertAtEnd") {
     auto r = Rope::from_text("hello", 4);
     auto r2 = r.insert(r.size_bytes(), " world");
     CHECK(r2.size_bytes() == 11U);
     CHECK(r2.to_string() == "hello world");
 }
 
-TEST_CASE("Rope - InsertAtMiddle")
-{
+TEST_CASE("Rope - InsertAtMiddle") {
     auto r = Rope::from_text("helloworld", 4);
     auto r2 = r.insert(5, " ");
     CHECK(r2.to_string() == "hello world");
 }
 
-TEST_CASE("Rope - EraseFromFront")
-{
+TEST_CASE("Rope - EraseFromFront") {
     auto r = Rope::from_text("hello world", 4);
     auto r2 = r.erase(0, 6);
     CHECK(r2.to_string() == "world");
 }
 
-TEST_CASE("Rope - EraseFromEnd")
-{
+TEST_CASE("Rope - EraseFromEnd") {
     auto r = Rope::from_text("hello world", 4);
     auto r2 = r.erase(5, 6);
     CHECK(r2.to_string() == "hello");
 }
 
-TEST_CASE("Rope - EraseFromMiddle")
-{
+TEST_CASE("Rope - EraseFromMiddle") {
     auto r = Rope::from_text("hello world", 4);
     auto r2 = r.erase(5, 1);
     CHECK(r2.to_string() == "helloworld");
 }
 
-TEST_CASE("Rope - Replace")
-{
+TEST_CASE("Rope - Replace") {
     auto r = Rope::from_text("hello world", 4);
     auto r2 = r.replace(6, 5, "earth");
     CHECK(r2.to_string() == "hello earth");
@@ -116,8 +103,7 @@ TEST_CASE("Rope - Replace")
     CHECK(r3.to_string() == "HELLO world");
 }
 
-TEST_CASE("Rope - SpineTransition")
-{
+TEST_CASE("Rope - SpineTransition") {
     std::string text = "01234567890123456789";
     auto r = Rope::from_text(text, 1);
     REQUIRE(r.size_bytes() == 20U);
@@ -131,8 +117,7 @@ TEST_CASE("Rope - SpineTransition")
     CHECK(r3.to_string() == text);
 }
 
-TEST_CASE("Rope - RepeatedInsertAtEndGrows")
-{
+TEST_CASE("Rope - RepeatedInsertAtEndGrows") {
     auto r = Rope::from_text("", 16);
     std::string expected;
 
@@ -145,8 +130,7 @@ TEST_CASE("Rope - RepeatedInsertAtEndGrows")
     CHECK(r.to_string() == expected);
 }
 
-TEST_CASE("Rope - RepeatedInsertAtFrontGrows")
-{
+TEST_CASE("Rope - RepeatedInsertAtFrontGrows") {
     auto r = Rope::from_text("", 16);
     std::string expected;
 
@@ -159,8 +143,7 @@ TEST_CASE("Rope - RepeatedInsertAtFrontGrows")
     CHECK(r.to_string() == expected);
 }
 
-TEST_CASE("Rope - LargeText")
-{
+TEST_CASE("Rope - LargeText") {
     std::string text(5000, 'x');
     for (std::size_t i = 0; i < text.size(); ++i)
         text[i] = static_cast<char>('a' + (i % 26));
@@ -180,8 +163,7 @@ TEST_CASE("Rope - LargeText")
     CHECK(r3.to_string() == exp3);
 }
 
-TEST_CASE("Rope - InsertEraseRoundtrip")
-{
+TEST_CASE("Rope - InsertEraseRoundtrip") {
     std::string text = "The quick brown fox jumps over the lazy dog";
     auto r = Rope::from_text(text, 8);
 
@@ -190,8 +172,7 @@ TEST_CASE("Rope - InsertEraseRoundtrip")
     CHECK(r3.to_string() == text);
 }
 
-TEST_CASE("Rope - Persistence")
-{
+TEST_CASE("Rope - Persistence") {
     auto r = Rope::from_text("hello", 4);
     auto r2 = r.insert(5, " world");
     auto r3 = r.erase(0, 5);
@@ -201,15 +182,13 @@ TEST_CASE("Rope - Persistence")
     CHECK(r3.to_string() == "");
 }
 
-TEST_CASE("Rope - FoldableTypeclass")
-{
+TEST_CASE("Rope - FoldableTypeclass") {
     auto r = Rope::from_text("abCDxy", 2);
     const auto &foldable = smd::foldable_typeclass<Rope>;
     CHECK(foldable.length(r) == 3U);
 }
 
-TEST_CASE("Rope - TraversableTypeclass")
-{
+TEST_CASE("Rope - TraversableTypeclass") {
     auto r = Rope::from_text("abcd", 2);
     auto result = smd::traverse(
         [](const std::string &chunk) -> std::optional<std::string> {

@@ -102,7 +102,7 @@ class FingerTreePriorityQueue {
         if (!tag.d_min.d_value.has_value())
             return std::nullopt;
         T global_min = *tag.d_min.d_value;
-        auto sp      = d_tree.split([global_min](const PriorityTag<T> &p) {
+        auto sp = d_tree.split([global_min](const PriorityTag<T> &p) {
             return p.d_min.d_value.has_value() &&
                    *p.d_min.d_value <= global_min;
         });
@@ -119,7 +119,7 @@ class FingerTreePriorityQueue {
         if (!tag.d_max.d_value.has_value())
             return std::nullopt;
         T global_max = *tag.d_max.d_value;
-        auto sp      = d_tree.split([global_max](const PriorityTag<T> &p) {
+        auto sp = d_tree.split([global_max](const PriorityTag<T> &p) {
             return p.d_max.d_value.has_value() &&
                    *p.d_max.d_value >= global_max;
         });
@@ -141,9 +141,12 @@ template <typename T>
 struct Monoid<smd::tree::MinTag<T>> {
     auto identity() const -> smd::tree::MinTag<T> { return {std::nullopt}; }
     auto combine(const smd::tree::MinTag<T> &lhs,
-                 const smd::tree::MinTag<T> &rhs) const -> smd::tree::MinTag<T> {
-        if (!lhs.d_value.has_value()) return rhs;
-        if (!rhs.d_value.has_value()) return lhs;
+                 const smd::tree::MinTag<T> &rhs) const
+        -> smd::tree::MinTag<T> {
+        if (!lhs.d_value.has_value())
+            return rhs;
+        if (!rhs.d_value.has_value())
+            return lhs;
         return lhs.d_value.value() <= rhs.d_value.value() ? lhs : rhs;
     }
 };
@@ -152,9 +155,12 @@ template <typename T>
 struct Monoid<smd::tree::MaxTag<T>> {
     auto identity() const -> smd::tree::MaxTag<T> { return {std::nullopt}; }
     auto combine(const smd::tree::MaxTag<T> &lhs,
-                 const smd::tree::MaxTag<T> &rhs) const -> smd::tree::MaxTag<T> {
-        if (!lhs.d_value.has_value()) return rhs;
-        if (!rhs.d_value.has_value()) return lhs;
+                 const smd::tree::MaxTag<T> &rhs) const
+        -> smd::tree::MaxTag<T> {
+        if (!lhs.d_value.has_value())
+            return rhs;
+        if (!rhs.d_value.has_value())
+            return lhs;
         return lhs.d_value.value() >= rhs.d_value.value() ? lhs : rhs;
     }
 };
@@ -212,7 +218,7 @@ struct FingerTreePriorityQueueTraversableImpl {
     auto traverse(this auto &&, const APPLICATIVE &applicative, F &&function,
                   const smd::tree::FingerTreePriorityQueue<T, Tree> &queue) {
         using Context = remove_cvref_t<std::invoke_result_t<F, const T &>>;
-        using U       = smd::applicative_value_t<Context>;
+        using U = smd::applicative_value_t<Context>;
 
         auto accumulated = applicative.pure(std::vector<U>{});
 
