@@ -11,8 +11,8 @@ It excludes =deadcode= and =smd/conceptmap=.
 ** smd/fixpoint/box.hpp
 #+transclude: [[file:../src/smd/fixpoint/box.hpp]] :src cpp
 
-** smd/fixpoint/cata.hpp
-#+transclude: [[file:../src/smd/fixpoint/cata.hpp]] :src cpp
+** smd/fixpoint/recursion_schemes.hpp
+#+transclude: [[file:../src/smd/fixpoint/recursion_schemes.hpp]] :src cpp
 
 ** smd/fixpoint/fix.hpp
 #+transclude: [[file:../src/smd/fixpoint/fix.hpp]] :src cpp

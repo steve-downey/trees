@@ -5,14 +5,13 @@
 #include <memory>
 #include <variant>
 
-// Box<A>: value-semantic wrapper for recursive positions.
-// Stands in for std::indirect (C++26) until it ships.
+// Box<A>: value-semantic wrapper for recursive positions.  C++26 std::indirect.
 template <typename A>
-using Box = std::shared_ptr<A>;
+using Box = std::indirect<A>;
 
 template <typename A, typename... Args>
 auto make_box(Args &&...args) -> Box<A> {
-    return std::make_shared<A>(std::forward<Args>(args)...);
+    return Box<A>(std::forward<Args>(args)...);
 }
 
 // 1. The flat, non-recursive functor.  No inheritance, no CRTP.

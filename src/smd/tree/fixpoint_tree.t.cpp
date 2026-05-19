@@ -5,8 +5,8 @@
 #include <smd/tree/fixpoint_tree.hpp> // Re-inclusion check
 
 #include <smd/fixpoint/box.hpp>
-#include <smd/fixpoint/cata.hpp>
 #include <smd/fixpoint/overloaded.hpp>
+#include <smd/fixpoint/recursion_schemes.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
