@@ -1,7 +1,7 @@
-// src/smd/fixpoint/cata.hpp                                          -*-C++-*-
+// src/smd/fixpoint/recursion_schemes.hpp                              -*-C++-*-
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-#ifndef INCLUDED_SMD_FIXPOINT_CATA
-#define INCLUDED_SMD_FIXPOINT_CATA
+#ifndef INCLUDED_SMD_FIXPOINT_RECURSION_SCHEMES
+#define INCLUDED_SMD_FIXPOINT_RECURSION_SCHEMES
 
 #include <smd/fixpoint/fix.hpp>
 

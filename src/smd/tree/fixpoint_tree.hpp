@@ -4,9 +4,9 @@
 #define INCLUDED_SMD_TREE_FIXPOINT_TREE
 
 #include <smd/fixpoint/box.hpp>
-#include <smd/fixpoint/cata.hpp>
 #include <smd/fixpoint/fix.hpp>
 #include <smd/fixpoint/overloaded.hpp>
+#include <smd/fixpoint/recursion_schemes.hpp>
 
 #include <functional>
 #include <utility>
@@ -75,7 +75,8 @@ auto fmap_expr(F &&f, const ExprF<A> &expr) {
         expr);
 }
 
-/** Callable wrapper around fmap_expr for use as an fmap_fn argument to cata. */
+/** Callable wrapper around fmap_expr for use as the fmap_fn argument to
+ * fold_fix. */
 inline constexpr auto fmap_expr_fn = [](auto &&f, const auto &expr) {
     return fmap_expr(std::forward<decltype(f)>(f), expr);
 };
@@ -101,7 +102,7 @@ inline auto mul_expr(Expr left, Expr right) -> Expr {
 }
 
 // e3a7f1c2-9b4d-4e2a-8f6c-1d5b3a9e7c04
-/** Catamorphism algebra that reduces ExprF<double> to a double.
+/** Evaluation algebra that reduces ExprF<double> to a double.
  * Used by eval() to perform numeric evaluation in a single bottom-up pass.
  */
 inline auto eval_algebra(const ExprF<double> &expr) -> double {
@@ -114,7 +115,7 @@ inline auto eval_algebra(const ExprF<double> &expr) -> double {
         expr);
 }
 
-/** Evaluate an expression tree to a double via catamorphism. */
+/** Evaluate an expression tree to a double via fold_fix. */
 inline auto eval(const Expr &expr) -> double {
     return smd::fixpoint::fold_fix<double>(eval_algebra, fmap_expr_fn, expr);
 }
