@@ -7,17 +7,17 @@
 
 namespace smd::fixpoint {
 
-/** Indirection type used inside F<Fix<F>> to break infinite template
- * instantiation. Box<A> = shared_ptr<A>; structural sharing is a side-effect.
- * @tparam A the pointed-to type (typically a recursive Fix instantiation)
+/** Indirection type for recursive positions inside F<Fix<F>>.
+ * Box<A> = std::indirect<A>: value semantics, deep copy on copy.
+ * @tparam A the wrapped type (typically a recursive Fix instantiation)
  */
 template <typename A>
-using Box = std::shared_ptr<A>;
+using Box = std::indirect<A>;
 
-/** Construct a Box<A> in-place, forwarding @p args to A's constructor. */
+/** Construct a Box<A>, forwarding @p args to A's constructor. */
 template <typename A, typename... Args>
 auto make_box(Args &&...args) -> Box<A> {
-    return std::make_shared<A>(std::forward<Args>(args)...);
+    return Box<A>(std::forward<Args>(args)...);
 }
 
 } // namespace smd::fixpoint

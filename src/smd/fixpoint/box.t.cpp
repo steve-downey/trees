@@ -12,23 +12,23 @@
 using smd::fixpoint::Box;
 using smd::fixpoint::make_box;
 
-static_assert(std::same_as<Box<int>, std::shared_ptr<int>>);
+static_assert(std::same_as<Box<int>, std::indirect<int>>);
 
 TEST_CASE("Box - MakeBoxInt") {
     auto b = make_box<int>(42);
-    REQUIRE(b);
     CHECK(*b == 42);
 }
 
 TEST_CASE("Box - MakeBoxString") {
     auto b = make_box<std::string>("hello");
-    REQUIRE(b);
     CHECK(*b == "hello");
 }
 
-TEST_CASE("Box - SharedOwnership") {
+TEST_CASE("Box - DeepCopyOnCopy") {
     auto b1 = make_box<int>(7);
     Box<int> b2 = b1;
-    CHECK(b1.get() == b2.get());
     CHECK(*b1 == *b2);
+    *b2 = 99;
+    CHECK(*b1 == 7);
+    CHECK(*b2 == 99);
 }

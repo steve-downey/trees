@@ -43,11 +43,11 @@ The full self-contained example is in [[orgit-file:src/examples/fixpoint_tree_ex
 #include <variant>
 
 template <typename A>
-using Box = std::shared_ptr<A>;
+using Box = std::indirect<A>;
 
 template <typename A, typename... Args>
 auto make_box(Args&&... args) -> Box<A> {
-    return std::make_shared<A>(std::forward<Args>(args)...);
+    return Box<A>(std::forward<Args>(args)...);
 }
 
 template <typename A> struct Const { int val; };
@@ -156,18 +156,17 @@ This parameterization is the whole trick.
 
 A ~variant~ cannot directly contain itself.
 ~ExprF<Fix<ExprF>>~ with a ~Fix<ExprF>~ member by value would require the compiler to instantiate an infinitely large type.
-~Box<A>~ wraps the recursive position in a [[https://en.cppreference.com/w/cpp/memory/shared_ptr][=std::shared_ptr=]], adding one pointer indirection that breaks the cycle.
+~Box<A>~ wraps the recursive position in a [[https://en.cppreference.com/w/cpp/memory/indirect][=std::indirect=]], adding one pointer indirection that breaks the cycle.
 
 From [[orgit-file:src/smd/fixpoint/box.hpp][=src/smd/fixpoint/box.hpp=]]:
 
 #+begin_src cpp
 template <typename A>
-using Box = std::shared_ptr<A>;
+using Box = std::indirect<A>;
 #+end_src
 
-This is a stand-in for ~std::indirect~ from C++26 ([[https://wg21.link/P3019][P3019]]).
-In the meantime, ~shared_ptr~ gives structural sharing for free --- copying a subtree is copying a pointer.
-I will take that trade.
+~std::indirect~ ([[https://wg21.link/P3019][P3019]], C++26) provides value semantics: copying a ~Box<A>~ deep-copies the wrapped value.
+This is exactly what is wanted here --- trees are values.
 
 ** Fix: Tying the Recursive Knot
 
@@ -306,10 +305,10 @@ Handles exactly one layer.
 
 ** fold_fix: The Generic Fold
 
-The catamorphism applies the algebra bottom-up.
+~fold_fix~ applies the algebra bottom-up.
 At each node it maps the recursive fold over the children (via ~fmap~), then applies the algebra to the resulting layer.
 
-From [[orgit-file:src/smd/fixpoint/cata.hpp][=src/smd/fixpoint/cata.hpp=]]:
+From [[orgit-file:src/smd/fixpoint/recursion_schemes.hpp][=src/smd/fixpoint/recursion_schemes.hpp=]]:
 
 #+begin_src cpp
 template <typename Result, template <typename> class F,
@@ -397,7 +396,7 @@ That separation is the point.
 A coalgebra is a function ~a \to F\langle a \rangle~ --- it takes a seed and produces one layer of the functor with seeds at the recursive positions.
 ~unfold_fix~ applies the coalgebra repeatedly, expanding seeds until the tree is fully built.
 
-From [[orgit-file:src/smd/fixpoint/cata.hpp][=src/smd/fixpoint/cata.hpp=]]:
+From [[orgit-file:src/smd/fixpoint/recursion_schemes.hpp][=src/smd/fixpoint/recursion_schemes.hpp=]]:
 
 #+begin_src cpp
 template <template <typename> class F, typename Coalgebra,
@@ -439,7 +438,7 @@ Same separation, other direction.
 Sometimes I want to unfold a seed and immediately fold the result.
 ~refold~ fuses both passes into one --- no intermediate ~Fix<F>~ is ever allocated.
 
-From [[orgit-file:src/smd/fixpoint/cata.hpp][=src/smd/fixpoint/cata.hpp=]]:
+From [[orgit-file:src/smd/fixpoint/recursion_schemes.hpp][=src/smd/fixpoint/recursion_schemes.hpp=]]:
 
 #+begin_src cpp
 template <typename Result, template <typename> class F,
@@ -490,7 +489,7 @@ The new functions have no jargon aliases.
 
 * Foldable: One Hook, Many Derived Operations
 
-The catamorphism is powerful, but you have to supply ~fmap~ and think in F-algebras.
+~fold_fix~ is powerful, but you have to supply ~fmap~ and think in F-algebras.
 For the everyday operations --- counting, collecting, testing predicates --- there is a simpler interface.
 
 ** The Typeclass Object Pattern

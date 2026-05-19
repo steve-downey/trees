@@ -1,8 +1,8 @@
-// src/smd/fixpoint/cata.t.cpp                                        -*-C++-*-
+// src/smd/fixpoint/recursion_schemes.t.cpp                            -*-C++-*-
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <smd/fixpoint/cata.hpp>
-#include <smd/fixpoint/cata.hpp> // Re-inclusion check
+#include <smd/fixpoint/recursion_schemes.hpp>
+#include <smd/fixpoint/recursion_schemes.hpp> // Re-inclusion check
 
 #include <smd/fixpoint/box.hpp>
 #include <smd/fixpoint/overloaded.hpp>
