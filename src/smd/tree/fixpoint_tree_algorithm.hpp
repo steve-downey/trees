@@ -15,7 +15,7 @@ namespace smd::tree::algorithm {
 namespace detail {
 
 // validate_impl: inherits the Traversable typeclass for T.
-// The typeclass operations (traverse, for_each, sequence) are available
+// The typeclass operations (traverse, for_each, transpose) are available
 // as unqualified member calls through `this->`.
 template <class T,
           const auto &TC = smd::traversable_typeclass<smd::remove_cvref_t<T>>>

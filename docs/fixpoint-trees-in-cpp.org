@@ -657,10 +657,13 @@ Sometimes I want to transform values /and keep the tree/.
 Two differently shaped trees can flatten to the same sequence under ~to_vector~, but traversal should preserve the original branching.
 
 That is what Traversable does [cite:@gibbons2006iterator].
+In the current repository, the derived helper for flipping ~structure<context<T>>~ into ~context<structure<T>>~ is named ~transpose~, not ~sequence~.
+That avoids colliding with the much more container-shaped meaning of "sequence" in C++.
 
 ** The traverse Implementation
 
 The Traversable instance maps each leaf through a function that returns an Applicative context (like [[https://en.cppreference.com/w/cpp/utility/optional][=std::optional=]]), then rebuilds the tree inside that context [cite:@mcbride2008applicative].
+At the API level, ~traverse~ is the primitive operation and ~transpose~ is the derived convenience for the identity case: a tree or range that already contains contextual values can be flipped to one outer context without writing the identity lambda by hand.
 
 From [[orgit-file:src/smd/tree/fixpoint_tree_traversable.hpp][=src/smd/tree/fixpoint_tree_traversable.hpp=]]:
 

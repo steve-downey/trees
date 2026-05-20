@@ -14,15 +14,17 @@ namespace smd {
 
 // Traversable pattern invariants:
 // - Instances are single lookup objects that provide traverse(F, T).
-// - sequence is a derived object operation implemented from traverse(identity).
+// - transpose is a derived object operation implemented from
+// traverse(identity).
 // - Dispatch happens through a provided object or
 // traversable_typeclass<Concrete>.
-// - Traversal must preserve container shape while sequencing effects.
+// - Traversal must preserve container shape while transposing structure and
+// context.
 
 /** CRTP base for Traversable instances.
  * `Impl` must provide `traverse(applicative, f, container)` and declare
- * `element_type`. All other operations (`sequence`, `for_each`,
- * `traverse_with`, `sequence_with`) are derived.
+ * `element_type`. All other operations (`transpose`, `for_each`,
+ * `traverse_with`, `transpose_with`) are derived.
  */
 template <class Impl>
 struct Traversable : protected Impl {
@@ -34,17 +36,17 @@ struct Traversable : protected Impl {
     static_assert(
         requires { typename Impl::element_type; },
         "Traversable Impl must declare 'using element_type = T;' "
-        "so that sequence() and traverse_with() can deduce the element type.");
-    // Alternate-core: Impl::traverse is the primitive; sequence is derived from
-    // it. A sequence-primitive Impl would shadow sequence instead.
+        "so that transpose() and traverse_with() can deduce the element type.");
+    // Alternate-core: Impl::traverse is the primitive; transpose is derived
+    // from it. A transpose-primitive Impl would shadow transpose instead.
     using Impl::traverse;
     using element_type = typename Impl::element_type;
 
     // 8f1d5c4a-1a7e-4b9e-8cb4-908f4ab0ca11
 
     // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46
-    /** Applies `function` to each element and sequences the resulting effects;
-     * the applicative is inferred from the return type of `function`.
+    /** Applies `function` to each element and transposes the resulting
+     * effects; the applicative is inferred from the return type of `function`.
      */
     template <class T, class F>
     auto for_each(this auto &&self, T &&value, F &&function) {
@@ -57,12 +59,12 @@ struct Traversable : protected Impl {
     // d5a2c1f8-7e3b-4d1a-c6b2-2f9e5d7a1c46 end
 
     // c1f8e7a2-9b6d-4c4f-a5e3-1b2d9c8f6a79
-    /** Sequences a container of effectful values into a single effect
-     * containing the container. The element type must itself be an applicative
-     * context.
+    /** Transposes a structure of effectful values into one outer effect
+     * containing the structure. The element type must itself be an
+     * applicative context.
      */
     template <class T>
-    auto sequence(this auto &&self, T &&value) {
+    auto transpose(this auto &&self, T &&value) {
         using Context = element_type;
         const auto &applicative = smd::applicative_typeclass<Context>;
         return self.traverse(
@@ -93,12 +95,12 @@ struct Traversable : protected Impl {
             applicative_map, std::forward<F>(function), std::forward<T>(value));
     }
 
-    /** Sequences using a different traversable instance; applicative is
+    /** Transposes using a different traversable instance; applicative is
      * inferred from the container's element type.
      */
     template <class TRAVERSABLE_MAP, class T>
-    auto sequence_with(this auto &&self, const TRAVERSABLE_MAP &traversable_map,
-                       T &&value) {
+    auto transpose_with(this auto &&self,
+                        const TRAVERSABLE_MAP &traversable_map, T &&value) {
         return self.traverse_with(
             traversable_map,
             [](auto &&x) { return std::forward<decltype(x)>(x); },
@@ -112,12 +114,12 @@ struct Traversable : protected Impl {
 template <class T>
 inline constexpr auto traversable_typeclass = std::false_type{};
 
-/** @brief Maps `function` over `value`, sequences effects left-to-right,
+/** @brief Maps `function` over `value`, traverses effects left-to-right,
  *         and preserves container shape.
  *
  * @param function  A callable returning an applicative effect for each element.
  * @param value     The traversable container to process.
- * @return          The container shape lifted into the applicative effect.
+ * @return          The container shape transposed into the applicative effect.
  */
 template <class F, class T>
 auto traverse(F &&function, T &&value) {

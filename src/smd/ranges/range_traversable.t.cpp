@@ -123,7 +123,7 @@ TEST_CASE("RangeTraversableTest - TraversableIsNotDefinedForInputOnlyRanges") {
 }
 
 TEST_CASE(
-    "RangeTraversableTest - SequenceConvertsRangeOfZiplistsToZiplistOfRanges") {
+    "RangeTraversableTest - TransposeConvertsRangeOfZiplistsToZiplistOfRanges") {
     // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a
     using Zip = smd::zip_list<int>;
     auto values = smd::ranges::from_vector(std::vector<Zip>{
@@ -131,31 +131,31 @@ TEST_CASE(
 
     const auto &traversable = smd::traversable_typeclass<decltype(values)>;
     // d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48
-    auto sequenced = traversable.sequence(values);
+    auto transposed = traversable.transpose(values);
 
-    REQUIRE(sequenced.data.size() == 2U);
-    CHECK(collect(sequenced.data[0]) == (std::vector<int>{1, 10, 100}));
-    CHECK(collect(sequenced.data[1]) == (std::vector<int>{2, 20, 200}));
+    REQUIRE(transposed.data.size() == 2U);
+    CHECK(collect(transposed.data[0]) == (std::vector<int>{1, 10, 100}));
+    CHECK(collect(transposed.data[1]) == (std::vector<int>{2, 20, 200}));
     // d4f9b1e3-8c2a-4d7f-b6e1-3a5c9d2b7f48 end
     // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a end
 }
 
 TEST_CASE("RangeTraversableTest - "
-          "SequenceConvertsRangeOfZiplistsToZiplistOfRangesLengthFive") {
+          "TransposeConvertsRangeOfZiplistsToZiplistOfRangesLengthFive") {
     using Zip = smd::zip_list<int>;
     auto values = smd::ranges::from_vector(
         std::vector<Zip>{Zip{{1, 2, 3, 4, 5}}, Zip{{10, 20, 30, 40, 50}},
                          Zip{{100, 200, 300, 400, 500}}});
 
     const auto &traversable = smd::traversable_typeclass<decltype(values)>;
-    auto sequenced = traversable.sequence(values);
+    auto transposed = traversable.transpose(values);
 
-    REQUIRE(sequenced.data.size() == 5U);
-    CHECK(collect(sequenced.data[0]) == (std::vector<int>{1, 10, 100}));
-    CHECK(collect(sequenced.data[1]) == (std::vector<int>{2, 20, 200}));
-    CHECK(collect(sequenced.data[2]) == (std::vector<int>{3, 30, 300}));
-    CHECK(collect(sequenced.data[3]) == (std::vector<int>{4, 40, 400}));
-    CHECK(collect(sequenced.data[4]) == (std::vector<int>{5, 50, 500}));
+    REQUIRE(transposed.data.size() == 5U);
+    CHECK(collect(transposed.data[0]) == (std::vector<int>{1, 10, 100}));
+    CHECK(collect(transposed.data[1]) == (std::vector<int>{2, 20, 200}));
+    CHECK(collect(transposed.data[2]) == (std::vector<int>{3, 30, 300}));
+    CHECK(collect(transposed.data[3]) == (std::vector<int>{4, 40, 400}));
+    CHECK(collect(transposed.data[4]) == (std::vector<int>{5, 50, 500}));
 }
 
 TEST_CASE("RangeTraversableTest - ConvertZiplistOfVectorsToVectorOfZiplists") {

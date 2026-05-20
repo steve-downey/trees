@@ -581,7 +581,7 @@ The typeclass object operates one level up: it describes the algebraic structure
 * What Each Could Learn
 
 ~box_traits~ could benefit from derived operations.
-Given ~transform~ (which is ~fmap~) and ~and_then~ (which is ~bind~), many operations follow mechanically: ~flatten~ is ~and_then(id)~, ~sequence~ is ~traverse(id)~, ~ap~ is derivable from ~bind~ + ~pure~.
+Given ~transform~ (which is ~fmap~) and ~and_then~ (which is ~bind~), many operations follow mechanically: ~flatten~ is ~and_then(id)~, ~transpose~ is ~traverse(id)~, ~ap~ is derivable from ~bind~ + ~pure~.
 The paper already shows ~flatten~ and ~value_or~ as user-defined extensions.
 A CRTP base could make these automatic.
 

@@ -497,7 +497,7 @@ The implementer surface is deliberately small:
 | Functor     | ~fmap~                 | ~replace~                                                |
 | Foldable    | ~fold_map~ (or ~fold_right~) | ~length~, ~to_vector~, ~fold_left~, ~fold_right~, ~any_of~, ~all_of~, ~empty~, ~find_first~, ~combine_all~, ~fold~ |
 | Applicative | ~pure~ + ~apply~       | ~invoke~, ~map~, ~lift~, ~ap~, ~zip_with~, ~discard_first~, ~discard_second~ |
-| Traversable | ~traverse~             | ~sequence~, ~for_each~, ~traverse_with~, ~sequence_with~ |
+| Traversable | ~traverse~             | ~transpose~, ~for_each~, ~traverse_with~, ~transpose_with~ |
 
 Write one or two functions.
 Get a full API.

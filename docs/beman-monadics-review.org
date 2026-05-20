@@ -289,7 +289,7 @@ The second is not.
 
 ** Sequencing requires Applicative structure
 
-Commuting ~vector<optional<int>>~ into ~optional<vector<int>>~ is the ~sequence~ operation from Traversable.
+Commuting ~vector<optional<int>>~ into ~optional<vector<int>>~ is the ~transpose~ operation from Traversable.
 It requires that the inner type (~optional~) be an Applicative functor, not just a box.
 
 An Applicative provides ~pure~ (which ~make~ gives) and ~apply~ (which ~box_traits~ does not give).
@@ -326,7 +326,7 @@ Haskell solves this with explicit transformer stacks (~MaybeT (ListT Identity)~)
 Rust does not solve it generically — you write ~filter_map~ or ~collect::<Result<Vec<_>, _>>()~ by hand.
 C++ Ranges solve a special case: ~views::join~ flattens ~range<range<T>>~ into ~range<T>~ because the list monad's ~join~ is concatenation.
 
-For ~range<optional<T>> \to optional<range<T>>~, you need ~traverse~ / ~sequence~, which requires:
+For ~range<optional<T>> \to optional<range<T>>~, you need ~traverse~ / ~transpose~, which requires:
 1. A Traversable instance for the range (how to rebuild the range shape)
 2. An Applicative instance for the optional (how to combine effects)
 
