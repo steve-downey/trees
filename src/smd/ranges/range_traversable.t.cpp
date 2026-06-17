@@ -122,8 +122,8 @@ TEST_CASE("RangeTraversableTest - TraversableIsNotDefinedForInputOnlyRanges") {
                        const std::false_type>);
 }
 
-TEST_CASE(
-    "RangeTraversableTest - TransposeConvertsRangeOfZiplistsToZiplistOfRanges") {
+TEST_CASE("RangeTraversableTest - "
+          "TransposeConvertsRangeOfZiplistsToZiplistOfRanges") {
     // 0e9a7d13-9082-4b9e-b93f-86ef0e0ba20a
     using Zip = smd::zip_list<int>;
     auto values = smd::ranges::from_vector(std::vector<Zip>{

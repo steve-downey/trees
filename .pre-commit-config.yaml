@@ -3,6 +3,7 @@
 exclude: >
   (?x)^(
     (?:trees/)?vendor/.* |
+    (?:trees/)?\.venv/.* |
     (?:trees/)?docs/.* |
     (?:trees/)?reveal.js/.* |
     (?:trees/)?infra/.* |
