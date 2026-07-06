@@ -1,0 +1,176 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+TITLE: Transposing Structure and Context
+#+AUTHOR: Steve Downey
+#+EMAIL: sdowney@gmail.com
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+SUBTITLE: One operation hiding inside a loop you have written a dozen times
+#+DATE: {{{modification-time(%Y-%m-%d, VC)}}}
+#+STARTUP: showall
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:nil html-preamble:t
+#+OPTIONS: html-scripts:n html-style:nil html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+BIBLIOGRAPHY: ./references.bib
+
+#+begin_abstract
+You have a ~vector<optional<T>>~ and you want an ~optional<vector<T>>~.
+You have written the loop. So has everyone.
+It is the same loop for futures, for parsed results, for lanewise computation --- and it does not have to be a loop at all.
+This is part one of three: the problem, and the single front door that solves it. Parts two and three are the mechanism that makes the front door work --- one from the side of a type that wants in, one from the side of an algorithm that wants to use it.
+#+end_abstract
+
+{{{TEASER_END}}}
+
+* A loop you have written before
+
+Here is a ~std::vector<std::optional<int>>~.
+You want a ~std::optional<std::vector<int>>~: all of the values if every element is present, and nothing if any element is missing.
+
+The data is trivial.
+The intent is obvious.
+There is no standard operation for it, so you write the loop:
+
+#+begin_src cpp
+std::optional<std::vector<int>>
+collect(const std::vector<std::optional<int>>& in) {
+    std::vector<int> out;
+    out.reserve(in.size());
+    for (const auto& o : in) {
+        if (!o) return std::nullopt;   // early exit
+        out.push_back(*o);             // accumulate
+    }
+    return out;
+}
+#+end_src
+
+It is six lines and four decisions: reserve, the early exit, the dereference, the accumulate.
+None of them is interesting and all of them are easy to get subtly wrong.
+
+Worse, it does not travel.
+The day the element stops being ~optional~ --- it becomes an ~expected~, a future, a parser result --- you write the loop again.
+The /shape/ of the problem never changed, but the code did, because the loop hard-codes one context into its control flow.
+
+* Name the operation: transpose
+
+Step back and the shape is this:
+
+#+begin_src text
+structure<context<T>>   ->   context<structure<T>>
+#+end_src
+
+A structure whose elements each sit inside some context, turned into one context wrapping the whole structure.
+The two axes --- /structure/ and /context/ --- swap places.
+Nothing else moves.
+
+That is a *transpose*, in the same sense as transposing a matrix.
+A ~vector~ of three ~optional~ s becomes one ~optional~ of a three-element ~vector~.
+Order preserved, count preserved, only the nesting inverted.
+
+Once you have the name, you start seeing it everywhere.
+
+* One front door, several contexts
+
+[[https://github.com/bemanproject/transpose][=beman.transpose=]] provides exactly one verb for this: ~transpose~.
+The fallible case is the loop above, gone:
+
+#+begin_src cpp
+#include <beman/transpose/transpose.hpp>
+namespace bt = beman::transpose;
+
+std::vector<std::optional<int>> in{ {1}, {2}, {3} };
+auto out = bt::transpose(in);     // out : std::optional<std::vector<int>>
+#+end_src
+
+Now change the context, not the verb.
+
+A *lanewise* (SIMD-flavored) computation: each element is a ~zip_list~, a value indexed by lane.
+A vector of lanewise values transposes into one lanewise value over the vector, truncated to the common width:
+
+#+begin_src cpp
+std::vector<bt::zip_list<int>> lanes{ {{1, 2}}, {{10, 20}}, {{100, 200}} };
+auto out = bt::transpose(lanes);  // out : zip_list<vector<int>> --- 2 lanes of 3
+#+end_src
+
+Same verb.
+No per-domain loop, no per-domain overload at the call site.
+The hand-written version of /that/ one is a double loop with a min-width calculation and a transpose-the-ragged-matrix nested index --- the kind of code that is correct exactly once.
+
+And ~zip_list~ is a stand-in for the real thing.
+Since GCC 16 you can run the identical lanewise composition on actual hardware SIMD registers, through the same applicative surface:
+
+#+begin_src cpp
+#include <simd>
+namespace dp = std::simd;
+
+dp::vec<float> xs = ...;        // a register of lanes
+dp::vec<float> ys = 10.0f;      // broadcast to every lane
+const auto& lanewise = bt::applicative_typeclass<dp::vec<float>>;
+auto hyp = lanewise.zip_with(
+    [](float x, float y){ return std::hypot(x, y); }, xs, ys);  // lane by lane
+#+end_src
+
+There is one honest caveat, and it is the revealing one.
+~std::simd::vec~ holds only scalars, so ~vec<vector<T>>~ is not a type, and ~transpose~ of a vector of registers is not even something you can spell.
+The ~transpose~ verb stays with ~zip_list~ (which /can/ hold a vector); ~std::simd~ carries the same /independence/ on real lanes through ~zip_with~ and ~map~.
+The lanewise story is therefore both faithfully modeled and real --- and the exact point where the real type stops typechecking is the exact point where the abstraction earns its keep.
+
+The third context is the interesting one for modern C++: a *deferred* computation, a ~std::execution~ sender.
+A vector of senders transposes into one sender of a vector --- "run these and gather the results" --- with nothing executed until the composed sender is run:
+
+#+begin_src cpp
+#include <beman/transpose/exec.hpp>   // sender-aware transpose, on beman.execution
+namespace ex = beman::execution;
+
+std::vector<S> senders = ...;                    // S is a real std::execution sender of T
+auto out = bt::transpose(senders);               // out : a sender of std::vector<T>
+auto [values] = ex::sync_wait(std::move(out)).value();   // now it runs
+#+end_src
+
+This one is real, on [[https://github.com/bemanproject/execution][=beman.execution=]] (a P2300 ~std::execution~ implementation) --- not a stand-in.
+And here is the part I like.
+You might expect to need a type-erased ~task<>~ to name "a sender of a vector," since composing senders changes their type at every step.
+You don't.
+A ~std::vector~ is /homogeneous/: every element is the same concrete sender type ~S~, so the result is a single concrete sender type, and the transpose gathers the children with no ~task<>~ and no ~std::function~ anywhere.
+The type system already had the common type; the abstraction just had to stop reaching for erasure it didn't need.
+
+* Why this is not ~transform~, ~ranges~, or ~zip~
+
+The obvious objection: isn't this just ~views::transform~ and a fold, or ~zip~, by another name?
+
+No, and the reason is the whole point.
+
+The per-element computations here are *independent*.
+Gathering a vector of senders does not feed one sender's result into the next.
+The lanewise example composes position by position with no cross-position dependence.
+Collecting ~optional~ s reports overall success or failure without one element's value steering another's computation.
+
+That independence is what separates this from ~and_then~ / ~flat_map~ style chaining, where each step depends on the value the previous step produced.
+The standard library already serves /sequential dependence/ well: monadic ~optional~, sender adaptors, coroutines.
+What it has no uniform spelling for is /independent/ composition over a structure.
+
+The independence is not a limitation to apologize for.
+It is the property that lets ~transpose~ be specified once --- shape preserved, effects combined left to right --- and then work without modification for fallible, deferred, and lanewise contexts.
+A design built on chaining cannot make that promise, because chaining bakes in an evaluation-order dependence that these contexts neither need nor want.
+
+* The question this leaves open
+
+So one verb collapses three hand-written loops, across three contexts that have nothing to do with each other, with one specification.
+
+Which should make you suspicious.
+What actually holds those three contexts together?
+~optional~, a sender, and a lanewise list share no base class, no member named ~transpose~, no common header.
+~std::optional~ lives in ~std~ and cannot be reopened.
+Yet each one plugs into the same front door, statically, with no virtual calls and no central registry.
+
+The thing that makes that work is a small, old idea --- a variable template used as a concept map --- dressed up with C++23.
+It has two sides, and each gets a post.
+Part two, [[file:adapting-a-type-to-a-typeclass.org][Adapting a Type to a Typeclass]], takes the side of a type that wants in: what it costs to make ~optional~, or a sender, or your own type answer to the same front door (about three lines, and you never reopen a class you don't own).
+Part three, [[file:writing-algorithms-with-typeclass-objects.org][Writing Algorithms with Typeclass Objects]], takes the side of the algorithm author: how one algorithm runs over every one of those types at once, and why this bundled mechanism beats the customization tools C++ already has --- the argument for why it belongs in the standard.
+
+#+print_bibliography:

@@ -36,6 +36,10 @@ No virtual calls, no ADL, no central registry.
 
 {{{TEASER_END}}}
 
+/This is part two of a short series./
+/Part one,/ [[file:transposing-structure-and-context.org][Transposing Structure and Context]], /poses the problem: one ~transpose~ verb that flips ~structure<context<T>>~ into ~context<structure<T>>~ across three unrelated contexts --- ~optional~, ~std::execution~ senders, and lanewise SIMD --- and ends on the question of what lets all three plug into the same front door without a shared base class or a central registry./
+/This is that mechanism, and the verbs in it (~pure~, ~apply~, ~invoke~, ~traverse~) are the ones the/ [[https://github.com/bemanproject/transpose][=beman.transpose=]] /reference implementation and the P3200 proposal are built on./
+
 * You Already Know This Pattern
 
 You use ~std::numeric_limits<T>~ all the time.
@@ -362,6 +366,63 @@ CHECK(fold_map_foldable.to_vector(seq) == fold_right_foldable.to_vector(seq));
 
 The ~using~ declaration is the mechanism.
 It is not decorative boilerplate.
+
+** Applicative: ~apply~ or ~invoke~, and why ~std::simd~ forces the issue
+
+Foldable's alternate cores are a tidy demonstration.
+Applicative is where alternate cores stop being tidy and start being necessary.
+
+An applicative's classic primitive is ~apply~: a function /already in the context/ applied to an argument /in the context/.
+
+#+begin_src cpp
+// apply : C<(T -> U)>, C<T> -> C<U>
+#+end_src
+
+That works for ~optional~, for senders, for a zip-style list --- anything that can hold a callable.
+The derived ~invoke~ (apply a /plain/ function to in-context arguments), ~map~, and ~zip_with~ all fall out of ~pure~ + ~apply~.
+
+Now try to write the applicative for [[https://en.cppreference.com/w/cpp/numeric/simd][=std::simd::vec=]], available for real in GCC 16.
+You cannot.
+~std::simd::vec<T>~ holds only vectorizable scalars, so ~vec<callable>~ is ill-formed, so ~apply~ /cannot be spelled at all/ for SIMD.
+But the operation you actually want --- apply a scalar function across every lane --- is completely well defined.
+That operation is ~invoke~:
+
+#+begin_src cpp
+// invoke : (T... -> U), C<T>... -> C<U>     (no C<callable> ever formed)
+template <class T>
+struct SimdApplicativeImpl {
+    template <class VALUE>
+    auto pure(this auto&&, VALUE&& value) {            // broadcast to all lanes
+        using U = remove_cvref_t<VALUE>;
+        return std::simd::vec<U>(U(std::forward<VALUE>(value)));
+    }
+
+    template <class FUNCTION, class FIRST, class... REST>
+    auto invoke(this auto&&, FUNCTION&& f,
+                const FIRST& first, const REST&... rest) {
+        using R = remove_cvref_t<std::invoke_result_t<
+            FUNCTION&, decltype(first[0]), decltype(rest[0])...>>;
+        return std::simd::vec<R>([&](auto lane) -> R {
+            return std::invoke(f, first[lane], rest[lane]...);  // lane by lane
+        });
+    }
+};
+
+template <class T>
+struct SimdApplicativeMap : Applicative<SimdApplicativeImpl<T>> {
+    using SimdApplicativeImpl<T>::pure;   // invoke is the primitive; no apply
+};
+#+end_src
+
+So Applicative has two minimal cores: ~pure~ + ~apply~, or ~pure~ + ~invoke~.
+The base derives ~invoke~ from ~apply~ when ~apply~ is what you have, and uses ~invoke~ directly when that is all you /can/ have.
+~map~ and ~zip_with~ are derived from ~invoke~ either way, so the front door (~zip_with~, and ~traverse~ above it) is identical whether the context is ~optional~ or a hardware SIMD register.
+
+This is the part that a one-CPO-per-operation design cannot reach.
+If ~apply~ were a single global customization point, ~std::simd~ would simply fail to be an applicative --- the one primitive it cannot express would be the one the framework demands.
+Because the operations are /bundled/ and the Map's ~using~ declaration chooses the core, a context contributes whichever primitive it can actually write, and inherits the rest.
+That is not a convenience.
+For SIMD it is the difference between participating and not.
 
 * Algorithm Objects: Inheriting from the Typeclass
 

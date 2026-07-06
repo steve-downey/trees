@@ -1,0 +1,261 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:nil arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+options: html5-fancy:t
+#+TITLE: Adapting a Type to a Typeclass
+#+AUTHOR: Steve Downey
+#+EMAIL: sdowney@gmail.com
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+SUBTITLE: Three lines to opt in, and you never reopen anyone's class
+#+DATE: {{{modification-time(%Y-%m-%d, VC)}}}
+#+STARTUP: showall
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:nil html-preamble:t
+#+OPTIONS: html-scripts:n html-style:nil html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+BIBLIOGRAPHY: ./references.bib
+
+#+begin_abstract
+Part one ended on a puzzle: ~optional~, a ~std::execution~ sender, and a lanewise SIMD value share no base class, no common header, no member named ~transpose~ --- yet each plugs into the same front door.
+This is how, from the side that matters most to you if you own a type: what does it cost to make /your/ type join in?
+The answer is about three lines, and you never reopen a class you don't own.
+This is part two of three.
+#+end_abstract
+
+{{{TEASER_END}}}
+
+/This is part two of a short series./
+/Part one,/ [[file:transposing-structure-and-context.org][Transposing Structure and Context]], /named the problem: one ~transpose~ verb that flips ~structure<context<T>>~ into ~context<structure<T>>~, and asked what lets three unrelated contexts plug into one front door with no shared base class and no registry./
+/This post answers that from the/ type adapter's /chair. Part three,/ [[file:writing-algorithms-with-typeclass-objects.org][Writing Algorithms with Typeclass Objects]], /answers it from the/ algorithm author's.
+
+* You already know this pattern
+
+You use ~std::numeric_limits<T>~ all the time.
+
+#+begin_src cpp
+auto max_int = std::numeric_limits<int>::max();       // 2147483647
+auto is_signed = std::numeric_limits<int>::is_signed; // true
+#+end_src
+
+It is a struct, specialized per type, providing named operations and values.
+If you wanted to teach it about a new numeric type, you would specialize the template.
+That is the whole idea.
+
+The version this series is built on generalizes ~numeric_limits~ in three small ways: the operations are functions rather than only constants, a batch of derived operations comes for free via CRTP, and lookup goes through a /variable template/ rather than a class template.
+That last change is what lets ~optional~, a sender, and a SIMD register --- three types with nothing in common --- all answer to the same name.
+
+Here is that name for Foldable.
+
+From [[orgit-file:src/smd/typeclass/foldable.hpp][=src/smd/typeclass/foldable.hpp=]]:
+
+#+begin_src cpp
+template <class T>
+inline constexpr auto foldable_typeclass = std::false_type{};
+#+end_src
+
+The default is ~std::false_type~: no instance.
+A type is Foldable exactly when someone has specialized this variable template for it.
+Nothing is Foldable until it opts in, and opting in is a specialization.
+
+* The opt-in is three lines
+
+Here is a type opting in.
+
+From [[orgit-file:src/smd/tree/fixpoint_tree_foldable.hpp][=src/smd/tree/fixpoint_tree_foldable.hpp=]]:
+
+#+begin_src cpp
+template <>
+inline constexpr auto foldable_typeclass<Fix<ExprF>> =
+    FixpointTreeFoldableMap{};
+#+end_src
+
+Three lines, and look at what is /not/ here.
+
+No base class was added to ~Fix<ExprF>~.
+No macro was expanded inside it.
+No ~friend~ declaration, no member function, no member typedef.
+The data type was not touched at all.
+The specialization lives in its own header, next to the type it adapts --- or next to the algorithm that needs it, or in a third file you own --- and it names the type from the outside.
+
+That "from the outside" is the part that matters when the type is not yours.
+~std::optional~ lives in ~std~, and you may not reopen ~std~.
+You do not need to.
+The variable template lives in your namespace; the type it adapts lives in ~std~; the specialization reaches across the boundary and says "this type is Foldable, and here is how."
+
+#+begin_src cpp
+template <class VALUE_TYPE>
+inline constexpr auto functor_typeclass<std::optional<VALUE_TYPE>> =
+    OptionalFunctorMap<VALUE_TYPE>{};
+#+end_src
+
+There is no monkey-patching here and no central registry that every adapter must edit.
+Two types adapted by two different people in two different headers never collide, because a variable-template specialization is just a definition keyed on a type.
+
+* You write a little; you get a lot
+
+The opt-in points the variable template at a /Map/ object, and the Map is where the small amount of real work goes.
+The trick is that "the real work" is genuinely small: you write the one or two operations that are irreducible for your type, and a CRTP base derives the rest.
+
+Take the smallest typeclass, Functor.
+Its primitive is ~fmap~; its derived operation is ~replace~.
+
+**Layer 1 --- the primitive.**
+You write ~fmap~ for your type.
+Here it is for ~std::optional~:
+
+From [[orgit-file:src/smd/typeclass/functor.hpp][=src/smd/typeclass/functor.hpp=]]:
+
+#+begin_src cpp
+template <class VALUE_TYPE>
+struct OptionalFunctorImpl {
+    template <class F>
+    auto fmap(this auto&&, F&& function,
+              const std::optional<VALUE_TYPE>& value) {
+        using Result = std::invoke_result_t<F, const VALUE_TYPE&>;
+        if (!value) {
+            return std::optional<remove_cvref_t<Result>>{};
+        }
+        return std::optional<remove_cvref_t<Result>>{
+            std::invoke(std::forward<F>(function), *value)};
+    }
+};
+#+end_src
+
+(The ~this auto&&~ is C++23 deducing ~this~; it carries value category and constness through without a hand-written overload set.)
+
+**Layer 2 --- the derived surface, for free.**
+The CRTP base ~Functor<Impl>~ inherits your ~Impl~ and adds ~replace~, defined in terms of your ~fmap~:
+
+#+begin_src cpp
+template <class Impl>
+struct Functor : protected Impl {
+    using Impl::fmap;
+
+    template <class T, class U>
+    auto replace(this auto&& self, T&& value, U&& replacement) {
+        return self.fmap([replacement = std::forward<U>(replacement)](
+                             const auto&) { return replacement; },
+                         std::forward<T>(value));
+    }
+};
+#+end_src
+
+You wrote one function; the user got two.
+
+**Layer 3 --- the Map, which wires it together and names the primitive:**
+
+#+begin_src cpp
+template <class VALUE_TYPE>
+struct OptionalFunctorMap : Functor<OptionalFunctorImpl<VALUE_TYPE>> {
+    using OptionalFunctorImpl<VALUE_TYPE>::fmap;
+};
+#+end_src
+
+For Functor the one-to-two ratio is modest.
+It gets dramatic quickly.
+For Foldable, a single ~fold_map~ hands you ~length~, ~to_vector~, ~fold_left~, ~fold_right~, ~any_of~, ~all_of~, ~empty~, ~find_first~, ~combine_all~, and ~fold~ --- ten operations from one.
+
+Here is the whole implementer surface, across the four typeclasses this design uses:
+
+| Typeclass   | Primitive(s)                 | Derived operations                                                                                                |
+|-------------+------------------------------+-------------------------------------------------------------------------------------------------------------------|
+| Functor     | ~fmap~                       | ~replace~                                                                                                          |
+| Foldable    | ~fold_map~ (or ~fold_right~) | ~length~, ~to_vector~, ~fold_left~, ~fold_right~, ~any_of~, ~all_of~, ~empty~, ~find_first~, ~combine_all~, ~fold~ |
+| Applicative | ~pure~ + ~apply~ (or ~invoke~) | ~invoke~, ~map~, ~lift~, ~ap~, ~zip_with~, ~discard_first~, ~discard_second~                                       |
+| Traversable | ~traverse~                   | ~transpose~, ~for_each~, ~traverse_with~, ~transpose_with~                                                         |
+
+Write one or two functions.
+Get a full API.
+That is the trade, and it is the whole reason adapting a type is cheap enough to actually do.
+
+* You write the primitive you /can/ write
+
+Read the Foldable row again: ~fold_map~ *or* ~fold_right~.
+That parenthetical is not a footnote.
+It is the property that decides whether some types can join at all.
+
+Haskell has had this for decades --- a class can declare more than one valid minimal core:
+
+#+begin_src haskell
+class Foldable t where
+  foldMap :: Monoid m => (a -> m) -> t a -> m
+  foldr :: (a -> b -> b) -> b -> t a -> b
+  {-# MINIMAL foldMap | foldr #-}
+#+end_src
+
+Either primitive suffices; the base derives the other.
+A type contributes whichever one is natural for it.
+This design does the same, and the Map's ~using~ declaration is the switch: it names which operation you are supplying as primitive, and the CRTP base fills in the rest --- including deriving your missing "primitive" from the one you did provide.
+
+For Foldable that is a nicety.
+For Applicative it is the difference between a type participating and being locked out, and the clean example is ~std::simd~.
+
+An applicative's textbook primitive is ~apply~: a function /already inside the context/ applied to an argument /inside the context/.
+
+#+begin_src cpp
+// apply : C<(T -> U)>, C<T> -> C<U>
+#+end_src
+
+That is fine for ~optional~, for senders, for a zip-style list --- anything that can hold a callable.
+Now try to write ~apply~ for [[https://en.cppreference.com/w/cpp/numeric/simd][=std::simd::vec=]], real in GCC 16.
+You cannot.
+A ~std::simd::vec<T>~ holds only vectorizable scalars, so ~vec<callable>~ is not even a type, so ~apply~ /cannot be spelled at all/ for SIMD.
+
+But the thing you actually want --- run a scalar function across every lane --- is perfectly well defined.
+That operation is ~invoke~: a plain function applied to in-context arguments, with no ~C<callable>~ ever formed.
+
+#+begin_src cpp
+// invoke : (T... -> U), C<T>... -> C<U>     (no C<callable> ever formed)
+template <class T>
+struct SimdApplicativeImpl {
+    template <class VALUE>
+    auto pure(this auto&&, VALUE&& value) {            // broadcast to all lanes
+        using U = remove_cvref_t<VALUE>;
+        return std::simd::vec<U>(U(std::forward<VALUE>(value)));
+    }
+
+    template <class FUNCTION, class FIRST, class... REST>
+    auto invoke(this auto&&, FUNCTION&& f,
+                const FIRST& first, const REST&... rest) {
+        using R = remove_cvref_t<std::invoke_result_t<
+            FUNCTION&, decltype(first[0]), decltype(rest[0])...>>;
+        return std::simd::vec<R>([&](auto lane) -> R {
+            return std::invoke(f, first[lane], rest[lane]...);  // lane by lane
+        });
+    }
+};
+
+template <class T>
+struct SimdApplicativeMap : Applicative<SimdApplicativeImpl<T>> {
+    using SimdApplicativeImpl<T>::pure;   // invoke is the primitive; no apply
+};
+#+end_src
+
+So Applicative has two minimal cores --- ~pure~ + ~apply~ or ~pure~ + ~invoke~ --- and ~std::simd~ can supply exactly one of them.
+The Map's ~using~ declaration says which, and everything above it (~map~, ~zip_with~, and the ~traverse~ / ~transpose~ from part one) is derived the same way regardless of which core you gave.
+
+Sit with what that buys the adapter.
+If ~apply~ were a single, global customization point --- one CPO everyone must satisfy --- then ~std::simd~ would simply /fail to be an applicative/, blocked by the one primitive it is physically unable to express.
+Because the operations are bundled and the Map chooses the core, your type contributes the primitive it can actually write and inherits the rest.
+That is not a convenience feature.
+For SIMD it is the line between joining and being excluded, and it is a direct argument for why this belongs in a standard vocabulary rather than in a pile of independent one-operation hooks: the standard's job is to let types /in/, and the types that most need letting in are exactly the ones that can only spell one of the two cores.
+
+* What it cost you, and what you got
+
+Tally the adapter's bill.
+You wrote one primitive operation --- or two, for Applicative --- in a small ~Impl~ struct.
+You wrote a Map that names which primitive that was.
+You wrote a three-line variable-template specialization to register it.
+You did not derive from anything, reopen anything, edit a registry, or coordinate with any other adapter.
+You did not touch the data type, which may not even be yours to touch.
+
+In return your type gained the full derived surface in the table above, and --- this is the part that pays off in part three --- it now flows through every generic algorithm written against these typeclasses, unchanged, with static dispatch and no virtual calls.
+The optional you just adapted, the tree someone else adapted, the SIMD register the standard library adapted: the same algorithm runs over all of them.
+
+That is the other half of the story, and the reason the cheap opt-in is worth anything at all.
+Part three, [[file:writing-algorithms-with-typeclass-objects.org][Writing Algorithms with Typeclass Objects]], takes the algorithm author's chair: how you /consume/ these machines, why the names compose, and why traits, CPOs, and concepts-alone cannot hold an applicative family together the way a bundled typeclass object can.
+
+#+print_bibliography:
